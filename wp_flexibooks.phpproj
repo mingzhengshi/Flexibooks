@@ -523,6 +523,7 @@
     <Compile Include="wp-content\plugins\tinymce-advanced\tadv_admin.php" />
     <Compile Include="wp-content\plugins\tinymce-advanced\tinymce-advanced.php" />
     <Compile Include="wp-content\plugins\tinymce-advanced\uninstall.php" />
+    <Compile Include="wp-content\plugins\visualdiff\htmldiff.php" />
     <Compile Include="wp-content\plugins\visualdiff\visualdiff.php" />
     <Compile Include="wp-content\plugins\index.php" />
     <Compile Include="wp-content\themes\twentyfourteen\css\editor-style.css" />
