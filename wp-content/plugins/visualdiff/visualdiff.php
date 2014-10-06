@@ -11,6 +11,22 @@ add_action( 'admin_footer', 'visualdiff_admin_footer' );
 //add_action( 'post_submitbox_misc_actions', 'add_revision_diff_button' );
 
 add_action( 'add_meta_boxes', 'add_meta_box_revision' );
+add_action( 'admin_menu', 'add_revision_compare_page' );
+
+function add_revision_compare_page(){
+    //$path = ABSPATH;
+    $path = dirname(__FILE__);
+    
+    $func_content = "include_once('$path/revisionsdiff.php');";
+    $func = create_function('', $func_content );	
+    
+    // set $parent_slug=NULL or set to 'options.php' if you want to create a page that doesn't appear in any menu 
+    //add_submenu_page('none', 'Revisions test', 'Revisions test','visualdiff/revisioncompare.php');
+    add_submenu_page('none', 'Revisions test', 'Revisions test', 'read', 'fb-revisions', $func);
+}
+
+
+
 
 function add_content( $content ) {
     $x = 1;
@@ -44,10 +60,12 @@ function add_meta_box_revision() {
     }
 }
 
-function  meta_box_post_revision_callback() {
+function meta_box_post_revision_callback() {
+    $redirect = "admin.php?page=fb-revisions";
 ?>
     <div align="right">
-		<input id="button-compare-revisions" type="button" class="button" value="Compare Revisions" style="margin-top: 5px;">
+		<!--input id="button-compare-revisions" type="button" class="button" value="Compare Revisions" style="margin-top: 5px;" onclick="window.location=<?php echo "'" . $redirect . "'"; ?>;"-->
+        <input id="button-compare-revisions" type="button" class="button" value="Compare Revisions" style="margin-top: 5px;" onclick="window.location='admin.php?page=fb-revisions';">
     </div>
 <?php    
 }

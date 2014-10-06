@@ -15,9 +15,9 @@
         //-----------------------------------------------------------------------------------------------------------
 
         $('#button-compare-revisions').click(function () {
-            console.log("button-compare-revisions click event...");
+            console.log("button-compare-revisions click...");
 
-            return false;
+            //return false;
         });
 
 

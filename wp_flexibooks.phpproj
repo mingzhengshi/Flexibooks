@@ -523,9 +523,10 @@
     <Compile Include="wp-content\plugins\tinymce-advanced\tadv_admin.php" />
     <Compile Include="wp-content\plugins\tinymce-advanced\tinymce-advanced.php" />
     <Compile Include="wp-content\plugins\tinymce-advanced\uninstall.php" />
-    <Compile Include="wp-content\plugins\visualdiff\htmldiff.php" />
-    <Compile Include="wp-content\plugins\visualdiff\visualdiff.php" />
     <Compile Include="wp-content\plugins\index.php" />
+    <Compile Include="wp-content\plugins\visualdiff\htmldiff.php" />
+    <Compile Include="wp-content\plugins\visualdiff\revisionsdiff.php" />
+    <Compile Include="wp-content\plugins\visualdiff\visualdiff.php" />
     <Compile Include="wp-content\themes\twentyfourteen\css\editor-style.css" />
     <Compile Include="wp-content\themes\twentyfourteen\css\ie.css" />
     <Compile Include="wp-content\themes\twentyfourteen\genericons\font\genericons-regular-webfont.eot" />
@@ -1308,8 +1309,10 @@
     <Folder Include="wp-content\plugins\tinymce-advanced\mce\wptadv" />
     <Folder Include="wp-content\plugins\tinymce-advanced\mce" />
     <Folder Include="wp-content\plugins\tinymce-advanced" />
-    <Folder Include="wp-content\plugins\visualdiff" />
     <Folder Include="wp-content\plugins" />
+    <Folder Include="wp-content\plugins\visualdiff\" />
+    <Folder Include="wp-content\plugins\visualdiff\css\" />
+    <Folder Include="wp-content\plugins\visualdiff\js\" />
     <Folder Include="wp-content\themes\twentyfourteen\css" />
     <Folder Include="wp-content\themes\twentyfourteen\genericons\font" />
     <Folder Include="wp-content\themes\twentyfourteen\genericons" />
@@ -1411,5 +1414,8 @@
     <Folder Include="wp-includes\Text" />
     <Folder Include="wp-includes\theme-compat" />
     <Folder Include="wp-includes" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="wp-content\plugins\visualdiff\js\visualdiff.js" />
   </ItemGroup>
 </Project>
