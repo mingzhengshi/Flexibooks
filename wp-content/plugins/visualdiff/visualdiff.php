@@ -61,11 +61,11 @@ function add_meta_box_revision() {
 }
 
 function meta_box_post_revision_callback() {
-    $redirect = "admin.php?page=fb-revisions";
+    $post_id = get_the_ID();
+    $redirect = "admin.php?page=fb-revisions&amp;postid={$post_id}";
 ?>
     <div align="right">
-		<!--input id="button-compare-revisions" type="button" class="button" value="Compare Revisions" style="margin-top: 5px;" onclick="window.location=<?php echo "'" . $redirect . "'"; ?>;"-->
-        <input id="button-compare-revisions" type="button" class="button" value="Compare Revisions" style="margin-top: 5px;" onclick="window.location='admin.php?page=fb-revisions';">
+		<input id="button-compare-revisions" type="button" class="button" value="Compare Revisions" style="margin-top: 5px;" onclick="window.location=<?php echo "'" . $redirect . "'"; ?>;">
     </div>
 <?php    
 }
