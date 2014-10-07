@@ -1502,6 +1502,7 @@
     <Content Include="wp-content\plugins\revisionary\screenshot-6.jpg" />
     <Content Include="wp-content\plugins\revisionary\screenshot-7.jpg" />
     <Content Include="wp-content\plugins\revisionary\screenshot-8.jpg" />
+    <Content Include="wp-content\plugins\visualdiff\css\revisionsdiff.css" />
     <Content Include="wp-content\plugins\visualdiff\js\visualdiff.js" />
   </ItemGroup>
 </Project>
