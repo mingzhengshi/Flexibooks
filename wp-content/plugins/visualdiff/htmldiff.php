@@ -3,6 +3,8 @@
 	class HtmlDiff {
 
 		private $content;
+        private $content_for_old_text;
+        private $content_for_new_text;
 		private $oldText;
 		private $newText;
 		private $oldWords = array();
@@ -17,6 +19,8 @@
 			$this->newText = $this->purifyHtml( trim( $newText ) );
 			$this->encoding = $encoding;
 			$this->content = '';
+            $this->content_for_old_text = '';
+            $this->content_for_new_text = '';
 		}
 
 		public function getOldHtml() {
@@ -31,6 +35,14 @@
 			return $this->content;
 		}
 
+        public function getDifferenceInOldText() {
+			return $this->content_for_old_text;
+		}
+        
+        public function getDifferenceInNewText() {
+			return $this->content_for_new_text;
+		}
+        
 		private function getStringBetween( $str, $start, $end ) {
 			$expStr = explode( $start, $str, 2 );
 			if( count( $expStr ) > 1 ) {
@@ -59,9 +71,15 @@
 			$this->IndexNewWords();
 			$operations = $this->Operations();
 			foreach( $operations as $item ) {
-				$this->PerformOperation( $item );
+				$this->PerformOperation( $item, 'old_text_only' );
 			}
-			return $this->content;
+            $this->content_for_old_text = $this->content;
+            
+            $this->content = '';
+            foreach( $operations as $item ) {
+				$this->PerformOperation( $item, 'new_text_only' );
+			}
+            $this->content_for_new_text = $this->content;          
 		}
 
 		private function IndexNewWords() {
@@ -170,28 +188,36 @@
 			return preg_split( '//u', $value );
 		}
 
-		private function PerformOperation( $operation ) {
+		private function PerformOperation( $operation, $oldornew ) {
 			switch( $operation->Action ) {
 				case 'equal' :
 					$this->ProcessEqualOperation( $operation );
 					break;
 				case 'delete' :
-					$this->ProcessDeleteOperation( $operation, "diffdel" );
+                    if ($oldornew == 'old_text_only'){
+					    $this->ProcessDeleteOperation( $operation, "diffdel" );
+                    }
 					break;
 				case 'insert' :
-					$this->ProcessInsertOperation( $operation, "diffins");
+                    if ($oldornew == 'new_text_only'){
+					    $this->ProcessInsertOperation( $operation, "diffins");
+                    }
 					break;
 				case 'replace':
-					$this->ProcessReplaceOperation( $operation );
+					$this->ProcessReplaceOperation( $operation, $oldornew );
 					break;
 				default:
 					break;
 			}
 		}
 
-		private function ProcessReplaceOperation( $operation ) {
-			$this->ProcessDeleteOperation( $operation, "diffmod" );
-			$this->ProcessInsertOperation( $operation, "diffmod" );
+		private function ProcessReplaceOperation( $operation, $oldornew ) {
+            if ($oldornew == 'old_text_only'){
+			    $this->ProcessDeleteOperation( $operation, "diffmod" );
+            }
+            if ($oldornew == 'new_text_only'){
+			    $this->ProcessInsertOperation( $operation, "diffmod" );
+            }
 		}
 
 		private function ProcessInsertOperation( $operation, $cssClass ) {
