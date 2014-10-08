@@ -1,4 +1,5 @@
 <?php
+require_once( 'htmldiff.php' );
 
 global $wpdb;
 
@@ -22,18 +23,26 @@ if ($last_revision){
     $right_content = $last_revision[0]->post_content;
 }
 
+$diff = new HtmlDiff( $left_content, $right_content );
+$diff->buildSplitDiff();
+//$diff->build(); // test
+
+$left_content_with_diff = $diff->getDifferenceInOldText();
+$right_content_with_diff = $diff->getDifferenceInNewText();
+//$content_both_diff = $diff->getDifference(); // test
+
 ?>
 
 <table class="fb-editor-table">
   <tr>
     <td>
 <?php
-wp_editor( $left_content, 'content_left', array( 'media_buttons' => false  ) );      
+wp_editor( $left_content_with_diff, 'content_left', array( 'media_buttons' => false  ) );      
 ?>        
     </td>
     <td>
 <?php
-wp_editor( $right_content, 'content_right', array( 'media_buttons' => false  ) );      
+wp_editor( $right_content_with_diff, 'content_right', array( 'media_buttons' => false  ) );      
 ?>   
     </td>		
   </tr>

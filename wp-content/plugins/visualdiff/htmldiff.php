@@ -66,7 +66,7 @@
 			return $html;
 		}
 
-		public function build() {
+		public function buildSplitDiff() {
 			$this->SplitInputsToWords();
 			$this->IndexNewWords();
 			$operations = $this->Operations();
@@ -80,6 +80,16 @@
 				$this->PerformOperation( $item, 'new_text_only' );
 			}
             $this->content_for_new_text = $this->content;          
+		}
+        
+        public function build() {
+			$this->SplitInputsToWords();
+			$this->IndexNewWords();
+			$operations = $this->Operations();
+			foreach( $operations as $item ) {
+				$this->PerformOperation( $item, 'old_and_new' );
+			}
+			return $this->content;
 		}
 
 		private function IndexNewWords() {
@@ -194,12 +204,12 @@
 					$this->ProcessEqualOperation( $operation );
 					break;
 				case 'delete' :
-                    if ($oldornew == 'old_text_only'){
+                    if (($oldornew == 'old_text_only') || ($oldornew == 'old_and_new')){
 					    $this->ProcessDeleteOperation( $operation, "diffdel" );
                     }
 					break;
 				case 'insert' :
-                    if ($oldornew == 'new_text_only'){
+                    if (($oldornew == 'new_text_only') || ($oldornew == 'old_and_new')){
 					    $this->ProcessInsertOperation( $operation, "diffins");
                     }
 					break;
@@ -212,10 +222,10 @@
 		}
 
 		private function ProcessReplaceOperation( $operation, $oldornew ) {
-            if ($oldornew == 'old_text_only'){
+            if (($oldornew == 'old_text_only') || ($oldornew == 'old_and_new')){
 			    $this->ProcessDeleteOperation( $operation, "diffmod" );
             }
-            if ($oldornew == 'new_text_only'){
+            if (($oldornew == 'new_text_only') || ($oldornew == 'old_and_new')){
 			    $this->ProcessInsertOperation( $operation, "diffmod" );
             }
 		}
