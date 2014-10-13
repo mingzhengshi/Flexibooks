@@ -13,6 +13,7 @@ add_action( 'admin_footer', 'visualdiff_admin_footer' );
 add_action( 'add_meta_boxes', 'add_meta_box_revision' );
 add_action( 'admin_menu', 'add_revision_compare_page' );
 
+
 function add_revision_compare_page(){
     //$path = ABSPATH;
     $path = dirname(__FILE__);
@@ -70,4 +71,61 @@ function meta_box_post_revision_callback() {
 <?php    
 }
 
-?>  
+//-----------------------------------------------------------------------------------------------
+// change the style of wp editor
+//-----------------------------------------------------------------------------------------------
+
+// apply styles to the visual editor
+add_filter('mce_css', 'fb_mce_editor_style');
+
+function fb_mce_editor_style($url) {
+    if ( !empty($url) )
+        $url .= ',';
+    
+    $url .= trailingslashit( plugin_dir_url(__FILE__) ) . '/css/editor.css';
+    
+    return $url;
+}
+
+/*
+// add styles drop-down
+add_filter( 'mce_buttons_2', 'fb_mce_editor_buttons' );
+
+function fb_mce_editor_buttons( $buttons ) {
+    array_unshift( $buttons, 'styleselect' );
+    return $buttons;
+}
+
+// add styles/classes to the styles drop-down
+add_filter( 'tiny_mce_before_init', 'fb_mce_before_init' );
+
+function fb_mce_before_init( $settings ) {
+    $style_formats = array(
+        array(
+            'title' => 'Download Link',
+            'selector' => 'a',
+            'classes' => 'download'
+            ),
+        array(
+            'title' => 'Testimonial',
+            'selector' => 'p',
+            'classes' => 'testimonial',
+        )
+    );
+    
+    $settings['style_formats'] = json_encode( $style_formats );
+    
+    return $settings;   
+}
+
+// add custom stylesheet to the website front-end with hook 'wp_enqueue_scripts'
+add_action('wp_enqueue_scripts', 'fb_mce_editor_enqueue');
+
+function tuts_mcekit_editor_enqueue() {
+    $style_url = plugin_dir_url(__FILE__) . 'css/editor.css'; 
+    wp_enqueue_style( 'myCustomStyles', $style_url );
+}
+*/
+?>
+
+

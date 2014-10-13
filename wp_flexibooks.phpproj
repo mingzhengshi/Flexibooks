@@ -1359,6 +1359,7 @@
     <Folder Include="wp-content\plugins" />
     <Folder Include="wp-content\plugins\visualdiff\" />
     <Folder Include="wp-content\plugins\visualdiff\css\" />
+    <Folder Include="wp-content\plugins\visualdiff\image\" />
     <Folder Include="wp-content\plugins\visualdiff\js\" />
     <Folder Include="wp-content\themes\twentyfourteen\css" />
     <Folder Include="wp-content\themes\twentyfourteen\genericons\font" />
@@ -1502,7 +1503,15 @@
     <Content Include="wp-content\plugins\revisionary\screenshot-6.jpg" />
     <Content Include="wp-content\plugins\revisionary\screenshot-7.jpg" />
     <Content Include="wp-content\plugins\revisionary\screenshot-8.jpg" />
+    <Content Include="wp-content\plugins\visualdiff\css\editor.css" />
     <Content Include="wp-content\plugins\visualdiff\css\revisionsdiff.css" />
+    <Content Include="wp-content\plugins\visualdiff\image\activity.png" />
+    <Content Include="wp-content\plugins\visualdiff\image\beach.png" />
+    <Content Include="wp-content\plugins\visualdiff\image\controls.png" />
+    <Content Include="wp-content\plugins\visualdiff\image\controls2.png" />
+    <Content Include="wp-content\plugins\visualdiff\image\h2-bullet.png" />
+    <Content Include="wp-content\plugins\visualdiff\image\star.png" />
+    <Content Include="wp-content\plugins\visualdiff\image\ychart.png" />
     <Content Include="wp-content\plugins\visualdiff\js\visualdiff.js" />
   </ItemGroup>
 </Project>
