@@ -6,6 +6,11 @@ Description: Visual Display of Revision Differences
 ?>  
 
 <?php  
+
+
+//-----------------------------------------------------------------------------------------------
+// revisions
+
 add_filter( 'the_content', 'add_content' );
 add_action( 'admin_footer', 'visualdiff_admin_footer' );
 //add_action( 'post_submitbox_misc_actions', 'add_revision_diff_button' );
@@ -72,8 +77,97 @@ function meta_box_post_revision_callback() {
 }
 
 //-----------------------------------------------------------------------------------------------
-// change the style of wp editor
+// add custom post types
+
+add_action( 'init', 'fb_create_post_type' );
+
+function fb_create_post_type() {
+    $args = array(
+        'labels' => array(
+            'name' => 'Sources',
+            'singular_name' => 'Source',
+            'add_new' => 'Add New',
+            'add_new_item' => 'Add New Source Document',
+            //'edit' => __( 'Edit' ),
+            //'edit_item' => __( 'Edit Source Document' ),
+            //'new_item' => __( 'New Source Document' ),
+            //'view' => __( 'View Source Document' ),
+            //'view_item' => __( 'View Source Document' ),
+            //'search_items' => __( 'Search Source Document' ),
+            //'not_found' => __( 'No Source Document found' ),
+            //'not_found_in_trash' => __( 'No Events found in Trash' ),
+            //'parent' => __( 'Parent Source Document' ),
+        ),
+        //'label' => 'Sources',
+        //'singular_label' => 'Source',
+        //'menu_position' => 2,
+        'menu_icon' => 'dashicons-admin-page',
+        'public' => true,
+        'has_archive' => true,
+        'show_ui' => true,
+        'hierarchical' => false,
+        'rewrite' => true,
+        'supports' => array(
+            'title',
+            'editor',
+            'excerpt',
+            'trackbacks',
+            'custom-fields',
+            'comments',
+            'revisions',
+            'thumbnail',
+            'author',
+            'page-attributes',
+            'post-formats')
+    );
+    
+    register_post_type('source', $args);
+    
+    $args = array(
+            'labels' => array(
+                'name' => 'Derived',
+                'singular_name' => 'Derived',
+                'add_new' => 'Add New',
+                'add_new_item' => 'Add New Derived Document',
+                //'edit' => __( 'Edit' ),
+                //'edit_item' => __( 'Edit Source Document' ),
+                //'new_item' => __( 'New Source Document' ),
+                //'view' => __( 'View Source Document' ),
+                //'view_item' => __( 'View Source Document' ),
+                //'search_items' => __( 'Search Source Document' ),
+                //'not_found' => __( 'No Source Document found' ),
+                //'not_found_in_trash' => __( 'No Events found in Trash' ),
+                //'parent' => __( 'Parent Source Document' ),
+            ),
+            //'label' => 'Derived',
+            //'singular_label' => 'Derived',
+            //'menu_position' => 2,
+            'menu_icon' => 'dashicons-admin-page',
+            'public' => true,
+            'has_archive' => true,
+            'show_ui' => true,
+            'hierarchical' => false,
+            'rewrite' => true,
+            'supports' => array(
+                'title',
+                'editor',
+                'excerpt',
+                'trackbacks',
+                'custom-fields',
+                'comments',
+                'revisions',
+                'thumbnail',
+                'author',
+                'page-attributes',
+                'post-formats')
+    );
+    
+    register_post_type('derived', $args);
+
+}
+
 //-----------------------------------------------------------------------------------------------
+// change the style of wp editor - see http://codex.wordpress.org/TinyMCE_Custom_Styles
 
 // apply styles to the visual editor
 add_filter('mce_css', 'fb_mce_editor_style');
@@ -87,14 +181,39 @@ function fb_mce_editor_style($url) {
     return $url;
 }
 
-/*
-// add styles drop-down
+// add styles drop-down 
 add_filter( 'mce_buttons_2', 'fb_mce_editor_buttons' );
 
 function fb_mce_editor_buttons( $buttons ) {
     array_unshift( $buttons, 'styleselect' );
     return $buttons;
 }
+
+// attach callback to 'tiny_mce_before_init' 
+add_filter( 'tiny_mce_before_init', 'fb_mce_before_init_insert_formats' );  
+
+// callback function to filter the MCE settings
+function fb_mce_before_init_insert_formats( $init_array ) {  
+	// Define the style_formats array
+	$style_formats = array(  
+		// Each array child is a format with it's own settings
+		array(  
+			'title' => 'h2 activity',  
+			'block' => 'h2',  
+			'classes' => 'h2.activity',
+			'wrapper' => true,			
+		)
+	);  
+    
+	// Insert the array, JSON ENCODED, into 'style_formats'
+	$init_array['style_formats'] = json_encode( $style_formats );  
+	
+	return $init_array;  
+    
+} 
+
+/*
+
 
 // add styles/classes to the styles drop-down
 add_filter( 'tiny_mce_before_init', 'fb_mce_before_init' );
@@ -121,11 +240,12 @@ function fb_mce_before_init( $settings ) {
 // add custom stylesheet to the website front-end with hook 'wp_enqueue_scripts'
 add_action('wp_enqueue_scripts', 'fb_mce_editor_enqueue');
 
-function tuts_mcekit_editor_enqueue() {
-    $style_url = plugin_dir_url(__FILE__) . 'css/editor.css'; 
+function fb_mce_editor_enqueue() {
+    $style_url = trailingslashit( plugin_dir_url(__FILE__) ) . '/css/editor.css';
     wp_enqueue_style( 'myCustomStyles', $style_url );
 }
 */
+
 ?>
 
 
