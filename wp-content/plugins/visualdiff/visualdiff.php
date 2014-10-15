@@ -7,17 +7,65 @@ Description: Visual Display of Revision Differences
 
 <?php  
 
+//-----------------------------------------------------------------------------------------------
+// source and derive meta boxes
+
+add_action( 'add_meta_boxes', 'fb_add_meta_box_source_list' );
+
+function fb_add_meta_box_source_list() {
+    global $post;
+    if ($post) {        
+        if ($post->post_type == 'derived'){
+        add_meta_box('meta_box_source_list', 'Source Documents', 'fb_meta_box_source_list_callback', null, 'side', 'core' );
+        }
+    }
+}
+
+function fb_meta_box_source_list_callback() {
+?>
+    <ul>
+        <?php
+        global $post;
+        $args = array( 'post_type' => 'source' );
+        $source_posts = get_posts( $args );
+        foreach( $source_posts as $post ) : 
+            setup_postdata($post); 
+            ?>
+            <li>
+                <input type="checkbox" id="<?php $post->id ?>"/>
+                <label for="<?php $post->id ?>"><?php the_title();  ?></label>
+            </li>
+            <!--li><?php the_title();  ?></li-->
+        <?php endforeach; ?>
+    </ul>
+    <input type="button" value="Add Source Item" class="button-secondary" />
+<?php    
+}
+
+add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
+
+function fb_add_meta_box_derived_document() {
+    global $post;
+    if ($post) {        
+        if ($post->post_type == 'derived'){
+            add_meta_box('meta_box_derived_document', 'Derived Document', 'fb_meta_box_derived_document_callback', null, 'side', 'core' );
+        }
+    }
+}
+
+function fb_meta_box_derived_document_callback() {
+?>
+<ul id="ul-derived-sortables">
+</ul>
+
+<input type="button" value="Add New Item" class="button-secondary" />
+<?php    
+}
 
 //-----------------------------------------------------------------------------------------------
 // revisions
 
-add_filter( 'the_content', 'add_content' );
-add_action( 'admin_footer', 'visualdiff_admin_footer' );
-//add_action( 'post_submitbox_misc_actions', 'add_revision_diff_button' );
-
-add_action( 'add_meta_boxes', 'add_meta_box_revision' );
 add_action( 'admin_menu', 'add_revision_compare_page' );
-
 
 function add_revision_compare_page(){
     //$path = ABSPATH;
@@ -31,8 +79,8 @@ function add_revision_compare_page(){
     add_submenu_page('none', 'Revisions test', 'Revisions test', 'read', 'fb-revisions', $func);
 }
 
-
-
+/*
+add_filter( 'the_content', 'add_content' );
 
 function add_content( $content ) {
     $x = 1;
@@ -40,15 +88,24 @@ function add_content( $content ) {
     $z = $x + $y;
     return $content . '<p>Thanks for Reading! </p>' . $z;
 }
+*/
+
+add_action( 'admin_footer', 'visualdiff_admin_footer' );
 
 function visualdiff_admin_footer() {
     // Only load js on revision screen
     if (get_current_screen()->id == 'post') {
-	    wp_enqueue_script( 'visualdiff', plugins_url( 'js/visualdiff.js' , __FILE__ ), array( 'jquery' ));
+	    wp_enqueue_script('visualdiff', plugins_url( 'js/visualdiff.js' , __FILE__ ), array( 'jquery' ));
+    }    
+    $type = get_current_screen()->post_type;
+    if ($type == 'derived') {
+        wp_enqueue_script('derived', plugins_url( 'js/derived.js' , __FILE__ ), array( 'jquery' ));
     }
 }
 
 /*
+add_action( 'post_submitbox_misc_actions', 'add_revision_diff_button' );
+ * 
 function add_revision_diff_button()
 {
 ?>
@@ -58,6 +115,8 @@ function add_revision_diff_button()
 <?php
 }
 */
+
+add_action( 'add_meta_boxes', 'add_meta_box_revision' );
 
 function add_meta_box_revision() {
     global $post;
@@ -75,6 +134,7 @@ function meta_box_post_revision_callback() {
     </div>
 <?php    
 }
+
 
 //-----------------------------------------------------------------------------------------------
 // add custom post types
@@ -110,20 +170,21 @@ function fb_create_post_type() {
         'supports' => array(
             'title',
             'editor',
-            'excerpt',
-            'trackbacks',
-            'custom-fields',
-            'comments',
-            'revisions',
-            'thumbnail',
-            'author',
-            'page-attributes',
-            'post-formats')
+            //'excerpt',
+            //'trackbacks',
+            //'custom-fields',
+            //'comments',
+            //'revisions',
+            //'thumbnail',
+            //'author',
+            //'page-attributes',
+            //'post-formats'
+            )
     );
     
     register_post_type('source', $args);
     
-    $args = array(
+    $args2 = array(
             'labels' => array(
                 'name' => 'Derived',
                 'singular_name' => 'Derived',
@@ -151,18 +212,19 @@ function fb_create_post_type() {
             'supports' => array(
                 'title',
                 'editor',
-                'excerpt',
-                'trackbacks',
-                'custom-fields',
-                'comments',
-                'revisions',
-                'thumbnail',
-                'author',
-                'page-attributes',
-                'post-formats')
+                //'excerpt',
+                //'trackbacks',
+                //'custom-fields',
+                //'comments',
+                //'revisions',
+                //'thumbnail',
+                //'author',
+                //'page-attributes',
+                //'post-formats'
+                )
     );
     
-    register_post_type('derived', $args);
+    register_post_type('derived', $args2);
 
 }
 
@@ -181,6 +243,7 @@ function fb_mce_editor_style($url) {
     return $url;
 }
 
+/*
 // add styles drop-down 
 add_filter( 'mce_buttons_2', 'fb_mce_editor_buttons' );
 
@@ -211,10 +274,9 @@ function fb_mce_before_init_insert_formats( $init_array ) {
 	return $init_array;  
     
 } 
+*/
 
 /*
-
-
 // add styles/classes to the styles drop-down
 add_filter( 'tiny_mce_before_init', 'fb_mce_before_init' );
 

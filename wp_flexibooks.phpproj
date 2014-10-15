@@ -1663,6 +1663,7 @@
     <Content Include="wp-content\plugins\visualdiff\image\h2-bullet.png" />
     <Content Include="wp-content\plugins\visualdiff\image\star.png" />
     <Content Include="wp-content\plugins\visualdiff\image\ychart.png" />
+    <Content Include="wp-content\plugins\visualdiff\js\derived.js" />
     <Content Include="wp-content\plugins\visualdiff\js\visualdiff.js" />
   </ItemGroup>
 </Project>
