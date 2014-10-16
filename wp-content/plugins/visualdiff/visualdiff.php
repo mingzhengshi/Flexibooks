@@ -7,10 +7,40 @@ Description: Visual Display of Revision Differences
 
 <?php  
 
-//-----------------------------------------------------------------------------------------------
-// source and derive meta boxes
+
+add_action( 'admin_menu', 'add_revision_compare_page' );
+add_action( 'admin_head', 'fb_derived_admin_head' );
+add_action( 'admin_footer', 'fb_admin_footer' );
+add_action( 'init', 'fb_create_post_type' );
 
 add_action( 'add_meta_boxes', 'fb_add_meta_box_source_list' );
+add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
+add_action( 'add_meta_boxes', 'add_meta_box_revision' );
+
+add_filter('mce_css', 'fb_mce_editor_style');
+
+// add js
+add_action('admin_print_scripts', 'fb_admin_print_scripts');
+
+// for derived post type only
+function fb_derived_admin_head() {
+    $type = get_current_screen()->post_type;
+    if ($type == 'derived') {
+        $derived_js_url = plugins_url( 'js/derived.js' , __FILE__ );
+        $derived_css_url = plugins_url( 'css/derived.css' , __FILE__ );
+        
+        echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
+        echo '<link rel="stylesheet" type="text/css" href="' . $derived_css_url . '" />';
+    }    
+}
+
+function fb_admin_print_scripts() {
+    wp_enqueue_script('jquery');
+    wp_enqueue_script('jquery-ui-core');
+}
+
+//-----------------------------------------------------------------------------------------------
+// source and derive meta boxes
 
 function fb_add_meta_box_source_list() {
     global $post;
@@ -42,8 +72,6 @@ function fb_meta_box_source_list_callback() {
 <?php    
 }
 
-add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
-
 function fb_add_meta_box_derived_document() {
     global $post;
     if ($post) {        
@@ -55,17 +83,15 @@ function fb_add_meta_box_derived_document() {
 
 function fb_meta_box_derived_document_callback() {
 ?>
-<ul id="ul-derived-sortables">
-</ul>
+<div id="div-derived-sortables">
+</div>
 
-<input type="button" value="Add New Item" class="button-secondary" />
+<input id="button-add-new-derived-item" type="button" value="Add New Item" class="button-secondary" />
 <?php    
 }
 
 //-----------------------------------------------------------------------------------------------
 // revisions
-
-add_action( 'admin_menu', 'add_revision_compare_page' );
 
 function add_revision_compare_page(){
     //$path = ABSPATH;
@@ -90,17 +116,11 @@ function add_content( $content ) {
 }
 */
 
-add_action( 'admin_footer', 'visualdiff_admin_footer' );
-
-function visualdiff_admin_footer() {
+function fb_admin_footer() {
     // Only load js on revision screen
     if (get_current_screen()->id == 'post') {
 	    wp_enqueue_script('visualdiff', plugins_url( 'js/visualdiff.js' , __FILE__ ), array( 'jquery' ));
     }    
-    $type = get_current_screen()->post_type;
-    if ($type == 'derived') {
-        wp_enqueue_script('derived', plugins_url( 'js/derived.js' , __FILE__ ), array( 'jquery' ));
-    }
 }
 
 /*
@@ -115,8 +135,6 @@ function add_revision_diff_button()
 <?php
 }
 */
-
-add_action( 'add_meta_boxes', 'add_meta_box_revision' );
 
 function add_meta_box_revision() {
     global $post;
@@ -138,8 +156,6 @@ function meta_box_post_revision_callback() {
 
 //-----------------------------------------------------------------------------------------------
 // add custom post types
-
-add_action( 'init', 'fb_create_post_type' );
 
 function fb_create_post_type() {
     $args = array(
@@ -232,8 +248,6 @@ function fb_create_post_type() {
 // change the style of wp editor - see http://codex.wordpress.org/TinyMCE_Custom_Styles
 
 // apply styles to the visual editor
-add_filter('mce_css', 'fb_mce_editor_style');
-
 function fb_mce_editor_style($url) {
     if ( !empty($url) )
         $url .= ',';

@@ -442,6 +442,16 @@
     <Compile Include="wp-admin\user-new.php" />
     <Compile Include="wp-admin\users.php" />
     <Compile Include="wp-admin\widgets.php" />
+    <Compile Include="wp-content\plugins\advanced-custom-sort\acs.php" />
+    <Compile Include="wp-content\plugins\advanced-custom-sort\core\actions\admin_footer.php" />
+    <Compile Include="wp-content\plugins\advanced-custom-sort\core\actions\admin_head.php" />
+    <Compile Include="wp-content\plugins\advanced-custom-sort\core\actions\init.php" />
+    <Compile Include="wp-content\plugins\advanced-custom-sort\core\actions\input_save.php" />
+    <Compile Include="wp-content\plugins\advanced-custom-sort\core\actions\options_save.php" />
+    <Compile Include="wp-content\plugins\advanced-custom-sort\core\admin\input_meta_box.php" />
+    <Compile Include="wp-content\plugins\advanced-custom-sort\core\admin\options_meta_box.php" />
+    <Compile Include="wp-content\plugins\advanced-custom-sort\core\api.php" />
+    <Compile Include="wp-content\plugins\advanced-custom-sort\core\upgrade.php" />
     <Compile Include="wp-content\plugins\custom-post-type-ui\custom-post-type-ui.php" />
     <Compile Include="wp-content\plugins\cyclone-slider-2\classes\class-cyclone-slider-admin.php" />
     <Compile Include="wp-content\plugins\cyclone-slider-2\classes\class-cyclone-slider-data.php" />
@@ -1363,6 +1373,15 @@
     <Folder Include="wp-admin\network" />
     <Folder Include="wp-admin\user" />
     <Folder Include="wp-admin" />
+    <Folder Include="wp-content\plugins\advanced-custom-sort\" />
+    <Folder Include="wp-content\plugins\advanced-custom-sort\core\" />
+    <Folder Include="wp-content\plugins\advanced-custom-sort\core\actions\" />
+    <Folder Include="wp-content\plugins\advanced-custom-sort\core\admin\" />
+    <Folder Include="wp-content\plugins\advanced-custom-sort\css\" />
+    <Folder Include="wp-content\plugins\advanced-custom-sort\images\" />
+    <Folder Include="wp-content\plugins\advanced-custom-sort\js\" />
+    <Folder Include="wp-content\plugins\advanced-custom-sort\js\tipTip\" />
+    <Folder Include="wp-content\plugins\advanced-custom-sort\lang\" />
     <Folder Include="wp-content\plugins\akismet" />
     <Folder Include="wp-content\plugins\custom-post-type-ui\" />
     <Folder Include="wp-content\plugins\custom-post-type-ui\images\" />
@@ -1534,6 +1553,22 @@
     <Folder Include="wp-includes" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="wp-content\plugins\advanced-custom-sort\css\style.input.css" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\css\style.screen_extra.css" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\images\button_remove.png" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\images\checkbox-off.png" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\images\checkbox-on.png" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\images\icon-close.png" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\images\icon-down.png" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\images\icon-help.png" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\images\select-gradient.png" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\js\functions.input.js" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\js\tipTip\jquery.tipTip.js" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\js\tipTip\tipTip.css" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\lang\advanced-custom-sort.pot" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\readme.txt" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\screenshot-1.png" />
+    <Content Include="wp-content\plugins\advanced-custom-sort\screenshot-2.png" />
     <Content Include="wp-content\plugins\custom-post-type-ui\images\professional-wordpress-plugin-development.png" />
     <Content Include="wp-content\plugins\custom-post-type-ui\images\professional-wordpress-secondedition.jpg" />
     <Content Include="wp-content\plugins\custom-post-type-ui\images\professional-wordpress.jpg" />
@@ -1654,6 +1689,7 @@
     <Content Include="wp-content\plugins\revisionary\screenshot-6.jpg" />
     <Content Include="wp-content\plugins\revisionary\screenshot-7.jpg" />
     <Content Include="wp-content\plugins\revisionary\screenshot-8.jpg" />
+    <Content Include="wp-content\plugins\visualdiff\css\derived.css" />
     <Content Include="wp-content\plugins\visualdiff\css\editor.css" />
     <Content Include="wp-content\plugins\visualdiff\css\revisionsdiff.css" />
     <Content Include="wp-content\plugins\visualdiff\image\activity.png" />

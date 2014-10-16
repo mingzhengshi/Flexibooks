@@ -1,0 +1,21 @@
+#div-derived-sortables { 
+      cursor: move;
+      margin: 3px 0 0 0; 
+      padding: 8px; 
+      /*background: Lavender;*/
+      border-radius: 5px;
+      line-height: 1.0;
+}
+
+.span-derived {
+    background: none repeat scroll 0 0 #efefef;
+    border-radius: 5px;
+    box-shadow: 0 0 3px #666666 inset;
+    padding: 8px;
+    width: 100%;
+    top: 3px;
+    line-height: 1.0;
+    margin: 3px 3px 0 0; 
+}
+
+
