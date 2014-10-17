@@ -27,10 +27,16 @@ function fb_derived_admin_head() {
     $type = get_current_screen()->post_type;
     if ($type == 'derived') {
         $derived_js_url = plugins_url( 'js/derived.js' , __FILE__ );
-        $derived_css_url = plugins_url( 'css/derived.css' , __FILE__ );
+        $jstree_js_url = plugins_url( 'lib/jstree/jstree.min.js' , __FILE__ );
         
+        $derived_css_url = plugins_url( 'css/derived.css' , __FILE__ );
+        $jstree_css_url = plugins_url( 'lib/jstree/themes/default/style.min.css' , __FILE__ );
+
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
+        echo '<script type="text/javascript" src="' . $jstree_js_url . '" ></script>';
+        
         echo '<link rel="stylesheet" type="text/css" href="' . $derived_css_url . '" />';
+        echo '<link rel="stylesheet" type="text/css" href="' . $jstree_css_url . '" />';
     }    
 }
 
@@ -53,57 +59,60 @@ function fb_add_meta_box_source_list() {
 
 function fb_meta_box_source_list_callback() {
 ?>
-    <ul>
-        <?php
-        global $post;
-        $args = array( 'post_type' => 'source' );
-        $source_posts = get_posts( $args );
-        foreach( $source_posts as $post ) :       
-            setup_postdata($post); 
-            $post_content = $post->post_content;
-            $html_parser = str_get_html($post_content);           
-            //$tags = $html_parser->find('h1, h2, h3, p, ul, ol, table');
+    <div id="fb-div-jstree">
+        <ul>
+            <?php
+            global $post;
+            $args = array( 'post_type' => 'source' );
+            $source_posts = get_posts( $args );
+            foreach( $source_posts as $post ) :       
+                setup_postdata($post); 
+                $post_content = $post->post_content;
+                $html_parser = str_get_html($post_content);           
+                //$tags = $html_parser->find('h1, h2, h3, p, ul, ol, table');
 
-            // this section of code should move into the 'save' button in the source document edit page
-            foreach ($html_parser->nodes as $node){       
-                // consider the top level tags first
-            	if ($node->parent()->tag == 'root'){
-                    if ($node->tag == 'text'){
-                        $inner_text = $node->innertext.trim();
-                        if (!ctype_space($inner_text)){
-                            $node->outertext = "<p>" . $node->innertext . "</p>";
-                        }
-                    }                  
+                // this section of code should move into the 'save' button in the source document edit page
+                /*
+                foreach ($html_parser->nodes as $node){       
+                    // consider the top level tags first
+            	    if ($node->parent()->tag == 'root'){
+                        if ($node->tag == 'text'){
+                            $inner_text = $node->innertext.trim();
+                            if (!ctype_space($inner_text)){
+                                $node->outertext = "<p>" . $node->innertext . "</p>";
+                            }
+                        }                  
+                    }
                 }
-            }
             
-            $result_str = $html_parser->save();
-            $html_parser = str_get_html($result_str); 
+                $result_str = $html_parser->save();
+                $html_parser = str_get_html($result_str); 
             
-            foreach ($html_parser->nodes as $node){       
-                // consider the top level tags first
-            	if ($node->parent()->tag == 'root'){                    
-                    if(!isset($node->attr['id'])){
-                        $uid = uniqid(rand(), true);                        
-                        $node->{'id'} = $uid;
+                foreach ($html_parser->nodes as $node){       
+                    // consider the top level tags first
+            	    if ($node->parent()->tag == 'root'){                    
+                        if(!isset($node->attr['id'])){
+                            $uid = uniqid(rand(), true);                        
+                            $node->{'id'} = $uid;
                         
-                    }                   
+                        }                   
+                    }
                 }
-            }
             
-            // Dumps the internal DOM tree back into string 
-            $str = $html_parser;
-            $str = $html_parser->save();
+                // Dumps the internal DOM tree back into string 
+                $str = $html_parser->save();
+                */
             
-            ?>
-            <li>
-                <input type="checkbox" id="<?php $post->id ?>"/>
-                <label for="<?php $post->id ?>"><?php the_title();  ?></label>
-            </li>
-            <!--li><?php the_title();  ?></li-->
+                ?>
+                <li>
+                    <input type="checkbox" id="<?php $post->id ?>"/>
+                    <label for="<?php $post->id ?>"><?php the_title();  ?></label>
+                </li>
+                <!--li><?php the_title();  ?></li-->
 
-        <?php endforeach; ?>
-    </ul>
+            <?php endforeach; ?>
+        </ul>
+    </div>
     <input type="button" value="Add Source Item" class="button-secondary" />
 <?php    
 }
@@ -119,10 +128,10 @@ function fb_add_meta_box_derived_document() {
 
 function fb_meta_box_derived_document_callback() {
 ?>
-<div id="div-derived-sortables">
+<div id="fb-div-derived-sortables">
 </div>
 
-<input id="button-add-new-derived-item" type="button" value="Add New Item" class="button-secondary" />
+<input id="fb-button-add-new-derived-item" type="button" value="Add New Item" class="button-secondary" />
 <?php    
 }
 
