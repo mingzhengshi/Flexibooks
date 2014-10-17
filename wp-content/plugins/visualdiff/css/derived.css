@@ -2,9 +2,9 @@
     cursor: move;
     margin-left: 0px;
     margin-right: 15px;
-    margin-top: 3px; 
-    margin-bottom: 3px;
-    padding: 8px; 
+    margin-top: 5px; 
+    margin-bottom: 5px;
+    padding: 10px; 
     border-radius: 5px;
     line-height: 1.0;
 }
@@ -13,9 +13,8 @@
     background: none repeat scroll 0 0 #f3f3f3;
     border-radius: 5px;
     box-shadow: 0 0 3px #666666 inset;
-    padding: 10px;
+    padding: 12px;
     width: 100%;
-    top: 3px;
     line-height: 1.0;
     margin-left: 0px;
     margin-right: 0px;
