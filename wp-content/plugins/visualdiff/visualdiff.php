@@ -58,6 +58,75 @@ function fb_add_meta_box_source_list() {
 }
 
 function fb_meta_box_source_list_callback() {
+    global $post;
+    $args = array( 'post_type' => 'source' );
+    $source_posts = get_posts( $args );
+    
+    $tree_root = array();
+    $tree_root['title'] = 'root';
+    $tree_root['children'] = array();
+    
+    foreach( $source_posts as $post ) {       
+        setup_postdata($post); 
+        $post_content = $post->post_content;
+        $html_parser = str_get_html($post_content);  
+        
+        $tree_post = array();
+        $tree_post['id'] = 'tree-' . $post->ID;
+        $tree_post['title'] = the_title();
+        $tree_post['children'] = array();
+      
+        array_push($tree_root['children'], $tree_post);
+        
+        $current_parents = array($tree_post, null, null, null); // four elements in the array corresponding to four levels of the tree
+        
+        foreach ($html_parser->nodes as $node){       
+            // consider the top level tags first
+            if ($node->parent()->tag == 'root'){
+                // check white space
+                if ($node->tag == 'text'){
+                    $inner_text = $node->innertext.trim();
+                    if (ctype_space($inner_text)){
+                        continue;
+                    }
+                } 
+                
+                $tree_node = array();
+                $tree_node['id'] = 'tree-' . $node->attr['id'];
+                $tree_node['title'] = $node->innertext;
+                $tree_node['children'] = array();               
+                
+                if (($node->tag == 'h1') ||
+                    ($node->tag == 'h2') ||
+                    ($node->tag == 'h3')){
+                    $this_level = (int)(substr($node->tag, 1, 1));
+                    $current_parents[$this_level] = $tree_node;
+                    
+                    // set all the parents that are higher than this level to null
+                    for ($i = ($this_level+1); $i <= 3; $i++) {
+                        $current_parents[$i] = null;
+                    } 
+                    
+                    // append this node to its parent
+                    for ($i = ($this_level-1); $i >= 0; $i--) {
+                        if ($current_parents[$i] != null){
+                            array_push($current_parents[$i]['children'], $tree_node);
+                            break;
+                        }
+                    }                   
+                }
+                else {
+                    for ($i = 3; $i >= 0; $i--) {
+                        if ($current_parents[$i] != null){
+                            array_push($current_parents[$i]['children'], $tree_node);
+                            break;
+                        }
+                    }  
+                }                               
+            }
+        }
+    }
+
 ?>
     <div id="fb-div-jstree">
         <ul>
@@ -68,7 +137,8 @@ function fb_meta_box_source_list_callback() {
             foreach( $source_posts as $post ) :       
                 setup_postdata($post); 
                 $post_content = $post->post_content;
-                $html_parser = str_get_html($post_content);           
+                $html_parser = str_get_html($post_content);     
+                
                 //$tags = $html_parser->find('h1, h2, h3, p, ul, ol, table');
 
                 // this section of code should move into the 'save' button in the source document edit page
