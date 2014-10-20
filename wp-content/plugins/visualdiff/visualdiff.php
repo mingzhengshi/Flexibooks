@@ -3,9 +3,7 @@
 Plugin Name: Visual Diff 
 Description: Visual Display of Revision Differences
 */  
-?>  
-
-<?php  
+ 
 require_once( 'simple_html_dom.php' );
 
 add_action( 'admin_menu', 'add_revision_compare_page' );
@@ -71,16 +69,27 @@ function fb_meta_box_source_list_callback() {
         $post_content = $post->post_content;
         $html_parser = str_get_html($post_content);  
         
-        $tree_post = array();
-        $tree_post['id'] = 'tree-' . $post->ID;
-        $tree_post['title'] = the_title();
-        $tree_post['children'] = array();
-      
-        array_push($tree_root['children'], $tree_post);
+        //$tree_post = array();
+        //$tree_post['id'] = 'tree-' . $post->ID;
+        //$tree_post['title'] = the_title();
+        //$tree_post['children'] = array();     
+        //array_push($tree_root['children'], $tree_post);
         
-        $current_parents = array($tree_post, null, null, null); // four elements in the array corresponding to four levels of the tree
+        $tree_nodes = array();
         
-        foreach ($html_parser->nodes as $node){       
+        // root node
+        $count = 0;
+        $tree_nodes[$count] = array();
+        $tree_nodes[$count]['id'] = 'tree-' . $post->ID;
+        $tree_nodes[$count]['title'] = the_title();
+        //$tree_nodes[$count]['children'] = array();  
+        
+        $tree_nodes[$count]['parentID'] = 0;
+        
+        $current_parents = array($tree_nodes[$count]['id'], null, null, null); // corresponding to four levels of the tree
+        
+        
+        foreach ($html_parser->nodes as $node){
             // consider the top level tags first
             if ($node->parent()->tag == 'root'){
                 // check white space
@@ -91,16 +100,17 @@ function fb_meta_box_source_list_callback() {
                     }
                 } 
                 
-                $tree_node = array();
-                $tree_node['id'] = 'tree-' . $node->attr['id'];
-                $tree_node['title'] = $node->innertext;
-                $tree_node['children'] = array();               
+                $count++;
+                $tree_nodes[$count] = array();
+                $tree_nodes[$count]['id'] = 'tree-' . $node->attr['id'];
+                $tree_nodes[$count]['title'] = $node->innertext;
+                //$tree_nodes[$count]['children'] = array();               
                 
                 if (($node->tag == 'h1') ||
                     ($node->tag == 'h2') ||
                     ($node->tag == 'h3')){
                     $this_level = (int)(substr($node->tag, 1, 1));
-                    $current_parents[$this_level] = $tree_node;
+                    //$current_parents[$this_level] = &$tree_nodes[$count];
                     
                     // set all the parents that are higher than this level to null
                     for ($i = ($this_level+1); $i <= 3; $i++) {
@@ -110,7 +120,9 @@ function fb_meta_box_source_list_callback() {
                     // append this node to its parent
                     for ($i = ($this_level-1); $i >= 0; $i--) {
                         if ($current_parents[$i] != null){
-                            array_push($current_parents[$i]['children'], $tree_node);
+                            $tree_nodes[$count]['parentID'] = $current_parents[$i];                          
+                            //array_push($current_parents[$i]['children'], $tree_nodes[$count]);
+                            $current_parents[$this_level] = $tree_nodes[$count]['id'];
                             break;
                         }
                     }                   
@@ -118,13 +130,22 @@ function fb_meta_box_source_list_callback() {
                 else {
                     for ($i = 3; $i >= 0; $i--) {
                         if ($current_parents[$i] != null){
-                            array_push($current_parents[$i]['children'], $tree_node);
+                            $tree_nodes[$count]['parentID'] = $current_parents[$i];
+                            //array_push($current_parents[$i]['children'], $tree_nodes[$count]);
                             break;
                         }
                     }  
-                }                               
+                }
             }
         }
+       
+
+        $new_nodes = array();
+        foreach ($tree_nodes as $n){
+            $new_nodes[$n['parentID']][] = $n;
+        }
+        $tree_post = createTree($new_nodes, array($tree_nodes[0]));
+        array_push($tree_root['children'], $tree_post);
     }
 
 ?>
@@ -175,8 +196,8 @@ function fb_meta_box_source_list_callback() {
             
                 ?>
                 <li>
-                    <input type="checkbox" id="<?php $post->id ?>"/>
-                    <label for="<?php $post->id ?>"><?php the_title();  ?></label>
+                    <input type="checkbox" id="<?php $post->ID ?>"/>
+                    <label for="<?php $post->ID ?>"><?php the_title();  ?></label>
                 </li>
                 <!--li><?php the_title();  ?></li-->
 
@@ -185,6 +206,17 @@ function fb_meta_box_source_list_callback() {
     </div>
     <input type="button" value="Add Source Item" class="button-secondary" />
 <?php    
+}
+
+function createTree(&$list, $parent){
+    $tree = array();
+    foreach ($parent as $k=>$l){
+        if(isset($list[$l['id']])){
+            $l['children'] = createTree($list, $list[$l['id']]);
+        }
+        $tree[] = $l;
+    } 
+    return $tree;
 }
 
 function fb_add_meta_box_derived_document() {
