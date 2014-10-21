@@ -6,14 +6,14 @@ Description: Visual Display of Revision Differences
  
 require_once( 'simple_html_dom.php' );
 
-add_action( 'admin_menu', 'add_revision_compare_page' );
+add_action( 'admin_menu', 'fb_add_revision_compare_page' );
 add_action( 'admin_head', 'fb_derived_admin_head' );
 add_action( 'admin_footer', 'fb_admin_footer' );
 add_action( 'init', 'fb_create_post_type' );
 
 add_action( 'add_meta_boxes', 'fb_add_meta_box_source_list' );
 add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
-add_action( 'add_meta_boxes', 'add_meta_box_revision' );
+add_action( 'add_meta_boxes', 'fb_add_meta_box_revision' );
 
 add_filter('mce_css', 'fb_mce_editor_style');
 
@@ -270,7 +270,7 @@ function fb_meta_box_derived_document_callback() {
 //-----------------------------------------------------------------------------------------------
 // revisions
 
-function add_revision_compare_page(){
+function fb_add_revision_compare_page(){
     //$path = ABSPATH;
     $path = dirname(__FILE__);
     
@@ -313,14 +313,14 @@ function add_revision_diff_button()
 }
 */
 
-function add_meta_box_revision() {
+function fb_add_meta_box_revision() {
     global $post;
     if ($post) {
-        add_meta_box('meta_box_post_revision', 'Revision', 'meta_box_post_revision_callback', null, 'side', 'core' );
+        add_meta_box('meta_box_post_revision', 'Revision', 'fb_meta_box_post_revision_callback', null, 'side', 'core' );
     }
 }
 
-function meta_box_post_revision_callback() {
+function fb_meta_box_post_revision_callback() {
     $post_id = get_the_ID();
     $redirect = "admin.php?page=fb-revisions&amp;postid={$post_id}";
 ?>
