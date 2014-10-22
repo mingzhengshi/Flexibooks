@@ -17,6 +17,9 @@ add_action( 'add_meta_boxes', 'fb_add_meta_box_revision' );
 
 add_filter('mce_css', 'fb_mce_editor_style');
 
+// ajax action
+add_action( 'wp_ajax_fb_source_query', 'fb_source_query' );
+
 // add js
 add_action('admin_print_scripts', 'fb_admin_print_scripts');
 
@@ -30,6 +33,14 @@ function fb_derived_admin_head() {
         $derived_css_url = plugins_url( 'css/derived.css' , __FILE__ );
         $jstree_css_url = plugins_url( 'lib/jstree/themes/default/style.min.css' , __FILE__ );
 
+?>
+        <script type="text/javascript">
+		<?php
+        echo 'var source_query_url = "' . plugins_url( 'source_query.php', __FILE__ ) . '";';
+		?>
+        </script>
+<?php
+
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
         echo '<script type="text/javascript" src="' . $jstree_js_url . '" ></script>';
         
@@ -41,6 +52,47 @@ function fb_derived_admin_head() {
 function fb_admin_print_scripts() {
     wp_enqueue_script('jquery');
     wp_enqueue_script('jquery-ui-core');
+}
+
+//-----------------------------------------------------------------------------------------------
+// ajax action
+
+function fb_source_query() {
+    /*
+    $query_return = array(
+        'htmltext' => ""
+    );
+    */
+    $htmltext = "";
+    
+    $id = $_POST['id'];
+    $ids = explode(';', $id);
+
+    // the following code needs to be changed later
+    if (count($ids) == 2) {
+        $post_id = $ids[0];
+        $tag_id = $ids[1];
+        
+        $post = get_post( $post_id );
+        $post_content = $post->post_content;
+        $html_parser = str_get_html($post_content);  
+        
+        $element = $html_parser->find('#' . $tag_id);
+        foreach ($html_parser->nodes as $node) {
+            if ($node->id == $tag_id){
+                /*
+                $query_return = array(
+                    'htmltext' => $node->outertext
+                );
+                */
+                $htmltext = $node->outertext;
+                break;
+            }
+        }
+    }
+
+    echo $htmltext;
+	die(); // this is required to terminate immediately and return a proper response
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -81,6 +133,7 @@ function fb_meta_box_source_list_callback() {
         $count = 0;
         $tree_nodes[$count] = array();
         $tree_nodes[$count]['id'] = 'tree-' . $post->ID;
+        $tree_nodes[$count]['post_id_and_tag_id'] = $post->ID;
         $tree_nodes[$count]['title'] = $post->post_title;
         //$tree_nodes[$count]['children'] = array();  
         
@@ -103,6 +156,7 @@ function fb_meta_box_source_list_callback() {
                 $count++;
                 $tree_nodes[$count] = array();
                 $tree_nodes[$count]['id'] = 'tree-' . $node->attr['id'];
+                $tree_nodes[$count]['post_id_and_tag_id'] = $post->ID. ";" .$node->attr['id'];
                 
                 if (($node->tag == 'h1') ||
                     ($node->tag == 'h2') ||
@@ -171,12 +225,23 @@ function fb_meta_box_source_list_callback() {
     }
 
 ?>
-    <div id="fb-div-jstree">
-        <?php 
-            fb_array_to_ul($tree_root['children']);
-        ?>
-    </div>
-    <input type="button" value="Add Source Item" class="button-secondary" />
+    <table>
+      <tr>
+        <td>
+            <div id="fb-div-jstree">
+                <?php 
+                    fb_array_to_ul($tree_root['children']);
+                ?>
+            </div>
+            <input style="margin-top:10px" type="button" value="Add Source Item" class="button-secondary" />
+        </td>
+        <td>
+            <div id="fb-div-show-jstree-selection" contenteditable="true">
+            </div>
+        </td>		
+      </tr>
+    </table>
+
 <?php    
 }
 
@@ -184,11 +249,11 @@ function fb_array_to_ul($arr) {
     echo "<ul>";
     foreach ($arr as $val) {
         if (!empty($val['children'])) {
-            echo "<li>" . $val['title'];
+            echo "<li id='". $val['post_id_and_tag_id'] ."'>" . $val['title'];
             fb_array_to_ul($val['children']);
             echo "</li>";
         } else {
-            echo "<li>" . $val['title'] . "</li>";
+            echo "<li id='". $val['post_id_and_tag_id'] ."'>" . $val['title'] . "</li>";
         }
     }
     echo "</ul>";

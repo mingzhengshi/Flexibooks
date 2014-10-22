@@ -1451,6 +1451,11 @@
     <Folder Include="wp-content\plugins\visualdiff\css\" />
     <Folder Include="wp-content\plugins\visualdiff\image\" />
     <Folder Include="wp-content\plugins\visualdiff\js\" />
+    <Folder Include="wp-content\plugins\visualdiff\lib\" />
+    <Folder Include="wp-content\plugins\visualdiff\lib\jstree\" />
+    <Folder Include="wp-content\plugins\visualdiff\lib\jstree\themes\" />
+    <Folder Include="wp-content\plugins\visualdiff\lib\jstree\themes\default-dark\" />
+    <Folder Include="wp-content\plugins\visualdiff\lib\jstree\themes\default\" />
     <Folder Include="wp-content\themes\twentyfourteen\css" />
     <Folder Include="wp-content\themes\twentyfourteen\genericons\font" />
     <Folder Include="wp-content\themes\twentyfourteen\genericons" />
@@ -1702,5 +1707,17 @@
     <Content Include="wp-content\plugins\visualdiff\image\ychart.png" />
     <Content Include="wp-content\plugins\visualdiff\js\derived.js" />
     <Content Include="wp-content\plugins\visualdiff\js\visualdiff.js" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\jstree.js" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\jstree.min.js" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\themes\default-dark\32px.png" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\themes\default-dark\40px.png" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\themes\default-dark\style.css" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\themes\default-dark\style.min.css" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\themes\default-dark\throbber.gif" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\themes\default\32px.png" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\themes\default\40px.png" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\themes\default\style.css" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\themes\default\style.min.css" />
+    <Content Include="wp-content\plugins\visualdiff\lib\jstree\themes\default\throbber.gif" />
   </ItemGroup>
 </Project>
