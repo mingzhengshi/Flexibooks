@@ -15,7 +15,9 @@ add_action( 'add_meta_boxes', 'fb_add_meta_box_source_list' );
 add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
 add_action( 'add_meta_boxes', 'fb_add_meta_box_revision' );
 
+// mce editor
 add_filter('mce_css', 'fb_mce_editor_style');
+//add_filter('teeny_mce_buttons', array( 'bold', 'italic' ), 'fb_editor_jstree_selection' );
 
 // ajax action
 add_action( 'wp_ajax_fb_source_query', 'fb_source_query' );
@@ -215,7 +217,7 @@ function fb_meta_box_source_list_callback() {
                 }
             }
         }
-       
+        
         $new_nodes = array();
         foreach ($tree_nodes as $n){
             $new_nodes[$n['parentID']][] = $n;
@@ -223,7 +225,6 @@ function fb_meta_box_source_list_callback() {
         $tree_post = fb_create_tree($new_nodes, array($tree_nodes[0]));
         array_push($tree_root['children'], $tree_post[0]);
     }
-
 ?>
     <table>
       <tr>
@@ -237,6 +238,10 @@ function fb_meta_box_source_list_callback() {
         </td>
         <td>
             <div id="fb-div-show-jstree-selection" contenteditable="true">
+                <?php 
+                    //$editor_args = array("media_buttons" => false, "teeny" => true, "quicktags" => false);
+                    //wp_editor("Hello", "fb_editor_jstree_selection", $editor_args);
+                ?>
             </div>
         </td>		
       </tr>
