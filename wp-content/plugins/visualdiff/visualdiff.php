@@ -34,6 +34,7 @@ function fb_derived_admin_head() {
         
         $derived_css_url = plugins_url( 'css/derived.css' , __FILE__ );
         $jstree_css_url = plugins_url( 'lib/jstree/themes/default/style.min.css' , __FILE__ );
+        $editor_div_css_url = plugins_url( 'css/editor_div.css' , __FILE__ );
 
 ?>
         <script type="text/javascript">
@@ -48,6 +49,7 @@ function fb_derived_admin_head() {
         
         echo '<link rel="stylesheet" type="text/css" href="' . $derived_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $jstree_css_url . '" />';
+        echo '<link rel="stylesheet" type="text/css" href="' . $editor_div_css_url . '" />';
     }    
 }
 
@@ -218,11 +220,11 @@ function fb_meta_box_source_list_callback() {
             }
         }
         
-        $new_nodes = array();
+        $parent_list = array();
         foreach ($tree_nodes as $n){
-            $new_nodes[$n['parentID']][] = $n;
+            $parent_list[$n['parentID']][] = $n;
         }
-        $tree_post = fb_create_tree($new_nodes, array($tree_nodes[0]));
+        $tree_post = fb_create_tree_from_list($parent_list, array($tree_nodes[0]));
         array_push($tree_root['children'], $tree_post[0]);
     }
 ?>
@@ -308,13 +310,15 @@ function fb_setup_tag_ids(){
     }      
 }
 
-function fb_create_tree(&$list, $parent){
+function fb_create_tree_from_list(&$parent_list, $parent){
     $tree = array();
-    foreach ($parent as $k=>$l){
-        if(isset($list[$l['id']])){
-            $l['children'] = fb_create_tree($list, $list[$l['id']]);
+    foreach ($parent as $key=>$child){
+        // if this child is in the parent list, continue to build the tree hierarchy; otherwise skip this step and add this child as a leaf of the tree
+        if(isset($parent_list[$child['id']])){
+            $child['children'] = fb_create_tree_from_list($parent_list, $parent_list[$child['id']]);
         }
-        $tree[] = $l;
+        
+        $tree[] = $child;
     } 
     return $tree;
 }

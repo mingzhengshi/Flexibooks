@@ -1,15 +1,15 @@
-html .mceContentBody {
+#fb-div-show-jstree-selection html .mceContentBody {
 	max-width: 800px;
 }
 
-h1 {
+#fb-div-show-jstree-selection h1 {
     padding-left: 35px;
     background-color: #d1e7f7;
     color: #1f6ca5;
     font-size: 35pt;
 }
 
-h2 {
+#fb-div-show-jstree-selection h2 {
     font-size: 19pt;
     padding-left: 118px;
     color: #562f85;
@@ -18,7 +18,7 @@ h2 {
     background-position: 20px, 2px;
 }
 
-h2.activity {
+#fb-div-show-jstree-selection h2.activity {
     font-style: italic;
     font-weight: normal;
     padding-top: 15px;
@@ -32,36 +32,36 @@ h2.activity {
     background-position: 20px 6px;
 }
 
-ul {
+#fb-div-show-jstree-selection ul {
     padding-left:0;   
     margin-left:0;   
 }
 
-ul li {
+#fb-div-show-jstree-selection ul li {
     margin-left: 1em;
     font-weight: bold;
 }
 
-div.image {
+#fb-div-show-jstree-selection div.image {
     margin-top: 25px;
     text-align: center;
     margin-bottom:35px;
 }
 
-div.image img {
+#fb-div-show-jstree-selection div.image img {
     max-width: 95%;
 }
 
-div.caption {
+#fb-div-show-jstree-selection div.caption {
     margin-top: 8px;
     color: #562f85;
 }
 
-li.exercise {
+#fb-div-show-jstree-selection li.exercise {
     font-family: "Lucida Console", Monaco, monospace;
 }
 
-li.exercise table {
+#fb-div-show-jstree-selection li.exercise table {
    text-align: left;
    table-layout: fixed; /* Equal widths */
    margin-top:20px;
@@ -71,18 +71,18 @@ li.exercise table {
    border: 1px #186da5 solid;
 }
 
-li.exercise table tr th {
+#fb-div-show-jstree-selection li.exercise table tr th {
    background-color: #d0e7f7;
    border: 1px #186da5 solid;
    padding: 8px;
  }
 
-li.exercise table tr td {
+#fb-div-show-jstree-selection li.exercise table tr td {
    padding: 8px;
    border: 1px #186da5 solid;
  }
 
-hr.answer { 
+#fb-div-show-jstree-selection hr.answer { 
    padding-top: 20px;
    margin-bottom: 8px;
    border: 0px;
@@ -90,7 +90,7 @@ hr.answer {
    fill: none;
 }
 
-body {
+#fb-div-show-jstree-selection body {
 font-family: Frutiger CE 45 Light;
 margin: 30px;
 }
