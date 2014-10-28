@@ -1,5 +1,4 @@
 jQuery(document).ready(function ($) {
-    console.log("derived.js...");
     var x = 1;
 
     $("#fb-div-derived-sortables").sortable({

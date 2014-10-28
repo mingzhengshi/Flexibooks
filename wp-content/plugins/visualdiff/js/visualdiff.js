@@ -1,6 +1,4 @@
 (function ($) {
-    console.log("visualdiff.js...");
-
     $(document).ready(function () {
         var revisions = window.wp.revisions,
         SELF = this;

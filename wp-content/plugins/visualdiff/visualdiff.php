@@ -22,9 +22,22 @@ add_filter('mce_css', 'fb_mce_editor_style');
 // ajax action
 add_action( 'wp_ajax_fb_source_query', 'fb_source_query' );
 
+// tinymce plugin
+add_filter( 'mce_external_plugins', 'fb_tinymce_plugin' );
+
 // add js
 add_action('admin_print_scripts', 'fb_admin_print_scripts');
 
+//-----------------------------------------------------------------------------------------------
+// load external TinyMCE plugins
+ 
+function fb_tinymce_plugin( $tinymce_vb ) {
+	$tinymce_vb[ 'fb_folding_editor' ] = plugins_url( 'js/tinymce.js', __FILE__ );
+	return $tinymce_vb;
+}
+
+
+//-----------------------------------------------------------------------------------------------
 // for derived post type only
 function fb_derived_admin_head() {
     $type = get_current_screen()->post_type;
