@@ -42,7 +42,7 @@ jQuery(document).ready(function ($) {
                         else {
                             //alert("Loading is: " + status + "\nData: " + data);
                         }
-                    });
+                });
             }
         })
         .jstree();

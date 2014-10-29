@@ -95,3 +95,19 @@ font-family: Frutiger CE 45 Light;
 margin: 30px;
 }
 
+/* folding editor */
+.fb-collapse {
+
+}
+
+.fb-display-none-h1-folding {
+    display: none;
+}
+
+.fb-display-none-h2-folding {
+    display: none;
+}
+
+.fb-display-none-h3-folding {
+    display: none;
+}

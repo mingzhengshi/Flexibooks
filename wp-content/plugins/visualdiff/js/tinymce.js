@@ -13,54 +13,49 @@ jQuery(document).ready(function ($) {
             left_column.id = 'fb_tinymce_left_column';
             editor.getBody().appendChild(left_column);
 
-            setupIcons();
+            resetFoldingIcons();
         });
 
         editor.on('change', function (e) {
             console.log('change event', e);
-            setupIcons();
+            resetFoldingIcons();
         });
 
         /*
         editor.on('LoadContent', function (e) {
-            setupIcons();
+            resetFoldingIcons();
         });
         */
 
-
-
         // functions
-        function setupIcons() {
-            $(editor.getBody()).find('.fb_tinymce_left_column_icon').remove(); // clear all exisint icons
+        function resetFoldingIcons() {
+            $(editor.getBody()).find('.fb_tinymce_left_column_icon').remove(); // clear all existing icons
 
             $(editor.getBody()).find('h1').each(function (index) {
-                console.log(index + ": " + $(this).text());
                 var iconID = 'icon-' + $(this).attr('id');
                 var offset = $(this).offset(); // absolute position relative to the document
                 var height = $(this).height();
-                createIcon(iconID, offset.top);
+                createFoldingIcon(iconID, offset.top);
             });
 
             $(editor.getBody()).find('h2').each(function (index) {
-                console.log(index + ": " + $(this).text());
                 var iconID = 'icon-' + $(this).attr('id');
                 var offset = $(this).offset(); // absolute position relative to the document
                 var height = $(this).height();
-                createIcon(iconID, offset.top);
+                createFoldingIcon(iconID, offset.top);
             });
 
             $(editor.getBody()).find('h3').each(function (index) {
-                console.log(index + ": " + $(this).text());
                 var iconID = 'icon-' + $(this).attr('id');
                 var offset = $(this).offset(); // absolute position relative to the document
                 var height = $(this).height();
-                createIcon(iconID, offset.top);
+                createFoldingIcon(iconID, offset.top);
             });
 
-            setupIconEvents();
+            setupFoldingIconEvents();
         }
 
-        function setupIconEvents() {
+        function setupFoldingIconEvents() {
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').hover(
                 // handlerIn
                 function () {
@@ -71,9 +66,19 @@ jQuery(document).ready(function ($) {
                     $(this).css('cursor', 'text');
                 }
             );
+
+            $(editor.getBody()).find('.fb_tinymce_left_column_icon').click(function () {
+                    //alert("click() called.");
+
+                    
+                    // don't need a tree structure of the document;
+                    // use $(editor.getBody()).find('*') to find all elements
+                    // then reset Icons
+                }
+            );
         }
 
-        function createIcon(id, top) {
+        function createFoldingIcon(id, top) {
             var icon = document.createElement('div');
             icon.className = 'fb_tinymce_left_column_icon';
             icon.id = id;
