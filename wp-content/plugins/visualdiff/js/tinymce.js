@@ -68,12 +68,47 @@ jQuery(document).ready(function ($) {
             );
 
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').click(function () {
-                    //alert("click() called.");
+                var targetID = $(this).id.substr(5);
+                if (targetID == null) return;
+                var targetLevel = 10000;
 
-                    
-                    // don't need a tree structure of the document;
-                    // use $(editor.getBody()).find('*') to find all elements
-                    // then reset Icons
+                // click the minus box: collapse
+                if ($(this).innerHTML == '&#8863') {
+                    var start = false;
+                    var children = $(editor.getBody()).children();
+                    if (children != null && children.length > 0) {
+                        for (var i = 0; i < children.length; i++) {
+                            var element = children[i];
+                            if (element.className.indexOf("fb_tinymce_left_column") >= 0) continue;
+                            if (element.className.indexOf("fb_tinymce_left_column_icon") >= 0) continue;
+
+                            if (start == false) {
+                                if (element.id == targetID) {
+                                    start = true;
+                                    targetLevel = parseInt(element.tagName.substr(1));
+                                }
+                            }
+                            else {
+                                if ((element.tagName == 'h1') || (element.tagName == 'h2') || (element.tagName == 'h3')) {
+                                    var level = parseInt(element.tagName.substr(1));
+                                    if (level <= targetLevel) {
+                                        break;
+                                    }
+                                    else {
+                                        element.className += (' fb-display-none-h' + targetLevel);
+                                    }
+                                }
+                                else {
+                                    element.className += (' fb-display-none-h' + targetLevel);
+                                }
+                            }
+                        }
+                    }
+
+                    $(this).innerHTML = '&#8862' // switch to plus box
+                }
+
+
                 }
             );
         }
@@ -82,7 +117,7 @@ jQuery(document).ready(function ($) {
             var icon = document.createElement('div');
             icon.className = 'fb_tinymce_left_column_icon';
             icon.id = id;
-            icon.innerHTML = '&#8863'; // minus with box; '&#8862' is plus with box
+            icon.innerHTML = '&#8863'; // minus box; '&#8862' is plus box
             icon.style.position = 'absolute';
             icon.style.top = top + 'px';
             icon.style.left = '-0.5px';
