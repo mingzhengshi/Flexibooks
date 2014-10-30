@@ -51,10 +51,12 @@ function fb_derived_admin_head() {
 
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
         echo '<script type="text/javascript" src="' . $jstree_js_url . '" ></script>';
+        //echo '<script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>';
         
         echo '<link rel="stylesheet" type="text/css" href="' . $derived_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $jstree_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $editor_div_css_url . '" />';
+        
     }    
 }
 
@@ -338,20 +340,54 @@ function fb_add_meta_box_derived_document() {
 }
 
 function fb_meta_box_derived_document_callback() {
+
 ?>
 <!--div id="fb-div-derived-sortables">
 </div>
 
 <input id="fb-button-add-new-derived-item" type="button" value="Add New Item" class="button-secondary" /-->
 
+        <div id="fb-accordion-source-list">
+              <h3>Section 1</h3>
+              <div>
+                <p>
+                Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer
+                ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit
+                amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut
+                odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.
+                </p>
+              </div>
+              <h3>Section 2</h3>
+              <div>
+                <p>
+                Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet
+                purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor
+                velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In
+                suscipit faucibus urna.
+                </p>
+              </div>
+<?php
+/*
+            $args = array( 'post_type' => 'source' );
+            $source_posts = get_posts( $args );
+    
+            foreach( $source_posts as $source ) {       
+                $source_id = $source->ID;
+                $source_title = $source->post_title;
+                //echo "<h3 id='fb-accordion-source-post-" . $source_id . "' source-post-id='" . $source_id . "'>" . $source_title . "</h3>";
+                echo "<h3>" . $source_title . "</h3>";
+                echo "<div>";
+                //echo "<p>test</p>";
+                echo "</div>";
+            }
+*/
+?>               
+        </div> 
+
 <table class="fb-source-and-derived-editors">
   <tr>
     <td>
-<?php
-    //$source_editor_args = array("media_buttons" => false, "teeny" => true, "quicktags" => false);
-    $source_editor_args = array("media_buttons" => false, "quicktags" => false);
-    wp_editor('', 'fb_left_editor_source', $source_editor_args);      
-?>        
+        
     </td>
     <td>
 <?php
@@ -364,6 +400,12 @@ function fb_meta_box_derived_document_callback() {
 
 <?php    
 }
+
+
+
+
+
+
 
 //-----------------------------------------------------------------------------------------------
 // revisions
