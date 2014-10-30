@@ -22,4 +22,7 @@
     margin-bottom: 5px;
 }
 
-
+.fb-source-and-derived-editors {
+    width: 100%;
+    clear: both;
+}

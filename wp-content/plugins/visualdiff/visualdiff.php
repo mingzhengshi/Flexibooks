@@ -49,14 +49,6 @@ function fb_derived_admin_head() {
         $jstree_css_url = plugins_url( 'lib/jstree/themes/default/style.min.css' , __FILE__ );
         $editor_div_css_url = plugins_url( 'css/editor_div.css' , __FILE__ );
 
-?>
-        <script type="text/javascript">
-		<?php
-        echo 'var source_query_url = "' . plugins_url( 'source_query.php', __FILE__ ) . '";';
-		?>
-        </script>
-<?php
-
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
         echo '<script type="text/javascript" src="' . $jstree_js_url . '" ></script>';
         
@@ -347,10 +339,29 @@ function fb_add_meta_box_derived_document() {
 
 function fb_meta_box_derived_document_callback() {
 ?>
-<div id="fb-div-derived-sortables">
+<!--div id="fb-div-derived-sortables">
 </div>
 
-<input id="fb-button-add-new-derived-item" type="button" value="Add New Item" class="button-secondary" />
+<input id="fb-button-add-new-derived-item" type="button" value="Add New Item" class="button-secondary" /-->
+
+<table class="fb-source-and-derived-editors">
+  <tr>
+    <td>
+<?php
+    //$source_editor_args = array("media_buttons" => false, "teeny" => true, "quicktags" => false);
+    $source_editor_args = array("media_buttons" => false, "quicktags" => false);
+    wp_editor('', 'fb_left_editor_source', $source_editor_args);      
+?>        
+    </td>
+    <td>
+<?php
+    $derived_editor_args = array("media_buttons" => false, "quicktags" => false);
+    wp_editor('', 'fb_right_editor_derived', $derived_editor_args);      
+?>   
+    </td>		
+  </tr>
+</table>
+
 <?php    
 }
 
@@ -491,7 +502,7 @@ function fb_create_post_type() {
             'rewrite' => true,
             'supports' => array(
                 'title',
-                'editor',
+                //'editor',
                 //'excerpt',
                 //'trackbacks',
                 //'custom-fields',

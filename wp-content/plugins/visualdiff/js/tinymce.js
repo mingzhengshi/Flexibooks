@@ -21,11 +21,9 @@ jQuery(document).ready(function ($) {
             resetFoldingIcons();
         });
 
-        /*
-        editor.on('LoadContent', function (e) {
+        editor.on('PostProcess', function (e) {
             resetFoldingIcons();
         });
-        */
 
         // functions
         function resetFoldingIcons() {
@@ -73,6 +71,7 @@ jQuery(document).ready(function ($) {
 
                         $(this).html('&#8862');  // switch to plus box
                     }
+                    // click the plug box: expand
                     else if ($(this).html().charCodeAt() == '8862') {
                         collapseOrExpand(targetID, false);
 
@@ -104,7 +103,7 @@ jQuery(document).ready(function ($) {
                             }
                             else {
                                 //$('#' + element.id).removeClass('fb-collapse');
-                                element.className = element.className.replace(/(?:^|\s)fb-collapse(?!\S)/g, ''); // remove class
+                                element.className = element.className.replace(/(?:^|\s)fb-collapse(?!\S)/g, '').trim(); // remove class
                             }
                         }
                     }
@@ -122,7 +121,7 @@ jQuery(document).ready(function ($) {
                                     //$('#' + element.id).removeClass('fb-display-none-h' + targetLevel);
                                     var input = 'fb-display-none-h' + targetLevel;
                                     var re = new RegExp(input, "g");
-                                    element.className = element.className.replace(re, ''); // remove class
+                                    element.className = element.className.replace(re, '').trim(); // remove class
                                 }
                             }
                         }
@@ -134,13 +133,12 @@ jQuery(document).ready(function ($) {
                                 //$('#' + element.id).removeClass('fb-display-none-h' + targetLevel);
                                 var input = 'fb-display-none-h' + targetLevel;
                                 var re = new RegExp(input, "g");
-                                element.className = element.className.replace(re, ''); // remove class
+                                element.className = element.className.replace(re, '').trim(); // remove class
                             }
                         }
                     }
                 }
             }
-
         }
 
         function createFoldingIcon(id, top, text) {
