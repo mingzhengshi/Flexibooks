@@ -2,13 +2,23 @@ jQuery(document).ready(function ($) {
     var selected_sources = [];
     var source_tabs = $('#fb-tabs-sources').tabs();
     var tab_counter = 0;
-    var tab_template = "<li><a href='#{href}'>#{label}</a> <span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
+    var tab_template = "<li><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
+
+    var div_mce_editor = $('#fb-div-source-editor').contents();
 
     // close icon: removing the tab on click
     source_tabs.delegate("span.ui-icon-close", "click", function () {
         var panelId = $(this).closest("li").remove().attr("aria-controls");
         $("#" + panelId).remove();
         source_tabs.tabs("refresh");
+    });
+
+    source_tabs.on("tabsactivate", function (event, ui) {
+        console.log("tab activate...");
+        //var active_tab_id = $(".ui-state-active").attr("id");
+        $tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
+
+        var $selected = $("#fb-tabs-sources ul>li a").eq($tabIndex).attr('href');
     });
 
     var fb_source_selection_dialog = $("#fb-source-selection-dialog").dialog({
@@ -65,12 +75,19 @@ jQuery(document).ready(function ($) {
 
     function addSourceTab(data) {
         var label = "label";
-        var id = "fb-tabs-" + tab_counter;
+        var id = "fb-tabs-source-" + tab_counter;
         var li = $(tab_template.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label));
         var tabContentHtml = data;
 
         $("#fb-ul-source-tabs").append(li);
-        source_tabs.append("<div id='" + id + "'><p>" + tabContentHtml + "</p></div>");
+        //source_tabs.append("<div id='" + id + "'><p>" + tabContentHtml + "</p></div>");
+        source_tabs.append("<div id='" + id + "'></div>");
+        $("#" + id).append(div_mce_editor);
+
+        //tinymce.execCommand('mceRemoveEditor', false, 'fb_left_editor_source');
+        //tinymce.execCommand('mceAddEditor', false, 'fb_left_editor_source');
+        //tinyMCE.get('fb_left_editor_source').setContent(data);
+
         source_tabs.tabs("refresh");
         tab_counter++;
     }
