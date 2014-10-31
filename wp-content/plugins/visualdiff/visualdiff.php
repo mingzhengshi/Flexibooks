@@ -48,7 +48,7 @@ function fb_derived_admin_head() {
         $derived_css_url = plugins_url( 'css/derived.css' , __FILE__ );
         $jstree_css_url = plugins_url( 'lib/jstree/themes/default/style.min.css' , __FILE__ );
         $editor_div_css_url = plugins_url( 'css/editor_div.css' , __FILE__ );
-        $jquery_css_url = plugins_url( 'css/jquery-ui.theme.css' , __FILE__ );
+        $jquery_css_url = plugins_url( 'css/jquery-ui-themes-1.11.2/themes/smoothness/jquery-ui.css' , __FILE__ );
         
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
         echo '<script type="text/javascript" src="' . $jstree_js_url . '" ></script>';
@@ -145,8 +145,8 @@ function fb_meta_box_derived_document_callback() {
         <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" /-->        
         <div id="fb-tabs-sources">
               <ul>
-                <li><a href="#fb-tabs-1">Nunc 1</a></li>
-                <li><a href="#fb-tabs-2">Nunc 2</a></li>
+                <li><a href="#fb-tabs-1">Nunc 1</a><span class="ui-icon ui-icon-close" role="presentation">Remove Tab</span></li>
+                <li><a href="#fb-tabs-2">Nunc 2</a><span class="ui-icon ui-icon-close" role="presentation">Remove Tab</span></li>
               </ul>
               <div id="fb-tabs-1">
                 <p>Proin elit arcu, rutrum commodo, vehicula tempus, commodo a, risus. Sed ut dolor nec orci tincidunt interdum. Phasellus ipsum. Nunc tristique tempus lectus.</p>

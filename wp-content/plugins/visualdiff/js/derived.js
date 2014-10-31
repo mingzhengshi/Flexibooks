@@ -1,7 +1,14 @@
 jQuery(document).ready(function ($) {
 
 
-    $('#fb-tabs-sources').tabs();
+    var source_tabs = $('#fb-tabs-sources').tabs();
+
+    // close icon: removing the tab on click
+    source_tabs.delegate("span.ui-icon-close", "click", function () {
+        var panelId = $(this).closest("li").remove().attr("aria-controls");
+        $("#" + panelId).remove();
+        source_tabs.tabs("refresh");
+    });
 
     /*
     $("#fb-div-derived-sortables").sortable({
