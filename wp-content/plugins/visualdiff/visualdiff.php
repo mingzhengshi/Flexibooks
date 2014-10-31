@@ -64,46 +64,26 @@ function fb_admin_print_scripts() {
     wp_enqueue_script('jquery');
     wp_enqueue_script('jquery-ui-core');
     wp_enqueue_script('jquery-ui-tabs');
+    wp_enqueue_script('jquery-ui-dialog');
+    wp_enqueue_script('jquery-ui-selectable');
 }
 
 //-----------------------------------------------------------------------------------------------
 // ajax action
 
 function fb_source_query() {
-    /*
-    $query_return = array(
-        'htmltext' => ""
-    );
-    */
-    $htmltext = "";
+    // add a new tab
     
-    $id = $_POST['id'];
-    $ids = explode(';', $id);
+    
+    // query the post content
+    $post_content = "";
+    
+    $post_id = $_POST['id'];
 
-    // the following code needs to be changed later
-    if (count($ids) == 2) {
-        $post_id = $ids[0];
-        $tag_id = $ids[1];
-        
-        $post = get_post( $post_id );
-        $post_content = $post->post_content;
-        $html_parser = str_get_html($post_content);  
-        
-        $element = $html_parser->find('#' . $tag_id);
-        foreach ($html_parser->nodes as $node) {
-            if ($node->id == $tag_id){
-                /*
-                $query_return = array(
-                    'htmltext' => $node->outertext
-                );
-                */
-                $htmltext = $node->outertext;
-                break;
-            }
-        }
-    }
+    $post = get_post( $post_id );
+    $post_content = $post->post_content;
 
-    echo $htmltext;
+    echo $post_content;
 	die(); // this is required to terminate immediately and return a proper response
 }
 
@@ -121,39 +101,40 @@ function fb_add_meta_box_derived_document() {
 }
 
 function fb_meta_box_derived_document_callback() {
-
-/*
-            $args = array( 'post_type' => 'source' );
-            $source_posts = get_posts( $args );
-    
-            foreach( $source_posts as $source ) {       
-                $source_id = $source->ID;
-                $source_title = $source->post_title;
-                //echo "<h3 id='fb-accordion-source-post-" . $source_id . "' source-post-id='" . $source_id . "'>" . $source_title . "</h3>";
-                echo "<h3>" . $source_title . "</h3>";
-                echo "<div>";
-                //echo "<p>test</p>";
-                echo "</div>";
-            }
-*/
 ?>               
+<div id="fb-source-selection-dialog" title="Source Documents">
+    <ol id="fb-selectable-source-list">
+<?php
+        $args = array( 'post_type' => 'source' );
+        $source_posts = get_posts( $args );
+    
+        foreach( $source_posts as $source ) {       
+            $source_id = $source->ID;
+            $source_title = $source->post_title;
+            echo "<li class='ui-widget-content' source-post-id='" . $source_id . "'>" . $source_title . "</li>";
+        }    
+?> 
+    </ol>
+</div>
 
+<div id="fb-div-source-editor" style="display:none;">
+<?php
+    $source_editor_args = array("media_buttons" => false, "quicktags" => false);
+    wp_editor('', 'fb_left_editor_source', $source_editor_args);      
+?> 
+</div>
 
 <table class="fb-source-and-derived-editors">
+  <colgroup>
+    <col span="1" style="width: 50%;">
+    <col span="1" style="width: 50%;">
+  </colgroup>
   <tr>
     <td>
-        <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" /-->        
+        <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" style="margin-bottom: 10px;"/>        
         <div id="fb-tabs-sources">
-              <ul>
-                <li><a href="#fb-tabs-1">Nunc 1</a><span class="ui-icon ui-icon-close" role="presentation">Remove Tab</span></li>
-                <li><a href="#fb-tabs-2">Nunc 2</a><span class="ui-icon ui-icon-close" role="presentation">Remove Tab</span></li>
+              <ul id="fb-ul-source-tabs">
               </ul>
-              <div id="fb-tabs-1">
-                <p>Proin elit arcu, rutrum commodo, vehicula tempus, commodo a, risus. Sed ut dolor nec orci tincidunt interdum. Phasellus ipsum. Nunc tristique tempus lectus.</p>
-              </div>
-              <div id="fb-tabs-2">
-                <p>tempus lectus.</p>
-              </div>
         </div>
     </td>
     <td>

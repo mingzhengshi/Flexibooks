@@ -37,3 +37,27 @@
     margin: 0.4em 0.2em 0 0; 
     cursor: pointer; 
 }
+
+/* jquery selectable*/
+#fb-selectable-source-list .ui-selecting { 
+    background: #dfdfdf; 
+}
+
+#fb-selectable-source-list .ui-selected { 
+    background: #cdcdcd; 
+    color: white; 
+}
+
+#fb-selectable-source-list { 
+    list-style-type: none; 
+    margin: 0; 
+    padding: 0; 
+    width: 100%; 
+}
+
+#fb-selectable-source-list li {
+     margin: 3px; 
+     padding: 0.4em; 
+     font-size: 1.4em; 
+     height: 18px; 
+}
