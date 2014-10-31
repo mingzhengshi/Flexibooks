@@ -11,7 +11,7 @@ add_action( 'admin_head', 'fb_derived_admin_head' );
 add_action( 'admin_footer', 'fb_admin_footer' );
 add_action( 'init', 'fb_create_post_type' );
 
-add_action( 'add_meta_boxes', 'fb_add_meta_box_source_list' );
+//add_action( 'add_meta_boxes', 'fb_add_meta_box_source_list' );
 add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
 add_action( 'add_meta_boxes', 'fb_add_meta_box_revision' );
 
@@ -48,21 +48,22 @@ function fb_derived_admin_head() {
         $derived_css_url = plugins_url( 'css/derived.css' , __FILE__ );
         $jstree_css_url = plugins_url( 'lib/jstree/themes/default/style.min.css' , __FILE__ );
         $editor_div_css_url = plugins_url( 'css/editor_div.css' , __FILE__ );
-
+        $jquery_css_url = plugins_url( 'css/jquery-ui.theme.css' , __FILE__ );
+        
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
         echo '<script type="text/javascript" src="' . $jstree_js_url . '" ></script>';
-        //echo '<script src="http://code.jquery.com/ui/1.10.0/jquery-ui.js"></script>';
         
         echo '<link rel="stylesheet" type="text/css" href="' . $derived_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $jstree_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $editor_div_css_url . '" />';
-        
+        echo '<link rel="stylesheet" type="text/css" href="' . $jquery_css_url . '" />';
     }    
 }
 
 function fb_admin_print_scripts() {
     wp_enqueue_script('jquery');
     wp_enqueue_script('jquery-ui-core');
+    wp_enqueue_script('jquery-ui-tabs');
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -106,229 +107,9 @@ function fb_source_query() {
 	die(); // this is required to terminate immediately and return a proper response
 }
 
+
 //-----------------------------------------------------------------------------------------------
-// source and derive meta boxes
-
-function fb_add_meta_box_source_list() {
-    global $post;
-    if ($post) {        
-        if ($post->post_type == 'derived'){
-        add_meta_box('meta_box_source_list', 'Source Documents', 'fb_meta_box_source_list_callback', null, 'side', 'core' );
-        }
-    }
-}
-
-function fb_meta_box_source_list_callback() {
-    global $post;
-    $args = array( 'post_type' => 'source' );
-    $source_posts = get_posts( $args );
-    
-    $tree_root = array();
-    $tree_root['title'] = 'root';
-    $tree_root['children'] = array();
-    
-    foreach( $source_posts as $post ) {       
-        setup_postdata($post); 
-        $post_content = $post->post_content;
-        $html_parser = str_get_html($post_content);  
-        
-        //$tree_post = array();
-        //$tree_post['id'] = 'tree-' . $post->ID;
-        //$tree_post['title'] = the_title();
-        //$tree_post['children'] = array();     
-        //array_push($tree_root['children'], $tree_post);
-        
-        $tree_nodes = array();
-        
-        // root node
-        $count = 0;
-        $tree_nodes[$count] = array();
-        $tree_nodes[$count]['id'] = 'tree-' . $post->ID;
-        $tree_nodes[$count]['post_id_and_tag_id'] = $post->ID;
-        $tree_nodes[$count]['title'] = $post->post_title;
-        //$tree_nodes[$count]['children'] = array();  
-        
-        $tree_nodes[$count]['parentID'] = 0;
-        
-        $current_parents = array($tree_nodes[$count]['id'], null, null, null); // corresponding to four levels of the tree
-        
-        
-        foreach ($html_parser->nodes as $node) {
-            // consider the top level tags first
-            if ($node->parent()->tag == 'root'){
-                // check white space
-                if ($node->tag == 'text'){
-                    $inner_text = $node->innertext.trim();
-                    if (ctype_space($inner_text)){
-                        continue;
-                    }
-                } 
-                
-                $count++;
-                $tree_nodes[$count] = array();
-                $tree_nodes[$count]['id'] = 'tree-' . $node->attr['id'];
-                $tree_nodes[$count]['post_id_and_tag_id'] = $post->ID. ";" .$node->attr['id'];
-                
-                if (($node->tag == 'h1') ||
-                    ($node->tag == 'h2') ||
-                    ($node->tag == 'h3') ||
-                    ($node->tag == 'p')) {
-                    if (strlen($node->innertext) > 80) {
-                        $tree_nodes[$count]['title'] = substr($node->innertext, 0, 80) . "...";                   
-                    }
-                    else {
-                        $tree_nodes[$count]['title'] = $node->innertext;
-                    }
-                }
-                else if (($node->tag == 'ol') ||
-                    ($node->tag == 'ul')){
-                    $tree_nodes[$count]['title'] = 'list...';
-                }
-                else if ($node->tag == 'div'){
-                    $tree_nodes[$count]['title'] = 'section...';
-                }
-                else if ($node->tag == 'table'){
-                    $tree_nodes[$count]['title'] = 'table...';
-                }
-                else if ($node->tag == 'a'){
-                    $tree_nodes[$count]['title'] = 'image or link...';
-                }
-                
-                if (($node->tag == 'h1') ||
-                    ($node->tag == 'h2') ||
-                    ($node->tag == 'h3')){
-                    $this_level = (int)(substr($node->tag, 1, 1));
-                    //$current_parents[$this_level] = &$tree_nodes[$count];
-                    
-                    // set all the parents that are higher than this level to null
-                    for ($i = ($this_level+1); $i <= 3; $i++) {
-                        $current_parents[$i] = null;
-                    } 
-                    
-                    // append this node to its parent
-                    for ($i = ($this_level-1); $i >= 0; $i--) {
-                        if ($current_parents[$i] != null){
-                            $tree_nodes[$count]['parentID'] = $current_parents[$i];                          
-                            //array_push($current_parents[$i]['children'], $tree_nodes[$count]);
-                            $current_parents[$this_level] = $tree_nodes[$count]['id'];
-                            break;
-                        }
-                    }                   
-                }
-                else {
-                    for ($i = 3; $i >= 0; $i--) {
-                        if ($current_parents[$i] != null){
-                            $tree_nodes[$count]['parentID'] = $current_parents[$i];
-                            //array_push($current_parents[$i]['children'], $tree_nodes[$count]);
-                            break;
-                        }
-                    }  
-                }
-            }
-        }
-        
-        $parent_list = array();
-        foreach ($tree_nodes as $n){
-            $parent_list[$n['parentID']][] = $n;
-        }
-        $tree_post = fb_create_tree_from_list($parent_list, array($tree_nodes[0]));
-        array_push($tree_root['children'], $tree_post[0]);
-    }
-?>
-    <table>
-      <tr>
-        <td>
-            <div id="fb-div-jstree">
-                <?php 
-                    fb_array_to_ul($tree_root['children']);
-                ?>
-            </div>
-            <input style="margin-top:10px" type="button" value="Add Source Item" class="button-secondary" />
-        </td>
-        <td>
-            <div id="fb-div-show-jstree-selection" contenteditable="true">
-                <?php 
-                    //$editor_args = array("media_buttons" => false, "teeny" => true, "quicktags" => false);
-                    //wp_editor("Hello", "fb_editor_jstree_selection", $editor_args);
-                ?>
-            </div>
-        </td>		
-      </tr>
-    </table>
-
-<?php    
-}
-
-function fb_array_to_ul($arr) {
-    echo "<ul>";
-    foreach ($arr as $val) {
-        if (!empty($val['children'])) {
-            echo "<li id='". $val['post_id_and_tag_id'] ."'>" . $val['title'];
-            fb_array_to_ul($val['children']);
-            echo "</li>";
-        } else {
-            echo "<li id='". $val['post_id_and_tag_id'] ."'>" . $val['title'] . "</li>";
-        }
-    }
-    echo "</ul>";
-}
-
-function fb_setup_tag_ids(){
-    global $post;
-    $args = array( 'post_type' => 'source' );
-    $source_posts = get_posts( $args );
-    foreach( $source_posts as $post ){  
-        setup_postdata($post); 
-        $post_content = $post->post_content;
-        $html_parser = str_get_html($post_content);     
-                
-        //$tags = $html_parser->find('h1, h2, h3, p, ul, ol, table');
-
-        // this section of code should move into the 'save' button in the source document edit page
-                
-        foreach ($html_parser->nodes as $node){       
-            // consider the top level tags first
-            if ($node->parent()->tag == 'root'){
-                if ($node->tag == 'text'){
-                    $inner_text = $node->innertext.trim();
-                    if (!ctype_space($inner_text)){
-                        $node->outertext = "<p>" . $node->innertext . "</p>";
-                    }
-                }                  
-            }
-        }
-        
-        $result_str = $html_parser->save();
-        $html_parser = str_get_html($result_str); 
-        
-        foreach ($html_parser->nodes as $node){       
-            // consider the top level tags first
-            if ($node->parent()->tag == 'root'){                    
-                if(!isset($node->attr['id'])){
-                    $uid = uniqid(rand(), true);                        
-                    $node->{'id'} = $uid;
-                    
-                }                   
-            }
-        }
-        
-        // Dumps the internal DOM tree back into string 
-        $str = $html_parser->save();
-    }      
-}
-
-function fb_create_tree_from_list(&$parent_list, $parent){
-    $tree = array();
-    foreach ($parent as $key=>$child){
-        // if this child is in the parent list, continue to build the tree hierarchy; otherwise skip this step and add this child as a leaf of the tree
-        if(isset($parent_list[$child['id']])){
-            $child['children'] = fb_create_tree_from_list($parent_list, $parent_list[$child['id']]);
-        }
-        
-        $tree[] = $child;
-    } 
-    return $tree;
-}
+// derived meta boxes
 
 function fb_add_meta_box_derived_document() {
     global $post;
@@ -341,32 +122,6 @@ function fb_add_meta_box_derived_document() {
 
 function fb_meta_box_derived_document_callback() {
 
-?>
-<!--div id="fb-div-derived-sortables">
-</div>
-
-<input id="fb-button-add-new-derived-item" type="button" value="Add New Item" class="button-secondary" /-->
-
-        <div id="fb-accordion-source-list">
-              <h3>Section 1</h3>
-              <div>
-                <p>
-                Mauris mauris ante, blandit et, ultrices a, suscipit eget, quam. Integer
-                ut neque. Vivamus nisi metus, molestie vel, gravida in, condimentum sit
-                amet, nunc. Nam a nibh. Donec suscipit eros. Nam mi. Proin viverra leo ut
-                odio. Curabitur malesuada. Vestibulum a velit eu ante scelerisque vulputate.
-                </p>
-              </div>
-              <h3>Section 2</h3>
-              <div>
-                <p>
-                Sed non urna. Donec et ante. Phasellus eu ligula. Vestibulum sit amet
-                purus. Vivamus hendrerit, dolor at aliquet laoreet, mauris turpis porttitor
-                velit, faucibus interdum tellus libero ac justo. Vivamus non quam. In
-                suscipit faucibus urna.
-                </p>
-              </div>
-<?php
 /*
             $args = array( 'post_type' => 'source' );
             $source_posts = get_posts( $args );
@@ -382,12 +137,24 @@ function fb_meta_box_derived_document_callback() {
             }
 */
 ?>               
-        </div> 
+
 
 <table class="fb-source-and-derived-editors">
   <tr>
     <td>
-        
+        <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" /-->        
+        <div id="fb-tabs-sources">
+              <ul>
+                <li><a href="#fb-tabs-1">Nunc 1</a></li>
+                <li><a href="#fb-tabs-2">Nunc 2</a></li>
+              </ul>
+              <div id="fb-tabs-1">
+                <p>Proin elit arcu, rutrum commodo, vehicula tempus, commodo a, risus. Sed ut dolor nec orci tincidunt interdum. Phasellus ipsum. Nunc tristique tempus lectus.</p>
+              </div>
+              <div id="fb-tabs-2">
+                <p>tempus lectus.</p>
+              </div>
+        </div>
     </td>
     <td>
 <?php
@@ -638,6 +405,231 @@ function fb_mce_editor_enqueue() {
     wp_enqueue_style( 'myCustomStyles', $style_url );
 }
 */
+
+
+//-----------------------------------------------------------------------------------------------
+// source meta boxes
+
+function fb_add_meta_box_source_list() {
+    global $post;
+    if ($post) {        
+        if ($post->post_type == 'derived'){
+            add_meta_box('meta_box_source_list', 'Source Documents', 'fb_meta_box_source_list_callback', null, 'side', 'core' );
+        }
+    }
+}
+
+function fb_meta_box_source_list_callback() {
+    global $post;
+    $args = array( 'post_type' => 'source' );
+    $source_posts = get_posts( $args );
+    
+    $tree_root = array();
+    $tree_root['title'] = 'root';
+    $tree_root['children'] = array();
+    
+    foreach( $source_posts as $post ) {       
+        setup_postdata($post); 
+        $post_content = $post->post_content;
+        $html_parser = str_get_html($post_content);  
+        
+        //$tree_post = array();
+        //$tree_post['id'] = 'tree-' . $post->ID;
+        //$tree_post['title'] = the_title();
+        //$tree_post['children'] = array();     
+        //array_push($tree_root['children'], $tree_post);
+        
+        $tree_nodes = array();
+        
+        // root node
+        $count = 0;
+        $tree_nodes[$count] = array();
+        $tree_nodes[$count]['id'] = 'tree-' . $post->ID;
+        $tree_nodes[$count]['post_id_and_tag_id'] = $post->ID;
+        $tree_nodes[$count]['title'] = $post->post_title;
+        //$tree_nodes[$count]['children'] = array();  
+        
+        $tree_nodes[$count]['parentID'] = 0;
+        
+        $current_parents = array($tree_nodes[$count]['id'], null, null, null); // corresponding to four levels of the tree
+        
+        
+        foreach ($html_parser->nodes as $node) {
+            // consider the top level tags first
+            if ($node->parent()->tag == 'root'){
+                // check white space
+                if ($node->tag == 'text'){
+                    $inner_text = $node->innertext.trim();
+                    if (ctype_space($inner_text)){
+                        continue;
+                    }
+                } 
+                
+                $count++;
+                $tree_nodes[$count] = array();
+                $tree_nodes[$count]['id'] = 'tree-' . $node->attr['id'];
+                $tree_nodes[$count]['post_id_and_tag_id'] = $post->ID. ";" .$node->attr['id'];
+                
+                if (($node->tag == 'h1') ||
+                    ($node->tag == 'h2') ||
+                    ($node->tag == 'h3') ||
+                    ($node->tag == 'p')) {
+                    if (strlen($node->innertext) > 80) {
+                        $tree_nodes[$count]['title'] = substr($node->innertext, 0, 80) . "...";                   
+                    }
+                    else {
+                        $tree_nodes[$count]['title'] = $node->innertext;
+                    }
+                }
+                else if (($node->tag == 'ol') ||
+                    ($node->tag == 'ul')){
+                    $tree_nodes[$count]['title'] = 'list...';
+                }
+                else if ($node->tag == 'div'){
+                    $tree_nodes[$count]['title'] = 'section...';
+                }
+                else if ($node->tag == 'table'){
+                    $tree_nodes[$count]['title'] = 'table...';
+                }
+                else if ($node->tag == 'a'){
+                    $tree_nodes[$count]['title'] = 'image or link...';
+                }
+                
+                if (($node->tag == 'h1') ||
+                    ($node->tag == 'h2') ||
+                    ($node->tag == 'h3')){
+                    $this_level = (int)(substr($node->tag, 1, 1));
+                    //$current_parents[$this_level] = &$tree_nodes[$count];
+                    
+                    // set all the parents that are higher than this level to null
+                    for ($i = ($this_level+1); $i <= 3; $i++) {
+                        $current_parents[$i] = null;
+                    } 
+                    
+                    // append this node to its parent
+                    for ($i = ($this_level-1); $i >= 0; $i--) {
+                        if ($current_parents[$i] != null){
+                            $tree_nodes[$count]['parentID'] = $current_parents[$i];                          
+                            //array_push($current_parents[$i]['children'], $tree_nodes[$count]);
+                            $current_parents[$this_level] = $tree_nodes[$count]['id'];
+                            break;
+                        }
+                    }                   
+                }
+                else {
+                    for ($i = 3; $i >= 0; $i--) {
+                        if ($current_parents[$i] != null){
+                            $tree_nodes[$count]['parentID'] = $current_parents[$i];
+                            //array_push($current_parents[$i]['children'], $tree_nodes[$count]);
+                            break;
+                        }
+                    }  
+                }
+            }
+        }
+        
+        $parent_list = array();
+        foreach ($tree_nodes as $n){
+            $parent_list[$n['parentID']][] = $n;
+        }
+        $tree_post = fb_create_tree_from_list($parent_list, array($tree_nodes[0]));
+        array_push($tree_root['children'], $tree_post[0]);
+    }
+?>
+    <table>
+      <tr>
+        <td>
+            <div id="fb-div-jstree">
+                <?php 
+    fb_array_to_ul($tree_root['children']);
+                ?>
+            </div>
+            <input style="margin-top:10px" type="button" value="Add Source Item" class="button-secondary" />
+        </td>
+        <td>
+            <div id="fb-div-show-jstree-selection" contenteditable="true">
+                <?php 
+    //$editor_args = array("media_buttons" => false, "teeny" => true, "quicktags" => false);
+    //wp_editor("Hello", "fb_editor_jstree_selection", $editor_args);
+                ?>
+            </div>
+        </td>		
+      </tr>
+    </table>
+
+<?php    
+}
+
+function fb_array_to_ul($arr) {
+    echo "<ul>";
+    foreach ($arr as $val) {
+        if (!empty($val['children'])) {
+            echo "<li id='". $val['post_id_and_tag_id'] ."'>" . $val['title'];
+            fb_array_to_ul($val['children']);
+            echo "</li>";
+        } else {
+            echo "<li id='". $val['post_id_and_tag_id'] ."'>" . $val['title'] . "</li>";
+        }
+    }
+    echo "</ul>";
+}
+
+function fb_setup_tag_ids(){
+    global $post;
+    $args = array( 'post_type' => 'source' );
+    $source_posts = get_posts( $args );
+    foreach( $source_posts as $post ){  
+        setup_postdata($post); 
+        $post_content = $post->post_content;
+        $html_parser = str_get_html($post_content);     
+        
+        //$tags = $html_parser->find('h1, h2, h3, p, ul, ol, table');
+
+        // this section of code should move into the 'save' button in the source document edit page
+        
+        foreach ($html_parser->nodes as $node){       
+            // consider the top level tags first
+            if ($node->parent()->tag == 'root'){
+                if ($node->tag == 'text'){
+                    $inner_text = $node->innertext.trim();
+                    if (!ctype_space($inner_text)){
+                        $node->outertext = "<p>" . $node->innertext . "</p>";
+                    }
+                }                  
+            }
+        }
+        
+        $result_str = $html_parser->save();
+        $html_parser = str_get_html($result_str); 
+        
+        foreach ($html_parser->nodes as $node){       
+            // consider the top level tags first
+            if ($node->parent()->tag == 'root'){                    
+                if(!isset($node->attr['id'])){
+                    $uid = uniqid(rand(), true);                        
+                    $node->{'id'} = $uid;
+                    
+                }                   
+            }
+        }
+        
+        // Dumps the internal DOM tree back into string 
+        $str = $html_parser->save();
+    }      
+}
+
+function fb_create_tree_from_list(&$parent_list, $parent){
+    $tree = array();
+    foreach ($parent as $key=>$child){
+        // if this child is in the parent list, continue to build the tree hierarchy; otherwise skip this step and add this child as a leaf of the tree
+        if(isset($parent_list[$child['id']])){
+            $child['children'] = fb_create_tree_from_list($parent_list, $parent_list[$child['id']]);
+        }
+        
+        $tree[] = $child;
+    } 
+    return $tree;
+}
 
 ?>
 

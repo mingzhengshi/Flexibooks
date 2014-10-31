@@ -1,8 +1,9 @@
 jQuery(document).ready(function ($) {
 
 
-    $('#fb-accordion-source-list').accordion();
+    $('#fb-tabs-sources').tabs();
 
+    /*
     $("#fb-div-derived-sortables").sortable({
         //cursor: 'move'
     });
@@ -13,6 +14,7 @@ jQuery(document).ready(function ($) {
         $("#fb-div-derived-sortables").append('<div class="div-derived-item"><span>new item ' + x + '</span></div>');
         x++;
     });
+    */
 
     var ajax_request;
 
