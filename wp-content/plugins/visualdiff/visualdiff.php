@@ -131,13 +131,6 @@ function fb_box_derived_document_callback() {
     </ol>
 </div>
 
-<?php
-    echo "<div id='fb-div-source-editor' style='display:none;'>";
-    $source_editor_args = array("media_buttons" => false, "quicktags" => false);
-    wp_editor('', 'fb_left_editor_source', $source_editor_args);      
-    echo "</div>";
-?> 
-
 <table class="fb-source-and-derived-editors">
   <colgroup>
     <col span="1" style="width: 50%;">
@@ -145,17 +138,19 @@ function fb_box_derived_document_callback() {
   </colgroup>
   <tr>
     <td>
-        <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" style="margin-bottom: 10px;"/>        
+        <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" />        
         <div id="fb-tabs-sources">
               <ul id="fb-ul-source-tabs">
               </ul>
         </div>
     </td>
     <td>
+        <div>
 <?php
-    $derived_editor_args = array("media_buttons" => false, "quicktags" => false);
+    $derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('height' => 800));
     wp_editor('', 'fb_right_editor_derived', $derived_editor_args);      
 ?>   
+        </div>
     </td>		
   </tr>
 </table>

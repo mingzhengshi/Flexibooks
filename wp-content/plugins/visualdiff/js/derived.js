@@ -1,11 +1,11 @@
 jQuery(document).ready(function ($) {
     var selected_sources = [];
-    var source_tabs = $('#fb-tabs-sources').tabs();
+    var source_tabs = $('#fb-tabs-sources').tabs().css({
+        'min-height': '600px'
+    });
+
     var tab_counter = 0;
     var tab_template = "<li><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
-
-    var div_mce_editor = $('#fb-div-source-editor').contents();
-    //var div_mce_editor = $('#fb-div-source-editor');
 
     // close icon: removing the tab on click
     source_tabs.delegate("span.ui-icon-close", "click", function () {
@@ -14,6 +14,7 @@ jQuery(document).ready(function ($) {
         source_tabs.tabs("refresh");
     });
 
+    
     source_tabs.on("tabsactivate", function (event, ui) {
         console.log("tab activate...");
         //var active_tab_id = $(".ui-state-active").attr("id");
@@ -83,12 +84,13 @@ jQuery(document).ready(function ($) {
         $("#fb-ul-source-tabs").append(li);
         //source_tabs.append("<div id='" + id + "'><p>" + tabContentHtml + "</p></div>");
         source_tabs.append("<div id='" + tab_id + "'></div>");
-        var mce_id = 'fb-mce-' + id;
+        var mce_id = 'fb-mce-' + tab_id;
 
-        $("#" + tab_id).append("<div id='" + mce_id + "'></div>");
+        $("#" + tab_id).append("<div id='" + mce_id + "' style='height:700px'></div>");
 
         tinymce.execCommand('mceAddEditor', false, mce_id);
         tinymce.get(mce_id).setContent(data);
+
 
         source_tabs.tabs("refresh");
         tab_counter++;
