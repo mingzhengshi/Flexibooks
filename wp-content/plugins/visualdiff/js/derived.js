@@ -5,6 +5,7 @@ jQuery(document).ready(function ($) {
     var tab_template = "<li><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
     var div_mce_editor = $('#fb-div-source-editor').contents();
+    //var div_mce_editor = $('#fb-div-source-editor');
 
     // close icon: removing the tab on click
     source_tabs.delegate("span.ui-icon-close", "click", function () {
@@ -75,18 +76,19 @@ jQuery(document).ready(function ($) {
 
     function addSourceTab(data) {
         var label = "label";
-        var id = "fb-tabs-source-" + tab_counter;
-        var li = $(tab_template.replace(/#\{href\}/g, "#" + id).replace(/#\{label\}/g, label));
+        var tab_id = "fb-tabs-source-" + tab_counter;
+        var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id).replace(/#\{label\}/g, label));
         var tabContentHtml = data;
 
         $("#fb-ul-source-tabs").append(li);
         //source_tabs.append("<div id='" + id + "'><p>" + tabContentHtml + "</p></div>");
-        source_tabs.append("<div id='" + id + "'></div>");
-        $("#" + id).append(div_mce_editor);
+        source_tabs.append("<div id='" + tab_id + "'></div>");
+        var mce_id = 'fb-mce-' + id;
 
-        //tinymce.execCommand('mceRemoveEditor', false, 'fb_left_editor_source');
-        //tinymce.execCommand('mceAddEditor', false, 'fb_left_editor_source');
-        //tinyMCE.get('fb_left_editor_source').setContent(data);
+        $("#" + tab_id).append("<div id='" + mce_id + "'></div>");
+
+        tinymce.execCommand('mceAddEditor', false, mce_id);
+        tinymce.get(mce_id).setContent(data);
 
         source_tabs.tabs("refresh");
         tab_counter++;

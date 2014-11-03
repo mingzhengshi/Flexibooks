@@ -12,8 +12,11 @@ add_action( 'admin_footer', 'fb_admin_footer' );
 add_action( 'init', 'fb_create_post_type' );
 
 //add_action( 'add_meta_boxes', 'fb_add_meta_box_source_list' );
-add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
+//add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
 add_action( 'add_meta_boxes', 'fb_add_meta_box_revision' );
+
+add_action( 'edit_page_form', 'fb_add_post_box_derived_document' );
+add_action( 'edit_form_advanced', 'fb_add_post_box_derived_document' );
 
 // mce editor
 add_filter('mce_css', 'fb_mce_editor_style');
@@ -71,7 +74,7 @@ function fb_admin_print_scripts() {
 //-----------------------------------------------------------------------------------------------
 // ajax action
 
-function fb_source_query() {
+function fb_source_query() {   
     // add a new tab
     
     
@@ -87,6 +90,17 @@ function fb_source_query() {
 	die(); // this is required to terminate immediately and return a proper response
 }
 
+//-----------------------------------------------------------------------------------------------
+// derived post boxes
+
+function fb_add_post_box_derived_document() {
+    global $post;
+    if ($post) {        
+        if ($post->post_type == 'derived'){
+            fb_box_derived_document_callback();
+        }
+    }
+}
 
 //-----------------------------------------------------------------------------------------------
 // derived meta boxes
@@ -95,12 +109,12 @@ function fb_add_meta_box_derived_document() {
     global $post;
     if ($post) {        
         if ($post->post_type == 'derived'){
-            add_meta_box('meta_box_derived_document', 'Derived Document', 'fb_meta_box_derived_document_callback', null, 'side', 'core' );
+            add_meta_box('meta_box_derived_document', 'Derived Document', 'fb_box_derived_document_callback', null, 'side', 'core' );
         }
     }
 }
 
-function fb_meta_box_derived_document_callback() {
+function fb_box_derived_document_callback() {
 ?>               
 <div id="fb-source-selection-dialog" title="Source Documents">
     <ol id="fb-selectable-source-list">
@@ -117,12 +131,12 @@ function fb_meta_box_derived_document_callback() {
     </ol>
 </div>
 
-<div id="fb-div-source-editor" style="display:none;">
 <?php
+    echo "<div id='fb-div-source-editor' style='display:none;'>";
     $source_editor_args = array("media_buttons" => false, "quicktags" => false);
     wp_editor('', 'fb_left_editor_source', $source_editor_args);      
+    echo "</div>";
 ?> 
-</div>
 
 <table class="fb-source-and-derived-editors">
   <colgroup>
