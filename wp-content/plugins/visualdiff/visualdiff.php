@@ -137,18 +137,19 @@ function fb_box_derived_document_callback() {
     <col span="1" style="width: 50%;">
   </colgroup>
   <tr>
-    <td>
+    <td style="vertical-align:top">
         <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" />        
         <div id="fb-tabs-sources">
               <ul id="fb-ul-source-tabs">
               </ul>
         </div>
     </td>
-    <td>
+    <td style="vertical-align:top">
+        <h3 style="margin-bottom:8px">Derived Document</h3>
         <div>
 <?php
     $derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('height' => 800));
-    wp_editor('', 'fb_right_editor_derived', $derived_editor_args);      
+    wp_editor('', 'fb-derived-mce', $derived_editor_args);      
 ?>   
         </div>
     </td>		

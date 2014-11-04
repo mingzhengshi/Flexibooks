@@ -3,6 +3,23 @@ jQuery(document).ready(function ($) {
 
         // events
         editor.on('init', function () {
+            resetIcons();
+        });
+
+        editor.on('change', function (e) {
+            console.log('change event', e);
+            resetIcons();
+        });
+
+        editor.on('PostProcess', function (e) {
+            resetIcons();
+        });
+
+        // functions
+        function resetIcons() {
+            $(editor.getBody()).find('.fb_tinymce_left_column').remove();
+            /*
+            $(editor.getBody()).find('.fb_tinymce_left_column').remove();
             var left_column = document.createElement('div');
             left_column.style.position = 'absolute';
             left_column.style.top = 0;
@@ -12,44 +29,37 @@ jQuery(document).ready(function ($) {
             left_column.style.backgroundColor = '#e8e8e8';
             left_column.className = 'fb_tinymce_left_column';
             editor.getBody().appendChild(left_column);
-
-            resetFoldingIcons();
-        });
-
-        editor.on('change', function (e) {
-            console.log('change event', e);
-            resetFoldingIcons();
-        });
-
-        editor.on('PostProcess', function (e) {
-            resetFoldingIcons();
-        });
-
-        // functions
-        function resetFoldingIcons() {
+            */
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').remove(); // clear all existing icons
 
             $(editor.getBody()).find('h1, h2, h3').each(function (index) {
-                var iconID = 'icon-' + $(this).attr('id');
+                var foldingIconID = 'fold-' + $(this).attr('id');
+                var pushIconID = 'push-' + $(this).attr('id');
                 var offset = $(this).offset(); // absolute position relative to the document
-                var height = $(this).height();
+                //var height = $(this).height();
                 var classes = $(this).attr('class');
 
                 if (classes != null && classes.indexOf("fb-display-none") >= 0) {
-                    var test = 1;
+                    //var test = 1;
                 }
                 else if (classes != null && classes.indexOf("fb-collapse") >= 0) {
-                    createFoldingIcon(iconID, offset.top, '&#8862');
+                    createIcon(foldingIconID, offset.top, '&#8862'); // folding icon: plus 
+                    if (editor.id.indexOf("fb-source-mce") >= 0) {
+                        createIcon(pushIconID, offset.top + 15, '&#9655');
+                    }
                 }
                 else {
-                    createFoldingIcon(iconID, offset.top);
+                    createIcon(foldingIconID, offset.top, '&#8863'); // folding icon: minus 
+                    if (editor.id.indexOf("fb-source-mce") >= 0) {
+                        createIcon(pushIconID, offset.top + 15, '&#9655');
+                    }
                 }
             });
 
-            setupFoldingIconEvents();
+            setupIconEvents();
         }
 
-        function setupFoldingIconEvents() {
+        function setupIconEvents() {
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').hover(
                 // handlerIn
                 function () {
@@ -77,8 +87,15 @@ jQuery(document).ready(function ($) {
 
                         $(this).html('&#8863');  // switch to minus box
                     }
+                    // click the push button: add content
+                    else if ($(this).html().charCodeAt() == '9655') {
+                        var derived_mce = tinymce.get('fb-derived-mce');
+                        if (derived_mce) {
+                            derived_mce.insertContent('hello world'); // inserts content at caret position
+                        }
+                    }
 
-                    resetFoldingIcons();
+                    resetIcons();
                 }
             );
         }
@@ -141,13 +158,13 @@ jQuery(document).ready(function ($) {
             }
         }
 
-        function createFoldingIcon(id, top, text) {
-            text = typeof text !== 'undefined' ? text : '&#8863'; // default parameter
+        function createIcon(id, top, text) {
+            //text = typeof text !== 'undefined' ? text : '&#8863'; // default parameter
 
             var icon = document.createElement('div');
             icon.className = 'fb_tinymce_left_column_icon';
             icon.id = id;
-            icon.innerHTML = text; // minus box; '&#8862' is plus box
+            icon.innerHTML = text; 
             icon.style.position = 'absolute';
             icon.style.top = top + 'px';
             icon.style.left = '-0.5px';

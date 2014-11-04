@@ -19,8 +19,9 @@ jQuery(document).ready(function ($) {
         console.log("tab activate...");
         //var active_tab_id = $(".ui-state-active").attr("id");
         $tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
-
         var $selected = $("#fb-tabs-sources ul>li a").eq($tabIndex).attr('href');
+
+
     });
 
     var fb_source_selection_dialog = $("#fb-source-selection-dialog").dialog({
@@ -84,13 +85,12 @@ jQuery(document).ready(function ($) {
         $("#fb-ul-source-tabs").append(li);
         //source_tabs.append("<div id='" + id + "'><p>" + tabContentHtml + "</p></div>");
         source_tabs.append("<div id='" + tab_id + "'></div>");
-        var mce_id = 'fb-mce-' + tab_id;
+        var mce_id = 'fb-source-mce-' + tab_id;
 
         $("#" + tab_id).append("<div id='" + mce_id + "' style='height:700px'></div>");
 
         tinymce.execCommand('mceAddEditor', false, mce_id);
         tinymce.get(mce_id).setContent(data);
-
 
         source_tabs.tabs("refresh");
         tab_counter++;
