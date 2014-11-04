@@ -1,7 +1,7 @@
 jQuery(document).ready(function ($) {
     var selected_sources = [];
     var source_tabs = $('#fb-tabs-sources').tabs().css({
-        'min-height': '600px'
+        'min-height': '850px'
     });
 
     var tab_counter = 0;
@@ -87,7 +87,7 @@ jQuery(document).ready(function ($) {
         source_tabs.append("<div id='" + tab_id + "'></div>");
         var mce_id = 'fb-source-mce-' + tab_id;
 
-        $("#" + tab_id).append("<div id='" + mce_id + "' style='height:700px'></div>");
+        $("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
 
         tinymce.execCommand('mceAddEditor', false, mce_id);
         tinymce.get(mce_id).setContent(data);

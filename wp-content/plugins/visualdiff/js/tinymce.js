@@ -15,6 +15,14 @@ jQuery(document).ready(function ($) {
             resetIcons();
         });
 
+        editor.on('activate', function (e) {
+            resetIcons();
+        });
+
+        editor.on('focus', function (e) {
+            resetIcons();
+        });
+
         // functions
         function resetIcons() {
             $(editor.getBody()).find('.fb_tinymce_left_column').remove();
@@ -89,15 +97,54 @@ jQuery(document).ready(function ($) {
                     }
                     // click the push button: add content
                     else if ($(this).html().charCodeAt() == '9655') {
-                        var derived_mce = tinymce.get('fb-derived-mce');
-                        if (derived_mce) {
-                            derived_mce.insertContent('hello world'); // inserts content at caret position
-                        }
+                        insertContent(targetID);
                     }
 
                     resetIcons();
                 }
             );
+        }
+        
+        function insertContent(targetID) {
+            var content = "";
+
+            var start = false;
+            var targetLevel = 10000;
+            var children = $(editor.getBody()).children();
+            if (children != null && children.length > 0) {
+                for (var i = 0; i < children.length; i++) {
+                    var element = children[i];
+                    if (element.className.indexOf("fb_tinymce_left_column") >= 0) continue;
+
+                    if (start == false) {
+                        if (element.id == targetID) {
+                            start = true;
+                            targetLevel = parseInt(element.tagName.substr(1));
+
+                            content += element.outerHTML;
+                        }
+                    }
+                    else {
+                        if ((element.tagName.toLowerCase() == 'h1') || (element.tagName.toLowerCase() == 'h2') || (element.tagName.toLowerCase() == 'h3')) {
+                            var level = parseInt(element.tagName.substr(1));
+                            if (level <= targetLevel) {
+                                break;
+                            }
+                            else {
+                                content += element.outerHTML;
+                            }
+                        }
+                        else {
+                            content += element.outerHTML;
+                        }
+                    }
+                }
+            }
+
+            var derived_mce = tinymce.get('fb-derived-mce');
+            if (derived_mce) {
+                derived_mce.insertContent(content); // inserts content at caret position
+            }
         }
 
         function collapseOrExpand(targetID, collapse) {
