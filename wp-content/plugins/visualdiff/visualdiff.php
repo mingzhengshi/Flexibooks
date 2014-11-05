@@ -133,8 +133,9 @@ function fb_box_derived_document_callback() {
 
 <table class="fb-source-and-derived-editors">
   <colgroup>
-    <col span="1" style="width: 50%;">
-    <col span="1" style="width: 50%;">
+    <col span="1" style="width: 49%;">
+    <col span="1" style="width: 2%;">
+    <col span="1" style="width: 49%;">
   </colgroup>
   <tr>
     <td style="vertical-align:top">
@@ -144,11 +145,13 @@ function fb_box_derived_document_callback() {
               </ul>
         </div>
     </td>
+    <td>
+    </td>
     <td style="vertical-align:top">
         <h3 style="margin-bottom:8px">Derived Document</h3>
         <div>
 <?php
-    $derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('height' => 800));
+    $derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
     wp_editor('', 'fb-derived-mce', $derived_editor_args);      
 ?>   
         </div>

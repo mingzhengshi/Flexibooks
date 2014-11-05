@@ -26,20 +26,20 @@ jQuery(document).ready(function ($) {
         // functions
         function resetIcons() {
             $(editor.getBody()).find('.fb_tinymce_left_column').remove();
-            /*
-            $(editor.getBody()).find('.fb_tinymce_left_column').remove();
             var left_column = document.createElement('div');
             left_column.style.position = 'absolute';
             left_column.style.top = 0;
             left_column.style.left = 0;
             left_column.style.width = '12px';
+
+            //var body_height = $(editor.getBody()).height();
+            //left_column.style.height = body_height + 'px';
             left_column.style.height = '100%';
             left_column.style.backgroundColor = '#e8e8e8';
             left_column.className = 'fb_tinymce_left_column';
             editor.getBody().appendChild(left_column);
-            */
-            $(editor.getBody()).find('.fb_tinymce_left_column_icon').remove(); // clear all existing icons
 
+            $(editor.getBody()).find('.fb_tinymce_left_column_icon').remove(); // clear all existing icons
             $(editor.getBody()).find('h1, h2, h3').each(function (index) {
                 var foldingIconID = 'fold-' + $(this).attr('id');
                 var pushIconID = 'push-' + $(this).attr('id');
