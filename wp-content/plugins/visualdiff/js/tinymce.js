@@ -8,6 +8,7 @@ jQuery(document).ready(function ($) {
 
         editor.on('change', function (e) {
             console.log('change event', e);
+            setupDerivedElementID();
             resetIcons();
         });
 
@@ -104,6 +105,74 @@ jQuery(document).ready(function ($) {
                 }
             );
         }
+
+        function setupDerivedElementID() {
+            // only for derived editor
+            if (editor.id.indexOf("fb-derived-mce") < 0) return;
+
+            $(editor.getBody()).children().each(function (index) {
+                if (typeof $(this).attr('class') === typeof undefined ||
+                           $(this).attr('class') === false ||
+                           $(this).attr('class').indexOf("fb_tinymce_left_column") < 0) {
+                    if (typeof $(this).attr('source_id') === typeof undefined || $(this).attr('source_id') === false) {
+                        if (typeof $(this).attr('id') === typeof undefined || $(this).attr('id') === false) {
+                            // new element created by the user
+                            //element["source_id"] = "none";
+                            //element.id = generateUUID();
+                            $(this).attr("source_id", "new_content");
+                            $(this).attr("id", generateUUID());
+                            $(this).attr("t-id", generateUUID());
+                            $(this).attr("s-id", generateUUID());
+                        }
+                        else {
+                            // element from source document
+                            //element["source_id"] = element.id;
+                            //element.id = generateUUID();
+                            var source_id = $(this).attr("id");
+                            $(this).attr("source_id", source_id);
+                            $(this).attr("id", generateUUID());
+                            $(this).attr("t-id", generateUUID());
+                            $(this).attr("s-id", generateUUID());
+                        }
+                    }
+                }
+            });
+
+            /*
+            var children = $(editor.getBody()).children();
+            if (children != null && children.length > 0) {
+                for (var i = 0; i < children.length; i++) {
+                    var element = children[i];
+                    if (element.hasAttribute("source_id") == false) {
+                        if (element.hasAttribute("id") == false) {
+                            // new element created by the user
+                            //element["source_id"] = "none";
+                            //element.id = generateUUID();
+                            //$(element).attr("source_id", "none");
+                            //$(element).attr("id", generateUUID());
+                        }
+                        else {
+                            // element from source document
+                            //element["source_id"] = element.id;
+                            //element.id = generateUUID();
+                            //$(element).attr("source_id", element.id);
+                            //$(element).attr("id", generateUUID());
+                        }
+                    }
+                }
+            }
+            */
+        }
+
+        function generateUUID() {
+            var d = new Date().getTime();
+            var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                var r = (d + Math.random() * 16) % 16 | 0;
+                d = Math.floor(d / 16);
+                return (c == 'x' ? r : (r & 0x7 | 0x8)).toString(16);
+            });
+            return uuid;
+        };
         
         function insertContent(targetID) {
             var content = "";
@@ -143,7 +212,7 @@ jQuery(document).ready(function ($) {
 
             var derived_mce = tinymce.get('fb-derived-mce');
             if (derived_mce) {
-                derived_mce.insertContent(content); // inserts content at caret position
+                derived_mce.insertContent(content); // inserts content at cursor position
             }
         }
 

@@ -84,7 +84,7 @@ jQuery(document).ready(function ($) {
 
         $("#fb-ul-source-tabs").append(li);
         //source_tabs.append("<div id='" + id + "'><p>" + tabContentHtml + "</p></div>");
-        source_tabs.append("<div id='" + tab_id + "'></div>");
+        source_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
         var mce_id = 'fb-source-mce-' + tab_id;
 
         $("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
