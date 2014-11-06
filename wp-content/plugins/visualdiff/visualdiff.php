@@ -84,9 +84,15 @@ function fb_source_query() {
     $post_id = $_POST['id'];
 
     $post = get_post( $post_id );
-    $post_content = $post->post_content;
+    //$post_content = $post->post_content;
+    //echo $post_content;
+    
+    $data = array(
+        'content' => $post->post_content,
+        'title' => $post->post_title
+    );
 
-    echo $post_content;
+    echo json_encode($data);
 	die(); // this is required to terminate immediately and return a proper response
 }
 

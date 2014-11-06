@@ -23,7 +23,7 @@ if ($last_revision){
     $right_content = $last_revision[0]->post_content;
 }
 
-$diff = new HtmlDiff( $left_content, $right_content );
+ $diff = new HtmlDiff( $left_content, $right_content );
 $diff->buildSplitDiff();
 //$diff->build(); // test
 

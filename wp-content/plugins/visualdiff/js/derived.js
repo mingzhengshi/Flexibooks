@@ -41,8 +41,8 @@ jQuery(document).ready(function ($) {
                         function (data, status) {
                             if (status.toLowerCase() == "success") {
                                 //var outer_text = data.htmltext;
-                                var test = data;
-                                addSourceTab(data);
+                                var obj = JSON.parse(data);
+                                addSourceTab(obj.title, obj.content);
                             }
                             else {
                             }
@@ -76,11 +76,9 @@ jQuery(document).ready(function ($) {
         fb_source_selection_dialog.dialog("open");
     });
 
-    function addSourceTab(data) {
-        var label = "label";
+    function addSourceTab(title, content) {
         var tab_id = "fb-tabs-source-" + tab_counter;
-        var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id).replace(/#\{label\}/g, label));
-        var tabContentHtml = data;
+        var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id).replace(/#\{label\}/g, title));
 
         $("#fb-ul-source-tabs").append(li);
         //source_tabs.append("<div id='" + id + "'><p>" + tabContentHtml + "</p></div>");
@@ -90,7 +88,7 @@ jQuery(document).ready(function ($) {
         $("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
 
         tinymce.execCommand('mceAddEditor', false, mce_id);
-        tinymce.get(mce_id).setContent(data);
+        tinymce.get(mce_id).setContent(content);
 
         source_tabs.tabs("refresh");
         tab_counter++;
