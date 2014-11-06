@@ -89,6 +89,15 @@ jQuery(document).ready(function ($) {
 
         tinymce.execCommand('mceAddEditor', false, mce_id);
         tinymce.get(mce_id).setContent(content);
+        tinymce.get(mce_id).on('change', function (e) {
+            tinymceChangeEvent();
+        });
+
+        if (tab_counter == 0) {
+            tinymce.get('fb-derived-mce').on('change', function (e) {
+                tinymceChangeEvent();
+            });
+        }
 
         source_tabs.tabs("refresh");
         tab_counter++;
@@ -104,6 +113,10 @@ jQuery(document).ready(function ($) {
             });           
         }
     });
+
+    function tinymceChangeEvent() {
+        console.log('derived.js... tinymce change event');
+    }
 
     /*
     $("#fb-div-derived-sortables").sortable({
