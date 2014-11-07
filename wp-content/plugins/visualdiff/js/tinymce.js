@@ -110,11 +110,9 @@ jQuery(document).ready(function ($) {
             if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
 
             $(editor.getBody()).children().each(function (index) {
-                if (typeof $(this).attr('class') === typeof undefined ||
-                           $(this).attr('class') === false ||
-                           $(this).attr('class').indexOf("fb_tinymce_left_column") < 0) {
-                    if (typeof $(this).attr('data-source-id') === typeof undefined || $(this).attr('data-source-id') === false) {
-                        if (typeof $(this).attr('id') === typeof undefined || $(this).attr('id') === false) {
+                if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
+                    if (!$(this).attr('data-source-id')) {
+                        if (!$(this).attr('id')) {
                             // new element created by the user
                             $(this).attr("data-source-id", "none");
                             $(this).attr("id", generateUUID());
@@ -123,6 +121,13 @@ jQuery(document).ready(function ($) {
                             // element from source document
                             var source_id = $(this).attr("id");
                             $(this).attr("data-source-id", source_id);
+                            $(this).attr("id", generateUUID());
+                        }
+                    }
+                    else {
+                        if (!$(this).attr('id')) {
+                            // new element created by the user
+                            $(this).attr("data-source-id", "none");
                             $(this).attr("id", generateUUID());
                         }
                     }

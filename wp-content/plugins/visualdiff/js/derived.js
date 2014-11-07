@@ -21,7 +21,6 @@ jQuery(document).ready(function ($) {
         $tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
         var $selected = $("#fb-tabs-sources ul>li a").eq($tabIndex).attr('href');
 
-
     });
 
     var fb_source_selection_dialog = $("#fb-source-selection-dialog").dialog({
@@ -78,25 +77,22 @@ jQuery(document).ready(function ($) {
 
     function addSourceTab(title, content) {
         var tab_id = "fb-tabs-source-" + tab_counter;
+        var mce_id = 'fb-source-mce-' + tab_counter;
         var li_id = tab_id + "-selector";
         var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id).replace(/#\{label\}/g, title).replace(/#\{id\}/g, li_id));
 
         $("#fb-ul-source-tabs").append(li);
-        //source_tabs.append("<div id='" + id + "'><p>" + tabContentHtml + "</p></div>");
         source_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
-        var mce_id = 'fb-source-mce-' + tab_id;
+
 
         $("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
 
         tinymce.execCommand('mceAddEditor', false, mce_id);
-        tinymce.get(mce_id).setContent(content);
-        tinymce.get(mce_id).on('change', function (e) {
-            tinymceChangeEvent();
-        });
+        tinymce.get(mce_id).setContent(content); // note: the get method does not work sometimes
 
         if (tab_counter == 0) {
             tinymce.get('fb-derived-mce').on('change', function (e) {
-                tinymceChangeEvent();
+                derivedMceChangeEvent($(this.getBody()).children());
             });
 
             source_tabs.removeClass('fb-tabs-sources-display-none');
@@ -118,50 +114,27 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    function tinymceChangeEvent() {
-        console.log('derived.js... tinymce change event');
-    }
+    function derivedMceChangeEvent(children) {
+        // get active tab id
+        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
+        if (typeof tab_id == typeof undefined || tab_id == null) return;
+        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
 
-    /*
-    $("#fb-div-derived-sortables").sortable({
-        //cursor: 'move'
-    });
+        var source_mce = tinymce.get(source_mce_id);
 
-    var x = 1;
-    $("#fb-button-add-new-derived-item").click(function () {
-        var val = 1;
-        $("#fb-div-derived-sortables").append('<div class="div-derived-item"><span>new item ' + x + '</span></div>');
-        x++;
-    });
+        children.each(function (index) {
+            if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
+                var source_id = $(this).attr('data-source-id');
+                if (source_id && source_id != 'none') {
+                    console.log($(this).attr("id"));
+                    var source_element = source_mce.getDoc().getElementById(source_id);
+                    if (source_element) {
 
 
-    var ajax_request;
-
-    $('#fb-div-jstree')
-        .on('changed.jstree', function (e, data) {
-            if (data.selected && data.selected.length == 1) {
-                var select_node = data.instance.get_node(data.selected[0]);
-                var node_id = select_node.id;
-                var url = source_query_url;
-
-                $.post(ajaxurl,
-                    {
-                        'action': 'fb_source_query',
-                        'id': node_id
-                    },
-                    function (data, status) {
-                        if (status.toLowerCase() == "success") {
-                            //var outer_text = data.htmltext;
-                            $('#fb-div-show-jstree-selection').empty();
-                            $('#fb-div-show-jstree-selection').append(data);
-                        }
-                        else {
-                            //alert("Loading is: " + status + "\nData: " + data);
-                        }
-                });
+                    }
+                }
             }
-        })
-        .jstree();
-     */
+        });
+    }
 });
 
