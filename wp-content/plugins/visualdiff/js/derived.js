@@ -5,7 +5,7 @@ jQuery(document).ready(function ($) {
     });
 
     var tab_counter = 0;
-    var tab_template = "<li><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
+    var tab_template = "<li id='#{id}'><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
     // close icon: removing the tab on click
     source_tabs.delegate("span.ui-icon-close", "click", function () {
@@ -78,7 +78,8 @@ jQuery(document).ready(function ($) {
 
     function addSourceTab(title, content) {
         var tab_id = "fb-tabs-source-" + tab_counter;
-        var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id).replace(/#\{label\}/g, title));
+        var li_id = tab_id + "-selector";
+        var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id).replace(/#\{label\}/g, title).replace(/#\{id\}/g, li_id));
 
         $("#fb-ul-source-tabs").append(li);
         //source_tabs.append("<div id='" + id + "'><p>" + tabContentHtml + "</p></div>");
@@ -97,9 +98,12 @@ jQuery(document).ready(function ($) {
             tinymce.get('fb-derived-mce').on('change', function (e) {
                 tinymceChangeEvent();
             });
+
+            source_tabs.removeClass('fb-tabs-sources-display-none');
         }
 
         source_tabs.tabs("refresh");
+        source_tabs.tabs("option", "active", $('#' + li_id).index());
         tab_counter++;
     }
 

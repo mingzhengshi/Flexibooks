@@ -146,7 +146,7 @@ function fb_box_derived_document_callback() {
   <tr>
     <td style="vertical-align:top">
         <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" />        
-        <div id="fb-tabs-sources">
+        <div id="fb-tabs-sources" class="fb-tabs-sources-display-none">
               <ul id="fb-ul-source-tabs">
               </ul>
         </div>

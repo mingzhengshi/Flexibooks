@@ -38,6 +38,10 @@
     cursor: pointer; 
 }
 
+.fb-tabs-sources-display-none { 
+    display: none;
+}
+
 /* jquery selectable*/
 #fb-selectable-source-list .ui-selecting { 
     background: #dfdfdf; 
