@@ -119,8 +119,14 @@ jQuery(document).ready(function ($) {
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
         if (typeof tab_id == typeof undefined || tab_id == null) return;
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
-
         var source_mce = tinymce.get(source_mce_id);
+
+        var x_left = 0;
+        var x_right = $('#fb-svg-mid-column').width();
+        $('#fb-svg-mid-column').find('.fb-svg-polygons').remove(); // clear all polygons
+
+        var polygon_template = "<polygon points='0,#{y_top_left} 0,#{y_bottom_left} #{x_right},#{y_bottom_right} #{x_right},#{y_top_right}' class='fb-svg-polygons' style='fill:lightgreen;position:absolute;'></polygon>";
+        polygon_template = polygon_template.replace(/#\{x_right\}/g, x_right);
 
         children.each(function (index) {
             if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
@@ -129,12 +135,21 @@ jQuery(document).ready(function ($) {
                     console.log($(this).attr("id"));
                     var source_element = source_mce.getDoc().getElementById(source_id);
                     if (source_element) {
-
-
+                        var h = $(source_element).height();
+                        var oh = $(source_element).outerHeight();
+                        var top = $(source_element).position().top;
+                        var polygon = polygon_template.replace("#{y_top_left}", top)
+                                                      .replace("#{y_bottom_left}", top + 10)
+                                                      .replace("#{y_bottom_right}", top + 10)
+                                                      .replace("#{y_top_right}", top);
+                        //$('#fb-svg-mid-column').append(polygon); // note: jquery append does not work with svg
                     }
                 }
             }
         });
     }
+
+
+
 });
 
