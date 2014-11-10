@@ -152,9 +152,7 @@ function fb_box_derived_document_callback() {
         </div>
     </td>
     <td id="fb-td-mid-column">
-        <svg id="fb-svg-mid-column" height="100%" width="100%">
-            <polygon points="0,0 0,10 32,10 32,0" class='fb-svg-polygons' style="fill:lightgreen;position:absolute;" />
-            <polygon points="0,468 0,478 32,478 32,468" class="fb-svg-polygons" style="fill:lightgreen;position:absolute;"></polygon>
+        <svg id="fb-svg-mid-column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/>
         </svg>
     </td>
     <td style="vertical-align:top">
