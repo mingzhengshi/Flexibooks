@@ -92,7 +92,7 @@ jQuery(document).ready(function ($) {
 
         if (tab_counter == 0) {
             tinymce.get('fb-derived-mce').on('change', function (e) {
-                updateSVG($(this.getBody()).children());
+                updateSVG($(this.getDoc()));
             });
 
             source_tabs.removeClass('fb-tabs-sources-display-none');
@@ -114,37 +114,43 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    function updateSVG(derived_elements) {
+    function updateSVG(derived_doc) {
         // get active tab id
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
         if (typeof tab_id == typeof undefined || tab_id == null) return;
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
         var source_mce = tinymce.get(source_mce_id);
-        var source_doc = source_mce.getBody();
-        var source_doc_parent = source_mce.getBody().parentNode;
-        var loc = $(source_doc_parent).offset();
+
+        var source_iframe_container_top = getiFrameOffsetTop(source_mce.getDoc());
+        var derived_iframe_container_top = getiFrameOffsetTop(derived_doc[0]);
+
+        if (source_iframe_container_top < 0 || derived_iframe_container_top < 0) return;
+
+        var svg_container_top = $('#fb-td-mid-column').offset().top;
 
         var x_left = 0;
         var x_right = $('#fb-svg-mid-column').width();
         $('#fb-svg-mid-column').find('.fb-svg-polygons').remove(); // clear all polygons
 
-
-
-        derived_elements.each(function (index) {
+        $(derived_doc[0].body).children().each(function (index) {
             if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
                 var source_id = $(this).attr('data-source-id');
                 if (source_id && source_id != 'none') {
-                    console.log($(this).attr("id"));
                     var source_element = source_mce.getDoc().getElementById(source_id);
                     if (source_element) {
-                        var height = $(source_element).height();
-                        var outerheight = $(source_element).outerHeight();
-                        var top = $(source_element).position().top;
+                        var derived_height = $(this).height();
+                        var derived_top = $(this).position().top;
+                        derived_top += (derived_iframe_container_top - svg_container_top);
 
-                        var y_top_left = top;
-                        var y_bottom_left = top + 10;
-                        var y_bottom_right = top + 10;
-                        var y_top_right = top;
+                        var source_height = $(source_element).height();
+                        var source_outer_height = $(source_element).outerHeight();
+                        var source_top = $(source_element).position().top;
+                        source_top += (source_iframe_container_top - svg_container_top);
+
+                        var y_top_left = source_top;
+                        var y_bottom_left = source_top + source_height;
+                        var y_bottom_right = derived_top + derived_height;
+                        var y_top_right = derived_top;
 
                         var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
                         var points = "0," + y_top_left + " ";
@@ -159,6 +165,19 @@ jQuery(document).ready(function ($) {
                 }
             }
         });
+    }
+
+    function getiFrameOffsetTop(doc) {
+        var iframes = document.getElementsByTagName("iframe");
+        for (var i = 0; i < iframes.length; i++) {
+            var iframe_doc = iframes[i].contentDocument || iframes[i].contentWindow.document;
+            if (iframe_doc == doc) {
+                var containerDiv = iframes[i].parentNode;
+                return $(containerDiv).offset().top;
+            }
+        }
+
+        return -1;
     }
 });
 
