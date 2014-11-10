@@ -21,6 +21,7 @@ jQuery(document).ready(function ($) {
         $tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
         var $selected = $("#fb-tabs-sources ul>li a").eq($tabIndex).attr('href');
 
+        updateSVG(null);
     });
 
     var fb_source_selection_dialog = $("#fb-source-selection-dialog").dialog({
@@ -92,7 +93,7 @@ jQuery(document).ready(function ($) {
 
         if (tab_counter == 0) {
             tinymce.get('fb-derived-mce').on('change', function (e) {
-                updateSVG($(this.getDoc()));
+                updateSVG($(this.getDoc())[0]);
             });
 
             source_tabs.removeClass('fb-tabs-sources-display-none');
@@ -115,6 +116,10 @@ jQuery(document).ready(function ($) {
     });
 
     function updateSVG(derived_doc) {
+        if (!derived_doc) {
+            derived_doc = tinymce.get('fb-derived-mce').getDoc();
+        }
+
         // get active tab id
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
         if (typeof tab_id == typeof undefined || tab_id == null) return;
@@ -122,7 +127,7 @@ jQuery(document).ready(function ($) {
         var source_mce = tinymce.get(source_mce_id);
 
         var source_iframe_container_top = getiFrameOffsetTop(source_mce.getDoc());
-        var derived_iframe_container_top = getiFrameOffsetTop(derived_doc[0]);
+        var derived_iframe_container_top = getiFrameOffsetTop(derived_doc);
 
         if (source_iframe_container_top < 0 || derived_iframe_container_top < 0) return;
 
@@ -132,24 +137,32 @@ jQuery(document).ready(function ($) {
         var x_right = $('#fb-svg-mid-column').width();
         $('#fb-svg-mid-column').find('.fb-svg-polygons').remove(); // clear all polygons
 
-        $(derived_doc[0].body).children().each(function (index) {
+        $(derived_doc.body).children().each(function (index) {
             if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
                 var source_id = $(this).attr('data-source-id');
                 if (source_id && source_id != 'none') {
                     var source_element = source_mce.getDoc().getElementById(source_id);
                     if (source_element) {
                         var derived_height = $(this).height();
+                        var derived_outer_height = $(this).outerHeight(true);
                         var derived_top = $(this).position().top;
+                        var derived_padding_top = parseInt($(this).css('padding-top'), 10);
+                        var derived_margin_top = parseInt($(this).css('margin-top'), 10);
                         derived_top += (derived_iframe_container_top - svg_container_top);
+                        derived_top -= (derived_padding_top + derived_margin_top);
 
                         var source_height = $(source_element).height();
-                        var source_outer_height = $(source_element).outerHeight();
+                        var source_outer_height = $(source_element).outerHeight(true);
                         var source_top = $(source_element).position().top;
+                        var source_padding_top = parseInt($(source_element).css('padding-top'), 10);
+                        var source_margin_top = parseInt($(source_element).css('margin-top'), 10);
                         source_top += (source_iframe_container_top - svg_container_top);
+                        source_top -= (source_padding_top + source_margin_top);
+                        console.log($(source_element).attr('id') + ": " + source_outer_height);
 
                         var y_top_left = source_top;
-                        var y_bottom_left = source_top + source_height;
-                        var y_bottom_right = derived_top + derived_height;
+                        var y_bottom_left = source_top + source_outer_height;
+                        var y_bottom_right = derived_top + derived_outer_height;
                         var y_top_right = derived_top;
 
                         var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
