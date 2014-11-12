@@ -7,6 +7,8 @@ jQuery(document).ready(function ($) {
     var tab_counter = 0;
     var tab_template = "<li id='#{id}'><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
+    //removeAllEditor();
+
     // close icon: removing the tab on click
     source_tabs.delegate("span.ui-icon-close", "click", function () {
         var panelId = $(this).closest("li").remove().attr("aria-controls");
@@ -21,7 +23,7 @@ jQuery(document).ready(function ($) {
         $tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
         var $selected = $("#fb-tabs-sources ul>li a").eq($tabIndex).attr('href');
 
-        updateSVG(null);
+        updateSVG();
     });
 
     var fb_source_selection_dialog = $("#fb-source-selection-dialog").dialog({
@@ -86,14 +88,25 @@ jQuery(document).ready(function ($) {
         source_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
 
 
-        $("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
-
+        //$("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
+        $("#" + tab_id).append("<textarea id='" + mce_id + "' style='height:600px'></textarea>");
         tinymce.execCommand('mceAddEditor', false, mce_id);
-        tinymce.get(mce_id).setContent(content); // note: the get method does not work sometimes
+
+        // test only
+        /*
+        for (var i = 0; i < tinymce.editors.length; i++){
+            var content = tinymce.editors[i].getContent(); // get the content
+        }
+        */
+
+        tinymce.get(mce_id).setContent(content); // note: the get method does not work sometimes; not because the editor is not initialized yet.
+        tinymce.get(mce_id).on('change', function (e) {
+            updateSVG();
+        });
 
         if (tab_counter == 0) {
             tinymce.get('fb-derived-mce').on('change', function (e) {
-                updateSVG($(this.getDoc())[0]);
+                updateSVG();
             });
 
             source_tabs.removeClass('fb-tabs-sources-display-none');
@@ -115,10 +128,13 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    function updateSVG(derived_doc) {
+    function updateSVG() {
+        /*
         if (!derived_doc) {
             derived_doc = tinymce.get('fb-derived-mce').getDoc();
         }
+        */
+        derived_doc = tinymce.get('fb-derived-mce').getDoc();
 
         // get active tab id
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
@@ -169,18 +185,27 @@ jQuery(document).ready(function ($) {
                             y_top_right = derived_top;
                         }
 
+                        if ($(source_element).attr('class') && $(source_element).attr('class').indexOf("fb-display-none") >= 0) {
+                            var source_bottom = getParentOffsetBottom($(source_element).attr("id"), source_mce.getDoc().body);
+                            if (source_bottom >= 0) {
+                                source_bottom += (source_iframe_container_top - svg_container_top);
+                                y_top_left = source_bottom;
+                                y_bottom_left = source_bottom;
+                            }
+                        }
+                        else {
+                            var source_height = $(source_element).height();
+                            var source_outer_height = $(source_element).outerHeight(true);
+                            var source_top = $(source_element).position().top;
+                            var source_padding_top = parseInt($(source_element).css('padding-top'), 10);
+                            var source_margin_top = parseInt($(source_element).css('margin-top'), 10);
+                            source_top += (source_iframe_container_top - svg_container_top);
+                            source_top -= (source_padding_top + source_margin_top);
+                            console.log($(source_element).attr('id') + ": " + source_outer_height);
 
-                        var source_height = $(source_element).height();
-                        var source_outer_height = $(source_element).outerHeight(true);
-                        var source_top = $(source_element).position().top;
-                        var source_padding_top = parseInt($(source_element).css('padding-top'), 10);
-                        var source_margin_top = parseInt($(source_element).css('margin-top'), 10);
-                        source_top += (source_iframe_container_top - svg_container_top);
-                        source_top -= (source_padding_top + source_margin_top);
-                        console.log($(source_element).attr('id') + ": " + source_outer_height);
-
-                        y_top_left = source_top;
-                        y_bottom_left = source_top + source_outer_height;
+                            y_top_left = source_top;
+                            y_bottom_left = source_top + source_outer_height;
+                        }
 
                         if (y_bottom_right >= 0 && y_top_right >= 0 && y_top_left >= 0 && y_bottom_left >= 0) {
                             var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
@@ -208,6 +233,7 @@ jQuery(document).ready(function ($) {
 
     function getParentOffsetBottom(target_id, body) {
         var start = false;
+        var bottom = -1;
         $($(body).children().get().reverse()).each(function () {
             if (start == false) {
                 if ($(this).attr("id") && $(this).attr("id") == target_id) {
@@ -215,7 +241,9 @@ jQuery(document).ready(function ($) {
                 }
             }
             else {
-                if ($(this).hasClass("h1") || $(this).hasClass("h2") || $(this).hasClass("h3")) {
+                if ($(this).prop("tagName").toLowerCase() == 'h1' ||
+                    $(this).prop("tagName").toLowerCase() == 'h2' ||
+                    $(this).prop("tagName").toLowerCase() == 'h3') {
                     if (($(this).attr('class') && $(this).attr('class').indexOf("fb-display-none") < 0) ||
                         (!$(this).attr('class'))) {
                         var height = $(this).height();
@@ -223,15 +251,14 @@ jQuery(document).ready(function ($) {
                         var padding_bottom = parseInt($(this).css('padding-bottom'), 10);
                         var margin_bottom = parseInt($(this).css('margin-bottom'), 10);
 
-                        var bottom = top + height + padding_bottom + margin_bottom;
-
-                        return bottom;
+                        bottom = top + height + padding_bottom + margin_bottom;
+                        return false; // break 
                     }
                 }
             }
         });
 
-        return -1;
+        return bottom;
     }
 
     function getiFrameOffsetTop(doc) {
@@ -246,6 +273,13 @@ jQuery(document).ready(function ($) {
         }
 
         return -1;
+    }
+
+    function removeAllEditor() {
+        var length = tinymce.editors.length;
+        for (var i = length; i > 0; i--) {
+            tinymce.execCommand('mceRemoveEditor', false, tinymce.editors[i-1].id);
+        };
     }
 });
 
