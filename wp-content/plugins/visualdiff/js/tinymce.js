@@ -48,10 +48,10 @@ jQuery(document).ready(function ($) {
                 //var height = $(this).height();
                 var classes = $(this).attr('class');
 
-                if (classes != null && classes.indexOf("fb-display-none") >= 0) {
+                if (classes && classes.indexOf("fb-display-none") >= 0) {
                     //var test = 1;
                 }
-                else if (classes != null && classes.indexOf("fb-collapse") >= 0) {
+                else if (classes && classes.indexOf("fb-collapse") >= 0) {
                     createIcon(foldingIconID, offset.top, '&#8862'); // folding icon: plus 
                     if (editor.id.indexOf("fb-source-mce") >= 0) {
                         createIcon(pushIconID, offset.top + 15, '&#9655');

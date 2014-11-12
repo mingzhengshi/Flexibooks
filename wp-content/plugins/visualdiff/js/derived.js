@@ -143,13 +143,32 @@ jQuery(document).ready(function ($) {
                 if (source_id && source_id != 'none') {
                     var source_element = source_mce.getDoc().getElementById(source_id);
                     if (source_element) {
-                        var derived_height = $(this).height();
-                        var derived_outer_height = $(this).outerHeight(true);
-                        var derived_top = $(this).position().top;
-                        var derived_padding_top = parseInt($(this).css('padding-top'), 10);
-                        var derived_margin_top = parseInt($(this).css('margin-top'), 10);
-                        derived_top += (derived_iframe_container_top - svg_container_top);
-                        derived_top -= (derived_padding_top + derived_margin_top);
+                        var y_bottom_right = -1;
+                        var y_top_right = -1;
+                        var y_top_left = -1;
+                        var y_bottom_left = -1;
+
+                        if ($(this).attr('class') && $(this).attr('class').indexOf("fb-display-none") >= 0) {
+                            var derived_bottom = getParentOffsetBottom($(this).attr("id"), derived_doc.body);
+                            if (derived_bottom >= 0) {
+                                derived_bottom += (derived_iframe_container_top - svg_container_top);
+                                y_bottom_right = derived_bottom;
+                                y_top_right = derived_bottom;
+                            }
+                        }
+                        else {
+                            var derived_height = $(this).height();
+                            var derived_outer_height = $(this).outerHeight(true);
+                            var derived_top = $(this).position().top;
+                            var derived_padding_top = parseInt($(this).css('padding-top'), 10);
+                            var derived_margin_top = parseInt($(this).css('margin-top'), 10);
+                            derived_top += (derived_iframe_container_top - svg_container_top);
+                            derived_top -= (derived_padding_top + derived_margin_top);
+
+                            y_bottom_right = derived_top + derived_outer_height;
+                            y_top_right = derived_top;
+                        }
+
 
                         var source_height = $(source_element).height();
                         var source_outer_height = $(source_element).outerHeight(true);
@@ -160,24 +179,59 @@ jQuery(document).ready(function ($) {
                         source_top -= (source_padding_top + source_margin_top);
                         console.log($(source_element).attr('id') + ": " + source_outer_height);
 
-                        var y_top_left = source_top;
-                        var y_bottom_left = source_top + source_outer_height;
-                        var y_bottom_right = derived_top + derived_outer_height;
-                        var y_top_right = derived_top;
+                        y_top_left = source_top;
+                        y_bottom_left = source_top + source_outer_height;
 
-                        var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-                        var points = "0," + y_top_left + " ";
-                        points += "0," + y_bottom_left + " ";
-                        points += x_right + "," + y_bottom_right + " ";
-                        points += x_right + "," + y_top_right + " ";
-                        polygon.setAttribute("points", points);
-                        polygon.setAttribute("fill", "lightgreen");
-                        polygon.setAttribute("class", "fb-svg-polygons");
-                        document.getElementById('fb-svg-mid-column').appendChild(polygon);
+                        if (y_bottom_right >= 0 && y_top_right >= 0 && y_top_left >= 0 && y_bottom_left >= 0) {
+                            var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                            var points = "0," + y_top_left + " ";
+                            points += "0," + y_bottom_left + " ";
+                            points += x_right + "," + y_bottom_right + " ";
+                            points += x_right + "," + y_top_right + " ";
+                            polygon.setAttribute("points", points);
+                            var x = source_element.innerHTML;
+                            var y = $(this).html();
+                            if (source_element.innerHTML == $(this).html()) {
+                                polygon.setAttribute("fill", "lightgreen");
+                            }
+                            else {
+                                polygon.setAttribute("fill", "lightpink");
+                            }
+                            polygon.setAttribute("class", "fb-svg-polygons");
+                            document.getElementById('fb-svg-mid-column').appendChild(polygon);
+                        }
                     }
                 }
             }
         });
+    }
+
+    function getParentOffsetBottom(target_id, body) {
+        var start = false;
+        $($(body).children().get().reverse()).each(function () {
+            if (start == false) {
+                if ($(this).attr("id") && $(this).attr("id") == target_id) {
+                    start = true;
+                }
+            }
+            else {
+                if ($(this).hasClass("h1") || $(this).hasClass("h2") || $(this).hasClass("h3")) {
+                    if (($(this).attr('class') && $(this).attr('class').indexOf("fb-display-none") < 0) ||
+                        (!$(this).attr('class'))) {
+                        var height = $(this).height();
+                        var top = $(this).position().top;
+                        var padding_bottom = parseInt($(this).css('padding-bottom'), 10);
+                        var margin_bottom = parseInt($(this).css('margin-bottom'), 10);
+
+                        var bottom = top + height + padding_bottom + margin_bottom;
+
+                        return bottom;
+                    }
+                }
+            }
+        });
+
+        return -1;
     }
 
     function getiFrameOffsetTop(doc) {
@@ -185,8 +239,9 @@ jQuery(document).ready(function ($) {
         for (var i = 0; i < iframes.length; i++) {
             var iframe_doc = iframes[i].contentDocument || iframes[i].contentWindow.document;
             if (iframe_doc == doc) {
-                var containerDiv = iframes[i].parentNode;
-                return $(containerDiv).offset().top;
+                //var containerDiv = iframes[i].parentNode;
+                //return $(containerDiv).offset().top;
+                return $(iframes[i]).offset().top;
             }
         }
 
