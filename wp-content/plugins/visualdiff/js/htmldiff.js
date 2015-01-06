@@ -2,7 +2,6 @@ var Match,
     calculate_operations,
     consecutive_where,
     create_index,
-    diff,
     find_match,
     find_matching_blocks,
     html_to_tokens,
@@ -14,7 +13,9 @@ var Match,
     op_map,
     recursively_find_matching_blocks,
     render_operations,
-    wrap;
+    wrap,
+    html_diff;
+
 
 is_end_of_tag = function (char) {
     return char === '>';
@@ -348,7 +349,7 @@ render_operations = function (before_tokens, after_tokens, operations) {
     return rendering;
 };
 
-diff = function (before, after) {
+html_diff = function (before, after) {
     var ops;
     if (before === after) {
         return before;
@@ -359,6 +360,8 @@ diff = function (before, after) {
     return render_operations(before, after, ops);
 };
 
+// ms 
+/*
 diff.html_to_tokens = html_to_tokens;
 
 diff.find_matching_blocks = find_matching_blocks;
@@ -380,3 +383,9 @@ if (typeof define === 'function') {
 } else {
     this.htmldiff = diff;
 }
+*/
+
+
+// test
+//diff_result = html_diff('<p>this is some textbook</p>', '<p>this is some <strong>more</strong> text</p>');
+//console.log(diff_result);

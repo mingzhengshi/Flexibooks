@@ -99,6 +99,8 @@ jQuery(document).ready(function ($) {
         }
         */
 
+        //content = html_diff('<p>this is some text book</p>', '<p>this is some <strong>more</strong> text</p>'); // test
+
         tinymce.get(mce_id).setContent(content); // note: the get method does not work sometimes; not because the editor is not initialized yet.
         tinymce.get(mce_id).on('change', function (e) {
             updateSVG();

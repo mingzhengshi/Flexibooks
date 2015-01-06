@@ -45,6 +45,7 @@ function fb_tinymce_plugin( $tinymce_vb ) {
 function fb_derived_admin_head() {
     $type = get_current_screen()->post_type;
     if ($type == 'derived') {
+        $htmldiff_js_url = plugins_url( 'js/htmldiff.js' , __FILE__ );
         $derived_js_url = plugins_url( 'js/derived.js' , __FILE__ );
         $jstree_js_url = plugins_url( 'lib/jstree/jstree.min.js' , __FILE__ );
         
@@ -52,7 +53,8 @@ function fb_derived_admin_head() {
         $jstree_css_url = plugins_url( 'lib/jstree/themes/default/style.min.css' , __FILE__ );
         //$editor_div_css_url = plugins_url( 'css/editor_div.css' , __FILE__ );
         $jquery_css_url = plugins_url( 'css/jquery-ui-themes-1.11.2/themes/smoothness/jquery-ui.css' , __FILE__ );
-        
+    
+        echo '<script type="text/javascript" src="' . $htmldiff_js_url . '" ></script>'; // need to come first; to be used in other js files;
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
         echo '<script type="text/javascript" src="' . $jstree_js_url . '" ></script>';
         
