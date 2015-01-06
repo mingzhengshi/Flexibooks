@@ -50,7 +50,7 @@ function fb_derived_admin_head() {
         
         $derived_css_url = plugins_url( 'css/derived.css' , __FILE__ );
         $jstree_css_url = plugins_url( 'lib/jstree/themes/default/style.min.css' , __FILE__ );
-        $editor_div_css_url = plugins_url( 'css/editor_div.css' , __FILE__ );
+        //$editor_div_css_url = plugins_url( 'css/editor_div.css' , __FILE__ );
         $jquery_css_url = plugins_url( 'css/jquery-ui-themes-1.11.2/themes/smoothness/jquery-ui.css' , __FILE__ );
         
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
@@ -58,7 +58,7 @@ function fb_derived_admin_head() {
         
         echo '<link rel="stylesheet" type="text/css" href="' . $derived_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $jstree_css_url . '" />';
-        echo '<link rel="stylesheet" type="text/css" href="' . $editor_div_css_url . '" />';
+        //echo '<link rel="stylesheet" type="text/css" href="' . $editor_div_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $jquery_css_url . '" />';
     }    
 }
@@ -159,8 +159,8 @@ function fb_box_derived_document_callback() {
         <h3 style="margin-bottom:8px">Derived Document</h3>
         <div>
 <?php
-    //$derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
-    $derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
+    $derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
+    //$derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
     wp_editor('', 'fb-derived-mce', $derived_editor_args);      
 ?>   
         </div>
