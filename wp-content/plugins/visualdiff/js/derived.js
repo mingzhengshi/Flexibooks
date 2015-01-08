@@ -99,7 +99,7 @@ jQuery(document).ready(function ($) {
         }
         */
 
-        //content = html_diff('<p>this is some text book</p>', '<p>this is some <strong>more</strong> text</p>'); // test
+        //content = html_diff('<p>this is some text book</p>', '<p>this is some more text</p>'); // test
 
         tinymce.get(mce_id).setContent(content); // note: the get method does not work sometimes; not because the editor is not initialized yet.
         tinymce.get(mce_id).on('change', function (e) {
@@ -130,14 +130,55 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    // update SVG and HTML Diff
     function update() {
-        /*
-        if (!derived_doc) {
-            derived_doc = tinymce.get('fb-derived-mce').getDoc();
-        }
-        */
-        derived_doc = tinymce.get('fb-derived-mce').getDoc();
+        updateHTMLDiff();
+        updateSVG();
+    }
+
+    function updateHTMLDiff() {
+        var derived_doc = tinymce.get('fb-derived-mce').getDoc();
+
+        // get active tab id
+        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
+        if (typeof tab_id == typeof undefined || tab_id == null) return;
+        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
+        var source_mce = tinymce.get(source_mce_id);
+
+        $(derived_doc.body).children().each(function (index) {
+            if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
+                var source_id = $(this).attr('data-source-id');
+                if (source_id && source_id != 'none') {
+                    var source_element = source_mce.getDoc().getElementById(source_id);
+                    if (source_element) {
+                        var source_html = $(source_element).html();
+                        var derive_html = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, "");
+
+                        if (source_html != derive_html) {
+                            derive_html = html_diff(source_html, derive_html);
+                            $(this).html(derive_html);
+                        }
+                    }
+                    else {
+                        var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all ins tags
+                        var newHtml = "<ins>" + newHtml + "</ins>";
+                        $(this).html(newHtml);
+                        console.log($(this).html());
+                    }
+                }
+                else {
+                    var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all ins tags
+                    var newHtml = "<ins>" + newHtml + "</ins>";
+                    $(this).html(newHtml);
+                    console.log($(this).html());
+                }
+            }
+        });
+
+        tinymce.get('fb-derived-mce').focus();
+    }
+
+    function updateSVG() {
+        var derived_doc = tinymce.get('fb-derived-mce').getDoc();
 
         // get active tab id
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
@@ -154,22 +195,13 @@ jQuery(document).ready(function ($) {
 
         var x_left = 0;
         var x_right = $('#fb-svg-mid-column').width();
-        $('#fb-svg-mid-column').find('.fb-svg-polygons').remove(); // clear all polygons
+
+        // remove all polygons
+        $('#fb-svg-mid-column').find('.fb-svg-polygons').remove(); 
 
         $(derived_doc.body).children().each(function (index) {
             if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
                 var source_id = $(this).attr('data-source-id');
-
-                // 1. update HTML Diff
-                if (source_id && source_id != 'none') {
-
-                }
-                else {
-                    var newHtml = "<ins>" + $(this).html() + "</ins>";
-                    $(this).html(newHtml);
-                }
-
-                // 2. update SVG
                 if (source_id && source_id != 'none') {
                     var source_element = source_mce.getDoc().getElementById(source_id);
                     if (source_element) {
@@ -223,7 +255,7 @@ jQuery(document).ready(function ($) {
                             y_bottom_left = source_top + source_outer_height;
                         }
 
-                        // update SVG graph
+                        // update SVG 
                         if (y_bottom_right >= 0 && y_top_right >= 0 && y_top_left >= 0 && y_bottom_left >= 0) {
                             var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
                             var points = "0," + y_top_left + " ";
