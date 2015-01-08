@@ -23,7 +23,7 @@ jQuery(document).ready(function ($) {
         $tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
         var $selected = $("#fb-tabs-sources ul>li a").eq($tabIndex).attr('href');
 
-        updateSVG();
+        update();
     });
 
     var fb_source_selection_dialog = $("#fb-source-selection-dialog").dialog({
@@ -103,12 +103,12 @@ jQuery(document).ready(function ($) {
 
         tinymce.get(mce_id).setContent(content); // note: the get method does not work sometimes; not because the editor is not initialized yet.
         tinymce.get(mce_id).on('change', function (e) {
-            updateSVG();
+            update();
         });
 
         if (tab_counter == 0) {
             tinymce.get('fb-derived-mce').on('change', function (e) {
-                updateSVG();
+                update();
             });
 
             source_tabs.removeClass('fb-tabs-sources-display-none');
@@ -130,7 +130,8 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    function updateSVG() {
+    // update SVG and HTML Diff
+    function update() {
         /*
         if (!derived_doc) {
             derived_doc = tinymce.get('fb-derived-mce').getDoc();
@@ -158,6 +159,17 @@ jQuery(document).ready(function ($) {
         $(derived_doc.body).children().each(function (index) {
             if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
                 var source_id = $(this).attr('data-source-id');
+
+                // 1. update HTML Diff
+                if (source_id && source_id != 'none') {
+
+                }
+                else {
+                    var newHtml = "<ins>" + $(this).html() + "</ins>";
+                    $(this).html(newHtml);
+                }
+
+                // 2. update SVG
                 if (source_id && source_id != 'none') {
                     var source_element = source_mce.getDoc().getElementById(source_id);
                     if (source_element) {
@@ -166,6 +178,7 @@ jQuery(document).ready(function ($) {
                         var y_top_left = -1;
                         var y_bottom_left = -1;
 
+                        // calculate y_bottom_right and y_top_right
                         if ($(this).attr('class') && $(this).attr('class').indexOf("fb-display-none") >= 0) {
                             var derived_bottom = getParentOffsetBottom($(this).attr("id"), derived_doc.body);
                             if (derived_bottom >= 0) {
@@ -187,6 +200,7 @@ jQuery(document).ready(function ($) {
                             y_top_right = derived_top;
                         }
 
+                        // calcuate y_top_left and y_bottom_left
                         if ($(source_element).attr('class') && $(source_element).attr('class').indexOf("fb-display-none") >= 0) {
                             var source_bottom = getParentOffsetBottom($(source_element).attr("id"), source_mce.getDoc().body);
                             if (source_bottom >= 0) {
@@ -209,6 +223,7 @@ jQuery(document).ready(function ($) {
                             y_bottom_left = source_top + source_outer_height;
                         }
 
+                        // update SVG graph
                         if (y_bottom_right >= 0 && y_top_right >= 0 && y_top_left >= 0 && y_bottom_left >= 0) {
                             var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
                             var points = "0," + y_top_left + " ";

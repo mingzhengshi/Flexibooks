@@ -161,8 +161,8 @@ function fb_box_derived_document_callback() {
         <h3 style="margin-bottom:8px">Derived Document</h3>
         <div>
 <?php
-    $derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
-    //$derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
+    //$derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
+    $derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
     wp_editor('', 'fb-derived-mce', $derived_editor_args);      
 ?>   
         </div>
