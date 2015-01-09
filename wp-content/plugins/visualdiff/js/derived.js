@@ -147,6 +147,11 @@ jQuery(document).ready(function ($) {
         $(derived_doc.body).children().each(function (index) {
             if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
                 var source_id = $(this).attr('data-source-id');
+
+
+                // need to bookmark the cursor position before calling .html(content);
+
+
                 if (source_id && source_id != 'none') {
                     var source_element = source_mce.getDoc().getElementById(source_id);
                     if (source_element) {
@@ -156,11 +161,12 @@ jQuery(document).ready(function ($) {
                         if (source_html != derive_html) {
                             // derive element
                             derive_html = html_diff(source_html, derive_html, 'insert');
-                            $(this).html(derive_html);
+                            $(this).html(derive_html); // probably lose the cursor position in this set function; see http://blog.squadedit.com/tinymce-and-cursor-position/
 
                             // source element
                             source_html = html_diff(source_html, derive_html, 'delete');
-                            $(source_element).html(source_html);
+                            $(source_element).html(source_html); // probably lose the cursor position in this set content function
+                            console.log("tinymce set content...");
                         }
                         else if (source_html == derive_html) {
                             // derive element
@@ -168,21 +174,28 @@ jQuery(document).ready(function ($) {
 
                             // source element
                             $(source_element).html(source_html);
+                            console.log("tinymce set content...");
                         }
                     }
                     else {
                         var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all ins tags
                         var newHtml = "<ins>" + newHtml + "</ins>";
                         $(this).html(newHtml);
-                        console.log($(this).html());
+                        console.log("tinymce set content...");
                     }
                 }
                 else {
                     var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all ins tags
                     var newHtml = "<ins>" + newHtml + "</ins>";
                     $(this).html(newHtml);
-                    console.log($(this).html());
+                    console.log("tinymce set content...");
                 }
+
+
+                // need to set the cursor back to the bookmark position after content had been updated.
+
+
+
             }
         });
 
