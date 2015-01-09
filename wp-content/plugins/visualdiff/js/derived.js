@@ -150,12 +150,24 @@ jQuery(document).ready(function ($) {
                 if (source_id && source_id != 'none') {
                     var source_element = source_mce.getDoc().getElementById(source_id);
                     if (source_element) {
-                        var source_html = $(source_element).html();
+                        var source_html = $(source_element).html().replace(/<del>/g, "").replace(/<\/del>/g, "");
                         var derive_html = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, "");
 
                         if (source_html != derive_html) {
-                            derive_html = html_diff(source_html, derive_html);
+                            // derive element
+                            derive_html = html_diff(source_html, derive_html, 'insert');
                             $(this).html(derive_html);
+
+                            // source element
+                            source_html = html_diff(source_html, derive_html, 'delete');
+                            $(source_element).html(source_html);
+                        }
+                        else if (source_html == derive_html) {
+                            // derive element
+                            $(this).html(derive_html);
+
+                            // source element
+                            $(source_element).html(source_html);
                         }
                     }
                     else {

@@ -205,7 +205,7 @@ find_matching_blocks = function (before_tokens, after_tokens) {
     return recursively_find_matching_blocks(before_tokens, after_tokens, index_of_before_locations_in_after_tokens, 0, before_tokens.length, 0, after_tokens.length, matching_blocks);
 };
 
-calculate_operations = function (before_tokens, after_tokens) {
+calculate_operations = function (before_tokens, after_tokens, insert_or_delete) {
     var action_map, action_up_to_match_positions, index, is_single_whitespace, last_op, match, match_starts_at_current_position_in_after, match_starts_at_current_position_in_before, matches, op, operations, position_in_after, position_in_before, post_processed, _i, _j, _len, _len1;
     if (before_tokens == null) {
         throw new Error('before_tokens?');
@@ -229,6 +229,7 @@ calculate_operations = function (before_tokens, after_tokens) {
         match_starts_at_current_position_in_after = position_in_after === match.start_in_after;
         action_up_to_match_positions = action_map[[match_starts_at_current_position_in_before, match_starts_at_current_position_in_after].toString()];
         if (action_up_to_match_positions !== 'none') {
+            /*
             operations.push({
                 action: action_up_to_match_positions,
                 start_in_before: position_in_before,
@@ -236,6 +237,19 @@ calculate_operations = function (before_tokens, after_tokens) {
                 start_in_after: position_in_after,
                 end_in_after: (action_up_to_match_positions !== 'delete' ? match.start_in_after - 1 : void 0)
             });
+            */
+
+            // ms
+            if ((action_up_to_match_positions === insert_or_delete) || (action_up_to_match_positions === 'replace')) {
+                operations.push({
+                    action: action_up_to_match_positions,
+                    start_in_before: position_in_before,
+                    end_in_before: (action_up_to_match_positions !== 'insert' ? match.start_in_before - 1 : void 0),
+                    start_in_after: position_in_after,
+                    end_in_after: (action_up_to_match_positions !== 'delete' ? match.start_in_after - 1 : void 0)
+                });
+            }
+
         }
         if (match.length !== 0) {
             operations.push({
@@ -339,25 +353,39 @@ op_map.replace = function (op, before_tokens, after_tokens) {
     return (op_map["delete"](op, before_tokens, after_tokens)) + (op_map.insert(op, before_tokens, after_tokens));
 };
 
-render_operations = function (before_tokens, after_tokens, operations) {
+render_operations = function (before_tokens, after_tokens, operations, operation_mode) {
     var op, rendering, _i, _len;
     rendering = '';
     for (_i = 0, _len = operations.length; _i < _len; _i++) {
         op = operations[_i];
-        rendering += op_map[op.action](op, before_tokens, after_tokens);
+        //rendering += op_map[op.action](op, before_tokens, after_tokens); // original
+
+        // ms
+        if (op.action === 'replace') {
+            if (operation_mode === 'insert') {
+                rendering += op_map.insert(op, before_tokens, after_tokens);
+            }
+            else if (operation_mode === 'delete') {
+                rendering += op_map["delete"](op, before_tokens, after_tokens);
+            }
+        }
+        else {
+            rendering += op_map[op.action](op, before_tokens, after_tokens);
+        }
     }
     return rendering;
 };
 
-html_diff = function (before, after) {
+html_diff = function (before, after, operation_mode) {
+    //var operation_mode = 'insert';
     var ops;
     if (before === after) {
         return before;
     }
     before = html_to_tokens(before);
     after = html_to_tokens(after);
-    ops = calculate_operations(before, after);
-    return render_operations(before, after, ops);
+    ops = calculate_operations(before, after, operation_mode); 
+    return render_operations(before, after, ops, operation_mode);
 };
 
 // ms 
