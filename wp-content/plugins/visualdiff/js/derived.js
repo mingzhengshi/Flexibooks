@@ -148,11 +148,11 @@ jQuery(document).ready(function ($) {
             if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
                 var source_id = $(this).attr('data-source-id');
 
-
-                // need to bookmark the cursor position before calling .html(content);
-
-
                 if (source_id && source_id != 'none') {
+                    // stores a bookmark of the current selection
+                    var derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); // use a non-html bookmark
+                    //console.log("getBookmark...");
+
                     var source_element = source_mce.getDoc().getElementById(source_id);
                     if (source_element) {
                         var source_html = $(source_element).html().replace(/<del>/g, "").replace(/<\/del>/g, "");
@@ -161,12 +161,12 @@ jQuery(document).ready(function ($) {
                         if (source_html != derive_html) {
                             // derive element
                             derive_html = html_diff(source_html, derive_html, 'insert');
-                            $(this).html(derive_html); // probably lose the cursor position in this set function; see http://blog.squadedit.com/tinymce-and-cursor-position/
+                            $(this).html(derive_html); // probably lose the cursor position in this function; see http://blog.squadedit.com/tinymce-and-cursor-position/
 
                             // source element
                             source_html = html_diff(source_html, derive_html, 'delete');
-                            $(source_element).html(source_html); // probably lose the cursor position in this set content function
-                            console.log("tinymce set content...");
+                            $(source_element).html(source_html); // probably lose the cursor position in this content function
+                            //console.log("tinymce set content...");
                         }
                         else if (source_html == derive_html) {
                             // derive element
@@ -174,32 +174,30 @@ jQuery(document).ready(function ($) {
 
                             // source element
                             $(source_element).html(source_html);
-                            console.log("tinymce set content...");
+                            //console.log("tinymce set content...");
                         }
                     }
                     else {
                         var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all ins tags
                         var newHtml = "<ins>" + newHtml + "</ins>";
                         $(this).html(newHtml);
-                        console.log("tinymce set content...");
+                        //console.log("tinymce set content...");
                     }
+
+                    // restore the selection bookmark
+                    tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark);
+                    //console.log("moveToBookmark...");
                 }
                 else {
                     var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all ins tags
                     var newHtml = "<ins>" + newHtml + "</ins>";
                     $(this).html(newHtml);
-                    console.log("tinymce set content...");
+                    //console.log("tinymce set content...");
                 }
-
-
-                // need to set the cursor back to the bookmark position after content had been updated.
-
 
 
             }
         });
-
-        tinymce.get('fb-derived-mce').focus();
     }
 
     function updateSVG() {
