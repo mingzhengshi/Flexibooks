@@ -64,6 +64,11 @@ function fb_mce_before_init( $settings ) {
 
     $style_formats = array(
         array(
+            'title' => 'Heading 1 Main',
+            'block' => 'h1',
+            'classes' => 'main-heading-1'
+        ),
+        array(
             'title' => 'Heading 2 Main',
             'block' => 'h2',
             'classes' => 'main-heading-2'

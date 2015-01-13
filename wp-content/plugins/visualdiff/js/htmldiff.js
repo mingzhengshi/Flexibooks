@@ -309,7 +309,7 @@ consecutive_where = function (start, content, predicate) {
     return [];
 };
 
-wrap = function (tag, content) {
+wrap = function (tag, style, content) {
     var length, non_tags, position, rendering, tags;
     rendering = '';
     position = 0;
@@ -321,7 +321,8 @@ wrap = function (tag, content) {
         non_tags = consecutive_where(position, content, isnt_tag);
         position += non_tags.length;
         if (non_tags.length !== 0) {
-            rendering += "<" + tag + ">" + (non_tags.join('')) + "</" + tag + ">";
+            //rendering += "<" + tag + ">" + (non_tags.join('')) + "</" + tag + ">"; // original
+            rendering += "<" + tag + " class='" + style + "'>" + (non_tags.join('')) + "</" + tag + ">"; // original
         }
         if (position >= length) {
             break;
@@ -340,12 +341,14 @@ op_map = {
     insert: function (op, before_tokens, after_tokens) {
         var val;
         val = after_tokens.slice(op.start_in_after, +op.end_in_after + 1 || 9e9);
-        return wrap('ins', val);
+        //return wrap('ins', val); // original
+        return wrap('span', 'insert', val); // ms
     },
     "delete": function (op, before_tokens, after_tokens) {
         var val;
         val = before_tokens.slice(op.start_in_before, +op.end_in_before + 1 || 9e9);
-        return wrap('del', val);
+        //return wrap('del', val); // original
+        return wrap('span', 'delete', val); // ms
     }
 };
 

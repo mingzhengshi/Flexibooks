@@ -142,30 +142,53 @@ jQuery(document).ready(function ($) {
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
         if (typeof tab_id == typeof undefined || tab_id == null) return;
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
-        var source_mce = tinymce.get(source_mce_id);
+        var source_doc = tinymce.get(source_mce_id).getDoc();
+
+        // clean source document
+        /*
+        $(source_doc.body).children().each(function (index) {
+            if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
+                var id = $(this).attr('id');
+
+                if (id && id != 'none') {
+                    var source_html = $(source_element).html().replace(/<del>/g, "").replace(/<\/del>/g, "");
+                    $(source_element).html(source_html);
+                }
+            }
+        });
+        */
 
         $(derived_doc.body).children().each(function (index) {
             if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
                 var source_id = $(this).attr('data-source-id');
+                var id = $(this).attr('id');
 
                 if (source_id && source_id != 'none') {
                     // stores a bookmark of the current selection
                     var derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); // use a non-html bookmark
-                    //console.log("getBookmark...");
 
-                    var source_element = source_mce.getDoc().getElementById(source_id);
+                    var source_element = source_doc.getElementById(source_id);
                     if (source_element) {
-                        var source_html = $(source_element).html().replace(/<del>/g, "").replace(/<\/del>/g, "");
-                        var derive_html = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, "");
+                        //var source_html = $(source_element).html().replace(/<del>/g, "").replace(/<\/del>/g, "");
+                        //var derive_html = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, "");
+
+                        var source_clean = $(source_element).find('span.delete').contents().unwrap().end().end();
+                        var derive_clean = $(this).find('span.insert').contents().unwrap().end().end();
+
+                        var source_html = source_clean.html();
+                        var derive_html = derive_clean.html();
+
+                        console.log("source_html: " + source_html);
+                        console.log("derive_html: " + derive_html);
 
                         if (source_html != derive_html) {
                             // derive element
                             derive_html = html_diff(source_html, derive_html, 'insert');
-                            $(this).html(derive_html); 
+                            $(this).html(derive_html);
 
                             // source element
                             source_html = html_diff(source_html, derive_html, 'delete');
-                            $(source_element).html(source_html); 
+                            $(source_element).html(source_html);
                         }
                         else if (source_html == derive_html) {
                             // derive element
@@ -176,34 +199,37 @@ jQuery(document).ready(function ($) {
                         }
                     }
                     else {
-                        var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all ins tags
-                        var newHtml = "<ins>" + newHtml + "</ins>";
+                        //var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all insert tags
+                        var new_derive_clean = $(this).find('span.insert').contents().unwrap().end().end();
+                        var newHtml = new_derive_clean.html();
+                        var newHtml = "<span class='insert'>" + newHtml + "</span>";
                         $(this).html(newHtml);
                     }
 
                     // restore the selection bookmark
                     tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark);
-                    //console.log("moveToBookmark...");
                 }
                 else {
-                    // stores a bookmark of the current selection
-                    // var derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); // this method is not working properly here.
-                    //console.log("getBookmark...");
+                    if (id && id != 'none') {
+                        // stores a bookmark of the current selection
+                        var derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); 
 
-                    var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all ins tags
-                    var newHtml = "<ins>" + newHtml + "</ins>";
-                    $(this).html(newHtml);
-                    //console.log("tinymce set content...");
+                        //var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all ins tags
+                        var new_derive_clean = $(this).find('span.insert').contents().unwrap().end().end();
+                        var newHtml = new_derive_clean.html();
+                        var newHtml = "<span class='insert'>" + newHtml + "</span>";
+                        $(this).html(newHtml);
 
-                    // restore the selection bookmark
-                    // tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark); // this method is not working properly here.
-                    //console.log("moveToBookmark...");
+                        // restore the selection bookmark
+                        tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark); 
+                    }
                 }
 
 
             }
         });
     }
+    
 
     function updateSVG() {
         var derived_doc = tinymce.get('fb-derived-mce').getDoc();
