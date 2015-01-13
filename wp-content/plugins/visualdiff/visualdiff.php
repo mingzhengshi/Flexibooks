@@ -28,6 +28,9 @@ add_action( 'wp_ajax_fb_source_query', 'fb_source_query' );
 // tinymce plugin
 add_filter( 'mce_external_plugins', 'fb_tinymce_plugin' );
 
+// tinymce custom formats
+add_filter( 'mce_buttons_2', 'fb_mce_editor_buttons' );
+add_filter( 'tiny_mce_before_init', 'fb_mce_before_init' );
 // add js
 add_action('admin_print_scripts', 'fb_admin_print_scripts');
 
@@ -39,6 +42,44 @@ function fb_tinymce_plugin( $tinymce_vb ) {
 	return $tinymce_vb;
 }
 
+//-----------------------------------------------------------------------------------------------
+// tinymce custom formats
+function fb_mce_editor_buttons( $buttons ) {
+    array_unshift( $buttons, 'styleselect' );
+    return $buttons;
+    
+    // remove the format button
+    /*
+    $value = array_search( 'formatselect', $buttons );
+    if ($value !== FALSE) {
+        foreach ( $buttons as $key => $value ) {
+            if ( 'formatselect' === $value )
+                unset( $buttons[$key] );
+        }
+    }
+     */
+}
+
+function fb_mce_before_init( $settings ) {
+
+    $style_formats = array(
+        array(
+            'title' => 'Heading 2 Main',
+            'block' => 'h2',
+            'classes' => 'main-heading-2'
+        ),
+        array(
+            'title' => 'Heading 2 Activity',
+            'block' => 'h2',
+            'classes' => 'activity'
+        )
+    );
+
+    $settings['style_formats'] = json_encode( $style_formats );
+
+    return $settings;
+
+}
 
 //-----------------------------------------------------------------------------------------------
 // for derived post type only
