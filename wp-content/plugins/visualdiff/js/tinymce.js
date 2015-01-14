@@ -24,6 +24,34 @@ jQuery(document).ready(function ($) {
             resetIcons();
         });
 
+        editor.on('KeyPress', function (e) {
+            // not this event
+        });
+
+        editor.on('NodeChange', function (e) {
+            console.log('NodeChange event...', e);
+
+            var selected_node = editor.selection.getNode();
+            console.log("selected node:");
+            console.log(selected_node);
+
+            var selected_content = editor.selection.getContent();
+            console.log("selected content:");
+            console.log(selected_content);
+        });
+
+        editor.on('PastePreProcess', function (e) {
+            if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
+
+            pastePreProcess(e);
+        });
+
+        function pastePreProcess(e) {
+            console.log(e);
+
+            // check if the paste content is the same as the latest selection.getContent()
+        }
+
         // functions
         function resetIcons() {
             $(editor.getBody()).find('.fb_tinymce_left_column').remove();

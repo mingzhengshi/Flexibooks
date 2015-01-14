@@ -144,19 +144,21 @@ jQuery(document).ready(function ($) {
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
         var source_doc = tinymce.get(source_mce_id).getDoc();
 
-        // clean source document
-        /*
+        // firstly clean source document
         $(source_doc.body).children().each(function (index) {
             if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
                 var id = $(this).attr('id');
 
                 if (id && id != 'none') {
-                    var source_html = $(source_element).html().replace(/<del>/g, "").replace(/<\/del>/g, "");
-                    $(source_element).html(source_html);
+                    //var source_html = $(this).html().replace(/<del>/g, "").replace(/<\/del>/g, "");
+
+                    var source_clean = $(this).find('span.delete').contents().unwrap().end().end();
+                    var source_html = source_clean.html();
+
+                    $(this).html(source_html);
                 }
             }
         });
-        */
 
         $(derived_doc.body).children().each(function (index) {
             if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
@@ -172,14 +174,12 @@ jQuery(document).ready(function ($) {
                         //var source_html = $(source_element).html().replace(/<del>/g, "").replace(/<\/del>/g, "");
                         //var derive_html = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, "");
 
-                        var source_clean = $(source_element).find('span.delete').contents().unwrap().end().end();
+                        //var source_clean = $(source_element).find('span.delete').contents().unwrap().end().end();
                         var derive_clean = $(this).find('span.insert').contents().unwrap().end().end();
 
-                        var source_html = source_clean.html();
+                        //var source_html = source_clean.html();
+                        var source_html = $(source_element).html();
                         var derive_html = derive_clean.html();
-
-                        console.log("source_html: " + source_html);
-                        console.log("derive_html: " + derive_html);
 
                         if (source_html != derive_html) {
                             // derive element
