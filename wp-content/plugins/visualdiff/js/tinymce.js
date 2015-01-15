@@ -1,7 +1,8 @@
 jQuery(document).ready(function ($) {
+    // record the latest copy event
+    var copied_from_editor_id = "";
     var copied_content = "";
-    var copied_node;
-    var copied_node_tag_name = "";
+    var copied_node = null;
 
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
@@ -12,7 +13,7 @@ jQuery(document).ready(function ($) {
         });
 
         editor.on('change', function (e) {
-            console.log('change event', e);
+            //console.log('change event', e);
             setupDerivedElementID();
             resetIcons();
         });
@@ -29,10 +30,15 @@ jQuery(document).ready(function ($) {
             resetIcons();
         });
 
-        editor.on('copy', function (e) {
-            console.log("copy event...");
+        editor.on('cut', function (e) {
+            onCutOrCopy(e);
         });
 
+        editor.on('copy', function (e) {
+            onCutOrCopy(e);
+        });
+
+        /*
         editor.on('NodeChange', function (e) {
             //console.log('NodeChange event...', e);
 
@@ -46,6 +52,7 @@ jQuery(document).ready(function ($) {
             console.log(selected_content);
             console.log("selected content length:" + selected_content.length);
         });
+        */
 
         editor.on('PastePreProcess', function (e) {
             if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
@@ -53,10 +60,42 @@ jQuery(document).ready(function ($) {
             pastePreProcess(e);
         });
 
+        // cut and copy should be the same here
+        function onCutOrCopy(e) {
+            copied_from_editor_id = editor.id;
+            copied_content = editor.selection.getContent();
+            copied_node = null;
+
+            console.log("copy from editor: " + copied_from_editor_id);
+            if (copied_content == null || copied_content.length == 0) return;
+
+            var copied_node = editor.selection.getNode(); // returns the currently selected element or the common ancestor element for both start and end of the selection
+            if (!copied_node) return;
+
+            // usually, multiple paragraphs or parts of multiple paragraphs have been selected
+            if (copied_node.tagName.toLowerCase() == 'body') {
+                console.log("copied node:");
+                console.log(copied_node);
+                console.log("selected content:" + copied_content);
+
+                copied_node = null; // we don't need the node
+            }
+            // one paragraphs or part of one paragraph has been selected
+            else {
+                //copied_node = $(selected_node).clone();
+                console.log("copied node:");
+                console.log(copied_node);
+                console.log("selected content:" + copied_content);
+            }
+        }
+
         function pastePreProcess(e) {
             console.log("paste event:");
             console.log(e);
-            e.content = "<h1>hello world!</h1>";
+
+            if (copied_content == null || copied_content.length == 0) return;
+
+            //e.content = "<h1>hello world!</h1>";
             // check if the paste content is the same as the latest selection.getContent()
         }
 
