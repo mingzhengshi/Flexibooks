@@ -1,4 +1,9 @@
 jQuery(document).ready(function ($) {
+    var copied_content = "";
+    var copied_node;
+    var copied_node_tag_name = "";
+
+
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
 
         // events
@@ -24,20 +29,22 @@ jQuery(document).ready(function ($) {
             resetIcons();
         });
 
-        editor.on('KeyPress', function (e) {
-            // not this event
+        editor.on('copy', function (e) {
+            console.log("copy event...");
         });
 
         editor.on('NodeChange', function (e) {
-            console.log('NodeChange event...', e);
+            //console.log('NodeChange event...', e);
 
             var selected_node = editor.selection.getNode();
             console.log("selected node:");
             console.log(selected_node);
+            console.log("tagName: " + selected_node.tagName);
 
             var selected_content = editor.selection.getContent();
             console.log("selected content:");
             console.log(selected_content);
+            console.log("selected content length:" + selected_content.length);
         });
 
         editor.on('PastePreProcess', function (e) {
@@ -47,8 +54,9 @@ jQuery(document).ready(function ($) {
         });
 
         function pastePreProcess(e) {
+            console.log("paste event:");
             console.log(e);
-
+            e.content = "<h1>hello world!</h1>";
             // check if the paste content is the same as the latest selection.getContent()
         }
 
