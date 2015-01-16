@@ -303,7 +303,7 @@ jQuery(document).ready(function ($) {
                             var source_margin_top = parseInt($(source_element).css('margin-top'), 10);
                             source_top += (source_iframe_container_top - svg_container_top);
                             source_top -= (source_padding_top + source_margin_top);
-                            console.log($(source_element).attr('id') + ": " + source_outer_height);
+                            //console.log($(source_element).attr('id') + ": " + source_outer_height);
 
                             y_top_left = source_top;
                             y_bottom_left = source_top + source_outer_height;

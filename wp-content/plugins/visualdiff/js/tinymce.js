@@ -3,6 +3,7 @@ jQuery(document).ready(function ($) {
     var copied_from_editor_id = "";
     var copied_content = "";
     var copied_node = null;
+    var copied_mode = "";
 
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
@@ -60,43 +61,83 @@ jQuery(document).ready(function ($) {
             pastePreProcess(e);
         });
 
-        // cut and copy should be the same here
         function onCutOrCopy(e) {
             copied_from_editor_id = editor.id;
             copied_content = editor.selection.getContent();
             copied_node = null;
 
+            console.log("COPY:");
             console.log("copy from editor: " + copied_from_editor_id);
             if (copied_content == null || copied_content.length == 0) return;
 
             var copied_node = editor.selection.getNode(); // returns the currently selected element or the common ancestor element for both start and end of the selection
             if (!copied_node) return;
 
-            // usually, multiple paragraphs or parts of multiple paragraphs have been selected
-            if (copied_node.tagName.toLowerCase() == 'body') {
-                console.log("copied node:");
-                console.log(copied_node);
-                console.log("selected content:" + copied_content);
+            if (editor.id.indexOf("fb-source-mce") >= 0 ||
+                editor.id.indexOf("fb-derived-mce") >= 0) {
+                // usually, multiple paragraphs or parts of multiple paragraphs have been selected
+                if (copied_node.tagName.toLowerCase() == 'body') {
+                    console.log("copied node:");
+                    console.log(copied_node);
+                    console.log("selected content:" + copied_content);
 
-                copied_node = null; // we don't need the node
-            }
-            // one paragraphs or part of one paragraph has been selected
-            else {
-                //copied_node = $(selected_node).clone();
-                console.log("copied node:");
-                console.log(copied_node);
-                console.log("selected content:" + copied_content);
+                    copied_mode = "multiple";
+                    copied_node = null; // we don't need the node
+                }
+                // one paragraphs or part of one paragraph has been selected
+                else {
+                    copied_mode = "single";
+                    var node = $(copied_node).clone();
+                    $(node).html(copied_content);
+                    copied_content = $(node).prop('outerHTML');
+
+                    console.log("copied node:");
+                    console.log(copied_node);
+                    console.log("selected content:" + copied_content);
+                }
             }
         }
 
+        // this function only considers content copied from source or derived editors 
         function pastePreProcess(e) {
-            console.log("paste event:");
-            console.log(e);
+            console.log("PASTE:");
+            console.log("e.content:" + e.content);
+            console.log("copied_content:" + copied_content);
+            if (e.content == null || e.content.length <= 0) return;
 
-            if (copied_content == null || copied_content.length == 0) return;
+            // COPY: assume that all content copies from source or derived editors are html elements; 
+            // CUT: single paragraph content cut from source or derived editors are not html elements;
+            if (isHTML(e.content) == false) return;
 
-            //e.content = "<h1>hello world!</h1>";
-            // check if the paste content is the same as the latest selection.getContent()
+            // if the content comes from the source document
+            if (copied_from_editor_id.indexOf("fb-source-mce") >= 0) {
+                if (copied_mode == "single") {
+                    var paste_text = $(e.content).html().trim();
+                    var copied_text = $(copied_content).html().trim();
+                    console.log("e.content inner:" + paste_text);
+
+                    // it is possible that the paste content comes from other sources such as word or notepad, etc.
+                    if (paste_text == copied_text) {
+                        e.content = copied_content;
+                    }
+                }
+                else if (copied_mode == "multiple") {
+
+                }
+            }
+            // if the content comes from the derive document
+            else if (copied_from_editor_id.indexOf("fb-derived-mce") >= 0) {
+
+            }
+        }
+
+        function isHTML(str) {
+            var a = document.createElement('div');
+            a.innerHTML = str;
+            for (var c = a.childNodes, i = c.length; i--;) {
+                if (c[i].nodeType == 1) return true;
+            }
+            return false;
         }
 
         // functions
