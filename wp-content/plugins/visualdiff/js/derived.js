@@ -230,7 +230,6 @@ jQuery(document).ready(function ($) {
         });
     }
     
-
     function updateSVG() {
         var derived_doc = tinymce.get('fb-derived-mce').getDoc();
 

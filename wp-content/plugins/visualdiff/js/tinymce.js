@@ -5,11 +5,14 @@ jQuery(document).ready(function ($) {
     var copied_node = null;
     var copied_mode = "";
 
-
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
 
         // events
         editor.on('init', function () {
+            if (editor.id.indexOf("fb-source-mce") >= 0) {
+                //editor.getBody().setAttribute('contenteditable', false);
+            }
+
             resetIcons();
         });
 
@@ -39,6 +42,21 @@ jQuery(document).ready(function ($) {
             onCutOrCopy(e);
         });
 
+        editor.on('keydown', function (e) {
+            // backspace key
+            if (e.keyCode == 8) {
+
+            }
+            // enter key
+            else if (e.keyCode == 13) {
+                onEnterKeyDown(e);
+            }
+            // delete key
+            else if (e.keyCode == 46) {
+
+            }
+        });
+
         /*
         editor.on('NodeChange', function (e) {
             //console.log('NodeChange event...', e);
@@ -60,6 +78,36 @@ jQuery(document).ready(function ($) {
 
             pastePreProcess(e);
         });
+
+        function onEnterKeyDown(e) {
+            var content = editor.selection.getContent();
+            var node = editor.selection.getNode();
+
+            if (content == null) return;
+            if (!node) return;
+
+            // only consider derive document; assume source document is not editable
+            if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                // if no content has been selected
+                if (isEmptyContent(content) == true) {
+                    var a = 1;
+                }
+                // if some contents have been selected
+                else {
+                    // seems the enter key works like the backspace key
+                    /*
+                    // multiple paragraphs or parts of multiple paragraphs have been selected
+                    if (node.tagName.toLowerCase() == 'body') {
+
+                    }
+                        // one paragraphs or part of one paragraph has been selected
+                    else {
+
+                    }
+                    */
+                }
+            }
+        }
 
         function onCutOrCopy(e) {
             copied_from_editor_id = editor.id;
@@ -105,16 +153,23 @@ jQuery(document).ready(function ($) {
             console.log("copied_content:" + copied_content);
             if (e.content == null || e.content.length <= 0) return;
 
-            // COPY: assume that all content copies from source or derived editors are html elements; 
-            // CUT: single paragraph content cut from source or derived editors are not html elements;
-            if (isHTML(e.content) == false) return;
+            // COPY: (assume that) all content copies from source or derived editors are html elements; 
+            // CUT: single paragraph content cut from source or derived editors are NOT html elements; - but we should assume source content is not editable in derived pages
+            //if (isHTML(e.content) == false) return;
 
             // if the content comes from the source document
             if (copied_from_editor_id.indexOf("fb-source-mce") >= 0) {
                 if (copied_mode == "single") {
-                    var paste_text = $(e.content).html().trim();
+                    var paste_text = "";
+                    // single paragraph content cut from source or derived editors are NOT html elements
+                    if (isHTML(e.content) == false) { 
+                        paste_text = e.content.trim();
+                    }
+                    else {
+                        paste_text = $(e.content).html().trim();
+                    }
+                    
                     var copied_text = $(copied_content).html().trim();
-                    console.log("e.content inner:" + paste_text);
 
                     // it is possible that the paste content comes from other sources such as word or notepad, etc.
                     if (paste_text == copied_text) {
@@ -129,6 +184,19 @@ jQuery(document).ready(function ($) {
             else if (copied_from_editor_id.indexOf("fb-derived-mce") >= 0) {
 
             }
+        }
+
+        function isEmptyContent(content) {
+            if (!content) return true;
+
+            if (isHTML(content) == true) {
+                if ($(content).html().length == 0) return true;
+            }
+            else {
+                if (content.length == 0) return true;
+            }
+
+            return false;
         }
 
         function isHTML(str) {
