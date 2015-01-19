@@ -17,6 +17,7 @@ add_action( 'add_meta_boxes', 'fb_add_meta_box_revision' );
 
 add_action( 'edit_page_form', 'fb_add_post_box_derived_document' );
 add_action( 'edit_form_advanced', 'fb_add_post_box_derived_document' );
+add_action( 'save_post', 'fb_save_derived_document', 1, 2);
 
 // mce editor
 add_filter('mce_css', 'fb_mce_editor_style');
@@ -158,7 +159,7 @@ function fb_add_post_box_derived_document() {
 
 //-----------------------------------------------------------------------------------------------
 // derived meta boxes
-
+/*
 function fb_add_meta_box_derived_document() {
     global $post;
     if ($post) {        
@@ -167,6 +168,7 @@ function fb_add_meta_box_derived_document() {
         }
     }
 }
+*/
 
 function fb_box_derived_document_callback() {
 ?>               
@@ -207,9 +209,13 @@ function fb_box_derived_document_callback() {
         <h3 style="margin-bottom:8px">Derived Document</h3>
         <div>
 <?php
+    global $post;
+    $custom = get_post_custom($post->ID);
+    $content = (!empty($custom["_fb-derived-mce"][0])) ? $custom["_fb-derived-mce"][0] : '';
+    
     //$derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
     $derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
-    wp_editor('', 'fb-derived-mce', $derived_editor_args);      
+    wp_editor($content, 'fb-derived-mce', $derived_editor_args);      
 ?>   
         </div>
     </td>		
@@ -219,7 +225,15 @@ function fb_box_derived_document_callback() {
 <?php    
 }
 
-
+function fb_save_derived_document($postid, $post){
+    global $_POST;
+    // set the ID to the parent post, not the revision
+    //$postid = (wp_is_post_revision( $postid )) ? wp_is_post_revision( $post ) : $postid;
+    
+    if ($post->post_type == 'derived') {
+        update_post_meta($postid, "_fb-derived-mce", $_POST["fb-derived-mce"]); // save the data
+    }
+}
 
 
 

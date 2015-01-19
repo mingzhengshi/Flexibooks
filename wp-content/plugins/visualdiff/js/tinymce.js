@@ -90,7 +90,11 @@ jQuery(document).ready(function ($) {
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 // if no content has been selected
                 if (isEmptyContent(content) == true) {
-                    var a = 1;
+                    // only consider the paragraph that derives from the source document
+                    if (!$(node).attr('data-source-id')) {
+
+                    }
+                    // check if the cursor is at the start or the end of the paragraph
                 }
                 // if some contents have been selected
                 else {
@@ -100,7 +104,7 @@ jQuery(document).ready(function ($) {
                     if (node.tagName.toLowerCase() == 'body') {
 
                     }
-                        // one paragraphs or part of one paragraph has been selected
+                    // one paragraphs or part of one paragraph has been selected
                     else {
 
                     }
