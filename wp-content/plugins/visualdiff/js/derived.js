@@ -7,6 +7,14 @@ jQuery(document).ready(function ($) {
     var tab_counter = 0;
     var tab_template = "<li id='#{id}'><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
+
+    // open source tabs
+    var opened_source_tabs_ids = $("#fb-input-source-tabs").val();
+    if (!opened_source_tabs_ids && opened_source_tabs_ids.trim().length > 0) {
+        // ...
+    }
+
+
     //removeAllEditor();
 
     // close icon: removing the tab on click
@@ -34,6 +42,9 @@ jQuery(document).ready(function ($) {
                 //addTab();
                 for (var i = 0; i < selected_sources.length; i++) {
                     var post_id = selected_sources[i];
+                    var v = $("#fb-input-source-tabs").val();
+                    v = v + post_id + ";";
+                    $("#fb-input-source-tabs").val(v);
 
                     $.post(ajaxurl,
                         {

@@ -171,6 +171,11 @@ function fb_add_meta_box_derived_document() {
 */
 
 function fb_box_derived_document_callback() {
+    global $post;
+    $custom = get_post_custom($post->ID);
+    $source_posts_ids = (!empty($custom["_fb-opened-source-post-ids"][0])) ? $custom["_fb-opened-source-post-ids"][0] : '';
+    $content = (!empty($custom["_fb-derived-mce"][0])) ? $custom["_fb-derived-mce"][0] : '';
+    
 ?>               
 <div id="fb-source-selection-dialog" title="Source Documents">
     <ol id="fb-selectable-source-list">
@@ -195,10 +200,11 @@ function fb_box_derived_document_callback() {
   </colgroup>
   <tr>
     <td style="vertical-align:top">
-        <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" />        
+        <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" />
+        <input id="fb-input-source-tabs" style="display:none;" name="fb-opened-source-post-ids" value="<?php echo $source_posts_ids; ?>" />        
         <div id="fb-tabs-sources" class="fb-tabs-sources-display-none">
-              <ul id="fb-ul-source-tabs">
-              </ul>
+            <ul id="fb-ul-source-tabs">
+            </ul>
         </div>
     </td>
     <td id="fb-td-mid-column">
@@ -208,11 +214,7 @@ function fb_box_derived_document_callback() {
     <td style="vertical-align:top">
         <h3 style="margin-bottom:8px">Derived Document</h3>
         <div>
-<?php
-    global $post;
-    $custom = get_post_custom($post->ID);
-    $content = (!empty($custom["_fb-derived-mce"][0])) ? $custom["_fb-derived-mce"][0] : '';
-    
+<?php    
     //$derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
     $derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
     wp_editor($content, 'fb-derived-mce', $derived_editor_args);      
@@ -232,6 +234,8 @@ function fb_save_derived_document($postid, $post){
     
     if ($post->post_type == 'derived') {
         update_post_meta($postid, "_fb-derived-mce", $_POST["fb-derived-mce"]); // save the data
+        //update_post_meta($postid, "_fb-derived-mce-version-1", "test");
+        update_post_meta($postid, "_fb-opened-source-post-ids", $_POST["fb-opened-source-post-ids"]);
     }
 }
 
