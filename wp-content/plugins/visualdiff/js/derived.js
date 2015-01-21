@@ -3,6 +3,11 @@ jQuery(document).ready(function ($) {
     var source_tabs = $('#fb-tabs-sources').tabs().css({
         'min-height': '850px'
     });
+    var source_tabs_post_ids = [];
+
+    function tabCloseOnClick() {
+        var i = 1;
+    }
 
     var tab_counter = 0;
     var tab_template = "<li id='#{id}'><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
@@ -14,9 +19,15 @@ jQuery(document).ready(function ($) {
         var panelId = $(this).closest("li").remove().attr("aria-controls");
         $("#" + panelId).remove();
         source_tabs.tabs("refresh");
-    });
 
-    
+        var post_id = source_tabs_post_ids[panelId];
+        var index = source_tabs_post_ids.indexOf(post_id);
+        if (index >= 0) source_tabs_post_ids.splice(index, 1);
+        delete source_tabs_post_ids[panelId]; // also remove the property
+
+        updateSourceTabsInput();
+    });
+   
     source_tabs.on("tabsactivate", function (event, ui) {
         console.log("tab activate...");
         //var active_tab_id = $(".ui-state-active").attr("id");
@@ -32,12 +43,12 @@ jQuery(document).ready(function ($) {
         // open source tabs
         var opened_source_tabs_ids = $("#fb-input-source-tabs").val();
         $("#fb-input-source-tabs").val(""); // reset
+
         if (typeof (tinymce) == "object" && typeof (tinymce.execCommand) == "function") {
             if (opened_source_tabs_ids != null && opened_source_tabs_ids.trim().length > 0) {
                 var ids = opened_source_tabs_ids.split(";");
                 for (var i = 0; i < ids.length - 1; i++) {
                     getSourcePost(ids[i].trim());
-
                 }
             }
         }
@@ -138,11 +149,24 @@ jQuery(document).ready(function ($) {
         source_tabs.tabs("refresh");
         source_tabs.tabs("option", "active", $('#' + li_id).index());
 
-        var v = $("#fb-input-source-tabs").val();
-        v = v + post_id + ";";
-        $("#fb-input-source-tabs").val(v);
+        source_tabs_post_ids[tab_id] = post_id; // add property for quick index
+        source_tabs_post_ids.push(post_id);
+        updateSourceTabsInput();
 
         tab_counter++;
+    }
+
+    function updateSourceTabsInput() {
+        $("#fb-input-source-tabs").val("");
+
+        if (source_tabs_post_ids.length <= 0) return;
+
+        var ids = "";
+        for (var i = 0; i < source_tabs_post_ids.length; i++) {
+            ids = ids + source_tabs_post_ids[i].trim() + ";";
+        }
+
+        $("#fb-input-source-tabs").val(ids);
     }
 
     // selectable in the dialog
