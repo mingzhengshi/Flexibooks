@@ -10,7 +10,13 @@ jQuery(document).ready(function ($) {
         // events
         editor.on('init', function () {
             if (editor.id.indexOf("fb-source-mce") >= 0) {
-                //editor.getBody().setAttribute('contenteditable', false);
+                
+            }
+
+            if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                // when the derived mce is inited; we can load the source mce
+                var callback = flexibook.deriveMceInitCallback;
+                if (callback) callback();
             }
 
             resetIcons();
@@ -203,9 +209,9 @@ jQuery(document).ready(function ($) {
             return false;
         }
 
-        function isHTML(str) {
+        function isHTML(text) {
             var a = document.createElement('div');
-            a.innerHTML = str;
+            a.innerHTML = text;
             for (var c = a.childNodes, i = c.length; i--;) {
                 if (c[i].nodeType == 1) return true;
             }

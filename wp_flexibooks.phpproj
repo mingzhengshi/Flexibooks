@@ -1942,6 +1942,7 @@
     <Content Include="wp-content\plugins\visualdiff\image\star.png" />
     <Content Include="wp-content\plugins\visualdiff\image\ychart.png" />
     <Content Include="wp-content\plugins\visualdiff\js\derived.js" />
+    <Content Include="wp-content\plugins\visualdiff\js\fb.js" />
     <Content Include="wp-content\plugins\visualdiff\js\htmldiff.js" />
     <Content Include="wp-content\plugins\visualdiff\js\tinymce.js" />
     <Content Include="wp-content\plugins\visualdiff\js\visualdiff.js" />

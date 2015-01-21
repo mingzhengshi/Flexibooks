@@ -8,6 +8,7 @@ require_once( 'simple_html_dom.php' );
 
 add_action( 'admin_menu', 'fb_add_revision_compare_page' );
 add_action( 'admin_head', 'fb_derived_admin_head' );
+add_action( 'admin_footer', 'fb_derived_admin_footer' );
 add_action( 'admin_footer', 'fb_admin_footer' );
 add_action( 'init', 'fb_create_post_type' );
 
@@ -92,6 +93,7 @@ function fb_mce_before_init( $settings ) {
 function fb_derived_admin_head() {
     $type = get_current_screen()->post_type;
     if ($type == 'derived') {
+        $fb_js_url = plugins_url( 'js/fb.js' , __FILE__ );
         $htmldiff_js_url = plugins_url( 'js/htmldiff.js' , __FILE__ );
         $derived_js_url = plugins_url( 'js/derived.js' , __FILE__ );
         $jstree_js_url = plugins_url( 'lib/jstree/jstree.min.js' , __FILE__ );
@@ -101,6 +103,7 @@ function fb_derived_admin_head() {
         //$editor_div_css_url = plugins_url( 'css/editor_div.css' , __FILE__ );
         $jquery_css_url = plugins_url( 'css/jquery-ui-themes-1.11.2/themes/smoothness/jquery-ui.css' , __FILE__ );
     
+        echo '<script type="text/javascript" src="' . $fb_js_url . '" ></script>';
         echo '<script type="text/javascript" src="' . $htmldiff_js_url . '" ></script>'; // need to come first; to be used in other js files;
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
         echo '<script type="text/javascript" src="' . $jstree_js_url . '" ></script>';
@@ -110,6 +113,15 @@ function fb_derived_admin_head() {
         //echo '<link rel="stylesheet" type="text/css" href="' . $editor_div_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $jquery_css_url . '" />';
     }    
+}
+
+function fb_derived_admin_footer() {
+    $type = get_current_screen()->post_type;
+    if ($type == 'derived') {
+
+        
+
+    }
 }
 
 function fb_admin_print_scripts() {

@@ -7,14 +7,6 @@ jQuery(document).ready(function ($) {
     var tab_counter = 0;
     var tab_template = "<li id='#{id}'><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
-
-    // open source tabs
-    var opened_source_tabs_ids = $("#fb-input-source-tabs").val();
-    if (!opened_source_tabs_ids && opened_source_tabs_ids.trim().length > 0) {
-        // ...
-    }
-
-
     //removeAllEditor();
 
     // close icon: removing the tab on click
@@ -34,6 +26,24 @@ jQuery(document).ready(function ($) {
         update();
     });
 
+    flexibook.regDeriveMceInitCallback(function () {
+        $("#fb-button-open-source-document").prop('disabled', false);
+
+        // open source tabs
+        var opened_source_tabs_ids = $("#fb-input-source-tabs").val();
+        $("#fb-input-source-tabs").val(""); // reset
+        if (typeof (tinymce) == "object" && typeof (tinymce.execCommand) == "function") {
+            if (opened_source_tabs_ids != null && opened_source_tabs_ids.trim().length > 0) {
+                var ids = opened_source_tabs_ids.split(";");
+                for (var i = 0; i < ids.length - 1; i++) {
+                    getSourcePost(ids[i].trim());
+
+                }
+            }
+        }
+    });
+    //$('#button-show-network-' + this.id).prop('disabled', false);
+
     var fb_source_selection_dialog = $("#fb-source-selection-dialog").dialog({
         autoOpen: false,
         modal: true,
@@ -42,24 +52,7 @@ jQuery(document).ready(function ($) {
                 //addTab();
                 for (var i = 0; i < selected_sources.length; i++) {
                     var post_id = selected_sources[i];
-                    var v = $("#fb-input-source-tabs").val();
-                    v = v + post_id + ";";
-                    $("#fb-input-source-tabs").val(v);
-
-                    $.post(ajaxurl,
-                        {
-                            'action': 'fb_source_query',
-                            'id': post_id
-                        },
-                        function (data, status) {
-                            if (status.toLowerCase() == "success") {
-                                //var outer_text = data.htmltext;
-                                var obj = JSON.parse(data);
-                                addSourceTab(obj.title, obj.content);
-                            }
-                            else {
-                            }
-                        });
+                    getSourcePost(post_id);
                 }
                 $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
                 $(this).dialog("close");
@@ -88,8 +81,26 @@ jQuery(document).ready(function ($) {
         $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
         fb_source_selection_dialog.dialog("open");
     });
+    $("#fb-button-open-source-document").prop('disabled', true);
 
-    function addSourceTab(title, content) {
+    function getSourcePost(post_id) {
+        $.post(ajaxurl,
+            {
+                'action': 'fb_source_query',
+                'id': post_id
+            },
+            function (data, status) {
+                if (status.toLowerCase() == "success") {
+                    //var outer_text = data.htmltext;
+                    var obj = JSON.parse(data);
+                    addSourceTab(obj.title, obj.content, post_id);
+                }
+                else {
+                }
+            });
+    }
+
+    function addSourceTab(title, content, post_id) {
         var tab_id = "fb-tabs-source-" + tab_counter;
         var mce_id = 'fb-source-mce-' + tab_counter;
         var li_id = tab_id + "-selector";
@@ -101,6 +112,7 @@ jQuery(document).ready(function ($) {
 
         //$("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
         $("#" + tab_id).append("<textarea id='" + mce_id + "' style='height:600px'></textarea>");
+        //tinymce.init();
         tinymce.execCommand('mceAddEditor', false, mce_id);
 
         // test only
@@ -110,9 +122,7 @@ jQuery(document).ready(function ($) {
         }
         */
 
-        //content = html_diff('<p>this is some text book</p>', '<p>this is some more text</p>'); // test
-
-        tinymce.get(mce_id).setContent(content); // note: the get method does not work sometimes; not because the editor is not initialized yet.
+        tinymce.get(mce_id).setContent(content); // note: the get method does not work when tinymce.js has not been loaded;
         tinymce.get(mce_id).on('change', function (e) {
             update();
         });
@@ -127,6 +137,11 @@ jQuery(document).ready(function ($) {
 
         source_tabs.tabs("refresh");
         source_tabs.tabs("option", "active", $('#' + li_id).index());
+
+        var v = $("#fb-input-source-tabs").val();
+        v = v + post_id + ";";
+        $("#fb-input-source-tabs").val(v);
+
         tab_counter++;
     }
 
