@@ -18,7 +18,9 @@ add_action( 'add_meta_boxes', 'fb_add_meta_box_revision' );
 
 add_action( 'edit_page_form', 'fb_add_post_box_derived_document' );
 add_action( 'edit_form_advanced', 'fb_add_post_box_derived_document' );
-add_action( 'save_post', 'fb_save_derived_document', 1, 2);
+add_action( 'save_post', 'fb_save_document', 1, 2);
+add_filter( 'wp_insert_post_data' , 'fb_filter_post_data' , '99', 2 );
+
 
 // mce editor
 add_filter('mce_css', 'fb_mce_editor_style');
@@ -239,7 +241,7 @@ function fb_box_derived_document_callback() {
 <?php    
 }
 
-function fb_save_derived_document($postid, $post){
+function fb_save_document($postid, $post){
     global $_POST;
     // set the ID to the parent post, not the revision
     //$postid = (wp_is_post_revision( $postid )) ? wp_is_post_revision( $post ) : $postid;
@@ -251,7 +253,28 @@ function fb_save_derived_document($postid, $post){
     }
 }
 
-
+function fb_filter_post_data($data , $postarr) {
+    if ($data['post_type'] == 'source') {
+        $post_content = $data['post_content'];
+        $html_parser = str_get_html($post_content);            
+        
+        foreach ($html_parser->nodes as $node){       
+            // consider the top level tags first
+            if ($node->parent()->tag == 'root'){                    
+                if(!isset($node->attr['id'])){
+                    $uid = uniqid(rand(), true);                        
+                    $node->{'id'} = $uid;                    
+                }                   
+            }
+        }
+        
+        // Dumps the internal DOM tree back into string 
+        $str = $html_parser->save();     
+        $data['post_content'] = $str;
+    }
+    
+    return $data;
+}
 
 
 
@@ -355,7 +378,7 @@ function fb_create_post_type() {
             //'trackbacks',
             //'custom-fields',
             //'comments',
-            //'revisions',
+            'revisions',
             //'thumbnail',
             //'author',
             //'page-attributes',
@@ -397,7 +420,7 @@ function fb_create_post_type() {
                 //'trackbacks',
                 //'custom-fields',
                 //'comments',
-                //'revisions',
+                'revisions',
                 //'thumbnail',
                 //'author',
                 //'page-attributes',
