@@ -187,6 +187,12 @@ jQuery(document).ready(function ($) {
         updateSVG();
     }
 
+    function updateDerivedMetaBox() {
+
+
+
+    }
+
     function updateHTMLDiff() {
         var derived_doc = tinymce.get('fb-derived-mce').getDoc();
 

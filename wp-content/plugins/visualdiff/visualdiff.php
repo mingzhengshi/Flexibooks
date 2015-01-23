@@ -13,8 +13,9 @@ add_action( 'admin_footer', 'fb_admin_footer' );
 add_action( 'init', 'fb_create_post_type' );
 
 //add_action( 'add_meta_boxes', 'fb_add_meta_box_source_list' );
-//add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
+add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
 add_action( 'add_meta_boxes', 'fb_add_meta_box_revision' );
+
 
 add_action( 'edit_page_form', 'fb_add_post_box_derived_document' );
 add_action( 'edit_form_advanced', 'fb_add_post_box_derived_document' );
@@ -159,6 +160,38 @@ function fb_source_query() {
 	die(); // this is required to terminate immediately and return a proper response
 }
 
+
+//-----------------------------------------------------------------------------------------------
+// derived meta boxes
+
+function fb_add_meta_box_derived_document() {
+    global $post;
+    if ($post) {        
+        if ($post->post_type == 'derived'){
+            add_meta_box('meta_box_source_list', 'Derived Meta', 'fb_add_meta_box_derived_document_callback', null, 'side', 'core' );
+        }
+    }
+}
+
+function fb_add_meta_box_derived_document_callback() {
+    global $post;
+    $custom = get_post_custom($post->ID);
+    $derived_meta = (!empty($custom["_fb-derived-meta"][0])) ? $custom["_fb-derived-meta"][0] : '';
+    
+?>     
+<table cellspacing="10">
+    <input id="fb-input-derived-meta" style="display:none;" name="fb-derived-meta" value="<?php echo $derived_meta; ?>" />  
+    <tr>
+        <td>Source ID</td>
+        <td>Current Source Version</td>
+        <td>Lastest Source Version</td>
+        <td>Merge Requests</td>
+    </tr>
+</table>
+<?php    
+
+}
+
 //-----------------------------------------------------------------------------------------------
 // derived post boxes
 
@@ -166,25 +199,12 @@ function fb_add_post_box_derived_document() {
     global $post;
     if ($post) {        
         if ($post->post_type == 'derived'){
-            fb_box_derived_document_callback();
+            fb_post_box_derived_document_callback();
         }
     }
 }
 
-//-----------------------------------------------------------------------------------------------
-// derived meta boxes
-/*
-function fb_add_meta_box_derived_document() {
-    global $post;
-    if ($post) {        
-        if ($post->post_type == 'derived'){
-            add_meta_box('meta_box_derived_document', 'Derived Document', 'fb_box_derived_document_callback', null, 'side', 'core' );
-        }
-    }
-}
-*/
-
-function fb_box_derived_document_callback() {
+function fb_post_box_derived_document_callback() {
     global $post;
     $custom = get_post_custom($post->ID);
     $source_posts_ids = (!empty($custom["_fb-opened-source-post-ids"][0])) ? $custom["_fb-opened-source-post-ids"][0] : '';
