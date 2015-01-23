@@ -342,6 +342,9 @@ jQuery(document).ready(function ($) {
         function insertContent(targetID) {
             var content = "";
 
+            if (!editor.hasOwnProperty("post_id")) return;
+            var post_id = editor.post_id;
+
             var start = false;
             var targetLevel = 10000;
             var children = $(editor.getBody()).children();
@@ -355,7 +358,9 @@ jQuery(document).ready(function ($) {
                             start = true;
                             targetLevel = parseInt(element.tagName.substr(1));
 
-                            content += element.outerHTML;
+                            var element_copy = $(element).clone();
+                            $(element_copy).attr("data-source-post-id", post_id);
+                            content += $(element_copy).prop('outerHTML');
                         }
                     }
                     else {
@@ -365,11 +370,15 @@ jQuery(document).ready(function ($) {
                                 break;
                             }
                             else {
-                                content += element.outerHTML;
+                                var element_copy = $(element).clone();
+                                $(element_copy).attr("data-source-post-id", post_id);
+                                content += $(element_copy).prop('outerHTML');
                             }
                         }
                         else {
-                            content += element.outerHTML;
+                            var element_copy = $(element).clone();
+                            $(element_copy).attr("data-source-post-id", post_id);
+                            content += $(element_copy).prop('outerHTML');
                         }
                     }
                 }

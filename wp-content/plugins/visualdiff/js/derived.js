@@ -133,10 +133,12 @@ jQuery(document).ready(function ($) {
         }
         */
 
-        tinymce.get(mce_id).setContent(content); // note: the get method does not work when tinymce.js has not been loaded;
-        tinymce.get(mce_id).on('change', function (e) {
+        var source_mce = tinymce.get(mce_id);
+        source_mce.setContent(content); // note: the get method does not work when tinymce.js has not been loaded;
+        source_mce.on('change', function (e) {
             update();
         });
+        source_mce["post_id"] = post_id;
 
         if (tab_counter == 0) {
             tinymce.get('fb-derived-mce').on('change', function (e) {
