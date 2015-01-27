@@ -3,7 +3,8 @@ jQuery(document).ready(function ($) {
     var source_tabs = $('#fb-tabs-sources').tabs().css({
         'min-height': '850px'
     });
-    var source_tabs_post_ids = [];
+    var meta_source_tabs_post_ids = [];
+    var meta_source_versions = []; // list of objects
 
     function tabCloseOnClick() {
         var i = 1;
@@ -20,10 +21,10 @@ jQuery(document).ready(function ($) {
         $("#" + panelId).remove();
         source_tabs.tabs("refresh");
 
-        var post_id = source_tabs_post_ids[panelId];
-        var index = source_tabs_post_ids.indexOf(post_id);
-        if (index >= 0) source_tabs_post_ids.splice(index, 1);
-        delete source_tabs_post_ids[panelId]; // also remove the property
+        var post_id = meta_source_tabs_post_ids[panelId];
+        var index = meta_source_tabs_post_ids.indexOf(post_id);
+        if (index >= 0) meta_source_tabs_post_ids.splice(index, 1);
+        delete meta_source_tabs_post_ids[panelId]; // also remove the property
 
         updateSourceTabsInput();
     });
@@ -151,8 +152,8 @@ jQuery(document).ready(function ($) {
         source_tabs.tabs("refresh");
         source_tabs.tabs("option", "active", $('#' + li_id).index());
 
-        source_tabs_post_ids[tab_id] = post_id; // add property for quick index
-        source_tabs_post_ids.push(post_id);
+        meta_source_tabs_post_ids[tab_id] = post_id; // add property for quick index
+        meta_source_tabs_post_ids.push(post_id);
         updateSourceTabsInput();
 
         tab_counter++;
@@ -161,11 +162,11 @@ jQuery(document).ready(function ($) {
     function updateSourceTabsInput() {
         $("#fb-input-source-tabs").val("");
 
-        if (source_tabs_post_ids.length <= 0) return;
+        if (meta_source_tabs_post_ids.length <= 0) return;
 
         var ids = "";
-        for (var i = 0; i < source_tabs_post_ids.length; i++) {
-            ids = ids + source_tabs_post_ids[i].trim() + ";";
+        for (var i = 0; i < meta_source_tabs_post_ids.length; i++) {
+            ids = ids + meta_source_tabs_post_ids[i].trim() + ";";
         }
 
         $("#fb-input-source-tabs").val(ids);
@@ -183,11 +184,12 @@ jQuery(document).ready(function ($) {
     });
 
     function update() {
+        updateMetaSourceVersions();
         updateHTMLDiff();
         updateSVG();
     }
 
-    function updateDerivedMetaBox() {
+    function updateMetaSourceVersions() {
 
 
 

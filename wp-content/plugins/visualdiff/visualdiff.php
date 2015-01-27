@@ -168,7 +168,7 @@ function fb_add_meta_box_derived_document() {
     global $post;
     if ($post) {        
         if ($post->post_type == 'derived'){
-            add_meta_box('meta_box_source_list', 'Derived Meta', 'fb_add_meta_box_derived_document_callback', null, 'side', 'core' );
+            add_meta_box('meta_box_source_list', 'Source Versions', 'fb_add_meta_box_derived_document_callback', null, 'side', 'core' );
         }
     }
 }
@@ -177,6 +177,10 @@ function fb_add_meta_box_derived_document_callback() {
     global $post;
     $custom = get_post_custom($post->ID);
     $derived_meta = (!empty($custom["_fb-derived-meta"][0])) ? $custom["_fb-derived-meta"][0] : '';
+    
+    // use js object and json encode for $derived_meta
+    
+    
     
 ?>     
 <table cellspacing="10">

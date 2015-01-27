@@ -120,6 +120,9 @@ jQuery(document).ready(function ($) {
         }
 
         function onCutOrCopy(e) {
+            if (!editor.hasOwnProperty("post_id")) return;
+            var post_id = editor.post_id;
+
             copied_from_editor_id = editor.id;
             copied_content = editor.selection.getContent();
             copied_node = null;
@@ -146,6 +149,7 @@ jQuery(document).ready(function ($) {
                 else {
                     copied_mode = "single";
                     var node = $(copied_node).clone();
+                    $(node).attr("data-source-post-id", post_id);
                     $(node).html(copied_content);
                     copied_content = $(node).prop('outerHTML');
 
