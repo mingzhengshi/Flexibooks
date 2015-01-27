@@ -144,6 +144,14 @@ jQuery(document).ready(function ($) {
 
                     copied_mode = "multiple";
                     copied_node = null; // we don't need the node
+
+                    var cont = "";
+                    $(copied_content).each(function (index) {
+                        var node = $(this).clone();
+                        $(node).attr("data-source-post-id", post_id);
+                        cont += $(node).prop('outerHTML');
+                    });
+                    copied_content = cont;
                 }
                 // one paragraphs or part of one paragraph has been selected
                 else {
@@ -191,7 +199,26 @@ jQuery(document).ready(function ($) {
                     }
                 }
                 else if (copied_mode == "multiple") {
+                    var paste_text = "";
 
+                    if (isHTML(e.content) == false) {
+                        paste_text = e.content.trim();
+                    }
+                    else {
+                        $(e.content).each(function (index) {
+                            paste_text += $(this).html().trim();
+                        });
+                    }
+
+                    var copied_text = "";
+                    $(copied_content).each(function (index) {
+                        copied_text += $(this).html().trim();
+                    });
+
+                    // it is possible that the paste content comes from other sources such as word or notepad, etc.
+                    if (paste_text == copied_text) {
+                        e.content = copied_content;
+                    }
                 }
             }
             // if the content comes from the derive document
