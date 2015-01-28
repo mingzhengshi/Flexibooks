@@ -153,7 +153,8 @@ function fb_source_query() {
     
     $data = array(
         'content' => $post->post_content,
-        'title' => $post->post_title
+        'title' => $post->post_title,
+        'modified' => $post->post_modified
     );
 
     echo json_encode($data);
@@ -187,8 +188,8 @@ function fb_add_meta_box_derived_document_callback() {
     <input id="fb-input-derived-meta" style="display:none;" name="fb-derived-meta" value="<?php echo $derived_meta; ?>" />  
     <tr>
         <td>Source ID</td>
-        <td>Current Source Version</td>
-        <td>Lastest Source Version</td>
+        <td>Current Version</td>
+        <td>Lastest Version</td>
         <td>Merge Requests</td>
     </tr>
 </table>
@@ -274,6 +275,7 @@ function fb_save_document($postid, $post){
         update_post_meta($postid, "_fb-derived-mce", $_POST["fb-derived-mce"]); // save the data
         //update_post_meta($postid, "_fb-derived-mce-version-1", "test");
         update_post_meta($postid, "_fb-opened-source-post-ids", $_POST["fb-opened-source-post-ids"]);
+        update_post_meta($postid, "_fb-derived-meta", $_POST["fb-derived-meta"]);
     }
 }
 

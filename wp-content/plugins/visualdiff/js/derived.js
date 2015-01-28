@@ -5,7 +5,7 @@ jQuery(document).ready(function ($) {
     });
     var meta_source_tabs_post_ids = [];
     var meta_source_versions = []; // list of objects
-
+    var derived_mce_init_done = false;
     function tabCloseOnClick() {
         var i = 1;
     }
@@ -53,6 +53,8 @@ jQuery(document).ready(function ($) {
                 }
             }
         }
+
+        derived_mce_init_done = true;
     });
     //$('#button-show-network-' + this.id).prop('disabled', false);
 
@@ -105,14 +107,14 @@ jQuery(document).ready(function ($) {
                 if (status.toLowerCase() == "success") {
                     //var outer_text = data.htmltext;
                     var obj = JSON.parse(data);
-                    addSourceTab(obj.title, obj.content, post_id);
+                    addSourceTab(obj.title, obj.content, obj.modified, post_id);
                 }
                 else {
                 }
             });
     }
 
-    function addSourceTab(title, content, post_id) {
+    function addSourceTab(title, content, post_modified, post_id) {
         var tab_id = "fb-tabs-source-" + tab_counter;
         var mce_id = 'fb-source-mce-' + tab_counter;
         var li_id = tab_id + "-selector";
@@ -140,6 +142,7 @@ jQuery(document).ready(function ($) {
             update();
         });
         source_mce["post_id"] = post_id;
+        source_mce["post_modified"] = post_modified;
 
         if (tab_counter == 0) {
             tinymce.get('fb-derived-mce').on('change', function (e) {
@@ -190,9 +193,68 @@ jQuery(document).ready(function ($) {
     }
 
     function updateMetaSourceVersions() {
+        if (derived_mce_init_done == false) return;
+        if (!tinymce.get('fb-derived-mce')) return;
 
+        var post_ids = getUniqueSourcePostIDs();
 
+        if (meta_source_versions.length == 0) {
+            for (var i = 0; i < post_ids.length; i++) {
+                var obj = new Object();
+                obj['source_post_id'] = post_ids[i];
 
+                // not yet consider the source editors have been closed 
+                for (var j = 0; j < tinymce.editors.length; j++) {
+                    if (tinymce.editors[j].post_id == post_ids[i]) {
+                        obj['source_post_modified'] = tinymce.editors[j].post_modified;
+                        break;
+                    }
+                };
+
+                meta_source_versions.push(obj);
+            }
+        }
+        else {
+            // remove objects from meta_source_versions if they are not longer in derived document 
+            for (var i = meta_source_versions.length - 1; i >= 0; i--) {
+                if (post_ids.indexOf(meta_source_versions[i].source_post_id) == -1) {
+                    meta_source_versions.pop();
+                }
+            }
+            
+            // add new objects to meta_source_versions
+        }
+
+        var meta_source_versions_string = JSON.stringify(meta_source_versions);
+        $("#fb-input-derived-meta").val(meta_source_versions_string);
+
+        /*
+        if (!meta_source_versions[i].hasOwnProperty("version")) {
+
+        }
+        else {
+
+        }
+        */
+    }
+
+    function getUniqueSourcePostIDs() {
+        var ids = [];
+        var derived_doc = tinymce.get('fb-derived-mce').getDoc();
+
+        $(derived_doc.body).find("[data-source-post-id]").each(function (index) {
+            var post_id = $(this).attr('data-source-post-id').trim();
+            if (ids.length == 0) {
+                ids.push(post_id);
+            }
+            else {
+                if (ids.indexOf(post_id) == -1) {
+                    ids.push(post_id);
+                }
+            }
+        });
+
+        return ids;
     }
 
     function updateHTMLDiff() {
