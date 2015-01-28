@@ -39,20 +39,28 @@ jQuery(document).ready(function ($) {
     });
 
     flexibook.regDeriveMceInitCallback(function () {
+        if (derived_mce_init_done == true) return;
+
         $("#fb-button-open-source-document").prop('disabled', false);
 
-        // open source tabs
+        // meta: opened source tabs 
         var opened_source_tabs_ids = $("#fb-input-source-tabs").val();
         $("#fb-input-source-tabs").val(""); // reset
 
-        if (typeof (tinymce) == "object" && typeof (tinymce.execCommand) == "function") {
-            if (opened_source_tabs_ids != null && opened_source_tabs_ids.trim().length > 0) {
-                var ids = opened_source_tabs_ids.split(";");
-                for (var i = 0; i < ids.length - 1; i++) {
-                    getSourcePost(ids[i].trim());
-                }
+        if (opened_source_tabs_ids != null && opened_source_tabs_ids.trim().length > 0) {
+            var ids = opened_source_tabs_ids.split(";");
+            for (var i = 0; i < ids.length - 1; i++) {
+                getSourcePost(ids[i].trim());
             }
         }
+        
+        // meta: derived document
+
+        var derived_meta_string = $("#fb-input-derived-meta").val();
+        if (derived_meta_string != null && derived_meta_string.trim().length > 0) {
+            meta_source_versions = JSON.parse(derived_meta_string);
+        }
+
 
         derived_mce_init_done = true;
     });
@@ -200,42 +208,81 @@ jQuery(document).ready(function ($) {
 
         if (meta_source_versions.length == 0) {
             for (var i = 0; i < post_ids.length; i++) {
-                var obj = new Object();
-                obj['source_post_id'] = post_ids[i];
-
-                // not yet consider the source editors have been closed 
-                for (var j = 0; j < tinymce.editors.length; j++) {
-                    if (tinymce.editors[j].post_id == post_ids[i]) {
-                        obj['source_post_modified'] = tinymce.editors[j].post_modified;
-                        break;
-                    }
-                };
-
-                meta_source_versions.push(obj);
+                createNewDeriveMetaObject(post_ids[i]);
             }
         }
         else {
-            // remove objects from meta_source_versions if they are not longer in derived document 
+            // firstly, remove objects from meta_source_versions if they are not longer in derived document 
             for (var i = meta_source_versions.length - 1; i >= 0; i--) {
                 if (post_ids.indexOf(meta_source_versions[i].source_post_id) == -1) {
                     meta_source_versions.pop();
                 }
             }
             
-            // add new objects to meta_source_versions
+            for (var i = 0; i < post_ids.length; i++) {
+                var post_ids_exist = false;
+                for (var j = 0; j < meta_source_versions.length; j++) {
+                    if (post_ids[i] == meta_source_versions[j].source_post_id) {
+                        
+                        // not yet consider the source editors have been closed 
+                        for (var t = 0; t < tinymce.editors.length; t++) {
+                            if (tinymce.editors[t].post_id == post_ids[i]) {
+                                meta_source_versions[j]['source_post_latest_modified'] = tinymce.editors[t].post_modified;
+                                break;
+                            }
+                        };
+
+                        post_ids_exist = true;
+                        break;
+                    }
+                }
+
+                if (post_ids_exist == false) {
+                    createNewDeriveMetaObject(post_ids[i]);
+                }
+            }
         }
 
         var meta_source_versions_string = JSON.stringify(meta_source_versions);
         $("#fb-input-derived-meta").val(meta_source_versions_string);
 
-        /*
-        if (!meta_source_versions[i].hasOwnProperty("version")) {
+        // update meta box source versions
+        var table = document.getElementById("fb-table-derived-meta");
 
+        // remove all data rows first
+        if (table.rows.length > 1) {
+            for (var i = table.rows.length - 1; i >= 1; i--) {
+                table.deleteRow(i);
+            }
         }
-        else {
 
+        for (var i = 0; i < meta_source_versions.length; i++) {
+            var row = table.insertRow();
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            var cell4 = row.insertCell(3);
+            cell1.innerHTML = meta_source_versions[i].source_post_id;
+            cell2.innerHTML = meta_source_versions[i].source_post_current_modified;
+            cell3.innerHTML = meta_source_versions[i].source_post_latest_modified;
+            cell4.innerHTML = "";
         }
-        */
+    }
+
+    function createNewDeriveMetaObject(post_id) {
+        var obj = new Object();
+        obj['source_post_id'] = post_id;
+
+        // not yet consider the source editors have been closed 
+        for (var j = 0; j < tinymce.editors.length; j++) {
+            if (tinymce.editors[j].post_id == post_id) {
+                obj['source_post_current_modified'] = tinymce.editors[j].post_modified;
+                obj['source_post_latest_modified'] = tinymce.editors[j].post_modified;
+                break;
+            }
+        };
+
+        meta_source_versions.push(obj);
     }
 
     function getUniqueSourcePostIDs() {

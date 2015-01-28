@@ -184,8 +184,8 @@ function fb_add_meta_box_derived_document_callback() {
     
     
 ?>     
-<table cellspacing="10">
-    <input id="fb-input-derived-meta" style="display:none;" name="fb-derived-meta" value="<?php echo $derived_meta; ?>" />  
+<table id="fb-table-derived-meta" cellspacing="10">
+    <input id="fb-input-derived-meta" style="display:none;" name="fb-derived-meta" value="<?php echo htmlentities($derived_meta); ?>" />  
     <tr>
         <td>Source ID</td>
         <td>Current Version</td>
