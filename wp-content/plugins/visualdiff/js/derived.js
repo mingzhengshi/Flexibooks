@@ -267,6 +267,15 @@ jQuery(document).ready(function ($) {
             cell3.innerHTML = meta_source_versions[i].source_post_latest_modified;
             cell4.innerHTML = "";
         }
+
+        if (table.rows.length > 1) {
+            for (var i = 1; i < table.rows.length; i++) {
+                var cells = table.rows[i].cells;
+                if (cells[1].innerHTML.trim() != cells[2].innerHTML.trim()) {
+                    table.rows[i].style.backgroundColor = "lightpink";
+                }
+            }
+        }
     }
 
     function createNewDeriveMetaObject(post_id) {
