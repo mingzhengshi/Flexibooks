@@ -66,6 +66,10 @@ jQuery(document).ready(function ($) {
     });
     //$('#button-show-network-' + this.id).prop('disabled', false);
 
+
+
+    //----------------------------------------------------------------------------------------
+    // source selection dialog
     var fb_source_selection_dialog = $("#fb-source-selection-dialog").dialog({
         autoOpen: false,
         modal: true,
@@ -97,7 +101,6 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    // source selection dialog
     $("#fb-button-open-source-document").button().click(function () {
         selected_sources.splice(0);
         $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
@@ -170,6 +173,29 @@ jQuery(document).ready(function ($) {
         tab_counter++;
     }
 
+
+
+    //----------------------------------------------------------------------------------------
+    // merge dialog
+    var fb_merge_dialog = $("#fb-merge-dialog").dialog({
+        autoOpen: false,
+        modal: true,
+        height: "auto",
+        width: 1600,
+        close: function () {
+            tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-top-source");
+            tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-top-derive");
+            tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-bottom-source");
+            tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-bottom-derive");
+            console.log("merge dialog close...");
+        }
+    });
+
+
+
+
+    //----------------------------------------------------------------------------------------
+    // updates
     function updateSourceTabsInput() {
         $("#fb-input-source-tabs").val("");
 
@@ -522,6 +548,35 @@ jQuery(document).ready(function ($) {
 
     function svgOnClick() {
         console.log("svg on click...");
+        fb_merge_dialog.dialog("open");
+        /*
+        tinymce.execCommand('mceAddEditor', false, "fb-merge-mce-top-source");
+        tinymce.execCommand('mceAddEditor', false, "fb-merge-mce-top-derive");
+        tinymce.execCommand('mceAddEditor', false, "fb-merge-mce-bottom-source");
+        tinymce.execCommand('mceAddEditor', false, "fb-merge-mce-bottom-derive");
+        */
+
+        /*
+        var editor = tinymce.get("fb-merge-mce-top-source");
+        //$(editor).find(".mce-toolbar").parent().css('display', 'none');
+        $('#' + editor.id + '_toolbargroup').parent().css('display', 'none');
+        */
+
+        /*
+        tinymce.init({
+            selector: "#fb-merge-mce-top-source",
+            toolbar: false
+        });
+        */
+        tinymce.init({
+            selector: "#fb-merge-mce-top-source",
+            menubar: false,
+            statusbar: false,
+            toolbar: false
+        });
+
+        var editor = tinymce.get("fb-merge-mce-top-source");
+        editor.setContent('<h1 id="d5fd814b-0177-440a-988e-4d70f7680fa6" class="main-heading-1" data-source-post-id="121" data-source-id="102954c19fa4e4e2e0.34295244">What is risk-taking?</h1>');
     }
 
     function getParentOffsetBottom(target_id, body) {

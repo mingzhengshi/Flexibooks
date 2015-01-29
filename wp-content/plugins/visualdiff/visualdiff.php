@@ -231,6 +231,44 @@ function fb_post_box_derived_document_callback() {
     </ol>
 </div>
 
+<div id="fb-merge-dialog" title="Merge Document">
+    <table style="width:100%">
+        <colgroup>
+            <col span="1" style="width: 49%;">
+            <col span="1" style="width: 2%;">
+            <col span="1" style="width: 49%;">
+        </colgroup>
+        <tr>
+            <td>
+                <div>
+                    <textarea id="fb-merge-mce-top-source"></textarea>
+                </div>
+            </td>
+            <td>
+            </td>
+            <td>
+                <div>
+                    <textarea id="fb-merge-mce-top-derive"></textarea>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <div>
+                    <textarea id="fb-merge-mce-bottom-source"></textarea>
+                </div>
+            </td>
+            <td>
+            </td>
+            <td>
+                <div>
+                    <textarea id="fb-merge-mce-bottom-derive"></textarea>
+                </div>
+            </td>	
+        </tr>
+    </table>
+</div>
+
 <table class="fb-source-and-derived-editors">
   <colgroup>
     <col span="1" style="width: 49%;">
