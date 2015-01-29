@@ -10,7 +10,6 @@ jQuery(document).ready(function ($) {
         // events
         editor.on('init', function () {
             if (editor.id.indexOf("fb-source-mce") >= 0) {
-                
             }
 
             if (editor.id.indexOf("fb-derived-mce") >= 0) {

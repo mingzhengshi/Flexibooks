@@ -494,21 +494,34 @@ jQuery(document).ready(function ($) {
                             points += x_right + "," + y_bottom_right + " ";
                             points += x_right + "," + y_top_right + " ";
                             polygon.setAttribute("points", points);
+                            polygon.setAttribute("id", $(this).attr('id'));
                             var x = source_element.innerHTML;
                             var y = $(this).html();
                             if (source_element.innerHTML == $(this).html()) {
-                                polygon.setAttribute("fill", "lightgreen");
+                                polygon.setAttribute("fill", "green");
                             }
                             else {
-                                polygon.setAttribute("fill", "lightpink");
+                                polygon.setAttribute("fill", "red");
                             }
                             polygon.setAttribute("class", "fb-svg-polygons");
+                            polygon.setAttribute("opacity", 0.2);
+                            $(polygon).click(function () { svgOnClick(); });
+                            $(polygon).hover(function () {
+                                $(polygon).css("cursor", "pointer");
+                                $(polygon).css("opacity", 1);
+                            }, function () {
+                                $(polygon).css("opacity", 0.2);
+                            });
                             document.getElementById('fb-svg-mid-column').appendChild(polygon);
                         }
                     }
                 }
             }
         });
+    }
+
+    function svgOnClick() {
+        console.log("svg on click...");
     }
 
     function getParentOffsetBottom(target_id, body) {
