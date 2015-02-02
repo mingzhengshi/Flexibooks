@@ -29,6 +29,7 @@ add_filter('mce_css', 'fb_mce_editor_style');
 
 // ajax action
 add_action( 'wp_ajax_fb_source_query', 'fb_source_query' );
+add_action( 'wp_ajax_fb_source_revision_query', 'fb_source_revision_query' );
 
 // tinymce plugin
 add_filter( 'mce_external_plugins', 'fb_tinymce_plugin' );
@@ -161,6 +162,36 @@ function fb_source_query() {
 	die(); // this is required to terminate immediately and return a proper response
 }
 
+function fb_source_revision_query() {
+    $post_id = $_POST['id'];
+    $post_modified = $_POST['post_modified'];
+    $element_id = $_POST['element_id'];
+    
+    $outer_text = "";
+    
+    global $wpdb;
+    $status = 'inherit';
+    $post_revision = $wpdb->get_results("SELECT * FROM $wpdb->posts WHERE post_type = 'revision' AND post_parent = '$post_id' AND post_status = '$status' AND post_modified = '$post_modified'");
+    if (count($post_revision) == 1) {
+        $post_content = $post_revision[0]->post_content;
+        
+        $html_parser = str_get_html($post_content);     
+        
+        foreach ($html_parser->nodes as $node){       
+            if(isset($node->attr['id']) && $node->attr['id'] == $element_id){
+                $outer_text = $node->outertext;     
+                break;
+            }
+        }
+    }
+    
+    $data = array(
+        'outertext' => $outer_text
+    );
+
+    echo json_encode($data);
+	die(); // this is required to terminate immediately and return a proper response
+}
 
 //-----------------------------------------------------------------------------------------------
 // derived meta boxes

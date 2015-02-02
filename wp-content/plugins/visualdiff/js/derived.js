@@ -125,6 +125,25 @@ jQuery(document).ready(function ($) {
             });
     }
 
+    function getSourcePostRevision(post_id, post_modified, element_id) {
+        $.post(ajaxurl,
+            {
+                'action': 'fb_source_revision_query',
+                'id': post_id,
+                'post_modified': post_modified,
+                'element_id': element_id
+            },
+            function (data, status) {
+                if (status.toLowerCase() == "success") {
+                    var obj = JSON.parse(data);
+                    var editor = tinymce.get("fb-merge-mce-top-source");
+                    editor.setContent(obj.outertext);
+                }
+                else {
+                }
+            });
+    }
+
     function addSourceTab(title, content, post_modified, post_id) {
         var tab_id = "fb-tabs-source-" + tab_counter;
         var mce_id = 'fb-source-mce-' + tab_counter;
@@ -356,7 +375,7 @@ jQuery(document).ready(function ($) {
                 if (id && id != 'none') {
                     //var source_html = $(this).html().replace(/<del>/g, "").replace(/<\/del>/g, "");
 
-                    var source_clean = $(this).find('span.delete').contents().unwrap().end().end();
+                    var source_clean = $(this).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
                     var source_html = source_clean.html();
 
                     $(this).html(source_html);
@@ -379,7 +398,7 @@ jQuery(document).ready(function ($) {
                         //var derive_html = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, "");
 
                         //var source_clean = $(source_element).find('span.delete').contents().unwrap().end().end();
-                        var derive_clean = $(this).find('span.insert').contents().unwrap().end().end();
+                        var derive_clean = $(this).find('span.insert').contents().unwrap().end().end(); // remove all insert tags
 
                         //var source_html = source_clean.html();
                         var source_html = $(source_element).html();
@@ -404,7 +423,7 @@ jQuery(document).ready(function ($) {
                     }
                     else {
                         //var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all insert tags
-                        var new_derive_clean = $(this).find('span.insert').contents().unwrap().end().end();
+                        var new_derive_clean = $(this).find('span.insert').contents().unwrap().end().end(); // remove all insert tags
                         var newHtml = new_derive_clean.html();
                         var newHtml = "<span class='insert'>" + newHtml + "</span>";
                         $(this).html(newHtml);
@@ -419,7 +438,7 @@ jQuery(document).ready(function ($) {
                         var derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); 
 
                         //var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all ins tags
-                        var new_derive_clean = $(this).find('span.insert').contents().unwrap().end().end();
+                        var new_derive_clean = $(this).find('span.insert').contents().unwrap().end().end(); // remove all insert tags
                         var newHtml = new_derive_clean.html();
                         var newHtml = "<span class='insert'>" + newHtml + "</span>";
                         $(this).html(newHtml);
@@ -521,6 +540,7 @@ jQuery(document).ready(function ($) {
                             points += x_right + "," + y_top_right + " ";
                             polygon.setAttribute("points", points);
                             polygon.setAttribute("id", $(this).attr('id'));
+                            polygon.setAttribute("source_mce_id", source_mce_id);
                             var x = source_element.innerHTML;
                             var y = $(this).html();
                             if (source_element.innerHTML == $(this).html()) {
@@ -531,7 +551,7 @@ jQuery(document).ready(function ($) {
                             }
                             polygon.setAttribute("class", "fb-svg-polygons");
                             polygon.setAttribute("opacity", 0.2);
-                            $(polygon).click(function () { svgOnClick(); });
+                            $(polygon).click(function () { svgOnClick($(this).attr('id'), $(this).attr('source_mce_id')); });
                             $(polygon).hover(function () {
                                 $(polygon).css("cursor", "pointer");
                                 $(polygon).css("opacity", 1);
@@ -546,29 +566,16 @@ jQuery(document).ready(function ($) {
         });
     }
 
-    function svgOnClick() {
+    function svgOnClick(id, source_mce_id) {
         fb_merge_dialog.dialog("open");
-        /*
-        tinymce.execCommand('mceAddEditor', false, "fb-merge-mce-top-source");
-        tinymce.execCommand('mceAddEditor', false, "fb-merge-mce-top-derive");
-        tinymce.execCommand('mceAddEditor', false, "fb-merge-mce-bottom-source");
-        tinymce.execCommand('mceAddEditor', false, "fb-merge-mce-bottom-derive");
-        */
 
-        // top left
-        tinymce.init({
-            selector: "#fb-merge-mce-top-source",
-            menubar: false,
-            statusbar: false,
-            toolbar: false,
-            content_css: '../wp-content/plugins/visualdiff/css/editor.css'
-        });
+        var derive_doc = tinymce.get('fb-derived-mce').getDoc();
+        var source_doc = tinymce.get(source_mce_id).getDoc();
 
-        var editor = tinymce.get("fb-merge-mce-top-source");
-        editor.setContent('<h2 id="2122954c19f85a545b5.72446270" class="activity">Positive and negative risk-taking</h2>');
+        //----------------------------------------------------------
+        // setup tinymce
 
-
-        // top right
+        // 1. derive top
         tinymce.init({
             selector: "#fb-merge-mce-top-derive",
             menubar: false,
@@ -577,11 +584,14 @@ jQuery(document).ready(function ($) {
             content_css: '../wp-content/plugins/visualdiff/css/editor.css'
         });
 
+        var derive_element_top = derive_doc.getElementById(id);
+        var cleanHTML = unwrapDeleteInsertTag(derive_element_top);
+        $(derive_element_top).html(cleanHTML);
+
         var editor = tinymce.get("fb-merge-mce-top-derive");
-        editor.setContent('<h1 id="102954c19fa4e4e2e0.34295244" class="main-heading-1">What is risk-taking?</h1>');
+        editor.setContent($(derive_element_top).prop('outerHTML'));
 
-
-        // bottom left
+        // 2. source bottom
         tinymce.init({
             selector: "#fb-merge-mce-bottom-source",
             menubar: false,
@@ -590,11 +600,40 @@ jQuery(document).ready(function ($) {
             content_css: '../wp-content/plugins/visualdiff/css/editor.css'
         });
 
+        var source_element_id = $(derive_element_top).attr('data-source-id');
+        var source_element_bottom = source_doc.getElementById(source_element_id);
+        cleanHTML = unwrapDeleteInsertTag(source_element_bottom);
+        $(source_element_bottom).html(cleanHTML);
+
         var editor = tinymce.get("fb-merge-mce-bottom-source");
-        editor.setContent('<h2 id="56375440a8e730dbf6.82388681" class="main-heading-2">A healthy learning environment</h2>');
+        editor.setContent($(source_element_bottom).prop('outerHTML'));
 
+        // 3. source top
+        tinymce.init({
+            selector: "#fb-merge-mce-top-source",
+            menubar: false,
+            statusbar: false,
+            toolbar: false,
+            content_css: '../wp-content/plugins/visualdiff/css/editor.css'
+        });
 
-        // bottom right
+        var source_post_id = $(derive_element_top).attr('data-source-post-id');
+        var source_post_current_modified = null;
+        for (var i = 0; i < meta_source_versions.length; i++) {
+            if (source_post_id == meta_source_versions[i].source_post_id) {
+                source_post_current_modified = meta_source_versions[i].source_post_current_modified;
+                break;
+            }
+        }
+
+        if (source_post_current_modified != null) {
+            getSourcePostRevision(source_post_id, source_post_current_modified, source_element_id);
+        }
+
+        //var editor = tinymce.get("fb-merge-mce-top-source"); // move into getSourcePostRevision()
+        //editor.setContent(source_top_outerhtml);
+
+        // 4. derive bottom
         tinymce.init({
             selector: "#fb-merge-mce-bottom-derive",
             menubar: false,
@@ -604,7 +643,13 @@ jQuery(document).ready(function ($) {
         });
 
         var editor = tinymce.get("fb-merge-mce-bottom-derive");
-        editor.setContent('<h2 id="219625440a8e730e446.77519550" class="activity">Y chart</h2>');
+        editor.setContent('');
+    }
+
+    function unwrapDeleteInsertTag(element) {
+        var clean = $(element).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
+        clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all delete tags
+        return clean.html();
     }
 
     function getParentOffsetBottom(target_id, body) {
