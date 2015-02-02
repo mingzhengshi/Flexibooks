@@ -183,11 +183,11 @@ jQuery(document).ready(function ($) {
         height: "auto",
         width: 1600,
         close: function () {
-            tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-top-source");
-            tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-top-derive");
-            tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-bottom-source");
-            tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-bottom-derive");
-            console.log("merge dialog close...");
+            //tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-top-source");
+            //tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-top-derive");
+            //tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-bottom-source");
+            //tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-bottom-derive");
+            //console.log("merge dialog close...");
         }
     });
 
@@ -547,7 +547,6 @@ jQuery(document).ready(function ($) {
     }
 
     function svgOnClick() {
-        console.log("svg on click...");
         fb_merge_dialog.dialog("open");
         /*
         tinymce.execCommand('mceAddEditor', false, "fb-merge-mce-top-source");
@@ -556,27 +555,56 @@ jQuery(document).ready(function ($) {
         tinymce.execCommand('mceAddEditor', false, "fb-merge-mce-bottom-derive");
         */
 
-        /*
-        var editor = tinymce.get("fb-merge-mce-top-source");
-        //$(editor).find(".mce-toolbar").parent().css('display', 'none');
-        $('#' + editor.id + '_toolbargroup').parent().css('display', 'none');
-        */
-
-        /*
-        tinymce.init({
-            selector: "#fb-merge-mce-top-source",
-            toolbar: false
-        });
-        */
+        // top left
         tinymce.init({
             selector: "#fb-merge-mce-top-source",
             menubar: false,
             statusbar: false,
-            toolbar: false
+            toolbar: false,
+            content_css: '../wp-content/plugins/visualdiff/css/editor.css'
         });
 
         var editor = tinymce.get("fb-merge-mce-top-source");
-        editor.setContent('<h1 id="d5fd814b-0177-440a-988e-4d70f7680fa6" class="main-heading-1" data-source-post-id="121" data-source-id="102954c19fa4e4e2e0.34295244">What is risk-taking?</h1>');
+        editor.setContent('<h2 id="2122954c19f85a545b5.72446270" class="activity">Positive and negative risk-taking</h2>');
+
+
+        // top right
+        tinymce.init({
+            selector: "#fb-merge-mce-top-derive",
+            menubar: false,
+            statusbar: false,
+            toolbar: false,
+            content_css: '../wp-content/plugins/visualdiff/css/editor.css'
+        });
+
+        var editor = tinymce.get("fb-merge-mce-top-derive");
+        editor.setContent('<h1 id="102954c19fa4e4e2e0.34295244" class="main-heading-1">What is risk-taking?</h1>');
+
+
+        // bottom left
+        tinymce.init({
+            selector: "#fb-merge-mce-bottom-source",
+            menubar: false,
+            statusbar: false,
+            toolbar: false,
+            content_css: '../wp-content/plugins/visualdiff/css/editor.css'
+        });
+
+        var editor = tinymce.get("fb-merge-mce-bottom-source");
+        editor.setContent('<h2 id="56375440a8e730dbf6.82388681" class="main-heading-2">A healthy learning environment</h2>');
+
+
+        // bottom right
+        tinymce.init({
+            selector: "#fb-merge-mce-bottom-derive",
+            menubar: false,
+            statusbar: false,
+            toolbar: false,
+            content_css: '../wp-content/plugins/visualdiff/css/editor.css'
+        });
+
+        var editor = tinymce.get("fb-merge-mce-bottom-derive");
+        editor.setContent('<h2 id="219625440a8e730e446.77519550" class="activity">Y chart</h2>');
     }
 
     function getParentOffsetBottom(target_id, body) {

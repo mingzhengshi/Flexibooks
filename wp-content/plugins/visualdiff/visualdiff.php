@@ -504,7 +504,7 @@ function fb_mce_editor_style($url) {
     if ( !empty($url) )
         $url .= ',';
     
-    $url .= trailingslashit( plugin_dir_url(__FILE__) ) . '/css/editor.css';
+    $url .= trailingslashit( plugin_dir_url(__FILE__) ) . 'css/editor.css';
     
     return $url;
 }
