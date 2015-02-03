@@ -272,13 +272,17 @@ function fb_post_box_derived_document_callback() {
         <tr>
             <td>
                 <div>
+                    <p>Source Old</p>
                     <textarea id="fb-merge-mce-top-source"></textarea>
                 </div>
             </td>
             <td>
+                <div id="fb-div-source-old-and-derive-old">
+                </div>
             </td>
             <td>
                 <div>
+                    <p>Derive Old</p>
                     <textarea id="fb-merge-mce-top-derive"></textarea>
                 </div>
             </td>
@@ -286,6 +290,7 @@ function fb_post_box_derived_document_callback() {
         <tr>
             <td>
                 <div>
+                    <p>Source New</p>
                     <textarea id="fb-merge-mce-bottom-source"></textarea>
                 </div>
             </td>
@@ -293,6 +298,7 @@ function fb_post_box_derived_document_callback() {
             </td>
             <td>
                 <div>
+                    <p>Derive New</p>
                     <textarea id="fb-merge-mce-bottom-derive"></textarea>
                 </div>
             </td>	
