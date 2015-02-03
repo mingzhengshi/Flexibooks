@@ -134,6 +134,7 @@ function fb_admin_print_scripts() {
     wp_enqueue_script('jquery-ui-tabs');
     wp_enqueue_script('jquery-ui-dialog');
     wp_enqueue_script('jquery-ui-selectable');
+    wp_enqueue_script('jquery-ui-button');
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -277,7 +278,8 @@ function fb_post_box_derived_document_callback() {
                 </div>
             </td>
             <td>
-                <div id="fb-div-source-old-and-derive-old">
+                <div>
+                    <input type="checkbox" title="Compare Source Old and Derive Old" id="fb-button-source-old-and-derive-old"><label for="fb-button-source-old-and-derive-old">&#8596</label>
                 </div>
             </td>
             <td>
@@ -289,12 +291,32 @@ function fb_post_box_derived_document_callback() {
         </tr>
         <tr>
             <td>
+                <div style="text-align:center">
+                    <input type="checkbox" id="fb-button-source-old-and-source-new"><label for="fb-button-source-old-and-source-new">&#8597</label>
+                </div>
+            </td>
+            <td>
+                <div style="text-align:center">
+                    <input type="checkbox" id="fb-button-source-new-and-derive-old"><label for="fb-button-source-new-and-derive-old">&#9585</label>
+                </div>
+            </td>
+            <td>
+                <div style="text-align:center">
+                    <input type="checkbox" id="fb-button-derive-old-and-derive-new"><label for="fb-button-derive-old-and-derive-new">&#8597</label>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <div>
                     <p>Source New</p>
                     <textarea id="fb-merge-mce-bottom-source"></textarea>
                 </div>
             </td>
             <td>
+                <div>
+                    <input type="checkbox" id="fb-button-source-new-and-derive-new"><label for="fb-button-source-new-and-derive-new">&#8596</label>
+                </div>
             </td>
             <td>
                 <div>

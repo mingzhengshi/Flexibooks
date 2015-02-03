@@ -574,12 +574,39 @@ jQuery(document).ready(function ($) {
     }
 
     function setupMergeDialogEvents() {
-        // source old and derive old
-        $("#fb-div-source-old-and-derive-old").click(function () { });
-        $("#fb-div-source-old-and-derive-old").hover(function () { });
-        $("#fb-div-source-old-and-derive-old").css("background-color", "green");
+        var old_source_editor = tinymce.get("fb-merge-mce-top-source");
+        var old_derive_editor = tinymce.get("fb-merge-mce-top-derive");
+        var new_source_editor = tinymce.get("fb-merge-mce-bottom-source");
+        var new_derive_editor = tinymce.get("fb-merge-mce-bottom-derive");
 
-        tinymce.editors[i].getContent();
+        // source old and derive old
+        $("#fb-button-source-old-and-derive-old").addClass('buttongreen');
+        $("#fb-button-source-old-and-derive-old").button();
+        $("#fb-button-source-old-and-derive-old").click(function () { sourceOldDeriveOldOnClick(); });
+        
+
+        if (old_source_editor.getContent().trim() == old_derive_editor.getContent().trim()) {
+            //$("#fb-div-source-old-and-derive-old").css("background-color", "green");
+        }
+        else {
+            //$("#fb-div-source-old-and-derive-old").css("background-color", "red");
+        }
+
+        $("#fb-button-source-old-and-source-new").button();
+
+
+        $("#fb-button-source-new-and-derive-old").button();
+
+
+        $("#fb-button-derive-old-and-derive-new").button();
+
+
+        $("#fb-button-source-new-and-derive-new").button();
+    }
+
+    function sourceOldDeriveOldOnClick() {
+        // clean delete and insert tags in all editors
+        var test = 1;
     }
 
     function setupMergeDialogTinyMce(id, source_mce_id) {
