@@ -71,8 +71,10 @@
    
 }
 
-
 /* merge dialog*/
-.ui-button.buttongreen {
-    color: #b6ff00;
+.ui-button.merge-red {
+    background-color: #fa9292;
+}
+.ui-button.merge-green {
+    background-color: #a9f8ab;
 }
