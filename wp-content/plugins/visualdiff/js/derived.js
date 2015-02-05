@@ -155,6 +155,7 @@ jQuery(document).ready(function ($) {
                                 if ($(this).attr('id').trim() == id) {
                                     exist = true;
                                     old_element = $(this).html();
+                                    return false; // break each function
                                 }
                             });
 
@@ -165,6 +166,10 @@ jQuery(document).ready(function ($) {
                                 var new_element = clean.html();
 
                                 if (new_element.trim() != old_element.trim()) {
+                                    console.log('new_element:');
+                                    console.log(new_element.trim());
+                                    console.log('old_element:');
+                                    console.log(old_element.trim());
                                     $(this).css('background-color', 'lightpink');
                                 }
                             }
@@ -223,6 +228,7 @@ jQuery(document).ready(function ($) {
         fb_source_selection_dialog.dialog("open");
     });
     $("#fb-button-open-source-document").prop('disabled', true);
+    //$("#fb-button-open-source-document").addClass('merge-green');
 
     function getSourcePost(post_id) {
         $.post(ajaxurl,
@@ -299,6 +305,12 @@ jQuery(document).ready(function ($) {
         modal: true,
         height: "auto",
         width: 1600,
+        open: function (event, ui) {
+            
+            $("#fb-button-source-old-and-derive-old").button();
+            $("#fb-button-source-old-and-derive-old").click(function () { sourceOldDeriveOldOnClick(); });
+            $("#fb-button-source-old-and-derive-old").addClass('merge-green');
+        },
         close: function () {
             //tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-top-source");
             //tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-top-derive");
@@ -306,6 +318,9 @@ jQuery(document).ready(function ($) {
             //tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-bottom-derive");
             //console.log("merge dialog close...");
         }
+
+
+
     });
 
 
@@ -683,9 +698,9 @@ jQuery(document).ready(function ($) {
         var new_derive_editor = tinymce.get("fb-merge-mce-bottom-derive");
 
         // source old and derive old
-        $("#fb-button-source-old-and-derive-old").button();
-        $("#fb-button-source-old-and-derive-old").click(function () { sourceOldDeriveOldOnClick(); });
-        $("#fb-button-source-old-and-derive-old").addClass('merge-green');
+        //$("#fb-button-source-old-and-derive-old").button();
+        //$("#fb-button-source-old-and-derive-old").click(function () { sourceOldDeriveOldOnClick(); });
+        //$("#fb-button-source-old-and-derive-old").addClass('merge-green');
 
         if (old_source_editor.getContent().trim() == old_derive_editor.getContent().trim()) {
             //$("#fb-div-source-old-and-derive-old").css("background-color", "green");
@@ -701,14 +716,15 @@ jQuery(document).ready(function ($) {
 
 
         $("#fb-button-derive-old-and-derive-new").button();
-
+        $("#fb-button-derive-old-to-derive-new").button();
 
         $("#fb-button-source-new-and-derive-new").button();
+        $("#fb-button-source-new-to-derive-new").button();
     }
 
     function sourceOldDeriveOldOnClick() {
         // clean delete and insert tags in all editors
-        var test = 1;
+        console.log("sourceOldDeriveOldOnClick");
     }
 
     function setupMergeDialogTinyMce(id, source_mce_id) {
@@ -745,12 +761,34 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        var source_top_outerhtml = '';
+
+        // the source post has been modified
         if (source_post_current_modified != null) {
-            getSourceElementRevision(source_post_id, source_post_current_modified, source_element_id);
+            for (var i = 0; i < previous_source_revisions.length; i++) {
+                if (previous_source_revisions[i].post_id == source_post_id) {
+                    var old_mce = tinymce.get("fb-invisible-editor");
+                    old_mce.setContent(previous_source_revisions[i].post_content);
+                    var old_doc = old_mce.getDoc();
+
+                    $(old_doc.body).find("[id]").each(function () {
+                        if ($(this).attr('id').trim() == source_element_id) {
+                            source_top_outerhtml = $(this).html();
+                            return false; // break each function
+                        }
+                    });
+
+                    break;
+                }
+            }
+        }
+        // the source post does not change: the same as new source element
+        else {
+            source_top_outerhtml = $(source_element_bottom).prop('outerHTML');
         }
 
-        //var editor = tinymce.get("fb-merge-mce-top-source"); // move into getSourceElementRevision()
-        //editor.setContent(source_top_outerhtml);
+        var editor = tinymce.get("fb-merge-mce-top-source"); // move into getSourceElementRevision()
+        editor.setContent(source_top_outerhtml);
 
         // 4. derive bottom
         addTinyMceEditor("#fb-merge-mce-bottom-derive");

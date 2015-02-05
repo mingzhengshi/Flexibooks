@@ -299,9 +299,9 @@ function fb_post_box_derived_document_callback() {
                     <textarea id="fb-merge-mce-top-source"></textarea>
                 </div>
             </td>
-            <td>
+            <td>            
                 <div>
-                    <input type="checkbox" title="Compare Source Old and Derive Old" id="fb-button-source-old-and-derive-old"><label for="fb-button-source-old-and-derive-old">&#8596</label>
+                    <input type="button" id="fb-button-source-old-and-derive-old" value=&#8596 class="button-secondary">
                 </div>
             </td>
             <td>
@@ -314,17 +314,18 @@ function fb_post_box_derived_document_callback() {
         <tr>
             <td>
                 <div style="text-align:center">
-                    <input type="checkbox" id="fb-button-source-old-and-source-new"><label for="fb-button-source-old-and-source-new">&#8597</label>
+                    <input type="button" id="fb-button-source-old-and-source-new" value=&#8597 class="button-secondary">
                 </div>
             </td>
             <td>
                 <div style="text-align:center">
-                    <input type="checkbox" id="fb-button-source-new-and-derive-old"><label for="fb-button-source-new-and-derive-old">&#9585</label>
+                    <input type="button" id="fb-button-source-new-and-derive-old" value=&#9585 class="button-secondary">
                 </div>
             </td>
             <td>
                 <div style="text-align:center">
-                    <input type="checkbox" id="fb-button-derive-old-and-derive-new"><label for="fb-button-derive-old-and-derive-new">&#8597</label>
+                    <input type="button" id="fb-button-derive-old-and-derive-new" value=&#8597 class="button-secondary">
+                    <input type="button" id="fb-button-derive-old-to-derive-new" value=&#8595 class="button-secondary">
                 </div>
             </td>
         </tr>
@@ -337,7 +338,8 @@ function fb_post_box_derived_document_callback() {
             </td>
             <td>
                 <div>
-                    <input type="checkbox" id="fb-button-source-new-and-derive-new"><label for="fb-button-source-new-and-derive-new">&#8596</label>
+                    <input type="button" id="fb-button-source-new-and-derive-new" value=&#8596 class="button-secondary" style="margin-bottom:5px">
+                    <input type="button" id="fb-button-source-new-to-derive-new" value=&#8594 class="button-secondary">
                 </div>
             </td>
             <td>
@@ -358,7 +360,7 @@ function fb_post_box_derived_document_callback() {
   </colgroup>
   <tr>
     <td style="vertical-align:top">
-        <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" />
+        <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" />      
         <textarea id="fb-invisible-editor" style="display:none;"></textarea>
         <input id="fb-input-source-tabs" style="display:none;" name="fb-opened-source-post-ids" value="<?php echo $source_posts_ids; ?>" />        
         <div id="fb-tabs-sources" class="fb-tabs-sources-display-none">
