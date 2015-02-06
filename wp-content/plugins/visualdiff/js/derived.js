@@ -813,7 +813,8 @@ jQuery(document).ready(function ($) {
 
         // 1. derive top
         addTinyMceEditor("#fb-merge-mce-top-derive");
-        var derive_element_top = derive_doc.getElementById(id);
+        var dt = derive_doc.getElementById(id);
+        var derive_element_top = $(dt).clone();
         var cleanHTML = unwrapDeleteInsertTag(derive_element_top);
         $(derive_element_top).html(cleanHTML);
 
@@ -823,7 +824,8 @@ jQuery(document).ready(function ($) {
         // 2. source bottom
         addTinyMceEditor("#fb-merge-mce-bottom-source");
         var source_element_id = $(derive_element_top).attr('data-source-id');
-        var source_element_bottom = source_doc.getElementById(source_element_id);
+        var sb = source_doc.getElementById(source_element_id);
+        var source_element_bottom = $(sb).clone();
         cleanHTML = unwrapDeleteInsertTag(source_element_bottom);
         $(source_element_bottom).html(cleanHTML);
 
