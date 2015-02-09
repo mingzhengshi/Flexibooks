@@ -87,7 +87,7 @@ jQuery(document).ready(function ($) {
 
                     source_mce_init_count++;
                     if (source_mce_init_count == total) {
-                        addTinyMceEditor("#fb-invisible-editor");
+                        addTinyMceEditor("#fb-invisible-editor"); // ms
                         updateMetaSourceVersions();
                         getPreviousSourceVersions();
                     }

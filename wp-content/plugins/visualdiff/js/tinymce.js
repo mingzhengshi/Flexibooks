@@ -5,6 +5,8 @@ jQuery(document).ready(function ($) {
     var copied_node = null;
     var copied_mode = "";
 
+    var on_icon_hover = false;
+
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
 
         // events
@@ -55,11 +57,11 @@ jQuery(document).ready(function ($) {
             if (e.keyCode == 8) {
 
             }
-            // enter key
+                // enter key
             else if (e.keyCode == 13) {
                 onEnterKeyDown(e);
             }
-            // delete key
+                // delete key
             else if (e.keyCode == 46) {
 
             }
@@ -87,6 +89,47 @@ jQuery(document).ready(function ($) {
             pastePreProcess(e);
         });
 
+        editor.on('mouseup', function (e) {
+            if (on_icon_hover) return;
+            onMouseUp(e);
+        });
+
+        function onMouseUp(e) {
+            var test = e;
+
+            console.log("tinymce mouse up event");
+
+            // the selected node can be an insert or delete tags or other inline tags
+            var node = editor.selection.getNode();
+
+            if (!node) return;
+            if (node.tagName.toLowerCase() == 'body') return; // do not consider the case when multiple paragraphs have been selected
+            if (editor.id.indexOf("fb-source-mce") < 0 && editor.id.indexOf("fb-derived-mce") < 0) return;
+
+            var id = $(node).attr('id');
+
+            while ((id == null) || (typeof id == 'undefined')) {
+                node = $(node).parent()[0]; // only consider that case when one paragraph has been selected
+                id = $(node).attr('id');
+            }
+
+            if (node.tagName.toLowerCase() == 'body') return; // if the node is the body again, then return
+
+            var mergeIconID = 'mrg1-' + $(node).attr('id');
+            var offset = $(node).offset(); // absolute position relative to the document
+
+            var width = $(editor.getBody()).width();
+
+            createIcon(mergeIconID, offset.top, width + 'px', '&#8862');
+            createIcon(mergeIconID, offset.top, '200px', '&#8862');
+            createIcon(mergeIconID, offset.top, '300px', '&#8862');
+            createIcon(mergeIconID, offset.top, '400px', '&#8862');
+
+
+
+
+        }
+
         function onEnterKeyDown(e) {
             var content = editor.selection.getContent();
             var node = editor.selection.getNode();
@@ -104,7 +147,7 @@ jQuery(document).ready(function ($) {
                     }
                     // check if the cursor is at the start or the end of the paragraph
                 }
-                // if some contents have been selected
+                    // if some contents have been selected
                 else {
                     // seems the enter key works like the backspace key
                     /*
@@ -155,7 +198,7 @@ jQuery(document).ready(function ($) {
                     });
                     copied_content = cont;
                 }
-                // one paragraphs or part of one paragraph has been selected
+                    // one paragraphs or part of one paragraph has been selected
                 else {
                     copied_mode = "single";
                     var node = $(copied_node).clone();
@@ -186,13 +229,13 @@ jQuery(document).ready(function ($) {
                 if (copied_mode == "single") {
                     var paste_text = "";
                     // single paragraph content cut from source or derived editors are NOT html elements
-                    if (isHTML(e.content) == false) { 
+                    if (isHTML(e.content) == false) {
                         paste_text = e.content.trim();
                     }
                     else {
                         paste_text = $(e.content).html().trim();
                     }
-                    
+
                     var copied_text = $(copied_content).html().trim();
 
                     // it is possible that the paste content comes from other sources such as word or notepad, etc.
@@ -223,7 +266,7 @@ jQuery(document).ready(function ($) {
                     }
                 }
             }
-            // if the content comes from the derive document
+                // if the content comes from the derive document
             else if (copied_from_editor_id.indexOf("fb-derived-mce") >= 0) {
 
             }
@@ -279,15 +322,15 @@ jQuery(document).ready(function ($) {
                     //var test = 1;
                 }
                 else if (classes && classes.indexOf("fb-collapse") >= 0) {
-                    createIcon(foldingIconID, offset.top, '&#8862'); // folding icon: plus 
+                    createIcon(foldingIconID, offset.top, '-0.5px', '&#8862'); // folding icon: plus 
                     if (editor.id.indexOf("fb-source-mce") >= 0) {
-                        createIcon(pushIconID, offset.top + 15, '&#9655');
+                        createIcon(pushIconID, offset.top + 15, '-0.5px', '&#9655');
                     }
                 }
                 else {
-                    createIcon(foldingIconID, offset.top, '&#8863'); // folding icon: minus 
+                    createIcon(foldingIconID, offset.top, '-0.5px', '&#8863'); // folding icon: minus 
                     if (editor.id.indexOf("fb-source-mce") >= 0) {
-                        createIcon(pushIconID, offset.top + 15, '&#9655');
+                        createIcon(pushIconID, offset.top + 15, '-0.5px', '&#9655');
                     }
                 }
             });
@@ -300,36 +343,38 @@ jQuery(document).ready(function ($) {
                 // handlerIn
                 function () {
                     $(this).css('cursor', 'pointer');
+                    on_icon_hover = true;
                 },
                 // handlerOut
                 function () {
                     $(this).css('cursor', 'text');
+                    on_icon_hover = false;
                 }
             );
 
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').click(function () {
-                    var targetID = $(this).attr('id').substr(5);
-                    if (targetID == null) return;
+                var targetID = $(this).attr('id').substr(5);
+                if (targetID == null) return;
 
-                    // click the minus box: collapse
-                    if ($(this).html().charCodeAt() == '8863') {
-                        collapseOrExpand(targetID, true);
+                // click the minus box: collapse
+                if ($(this).html().charCodeAt() == '8863') {
+                    collapseOrExpand(targetID, true);
 
-                        $(this).html('&#8862');  // switch to plus box
-                    }
-                    // click the plug box: expand
-                    else if ($(this).html().charCodeAt() == '8862') {
-                        collapseOrExpand(targetID, false);
-
-                        $(this).html('&#8863');  // switch to minus box
-                    }
-                    // click the push button: add content
-                    else if ($(this).html().charCodeAt() == '9655') {
-                        insertContent(targetID);
-                    }
-
-                    resetIcons();
+                    $(this).html('&#8862');  // switch to plus box
                 }
+                    // click the plug box: expand
+                else if ($(this).html().charCodeAt() == '8862') {
+                    collapseOrExpand(targetID, false);
+
+                    $(this).html('&#8863');  // switch to minus box
+                }
+                    // click the push button: add content
+                else if ($(this).html().charCodeAt() == '9655') {
+                    insertContent(targetID);
+                }
+
+                resetIcons();
+            }
             );
         }
 
@@ -371,7 +416,7 @@ jQuery(document).ready(function ($) {
             });
             return uuid;
         };
-        
+
         function insertContent(targetID) {
             var content = "";
 
@@ -481,16 +526,16 @@ jQuery(document).ready(function ($) {
             }
         }
 
-        function createIcon(id, top, text) {
+        function createIcon(id, top, left, text) {
             //text = typeof text !== 'undefined' ? text : '&#8863'; // default parameter
 
             var icon = document.createElement('div');
             icon.className = 'fb_tinymce_left_column_icon';
             icon.id = id;
-            icon.innerHTML = text; 
+            icon.innerHTML = text;
             icon.style.position = 'absolute';
             icon.style.top = top + 'px';
-            icon.style.left = '-0.5px';
+            icon.style.left = left;
             //icon.style.width = '8px';
             //icon.style.height = '8px';
             //icon.style.backgroundColor = '#ff0000';
