@@ -91,12 +91,11 @@ jQuery(document).ready(function ($) {
 
         editor.on('mouseup', function (e) {
             if (on_icon_hover) return;
+            resetIcons();
             onMouseUp(e);
         });
 
         function onMouseUp(e) {
-            var test = e;
-
             console.log("tinymce mouse up event");
 
             // the selected node can be an insert or delete tags or other inline tags
@@ -114,16 +113,19 @@ jQuery(document).ready(function ($) {
             }
 
             if (node.tagName.toLowerCase() == 'body') return; // if the node is the body again, then return
+            if (!$(node).attr('data-merge-required')) return;
+            if ($(node).attr('data-merge-required') == false) return;
 
             var mergeIconID = 'mrg1-' + $(node).attr('id');
             var offset = $(node).offset(); // absolute position relative to the document
-
+            var height = $(node).height();
+            var top = offset.top - 25 + height / 2;
             var width = $(editor.getBody()).width();
+            
+            createMergeIcon(mergeIconID, top, width, '&#8862');
 
-            createIcon(mergeIconID, offset.top, width + 'px', '&#8862');
-            createIcon(mergeIconID, offset.top, '200px', '&#8862');
-            createIcon(mergeIconID, offset.top, '300px', '&#8862');
-            createIcon(mergeIconID, offset.top, '400px', '&#8862');
+
+
 
 
 
@@ -198,7 +200,7 @@ jQuery(document).ready(function ($) {
                     });
                     copied_content = cont;
                 }
-                    // one paragraphs or part of one paragraph has been selected
+                // one paragraphs or part of one paragraph has been selected
                 else {
                     copied_mode = "single";
                     var node = $(copied_node).clone();
@@ -322,15 +324,15 @@ jQuery(document).ready(function ($) {
                     //var test = 1;
                 }
                 else if (classes && classes.indexOf("fb-collapse") >= 0) {
-                    createIcon(foldingIconID, offset.top, '-0.5px', '&#8862'); // folding icon: plus 
+                    createIcon(foldingIconID, offset.top, -0.5, '&#8862'); // folding icon: plus 
                     if (editor.id.indexOf("fb-source-mce") >= 0) {
-                        createIcon(pushIconID, offset.top + 15, '-0.5px', '&#9655');
+                        createIcon(pushIconID, offset.top + 15, -0.5, '&#9655');
                     }
                 }
                 else {
-                    createIcon(foldingIconID, offset.top, '-0.5px', '&#8863'); // folding icon: minus 
+                    createIcon(foldingIconID, offset.top, -0.5, '&#8863'); // folding icon: minus 
                     if (editor.id.indexOf("fb-source-mce") >= 0) {
-                        createIcon(pushIconID, offset.top + 15, '-0.5px', '&#9655');
+                        createIcon(pushIconID, offset.top + 15, -0.5, '&#9655');
                     }
                 }
             });
@@ -535,7 +537,7 @@ jQuery(document).ready(function ($) {
             icon.innerHTML = text;
             icon.style.position = 'absolute';
             icon.style.top = top + 'px';
-            icon.style.left = left;
+            icon.style.left = left + 'px';
             //icon.style.width = '8px';
             //icon.style.height = '8px';
             //icon.style.backgroundColor = '#ff0000';
@@ -543,6 +545,23 @@ jQuery(document).ready(function ($) {
             editor.getBody().appendChild(icon);
         }
 
+        function createMergeIcon(id, top, left, text) {
+            //text = typeof text !== 'undefined' ? text : '&#8863'; // default parameter
+
+            var icon = document.createElement('div');
+            icon.className = 'fb_tinymce_left_column_icon';
+            icon.id = id;
+            icon.innerHTML = text;
+            icon.style.position = 'absolute';
+            icon.style.top = top + 'px';
+            icon.style.left = left + 'px';
+            icon.style.fontSize = '200%'
+            //icon.style.width = '8px';
+            //icon.style.height = '8px';
+            //icon.style.backgroundColor = '#ff0000';
+
+            editor.getBody().appendChild(icon);
+        }
     });
 
 

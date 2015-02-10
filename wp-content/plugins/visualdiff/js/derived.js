@@ -138,6 +138,7 @@ jQuery(document).ready(function ($) {
     function compareSourceRevisions(post_id, old_content) {
         for (var i = 0; i < tinymce.editors.length; i++) {
             if (tinymce.editors[i].post_id == post_id) {
+                var derived_doc = tinymce.get('fb-derived-mce').getDoc();
                 var new_doc = tinymce.editors[i].getDoc();
 
                 var old_mce = tinymce.get("fb-invisible-editor");
@@ -166,11 +167,22 @@ jQuery(document).ready(function ($) {
                                 var new_element = clean.html();
 
                                 if (new_element.trim() != old_element.trim()) {
+                                    /*
                                     console.log('new_element:');
                                     console.log(new_element.trim());
                                     console.log('old_element:');
                                     console.log(old_element.trim());
+                                    */
+                                    // source document
                                     $(this).css('background-color', 'lightpink');
+
+                                    // add an attribute to derive element                                  
+                                    $(derived_doc.body).find("[id]").each(function () {
+                                        if ($(this).attr('data-source-id').trim() == id) {
+                                            $(this).attr('data-merge-required', true);
+                                            return false; // break each function
+                                        }
+                                    });
                                 }
                             }
                             else {
