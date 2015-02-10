@@ -2,10 +2,15 @@
     function Flexibook() {
         this.name = "fb";
         this.deriveMceInitCallback = {};
+        this.mergeIconClickCallback = {};
     }
 
     Flexibook.prototype.regDeriveMceInitCallback = function (callback) {
         this.deriveMceInitCallback = callback;
+    };
+
+    Flexibook.prototype.regMergeIconClickCallback = function (callback) {
+        this.mergeIconClickCallback = callback;
     };
 
     Flexibook.prototype.print = function () {

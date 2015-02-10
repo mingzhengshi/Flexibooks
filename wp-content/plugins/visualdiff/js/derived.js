@@ -73,6 +73,61 @@ jQuery(document).ready(function ($) {
     });
     //$('#button-show-network-' + this.id).prop('disabled', false);
 
+
+    flexibook.regMergeIconClickCallback(function (icon, post_id, s_id, d_id) {
+        var new_doc = null;
+        for (var i = 0; i < tinymce.editors.length; i++) {
+            if (tinymce.editors[i].post_id == post_id) {
+                new_doc = tinymce.editors[i].getDoc();
+                break;
+            }
+        }
+        if (!new_doc) return;
+
+        var old_content = getSourceRevisionContent(post_id);
+        if (!old_content) return;
+
+        var old_mce = tinymce.get("fb-invisible-editor");
+        old_mce.setContent(old_content);
+        var old_doc = old_mce.getDoc();
+
+        var derived_doc = tinymce.get('fb-derived-mce').getDoc();
+
+        // case 1:
+        // derive document is unchanged
+        // accept the changes in the new source document
+        if (icon == '10003') {
+            var new_s_item = '';
+
+            // source document
+            $(new_doc.body).find("[id]").each(function () {
+                if ($(this).attr('id').trim() == s_id) {
+                    $(this).css('background-color', 'initial');
+
+                    var clean = $(this).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
+                    clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
+                    new_s_item = clean.html();
+
+                    return false; // break each function
+                }
+            });
+
+            // derive document
+            // ms - does not consider multiple ids in one paragraph
+            $(derived_doc.body).find("[id]").each(function () {
+                if ($(this).attr('id').trim() == d_id) {
+                    $(this).html(new_s_item);
+                    if ($(this).attr('data-merge-case')) {
+                        $(this).removeAttr('data-merge-case');
+                    }
+                    return false; // break each function
+                }
+            });
+
+            update();
+        }
+    });
+
     function getSourcePostInit(post_id, total) {
         $.post(ajaxurl,
             {
@@ -117,7 +172,7 @@ jQuery(document).ready(function ($) {
             function (data, status) {
                 if (status.toLowerCase() == "success") {
                     var obj = JSON.parse(data);
-                    createNewSourceRevisionObject(post_id, post_modified, obj.content);
+                    createSourceRevisionObject(post_id, post_modified, obj.content);
                     compareSourceRevisions(post_id, obj.content);
                 }
                 else {
@@ -125,7 +180,7 @@ jQuery(document).ready(function ($) {
             });
     }
 
-    function createNewSourceRevisionObject(post_id, post_modified, post_content) {
+    function createSourceRevisionObject(post_id, post_modified, post_content) {
         var obj = new Object();
 
         obj['post_id'] = post_id;
@@ -135,12 +190,21 @@ jQuery(document).ready(function ($) {
         previous_source_revisions.push(obj);
     }
 
+    function getSourceRevisionContent(post_id) {
+        for (var i = 0; i < previous_source_revisions.length; i++) {
+            if (previous_source_revisions[i].post_id == post_id) {
+                return previous_source_revisions[i].post_content;
+            }
+        }
+        return null;
+    }
+
     function compareSourceRevisions(post_id, old_content) {
         for (var i = 0; i < tinymce.editors.length; i++) {
             if (tinymce.editors[i].post_id == post_id) {
-                var derived_doc = tinymce.get('fb-derived-mce').getDoc();
                 var new_doc = tinymce.editors[i].getDoc();
 
+                var derived_doc = tinymce.get('fb-derived-mce').getDoc();
                 var old_mce = tinymce.get("fb-invisible-editor");
                 old_mce.setContent(old_content);
                 var old_doc = old_mce.getDoc();
@@ -187,7 +251,7 @@ jQuery(document).ready(function ($) {
                                             if (derive_element.trim() == old_element.trim()) {
                                                 $(this).attr('data-merge-case', 1);
                                             }
-                                            // merge case x:
+                                            // merge case 3:
                                             else {
 
                                             }
@@ -543,17 +607,7 @@ jQuery(document).ready(function ($) {
                         var derive_html = derive_clean.html();
 
                         if (source_html != derive_html) {
-                            // original
-                            /*
                             // derive element
-                            derive_html = html_diff(source_html, derive_html, 'insert'); 
-                            $(this).html(derive_html);
-
-                            // source element
-                            source_html = html_diff(source_html, derive_html, 'delete');
-                            $(source_element).html(source_html);
-                            */
-                            // ms
                             var r1 = html_diff(source_html, derive_html, 'insert'); 
                             $(this).html(r1);
 

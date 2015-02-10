@@ -118,21 +118,20 @@ jQuery(document).ready(function ($) {
 
             var mcase = $(node).attr('data-merge-case');
             // setup merge icon
-            var mergeIconID = 'mrg1-' + $(node).attr('id');
+            var yesIconID = 'myes-' + $(node).attr('id');
+            var noIconID = 'mnon-' + $(node).attr('id');
+
             var offset = $(node).offset(); // absolute position relative to the document
             var height = $(node).height();
-            var top = offset.top - 25 + height / 2;
+            var top = offset.top - 22 + height / 2;
             var width = $(editor.getBody()).width();
             
             if (mcase == 1) {
-                createMergeIcon(mergeIconID, top, width, '&#10003');
+                createMergeIcon(yesIconID, top, width - 50, '&#10003');
+                createMergeIcon(noIconID, top, width, '&#10007');
             }
 
-
-
-
-
-
+            setupIconEvents();
         }
 
         function onEnterKeyDown(e) {
@@ -340,6 +339,7 @@ jQuery(document).ready(function ($) {
                 }
             });
 
+            on_icon_hover = false;
             setupIconEvents();
         }
 
@@ -349,11 +349,21 @@ jQuery(document).ready(function ($) {
                 function () {
                     $(this).css('cursor', 'pointer');
                     on_icon_hover = true;
+
+                    if (($(this).html().charCodeAt() == '10003') ||
+                        ($(this).html().charCodeAt() == '10007')) {
+                        $(this).css('opacity', 1);
+                    }
                 },
                 // handlerOut
                 function () {
                     $(this).css('cursor', 'text');
                     on_icon_hover = false;
+
+                    if (($(this).html().charCodeAt() == '10003') ||
+                        ($(this).html().charCodeAt() == '10007')) {
+                        $(this).css('opacity', 0.3);
+                    }
                 }
             );
 
@@ -367,20 +377,34 @@ jQuery(document).ready(function ($) {
 
                     $(this).html('&#8862');  // switch to plus box
                 }
-                    // click the plug box: expand
+                // click the plug box: expand
                 else if ($(this).html().charCodeAt() == '8862') {
                     collapseOrExpand(targetID, false);
 
                     $(this).html('&#8863');  // switch to minus box
                 }
-                    // click the push button: add content
+                // click the push button: add content
                 else if ($(this).html().charCodeAt() == '9655') {
                     insertContent(targetID);
                 }
+                // click the merge button
+                else if (($(this).html().charCodeAt() == '10003') ||
+                         ($(this).html().charCodeAt() == '10007')) {
+                    var post_id;
+                    var source_item_id;
+                    var derive_item_id = targetID;
+
+                    $(editor.getBody()).find('#' + targetID).each(function () {
+                        post_id = $(this).attr('data-source-post-id');
+                        source_item_id = $(this).attr('data-source-id');
+                    });
+
+                    var callback = flexibook.mergeIconClickCallback;
+                    if (callback) callback($(this).html().charCodeAt(), post_id, source_item_id, derive_item_id);
+                }
 
                 resetIcons();
-            }
-            );
+            });
         }
 
         function setupDerivedElementID() {
@@ -558,14 +582,23 @@ jQuery(document).ready(function ($) {
             icon.style.position = 'absolute';
             icon.style.top = top + 'px';
             icon.style.left = left + 'px';
-            icon.style.fontSize = '200%'
-            //icon.style.width = '8px';
+            icon.style.fontSize = '150%';
+
+            //icon.style.paddingLeft = '9px';
+            //icon.style.paddingRight = '9px';
+
+            icon.style.border = 'solid';
+            icon.style.borderWidth = '1px';
+            icon.style.borderColor = 'grey';
+            icon.style.borderRadius = '18px';
+
+            icon.style.width = '36px';
+            icon.style.textAlign = 'center';
             //icon.style.height = '8px';
-            //icon.style.backgroundColor = '#ff0000';
+            icon.style.backgroundColor = '#dedede';
+            icon.style.opacity = 0.3;
 
             editor.getBody().appendChild(icon);
         }
     });
-
-
 });
