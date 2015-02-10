@@ -113,17 +113,20 @@ jQuery(document).ready(function ($) {
             }
 
             if (node.tagName.toLowerCase() == 'body') return; // if the node is the body again, then return
-            if (!$(node).attr('data-merge-required')) return;
-            if ($(node).attr('data-merge-required') == false) return;
+            if (!$(node).attr('data-merge-case')) return;
+            if ($(node).attr('data-merge-case') <= 0) return;
 
+            var mcase = $(node).attr('data-merge-case');
+            // setup merge icon
             var mergeIconID = 'mrg1-' + $(node).attr('id');
             var offset = $(node).offset(); // absolute position relative to the document
             var height = $(node).height();
             var top = offset.top - 25 + height / 2;
             var width = $(editor.getBody()).width();
             
-            createMergeIcon(mergeIconID, top, width, '&#8862');
-
+            if (mcase == 1) {
+                createMergeIcon(mergeIconID, top, width, '&#10003');
+            }
 
 
 

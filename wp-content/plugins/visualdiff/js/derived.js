@@ -176,10 +176,22 @@ jQuery(document).ready(function ($) {
                                     // source document
                                     $(this).css('background-color', 'lightpink');
 
-                                    // add an attribute to derive element                                  
+                                    // derive element                                  
                                     $(derived_doc.body).find("[id]").each(function () {
                                         if ($(this).attr('data-source-id').trim() == id) {
-                                            $(this).attr('data-merge-required', true);
+                                            var clean = $(this).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
+                                            clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
+                                            var derive_element = clean.html();
+
+                                            // merge case 1:
+                                            if (derive_element.trim() == old_element.trim()) {
+                                                $(this).attr('data-merge-case', 1);
+                                            }
+                                            // merge case x:
+                                            else {
+
+                                            }
+
                                             return false; // break each function
                                         }
                                     });
