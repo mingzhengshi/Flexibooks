@@ -130,6 +130,9 @@ jQuery(document).ready(function ($) {
                 createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase);
                 createMergeIcon(noIconID, top, width, '&#10007', mcase);
             }
+            else if (mcase == 2) {
+                createMergeIcon(noIconID, top, width, '&#10007', mcase);
+            }
 
             setupIconEvents();
         }
@@ -397,12 +400,19 @@ jQuery(document).ready(function ($) {
                             var source_item_id;
                             var derive_item_id = targetID;
 
-                            console.log('mcase: ' + $(this).attr('title'));
-
                             $(editor.getBody()).find('#' + targetID).each(function () {
                                 post_id = $(this).attr('data-source-post-id');
                                 source_item_id = $(this).attr('data-source-id');
                             });
+
+                            var callback = flexibook.mergeIconClickCallback;
+                            if (callback) callback($(this).html().charCodeAt(), post_id, source_item_id, derive_item_id, $(this).attr('title'));
+
+                            break;
+                        case "2":
+                            var post_id = editor.post_id;
+                            var source_item_id = $(this).attr('id').substr(5);
+                            var derive_item_id = null;
 
                             var callback = flexibook.mergeIconClickCallback;
                             if (callback) callback($(this).html().charCodeAt(), post_id, source_item_id, derive_item_id, $(this).attr('title'));

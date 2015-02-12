@@ -155,6 +155,21 @@ jQuery(document).ready(function ($) {
                 }
 
                 break;
+            // case 2:
+            // source documen is modified; derive document is deleted
+            case "2":
+                // source document
+                $(new_doc.body).find("[id]").each(function () {
+                    if ($(this).attr('id').trim() == s_id) {
+                        $(this).css('background-color', 'initial');
+                        if ($(this).attr('data-merge-case')) {
+                            $(this).removeAttr('data-merge-case');
+                        }
+                        return false; // break 
+                    }
+                });
+
+                break;
         }
     });
 
@@ -243,19 +258,21 @@ jQuery(document).ready(function ($) {
                     if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
                         var id = $(this).attr('id');
                         if (id && id != 'none') {
-                            var exist = false;
+                            var exist_old_source = false;
+                            var exist_derive = false;
+
                             var old_element = '';
 
                             $(old_doc.body).find("[id]").each(function () {
                                 if ($(this).attr('id').trim() == id) {
-                                    exist = true;
+                                    exist_old_source = true;
                                     old_element = $(this).html();
                                     return false; // break each function
                                 }
                             });
 
-                            // if the id exist in the old content
-                            if (exist) {
+                            // if the id exist in the old source 
+                            if (exist_old_source) {
                                 var clean = $(this).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
                                 clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
                                 var new_element = clean.html();
@@ -272,7 +289,9 @@ jQuery(document).ready(function ($) {
 
                                     // derive element                                  
                                     $(derived_doc.body).find("[id]").each(function () {
-                                        if ($(this).attr('data-source-id').trim() == id) {
+                                        if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == id) {
+                                            exist_derive = true;
+
                                             var clean = $(this).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
                                             clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
                                             var derive_element = clean.html();
@@ -289,10 +308,15 @@ jQuery(document).ready(function ($) {
                                             return false; // break each function
                                         }
                                     });
+
+                                    if (exist_derive == false) {
+                                        // merge case 2:
+                                        $(this).attr('data-merge-case', 2);
+                                    }
                                 }
                             }
                             else {
-                                $(this).css('background-color', 'lightpink');
+                                $(this).css('background-color', 'lightgreen');
                             }
 
 
