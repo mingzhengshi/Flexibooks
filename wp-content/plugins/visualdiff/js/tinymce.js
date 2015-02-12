@@ -130,7 +130,9 @@ jQuery(document).ready(function ($) {
                 createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase);
                 createMergeIcon(noIconID, top, width, '&#10007', mcase);
             }
-            else if (mcase == 2) {
+            else if (mcase == 5) {
+                //createMergeIcon(noIconID, top, width - 100, 'del', mcase);
+                createMergeIcon(noIconID, top, width - 50, '&#8680', mcase);
                 createMergeIcon(noIconID, top, width, '&#10007', mcase);
             }
 
@@ -354,7 +356,8 @@ jQuery(document).ready(function ($) {
                     on_icon_hover = true;
 
                     if (($(this).html().charCodeAt() == '10003') ||
-                        ($(this).html().charCodeAt() == '10007')) {
+                        ($(this).html().charCodeAt() == '10007') ||
+                        ($(this).html().charCodeAt() == '8680')) {
                         $(this).css('opacity', 1);
                     }
                 },
@@ -364,7 +367,8 @@ jQuery(document).ready(function ($) {
                     on_icon_hover = false;
 
                     if (($(this).html().charCodeAt() == '10003') ||
-                        ($(this).html().charCodeAt() == '10007')) {
+                        ($(this).html().charCodeAt() == '10007') ||
+                        ($(this).html().charCodeAt() == '8680')) {
                         $(this).css('opacity', 0.3);
                     }
                 }
@@ -392,7 +396,8 @@ jQuery(document).ready(function ($) {
                 }
                 // click the merge button
                 else if (($(this).html().charCodeAt() == '10003') ||
-                         ($(this).html().charCodeAt() == '10007')) {
+                         ($(this).html().charCodeAt() == '10007') ||
+                         ($(this).html().charCodeAt() == '8680')) {
                     var mcase = $(this).attr('title');
                     switch (mcase) {
                         case "1":
@@ -409,7 +414,7 @@ jQuery(document).ready(function ($) {
                             if (callback) callback($(this).html().charCodeAt(), post_id, source_item_id, derive_item_id, $(this).attr('title'));
 
                             break;
-                        case "2":
+                        case "5":
                             var post_id = editor.post_id;
                             var source_item_id = $(this).attr('id').substr(5);
                             var derive_item_id = null;
@@ -596,7 +601,7 @@ jQuery(document).ready(function ($) {
             var icon = document.createElement('div');
             icon.className = 'fb_tinymce_left_column_icon';
             icon.id = id;
-            //icon['data-mcase'] = mcase; // can not get the value later
+            //icon['data-mcase'] = mcase; 
             icon.title = mcase; // ms - temp
             icon.innerHTML = text;
             icon.style.position = 'absolute';

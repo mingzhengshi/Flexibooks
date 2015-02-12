@@ -126,10 +126,8 @@ jQuery(document).ready(function ($) {
                             return false; // break 
                         }
                     });
-
-                    update();
                 }
-                // ignore the changes in the new source document
+                    // ignore the changes in the new source document
                 else if (icon == '10007') {
                     // source document
                     $(new_doc.body).find("[id]").each(function () {
@@ -149,26 +147,65 @@ jQuery(document).ready(function ($) {
                             }
                             return false; // break 
                         }
-                    });
-
-                    update();
+                    });                   
                 }
 
+                update();
                 break;
-            // case 2:
-            // source documen is modified; derive document is deleted
-            case "2":
+            // case 5:
+            case "5":
                 // source document
-                $(new_doc.body).find("[id]").each(function () {
-                    if ($(this).attr('id').trim() == s_id) {
-                        $(this).css('background-color', 'initial');
-                        if ($(this).attr('data-merge-case')) {
-                            $(this).removeAttr('data-merge-case');
-                        }
-                        return false; // break 
-                    }
-                });
+                if (icon == '8680') {
+                    $(new_doc.body).find("[id]").each(function () {
+                        if ($(this).attr('id').trim() == s_id) {
+                            var clone = $(this).clone();
+                            var parent_id = getParentID(new_doc.body, s_id);
+                            var prev_id = getPreviousID(new_doc.body, s_id);
 
+                            if (parent_id != null && prev_id != null) {
+                                var found = false;
+                                $($(derived_doc.body).children().get().reverse()).each(function () {
+                                    if ($(this).attr("data-source-id") && $(this).attr("data-source-id") == prev_id) {
+                                        $(clone).css('background-color', 'initial');
+                                        if ($(clone).attr('data-merge-case')) {
+                                            $(clone).removeAttr('data-merge-case');
+                                        }
+                                        //$(clone).insertAfter("#" + $(this).attr('id'));
+                                        var outer = $(this).prop('outerHTML') + $(clone).prop('outerHTML');
+                                        $(this).prop('outerHTML', outer); 
+                                        found = true;
+                                        return false;
+                                    }
+                                });
+                            }
+
+                            if (found == false) {
+
+                            }
+
+                            $(this).css('background-color', 'initial');
+                            if ($(this).attr('data-merge-case')) {
+                                $(this).removeAttr('data-merge-case');
+                            }
+
+                            return false; // break 
+                        }
+                    });
+                }
+                else if (icon == '10007') {
+                    $(new_doc.body).find("[id]").each(function () {
+                        if ($(this).attr('id').trim() == s_id) {
+                            $(this).css('background-color', 'initial');
+                            if ($(this).attr('data-merge-case')) {
+                                $(this).removeAttr('data-merge-case');
+                            }
+
+                            return false; // break 
+                        }
+                    });
+                }
+
+                update();
                 break;
         }
     });
@@ -284,8 +321,6 @@ jQuery(document).ready(function ($) {
                                     console.log('old_element:');
                                     console.log(old_element.trim());
                                     */
-                                    // source document
-                                    $(this).css('background-color', 'lightpink');
 
                                     // derive element                                  
                                     $(derived_doc.body).find("[id]").each(function () {
@@ -310,8 +345,31 @@ jQuery(document).ready(function ($) {
                                     });
 
                                     if (exist_derive == false) {
-                                        // merge case 2:
-                                        $(this).attr('data-merge-case', 2);
+                                        // source document
+                                        if ($(this).prop("tagName").toLowerCase() != 'h1' &&
+                                            $(this).prop("tagName").toLowerCase() != 'h2' &&
+                                            $(this).prop("tagName").toLowerCase() != 'h3') {
+                                            var p_exist = false;
+                                            var pid = getParentID(new_doc.body, $(this).attr('id'));
+                                            if (pid != null) {
+                                                $(derived_doc.body).find("[id]").each(function () {
+                                                    if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == pid) {
+                                                        p_exist = true;
+                                                        return false;
+                                                    }
+                                                });
+                                            }
+
+                                            // merge case 5:
+                                            if (p_exist) {
+                                                $(this).attr('data-merge-case', 5);
+                                                $(this).css('background-color', 'lightgreen');
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        // source document
+                                        $(this).css('background-color', 'lightpink');
                                     }
                                 }
                             }
@@ -330,6 +388,46 @@ jQuery(document).ready(function ($) {
         };
     }
 
+    function getParentID(body, id) {
+        var start = false;
+        var parent = null;
+        $($(body).children().get().reverse()).each(function () {
+            if (start == false) {
+                if ($(this).attr("id") && $(this).attr("id") == id) {
+                    start = true;
+                }
+            }
+            else {
+                if ($(this).prop("tagName").toLowerCase() == 'h1' ||
+                    $(this).prop("tagName").toLowerCase() == 'h2' ||
+                    $(this).prop("tagName").toLowerCase() == 'h3') {
+                    parent = $(this).attr('id');
+                    return false;
+                }
+            }
+        });
+
+        return parent;
+    }
+
+    function getPreviousID(body, id) {
+        var start = false;
+        var previous = null;
+        $($(body).children().get().reverse()).each(function () {
+            if (start == true) {
+                previous = $(this).attr('id');
+                return false;
+            }
+
+            if (start == false) {
+                if ($(this).attr("id") && $(this).attr("id") == id) {
+                    start = true;
+                }
+            }
+        });
+
+        return previous;
+    }
 
     //----------------------------------------------------------------------------------------
     // source selection dialog
