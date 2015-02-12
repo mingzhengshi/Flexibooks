@@ -74,7 +74,7 @@ jQuery(document).ready(function ($) {
     //$('#button-show-network-' + this.id).prop('disabled', false);
 
 
-    flexibook.regMergeIconClickCallback(function (icon, post_id, s_id, d_id) {
+    flexibook.regMergeIconClickCallback(function (icon, post_id, s_id, d_id, mcase) {
         var new_doc = null;
         for (var i = 0; i < tinymce.editors.length; i++) {
             if (tinymce.editors[i].post_id == post_id) {
@@ -83,6 +83,7 @@ jQuery(document).ready(function ($) {
             }
         }
         if (!new_doc) return;
+        if (!mcase) return;
 
         var old_content = getSourceRevisionContent(post_id);
         if (!old_content) return;
@@ -93,38 +94,67 @@ jQuery(document).ready(function ($) {
 
         var derived_doc = tinymce.get('fb-derived-mce').getDoc();
 
-        // case 1:
-        // derive document is unchanged
-        // accept the changes in the new source document
-        if (icon == '10003') {
-            var new_s_item = '';
+        switch (mcase) {
+            // case 1:
+            // source documen is modified; derive document is unchanged
+            case "1":
+                // accept the changes in the new source document
+                if (icon == '10003') {
+                    var new_s_item = '';
 
-            // source document
-            $(new_doc.body).find("[id]").each(function () {
-                if ($(this).attr('id').trim() == s_id) {
-                    $(this).css('background-color', 'initial');
+                    // source document
+                    $(new_doc.body).find("[id]").each(function () {
+                        if ($(this).attr('id').trim() == s_id) {
+                            $(this).css('background-color', 'initial');
 
-                    var clean = $(this).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
-                    clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
-                    new_s_item = clean.html();
+                            var clean = $(this).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
+                            clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
+                            new_s_item = clean.html();
 
-                    return false; // break each function
+                            return false; // break 
+                        }
+                    });
+
+                    // derive document
+                    // ms - does not consider multiple ids in one paragraph
+                    $(derived_doc.body).find("[id]").each(function () {
+                        if ($(this).attr('id').trim() == d_id) {
+                            $(this).html(new_s_item);
+                            if ($(this).attr('data-merge-case')) {
+                                $(this).removeAttr('data-merge-case');
+                            }
+                            return false; // break 
+                        }
+                    });
+
+                    update();
                 }
-            });
+                // ignore the changes in the new source document
+                else if (icon == '10007') {
+                    // source document
+                    $(new_doc.body).find("[id]").each(function () {
+                        if ($(this).attr('id').trim() == s_id) {
+                            $(this).css('background-color', 'initial');
 
-            // derive document
-            // ms - does not consider multiple ids in one paragraph
-            $(derived_doc.body).find("[id]").each(function () {
-                if ($(this).attr('id').trim() == d_id) {
-                    $(this).html(new_s_item);
-                    if ($(this).attr('data-merge-case')) {
-                        $(this).removeAttr('data-merge-case');
-                    }
-                    return false; // break each function
+                            return false; // break 
+                        }
+                    });
+
+                    // derive document
+                    // ms - does not consider multiple ids in one paragraph
+                    $(derived_doc.body).find("[id]").each(function () {
+                        if ($(this).attr('id').trim() == d_id) {
+                            if ($(this).attr('data-merge-case')) {
+                                $(this).removeAttr('data-merge-case');
+                            }
+                            return false; // break 
+                        }
+                    });
+
+                    update();
                 }
-            });
 
-            update();
+                break;
         }
     });
 
@@ -142,7 +172,7 @@ jQuery(document).ready(function ($) {
 
                     source_mce_init_count++;
                     if (source_mce_init_count == total) {
-                        addTinyMceEditor("#fb-invisible-editor"); // ms
+                        addTinyMceEditor("#fb-invisible-editor"); 
                         updateMetaSourceVersions();
                         getPreviousSourceVersions();
                     }
