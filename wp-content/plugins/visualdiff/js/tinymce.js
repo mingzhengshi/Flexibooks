@@ -118,8 +118,6 @@ jQuery(document).ready(function ($) {
 
             var mcase = $(node).attr('data-merge-case');
             // setup merge icon
-            var yesIconID = 'myes-' + $(node).attr('id');
-            var noIconID = 'mnon-' + $(node).attr('id');
 
             var offset = $(node).offset(); // absolute position relative to the document
             var height = $(node).height();
@@ -127,12 +125,25 @@ jQuery(document).ready(function ($) {
             var width = $(editor.getBody()).width();
             
             if (mcase == 1) {
+                var yesIconID = 'myes-' + $(node).attr('id');
+                var noIconID = 'mnon-' + $(node).attr('id');
+
                 createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase);
                 createMergeIcon(noIconID, top, width, '&#10007', mcase);
             }
+            else if (mcase == 3) {
+                var moreIconID = 'more-' + $(node).attr('id');
+                var noIconID = 'mnon-' + $(node).attr('id');
+
+                createMergeIcon(moreIconID, top, width - 50, '&#8681', mcase);
+                createMergeIcon(noIconID, top, width, '&#10007', mcase);
+            }
             else if (mcase == 5) {
+                var insIconID = 'mins-' + $(node).attr('id');
+                var noIconID = 'mnon-' + $(node).attr('id');
+
                 //createMergeIcon(noIconID, top, width - 100, 'del', mcase);
-                createMergeIcon(noIconID, top, width - 50, '&#8680', mcase);
+                createMergeIcon(insIconID, top, width - 50, '&#8680', mcase);
                 createMergeIcon(noIconID, top, width, '&#10007', mcase);
             }
 
@@ -357,6 +368,7 @@ jQuery(document).ready(function ($) {
 
                     if (($(this).html().charCodeAt() == '10003') ||
                         ($(this).html().charCodeAt() == '10007') ||
+                        ($(this).html().charCodeAt() == '8681') ||
                         ($(this).html().charCodeAt() == '8680')) {
                         $(this).css('opacity', 1);
                     }
@@ -368,6 +380,7 @@ jQuery(document).ready(function ($) {
 
                     if (($(this).html().charCodeAt() == '10003') ||
                         ($(this).html().charCodeAt() == '10007') ||
+                        ($(this).html().charCodeAt() == '8681') ||
                         ($(this).html().charCodeAt() == '8680')) {
                         $(this).css('opacity', 0.3);
                     }
@@ -397,6 +410,7 @@ jQuery(document).ready(function ($) {
                 // click the merge button
                 else if (($(this).html().charCodeAt() == '10003') ||
                          ($(this).html().charCodeAt() == '10007') ||
+                         ($(this).html().charCodeAt() == '8681') ||
                          ($(this).html().charCodeAt() == '8680')) {
                     var mcase = $(this).attr('title');
                     switch (mcase) {
@@ -412,6 +426,12 @@ jQuery(document).ready(function ($) {
 
                             var callback = flexibook.mergeIconClickCallback;
                             if (callback) callback($(this).html().charCodeAt(), post_id, source_item_id, derive_item_id, $(this).attr('title'));
+
+                            break;
+                        case "3":
+                            if ($(this).html().charCodeAt() == '8681') {
+
+                            }
 
                             break;
                         case "5":
