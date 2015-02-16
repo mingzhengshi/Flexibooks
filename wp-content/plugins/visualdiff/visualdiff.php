@@ -352,14 +352,14 @@ function fb_post_box_derived_document_callback() {
     </table>
 </div>
 
-<table class="fb-source-and-derived-editors">
+<table id="fb-table-derive-document-editors" class="fb-source-and-derived-editors">
   <colgroup>
     <col span="1" style="width: 49%;">
     <col span="1" style="width: 2%;">
     <col span="1" style="width: 49%;">
   </colgroup>
-  <tr>
-    <td style="vertical-align:top">
+  <tr id="fb-tr-derive-document-editors">
+    <td id="fb-td-source-mces" style="vertical-align:top">
         <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" />      
         <textarea id="fb-invisible-editor" style="display:none;"></textarea>
         <input id="fb-input-source-tabs" style="display:none;" name="fb-opened-source-post-ids" value="<?php echo $source_posts_ids; ?>" />        
@@ -372,7 +372,7 @@ function fb_post_box_derived_document_callback() {
         <svg id="fb-svg-mid-column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/>
         </svg>
     </td>
-    <td style="vertical-align:top">
+    <td id="fb-td-derive-mce" style="vertical-align:top">
         <h3 style="margin-bottom:8px">Derived Document</h3>
         <div>
 <?php    

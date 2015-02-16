@@ -128,7 +128,7 @@ jQuery(document).ready(function ($) {
                         }
                     });
                 }
-                    // ignore the changes in the new source document
+                // ignore the changes in the new source document
                 else if (icon == '10007') {
                     // source document
                     $(new_doc.body).find("[id]").each(function () {
@@ -154,7 +154,56 @@ jQuery(document).ready(function ($) {
 
                 update();
                 break;
+            // case 3:
+            // source documen is modified; derive document is modified
+            case "3":
+                // show more options 
+                if (icon == '8681') {
+                    // derive document
+                    /*
+                    var derive_element = derived_doc.getElementById(d_id);
+                    if (derive_element) {
+
+                        var clone = $(derive_element).clone();
+                        var clean_html = unwrapDeleteInsertTag(clone);
+                        var cid = $(clone).attr('id');
+
+                        $(clone).html(clean_html);
+                        $(clone).css('background-color', '#e8e8e8');
+                        $(clone).attr('id', 'mcase-' + cid);
+                        $(clone).addClass('fb_tinymce_left_column_text');
+
+                        var outer = $(derive_element).prop('outerHTML') + $(clone).prop('outerHTML');
+                        $(derive_element).prop('outerHTML', outer);
+
+                    }
+                    */
+
+                    var table = $('#fb-table-derive-document-editors');
+
+                    table.find('tr').each(function () {
+                        $(this).find('td').eq(0).after('<td id="fb-td-merge-mid-column"><svg id="fb-svg-merge-mid-column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/></svg></td>');
+                        $(this).find('td').eq(1).after('<td id="fb-td-old-source-mce" style="vertical-align:top"><h3 style="margin-bottom:8px">Source Document</h3><div></div></td>');
+                    });
+
+                    table.find('colgroup').each(function () {
+                        $(this).empty();
+                        $(this).append('<col span="1" style="width: 32%;">');
+                        $(this).append('<col span="1" style="width: 2%;">');
+                        $(this).append('<col span="1" style="width: 32%;">');
+                        $(this).append('<col span="1" style="width: 2%;">');
+                        $(this).append('<col span="1" style="width: 32%;">');
+                        return false;
+                    });
+                }
+                
+                
+
+
+                update();
+                break;
             // case 5:
+            // add item in source document; section exists in derived document
             case "5":
                 // source document
                 if (icon == '8680') {
@@ -194,6 +243,7 @@ jQuery(document).ready(function ($) {
                         }
                     });
                 }
+                // ignore the changes in the new source document
                 else if (icon == '10007') {
                     $(new_doc.body).find("[id]").each(function () {
                         if ($(this).attr('id').trim() == s_id) {
@@ -1063,6 +1113,7 @@ jQuery(document).ready(function ($) {
         l.html(ldiff);
         left_editor.setContent(l.prop('outerHTML'));
     }
+
 
     function setupMergeDialogTinyMce(id, source_mce_id) {
         var derive_doc = tinymce.get('fb-derived-mce').getDoc();

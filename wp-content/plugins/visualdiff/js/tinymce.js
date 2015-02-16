@@ -413,8 +413,10 @@ jQuery(document).ready(function ($) {
                          ($(this).html().charCodeAt() == '8681') ||
                          ($(this).html().charCodeAt() == '8680')) {
                     var mcase = $(this).attr('title');
+                    var mcase1 = $(this).prop('data-mcase');
                     switch (mcase) {
                         case "1":
+                        case "3":
                             var post_id;
                             var source_item_id;
                             var derive_item_id = targetID;
@@ -426,12 +428,6 @@ jQuery(document).ready(function ($) {
 
                             var callback = flexibook.mergeIconClickCallback;
                             if (callback) callback($(this).html().charCodeAt(), post_id, source_item_id, derive_item_id, $(this).attr('title'));
-
-                            break;
-                        case "3":
-                            if ($(this).html().charCodeAt() == '8681') {
-
-                            }
 
                             break;
                         case "5":
@@ -621,7 +617,7 @@ jQuery(document).ready(function ($) {
             var icon = document.createElement('div');
             icon.className = 'fb_tinymce_left_column_icon';
             icon.id = id;
-            //icon['data-mcase'] = mcase; 
+            icon['data-mcase'] = mcase; 
             icon.title = mcase; // ms - temp
             icon.innerHTML = text;
             icon.style.position = 'absolute';
