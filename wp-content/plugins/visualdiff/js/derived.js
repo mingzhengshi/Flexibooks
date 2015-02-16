@@ -179,22 +179,7 @@ jQuery(document).ready(function ($) {
                     }
                     */
 
-                    var table = $('#fb-table-derive-document-editors');
 
-                    table.find('tr').each(function () {
-                        $(this).find('td').eq(0).after('<td id="fb-td-merge-mid-column"><svg id="fb-svg-merge-mid-column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/></svg></td>');
-                        $(this).find('td').eq(1).after('<td id="fb-td-old-source-mce" style="vertical-align:top"><h3 style="margin-bottom:8px">Source Document</h3><div></div></td>');
-                    });
-
-                    table.find('colgroup').each(function () {
-                        $(this).empty();
-                        $(this).append('<col span="1" style="width: 32%;">');
-                        $(this).append('<col span="1" style="width: 2%;">');
-                        $(this).append('<col span="1" style="width: 32%;">');
-                        $(this).append('<col span="1" style="width: 2%;">');
-                        $(this).append('<col span="1" style="width: 32%;">');
-                        return false;
-                    });
                 }
                 
                 
@@ -262,6 +247,49 @@ jQuery(document).ready(function ($) {
         }
     });
 
+    $("#fb-button-show-previous-source").button().click(function () {
+        if ($(this).attr('value') == "Show Previous Source") {
+            $(this).attr('value', 'Hide Previous Source');
+            var table = $('#fb-table-derive-document-editors');
+
+            table.find('tr').each(function () {
+                $(this).find('td').eq(0).after('<td id="fb-td-merge-mid-column"><svg id="fb-svg-merge-mid-column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/></svg></td>');
+                $(this).find('td').eq(1).after('<td id="fb-td-old-source-mce" style="vertical-align:top"><h3 style="margin-bottom:8px">Source Document</h3><div id="fb-div-old-source-mce"></div></td>');
+            });
+
+            table.find('colgroup').each(function () {
+                $(this).empty();
+                $(this).append('<col span="1" style="width: 32%;">');
+                $(this).append('<col span="1" style="width: 2%;">');
+                $(this).append('<col span="1" style="width: 32%;">');
+                $(this).append('<col span="1" style="width: 2%;">');
+                $(this).append('<col span="1" style="width: 32%;">');
+                return false;
+            });
+
+            $("#fb-div-old-source-mce").append("<textarea id='fb-old-source-mce' style='height:600px'></textarea>");
+            tinymce.execCommand('mceAddEditor', false, 'fb-old-source-mce');
+
+            // get active tab id
+            var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
+            if (typeof tab_id == typeof undefined || tab_id == null) return;
+            var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
+
+            var source_mce = tinymce.get(source_mce_id);
+            var old_mce = tinymce.get('fb-old-source-mce');
+
+            var post_id = source_mce.post_id;
+            var old_content = getSourceRevisionContent(post_id);
+            if (old_content != null) {
+                old_mce.setContent(old_content);
+            }
+            else {
+                var content = source_mce.getContent();
+                old_mce.setContent(content);
+            }
+        }
+    });
+
     function getSourcePostInit(post_id, total) {
         $.post(ajaxurl,
             {
@@ -276,7 +304,10 @@ jQuery(document).ready(function ($) {
 
                     source_mce_init_count++;
                     if (source_mce_init_count == total) {
-                        addTinyMceEditor("#fb-invisible-editor"); 
+                        // add tinymce editor
+                        //addTinyMceEditor("#fb-invisible-editor");
+                        tinymce.execCommand('mceAddEditor', false, 'fb-invisible-editor');
+
                         updateMetaSourceVersions();
                         getPreviousSourceVersions();
                     }

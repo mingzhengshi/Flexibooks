@@ -360,7 +360,8 @@ function fb_post_box_derived_document_callback() {
   </colgroup>
   <tr id="fb-tr-derive-document-editors">
     <td id="fb-td-source-mces" style="vertical-align:top">
-        <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" />      
+        <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" style="margin-right:10px"/>      
+        <input id="fb-button-show-previous-source" type="button" value="Show Previous Source" class="button-secondary" />   
         <textarea id="fb-invisible-editor" style="display:none;"></textarea>
         <input id="fb-input-source-tabs" style="display:none;" name="fb-opened-source-post-ids" value="<?php echo $source_posts_ids; ?>" />        
         <div id="fb-tabs-sources" class="fb-tabs-sources-display-none">
@@ -376,8 +377,8 @@ function fb_post_box_derived_document_callback() {
         <h3 style="margin-bottom:8px">Derived Document</h3>
         <div>
 <?php    
-    //$derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
-    $derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
+    $derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
+    //$derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
     wp_editor($content, 'fb-derived-mce', $derived_editor_args);      
 ?>   
         </div>
