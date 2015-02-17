@@ -1097,26 +1097,35 @@ jQuery(document).ready(function ($) {
                                 console.log('..............hover..............');
 
                                 if (comp_type == 'source_derive') {                                   
+                                    $(left).find('span.delete-sd').each(function () { $(this).addClass('delete-highlight'); });
 
+                                    right.find('span.insert').each(function () { $(this).addClass('insert-highlight'); });
                                 }
                                 else if (comp_type == 'source_source') {
+                                    $(left).find('span.insert').each(function () { $(this).addClass('insert-highlight'); });
 
+                                    right.find('span.delete-ss').each(function () { $(this).addClass('delete-highlight'); });
                                 }
+
+                                /*
                                 $(left).find('span.insert').each(function () { $(this).addClass('insert-highlight'); });
                                 $(left).find('span.delete').each(function () { $(this).addClass('delete-highlight'); });
-                                console.log($(left).prop('outerHTML'));
 
                                 right.find('span.insert').each(function () { $(this).addClass('insert-highlight'); });
                                 right.find('span.delete').each(function () { $(this).addClass('delete-highlight'); });
+                                */
+
+                                console.log($(left).prop('outerHTML'));
                                 console.log($(right).prop('outerHTML'));
+
                             }, function () {
                                 $(polygon).css("opacity", 0.2);
 
-                                $(left).find('span.insert').each(function () { $(this).removeClass('insert-highlight insert-sd insert-ss'); });
-                                $(left).find('span.delete').each(function () { $(this).removeClass('delete-highlight delete-sd delete-ss'); });
+                                $(left).find('span.insert').each(function () { $(this).removeClass('insert-highlight'); });
+                                $(left).find('span.delete').each(function () { $(this).removeClass('delete-highlight'); });
 
-                                right.find('span.insert').each(function () { $(this).removeClass('insert-highlight insert-sd insert-ss'); });
-                                right.find('span.delete').each(function () { $(this).removeClass('delete-highlight delete-sd delete-ss'); });
+                                right.find('span.insert').each(function () { $(this).removeClass('insert-highlight'); });
+                                right.find('span.delete').each(function () { $(this).removeClass('delete-highlight'); });
                             });
                             document.getElementById(svg_column_id).appendChild(polygon);
                         }
