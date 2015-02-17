@@ -289,6 +289,7 @@ jQuery(document).ready(function ($) {
             }
         }
     });
+    $("#fb-button-show-previous-source").prop('disabled', true);
 
     function getSourcePostInit(post_id, total) {
         $.post(ajaxurl,
@@ -323,6 +324,7 @@ jQuery(document).ready(function ($) {
         for (var i = 0; i < meta_source_versions.length; i++) {
             if (meta_source_versions[i].source_post_current_modified != meta_source_versions[i].source_post_latest_modified) {
                 getSourcePostRevision(meta_source_versions[i].source_post_id, meta_source_versions[i].source_post_current_modified);
+                $("#fb-button-show-previous-source").prop('disabled', false);
             }
         }
     }
@@ -829,47 +831,52 @@ jQuery(document).ready(function ($) {
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
         var source_doc = tinymce.get(source_mce_id).getDoc();
 
-        // firstly clean source document
-        $(source_doc.body).children().each(function (index) {
-            if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
-                var id = $(this).attr('id');
+        updateHTMLDiffColumn(source_doc, derived_doc, 'source_derive');
+    }
+
+    function updateHTMLDiffColumn(base_doc, comp_doc, comp_type) {     
+        // firstly clean base document
+        $(base_doc.body).children().each(function (index) {
+            var base = $(this);
+            if (base.hasClass("fb_tinymce_left_column") == false && base.hasClass("fb_tinymce_left_column_icon") == false) {
+                var id = base.attr('id');
 
                 if (id && id != 'none') {
-                    //var source_html = $(this).html().replace(/<del>/g, "").replace(/<\/del>/g, "");
-
-                    var source_clean = $(this).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
-                    var source_html = source_clean.html();
-
-                    $(this).html(source_html);
+                    //var source_clean = base.find('span.delete').contents().unwrap().end().end(); // remove all delete tags
+                    //var source_html = source_clean.html();
+                    var source_html = unwrapDeleteInsertTagjQuery(base);
+                    base.html(source_html);
                 }
             }
         });
 
-        $(derived_doc.body).children().each(function (index) {
-            if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
-                var source_id = $(this).attr('data-source-id');
-                var id = $(this).attr('id');
+        $(comp_doc.body).children().each(function (index) {
+            var comp = $(this);
+            if (comp.hasClass("fb_tinymce_left_column") == false && comp.hasClass("fb_tinymce_left_column_icon") == false) {
+                //var source_id = comp.attr('data-source-id');
+                var source_id = null;
+                if (comp_type == 'source_derive') {
+                    source_id = comp.attr('data-source-id');
+                }
+                var id = comp.attr('id');
 
                 if (source_id && source_id != 'none') {
                     // stores a bookmark of the current selection
                     var derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); // use a non-html bookmark
 
-                    var source_element = source_doc.getElementById(source_id);
+                    var source_element = base_doc.getElementById(source_id);
                     if (source_element) {
-                        //var source_html = $(source_element).html().replace(/<del>/g, "").replace(/<\/del>/g, "");
-                        //var derive_html = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, "");
+                        //var derive_clean = comp.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
+                        //var derive_html = derive_clean.html();
+                        var derive_html = unwrapDeleteInsertTagjQuery(comp);
 
-                        //var source_clean = $(source_element).find('span.delete').contents().unwrap().end().end();
-                        var derive_clean = $(this).find('span.insert').contents().unwrap().end().end(); // remove all insert tags
-
-                        //var source_html = source_clean.html();
                         var source_html = $(source_element).html();
-                        var derive_html = derive_clean.html();
+
 
                         if (source_html != derive_html) {
                             // derive element
                             var r1 = html_diff(source_html, derive_html, 'insert'); 
-                            $(this).html(r1);
+                            comp.html(r1);
 
                             // source element
                             var r2 = html_diff(source_html, derive_html, 'delete');
@@ -877,18 +884,18 @@ jQuery(document).ready(function ($) {
                         }
                         else if (source_html == derive_html) {
                             // derive element
-                            $(this).html(derive_html);
+                            comp.html(derive_html);
 
                             // source element
                             $(source_element).html(source_html);
                         }
                     }
                     else {
-                        //var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all insert tags
-                        var new_derive_clean = $(this).find('span.insert').contents().unwrap().end().end(); // remove all insert tags
-                        var newHtml = new_derive_clean.html();
+                        //var new_derive_clean = comp.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
+                        //var newHtml = new_derive_clean.html();
+                        var newHtml = unwrapDeleteInsertTagjQuery(comp);
                         var newHtml = "<span class='insert'>" + newHtml + "</span>";
-                        $(this).html(newHtml);
+                        comp.html(newHtml);
                     }
 
                     // restore the selection bookmark
@@ -899,11 +906,11 @@ jQuery(document).ready(function ($) {
                         // stores a bookmark of the current selection
                         var derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); 
 
-                        //var newHtml = $(this).html().replace(/<ins>/g, "").replace(/<\/ins>/g, ""); // remove all ins tags
-                        var new_derive_clean = $(this).find('span.insert').contents().unwrap().end().end(); // remove all insert tags
-                        var newHtml = new_derive_clean.html();
+                        //var new_derive_clean = comp.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
+                        //var newHtml = new_derive_clean.html();
+                        var newHtml = unwrapDeleteInsertTagjQuery(comp);
                         var newHtml = "<span class='insert'>" + newHtml + "</span>";
-                        $(this).html(newHtml);
+                        comp.html(newHtml);
 
                         // restore the selection bookmark
                         tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark); 
@@ -923,9 +930,14 @@ jQuery(document).ready(function ($) {
         if (typeof tab_id == typeof undefined || tab_id == null) return;
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
         var source_mce = tinymce.get(source_mce_id);
+        var source_doc = source_mce.getDoc();
 
-        var source_iframe_container_top = getiFrameOffsetTop(source_mce.getDoc());
-        var derived_iframe_container_top = getiFrameOffsetTop(derived_doc);
+        updateSVGColumn(source_doc, derived_doc, 'source_derive');
+    }
+
+    function updateSVGColumn(base_doc, comp_doc, comp_type) {
+        var source_iframe_container_top = getiFrameOffsetTop(base_doc);
+        var derived_iframe_container_top = getiFrameOffsetTop(comp_doc);
 
         if (source_iframe_container_top < 0 || derived_iframe_container_top < 0) return;
 
@@ -937,11 +949,16 @@ jQuery(document).ready(function ($) {
         // remove all polygons
         $('#fb-svg-mid-column').find('.fb-svg-polygons').remove(); 
 
-        $(derived_doc.body).children().each(function (index) {
-            if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
-                var source_id = $(this).attr('data-source-id');
+        $(comp_doc.body).children().each(function (index) {
+            var comp = $(this);
+            if (comp.hasClass("fb_tinymce_left_column") == false && comp.hasClass("fb_tinymce_left_column_icon") == false) {
+                var source_id = null;
+                if (comp_type == 'source_derive') {
+                    source_id = comp.attr('data-source-id');
+                }
+
                 if (source_id && source_id != 'none') {
-                    var source_element = source_mce.getDoc().getElementById(source_id);
+                    var source_element = base_doc.getElementById(source_id);
                     if (source_element) {
                         var y_bottom_right = -1;
                         var y_top_right = -1;
@@ -949,8 +966,8 @@ jQuery(document).ready(function ($) {
                         var y_bottom_left = -1;
 
                         // calculate y_bottom_right and y_top_right
-                        if ($(this).attr('class') && $(this).attr('class').indexOf("fb-display-none") >= 0) {
-                            var derived_bottom = getParentOffsetBottom($(this).attr("id"), derived_doc.body);
+                        if (comp.attr('class') && comp.attr('class').indexOf("fb-display-none") >= 0) {
+                            var derived_bottom = getParentOffsetBottom(comp.attr("id"), comp_doc.body);
                             if (derived_bottom >= 0) {
                                 derived_bottom += (derived_iframe_container_top - svg_container_top);
                                 y_bottom_right = derived_bottom;
@@ -958,11 +975,11 @@ jQuery(document).ready(function ($) {
                             }
                         }
                         else {
-                            var derived_height = $(this).height();
-                            var derived_outer_height = $(this).outerHeight(true);
-                            var derived_top = $(this).position().top;
-                            var derived_padding_top = parseInt($(this).css('padding-top'), 10);
-                            var derived_margin_top = parseInt($(this).css('margin-top'), 10);
+                            var derived_height = comp.height();
+                            var derived_outer_height = comp.outerHeight(true);
+                            var derived_top = comp.position().top;
+                            var derived_padding_top = parseInt(comp.css('padding-top'), 10);
+                            var derived_margin_top = parseInt(comp.css('margin-top'), 10);
                             derived_top += (derived_iframe_container_top - svg_container_top);
                             derived_top -= (derived_padding_top + derived_margin_top);
 
@@ -972,7 +989,7 @@ jQuery(document).ready(function ($) {
 
                         // calcuate y_top_left and y_bottom_left
                         if ($(source_element).attr('class') && $(source_element).attr('class').indexOf("fb-display-none") >= 0) {
-                            var source_bottom = getParentOffsetBottom($(source_element).attr("id"), source_mce.getDoc().body);
+                            var source_bottom = getParentOffsetBottom($(source_element).attr("id"), base_doc.body);
                             if (source_bottom >= 0) {
                                 source_bottom += (source_iframe_container_top - svg_container_top);
                                 y_top_left = source_bottom;
@@ -1001,11 +1018,11 @@ jQuery(document).ready(function ($) {
                             points += x_right + "," + y_bottom_right + " ";
                             points += x_right + "," + y_top_right + " ";
                             polygon.setAttribute("points", points);
-                            polygon.setAttribute("id", $(this).attr('id'));
-                            polygon.setAttribute("source_mce_id", source_mce_id);
+                            polygon.setAttribute("id", comp.attr('id'));
+                            //polygon.setAttribute("source_mce_id", source_mce_id);
                             var x = source_element.innerHTML;
-                            var y = $(this).html();
-                            if (source_element.innerHTML == $(this).html()) {
+                            var y = comp.html();
+                            if (source_element.innerHTML == comp.html()) {
                                 polygon.setAttribute("fill", "green");
                             }
                             else {
@@ -1013,7 +1030,7 @@ jQuery(document).ready(function ($) {
                             }
                             polygon.setAttribute("class", "fb-svg-polygons");
                             polygon.setAttribute("opacity", 0.2);
-                            $(polygon).click(function () { svgOnClick($(this).attr('id'), $(this).attr('source_mce_id')); });
+                            //$(polygon).click(function () { svgOnClick($(this).attr('id'), $(this).attr('source_mce_id')); });
                             $(polygon).hover(function () {
                                 $(polygon).css("cursor", "pointer");
                                 $(polygon).css("opacity", 1);
@@ -1252,6 +1269,12 @@ jQuery(document).ready(function ($) {
 
     function unwrapDeleteInsertTag(element) {
         var clean = $(element).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
+        clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
+        return clean.html();
+    }
+
+    function unwrapDeleteInsertTagjQuery(element) {
+        var clean = element.find('span.delete').contents().unwrap().end().end(); // remove all delete tags
         clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
         return clean.html();
     }
