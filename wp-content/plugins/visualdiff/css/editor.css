@@ -115,10 +115,26 @@ margin: 30px;
 
 /* html diff */
 span.insert {
-    background-color: #fff9c0;
+    background-color: #fcf7af;
 }
 
 span.delete {
     text-decoration: line-through;
     opacity: 0.7;
+}
+
+span.delete-ss {
+}
+
+span.delete-sd {
+}
+
+span.insert-highlight {
+    background-color: #f7e113;
+}
+
+span.delete-highlight {
+    text-decoration: line-through;
+    opacity: 1;
+    font-weight: bold;
 }

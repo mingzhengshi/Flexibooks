@@ -836,30 +836,34 @@ jQuery(document).ready(function ($) {
         var source_doc = tinymce.get(source_mce_id).getDoc();
 
         if (columns_of_editors == 2) {
-            updateHTMLDiffColumn(source_doc, derived_doc, 'source_derive');
+            updateHTMLDiffColumn(source_doc, derived_doc, 'source_derive', true);
         }
         else if (columns_of_editors == 3) {
             var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
 
-            updateHTMLDiffColumn(old_source_doc, derived_doc, 'source_derive');
+            updateHTMLDiffColumn(old_source_doc, derived_doc, 'source_derive', true);
+
+            updateHTMLDiffColumn(old_source_doc, source_doc, 'source_source', false);
         }
     }
 
-    function updateHTMLDiffColumn(base_doc, comp_doc, comp_type) {     
+    function updateHTMLDiffColumn(base_doc, comp_doc, comp_type, clean_base) {     
         // firstly clean base document
-        $(base_doc.body).children().each(function (index) {
-            var base = $(this);
-            if (base.hasClass("fb_tinymce_left_column") == false && base.hasClass("fb_tinymce_left_column_icon") == false) {
-                var id = base.attr('id');
+        if (clean_base) {
+            $(base_doc.body).children().each(function (index) {
+                var base = $(this);
+                if (base.hasClass("fb_tinymce_left_column") == false && base.hasClass("fb_tinymce_left_column_icon") == false) {
+                    var id = base.attr('id');
 
-                if (id && id != 'none') {
-                    //var source_clean = base.find('span.delete').contents().unwrap().end().end(); // remove all delete tags
-                    //var source_html = source_clean.html();
-                    var source_html = unwrapDeleteInsertTagjQuery(base);
-                    base.html(source_html);
+                    if (id && id != 'none') {
+                        //var source_clean = base.find('span.delete').contents().unwrap().end().end(); // remove all delete tags
+                        //var source_html = source_clean.html();
+                        var source_html = unwrapDeleteInsertTagjQuery(base);
+                        base.html(source_html);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         $(comp_doc.body).children().each(function (index) {
             var comp = $(this);
@@ -869,11 +873,16 @@ jQuery(document).ready(function ($) {
                 if (comp_type == 'source_derive') {
                     source_id = comp.attr('data-source-id');
                 }
+                else if (comp_type == 'source_source') {
+                    source_id = comp.attr('id');
+                }
+
                 var id = comp.attr('id');
 
                 if (source_id && source_id != 'none') {
                     // stores a bookmark of the current selection
-                    var derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); // use a non-html bookmark
+                    var derive_bookmark;
+                    if (comp_type == 'source_derive') derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); // use a non-html bookmark
 
                     var source_element = base_doc.getElementById(source_id);
                     if (source_element) {
@@ -892,6 +901,23 @@ jQuery(document).ready(function ($) {
                             // source element
                             var r2 = html_diff(source_html, derive_html, 'delete');
                             $(source_element).html(r2);
+
+                            if (comp_type == 'source_derive') {
+                                $(source_element).find('span.delete').each(function () {
+                                    console.log("$(this).hasClass('delete-ss') == " + $(this).hasClass('delete-ss'));
+                                    if ($(this).hasClass('delete-ss') == false) {
+                                        $(this).addClass('delete-sd');
+                                    }
+                                });
+                            }
+                            else if (comp_type == 'source_source') {
+                                $(source_element).find('span.delete').each(function () {
+                                    console.log("$(this).hasClass('delete-sd') == " + $(this).hasClass('delete-sd'));
+                                    if ($(this).hasClass('delete-sd') == false) {
+                                        $(this).addClass('delete-ss');
+                                    }
+                                });
+                            }
                         }
                         else if (source_html == derive_html) {
                             // derive element
@@ -910,12 +936,13 @@ jQuery(document).ready(function ($) {
                     }
 
                     // restore the selection bookmark
-                    tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark);
+                    if (comp_type == 'source_derive') tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark);
                 }
                 else {
                     if (id && id != 'none') {
                         // stores a bookmark of the current selection
-                        var derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); 
+                        var derive_bookmark;
+                        if (comp_type == 'source_derive') derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true);
 
                         //var new_derive_clean = comp.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
                         //var newHtml = new_derive_clean.html();
@@ -924,7 +951,7 @@ jQuery(document).ready(function ($) {
                         comp.html(newHtml);
 
                         // restore the selection bookmark
-                        tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark); 
+                        if (comp_type == 'source_derive') tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark); 
                     }
                 }
 
@@ -973,27 +1000,27 @@ jQuery(document).ready(function ($) {
         $('#' + svg_column_id).find('.fb-svg-polygons').remove();
 
         $(right_doc.body).children().each(function (index) {
-            var comp = $(this);
-            if (comp.hasClass("fb_tinymce_left_column") == false && comp.hasClass("fb_tinymce_left_column_icon") == false) {
+            var right = $(this);
+            if (right.hasClass("fb_tinymce_left_column") == false && right.hasClass("fb_tinymce_left_column_icon") == false) {
                 var source_id = null;
                 if (comp_type == 'source_derive') {
-                    source_id = comp.attr('data-source-id');
+                    source_id = right.attr('data-source-id');
                 }
                 else if (comp_type == 'source_source') {
-                    source_id = comp.attr('id');
+                    source_id = right.attr('id');
                 }
 
                 if (source_id && source_id != 'none') {
-                    var source_element = left_doc.getElementById(source_id);
-                    if (source_element) {
+                    var left = left_doc.getElementById(source_id);
+                    if (left) {
                         var y_bottom_right = -1;
                         var y_top_right = -1;
                         var y_top_left = -1;
                         var y_bottom_left = -1;
 
                         // calculate y_bottom_right and y_top_right
-                        if (comp.attr('class') && comp.attr('class').indexOf("fb-display-none") >= 0) {
-                            var derived_bottom = getParentOffsetBottom(comp.attr("id"), right_doc.body);
+                        if (right.attr('class') && right.attr('class').indexOf("fb-display-none") >= 0) {
+                            var derived_bottom = getParentOffsetBottom(right.attr("id"), right_doc.body);
                             if (derived_bottom >= 0) {
                                 derived_bottom += (derived_iframe_container_top - svg_container_top);
                                 y_bottom_right = derived_bottom;
@@ -1001,11 +1028,11 @@ jQuery(document).ready(function ($) {
                             }
                         }
                         else {
-                            var derived_height = comp.height();
-                            var derived_outer_height = comp.outerHeight(true);
-                            var derived_top = comp.position().top;
-                            var derived_padding_top = parseInt(comp.css('padding-top'), 10);
-                            var derived_margin_top = parseInt(comp.css('margin-top'), 10);
+                            var derived_height = right.height();
+                            var derived_outer_height = right.outerHeight(true);
+                            var derived_top = right.position().top;
+                            var derived_padding_top = parseInt(right.css('padding-top'), 10);
+                            var derived_margin_top = parseInt(right.css('margin-top'), 10);
                             derived_top += (derived_iframe_container_top - svg_container_top);
                             derived_top -= (derived_padding_top + derived_margin_top);
 
@@ -1014,8 +1041,8 @@ jQuery(document).ready(function ($) {
                         }
 
                         // calcuate y_top_left and y_bottom_left
-                        if ($(source_element).attr('class') && $(source_element).attr('class').indexOf("fb-display-none") >= 0) {
-                            var source_bottom = getParentOffsetBottom($(source_element).attr("id"), left_doc.body);
+                        if ($(left).attr('class') && $(left).attr('class').indexOf("fb-display-none") >= 0) {
+                            var source_bottom = getParentOffsetBottom($(left).attr("id"), left_doc.body);
                             if (source_bottom >= 0) {
                                 source_bottom += (source_iframe_container_top - svg_container_top);
                                 y_top_left = source_bottom;
@@ -1023,11 +1050,11 @@ jQuery(document).ready(function ($) {
                             }
                         }
                         else {
-                            var source_height = $(source_element).height();
-                            var source_outer_height = $(source_element).outerHeight(true);
-                            var source_top = $(source_element).position().top;
-                            var source_padding_top = parseInt($(source_element).css('padding-top'), 10);
-                            var source_margin_top = parseInt($(source_element).css('margin-top'), 10);
+                            var source_height = $(left).height();
+                            var source_outer_height = $(left).outerHeight(true);
+                            var source_top = $(left).position().top;
+                            var source_padding_top = parseInt($(left).css('padding-top'), 10);
+                            var source_margin_top = parseInt($(left).css('margin-top'), 10);
                             source_top += (source_iframe_container_top - svg_container_top);
                             source_top -= (source_padding_top + source_margin_top);
                             //console.log($(source_element).attr('id') + ": " + source_outer_height);
@@ -1044,16 +1071,16 @@ jQuery(document).ready(function ($) {
                             points += x_right + "," + y_bottom_right + " ";
                             points += x_right + "," + y_top_right + " ";
                             polygon.setAttribute("points", points);
-                            polygon.setAttribute("id", comp.attr('id'));
+                            polygon.setAttribute("id", right.attr('id'));
                             //polygon.setAttribute("source_mce_id", source_mce_id);
 
-                            var s_clone = $(source_element).clone();
-                            var d_clone = comp.clone();
+                            var s_clone = $(left).clone();
+                            var d_clone = right.clone();
 
                             var source_clean = unwrapDeleteInsertTag(s_clone);
                             var comp_clean = unwrapDeleteInsertTag(d_clone);
 
-                            //if (source_element.innerHTML == comp.html()) {
+                            //if (left.innerHTML == comp.html()) {
                             if (source_clean == comp_clean) {
                                 polygon.setAttribute("fill", "green");
                             }
@@ -1066,8 +1093,30 @@ jQuery(document).ready(function ($) {
                             $(polygon).hover(function () {
                                 $(polygon).css("cursor", "pointer");
                                 $(polygon).css("opacity", 1);
+
+                                console.log('..............hover..............');
+
+                                if (comp_type == 'source_derive') {                                   
+
+                                }
+                                else if (comp_type == 'source_source') {
+
+                                }
+                                $(left).find('span.insert').each(function () { $(this).addClass('insert-highlight'); });
+                                $(left).find('span.delete').each(function () { $(this).addClass('delete-highlight'); });
+                                console.log($(left).prop('outerHTML'));
+
+                                right.find('span.insert').each(function () { $(this).addClass('insert-highlight'); });
+                                right.find('span.delete').each(function () { $(this).addClass('delete-highlight'); });
+                                console.log($(right).prop('outerHTML'));
                             }, function () {
                                 $(polygon).css("opacity", 0.2);
+
+                                $(left).find('span.insert').each(function () { $(this).removeClass('insert-highlight insert-sd insert-ss'); });
+                                $(left).find('span.delete').each(function () { $(this).removeClass('delete-highlight delete-sd delete-ss'); });
+
+                                right.find('span.insert').each(function () { $(this).removeClass('insert-highlight insert-sd insert-ss'); });
+                                right.find('span.delete').each(function () { $(this).removeClass('delete-highlight delete-sd delete-ss'); });
                             });
                             document.getElementById(svg_column_id).appendChild(polygon);
                         }
