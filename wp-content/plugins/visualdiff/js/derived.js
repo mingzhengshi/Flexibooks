@@ -8,6 +8,7 @@ jQuery(document).ready(function ($) {
     var derived_mce_init_done = false;
     var source_mce_init_count = 0;
     var previous_source_revisions = []; // list of previous source revisions for merge
+    var columns_of_editors = 2;
 
     var tab_counter = 0;
     var tab_template = "<li id='#{id}'><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
@@ -249,6 +250,7 @@ jQuery(document).ready(function ($) {
 
     $("#fb-button-show-previous-source").button().click(function () {
         if ($(this).attr('value') == "Show Previous Source") {
+            columns_of_editors = 3;
             $(this).attr('value', 'Hide Previous Source');
             var table = $('#fb-table-derive-document-editors');
 
@@ -287,6 +289,8 @@ jQuery(document).ready(function ($) {
                 var content = source_mce.getContent();
                 old_mce.setContent(content);
             }
+
+            update();
         }
     });
     $("#fb-button-show-previous-source").prop('disabled', true);
@@ -831,7 +835,14 @@ jQuery(document).ready(function ($) {
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
         var source_doc = tinymce.get(source_mce_id).getDoc();
 
-        updateHTMLDiffColumn(source_doc, derived_doc, 'source_derive');
+        if (columns_of_editors == 2) {
+            updateHTMLDiffColumn(source_doc, derived_doc, 'source_derive');
+        }
+        else if (columns_of_editors == 3) {
+            var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
+
+            updateHTMLDiffColumn(old_source_doc, derived_doc, 'source_derive');
+        }
     }
 
     function updateHTMLDiffColumn(base_doc, comp_doc, comp_type) {     
@@ -932,33 +943,48 @@ jQuery(document).ready(function ($) {
         var source_mce = tinymce.get(source_mce_id);
         var source_doc = source_mce.getDoc();
 
-        updateSVGColumn(source_doc, derived_doc, 'source_derive');
+        if (columns_of_editors == 2) {
+            updateSVGColumn(source_doc, derived_doc, 'source_derive', 'fb-svg-mid-column');
+        }
+        else if (columns_of_editors == 3) {
+            var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
+
+            // first column
+            // updateSVGColumn(old_source_doc, source_doc, 'source_source', 'fb-svg-merge-mid-column');
+            updateSVGColumn(source_doc, old_source_doc, 'source_source', 'fb-svg-merge-mid-column'); // need to reverse
+
+            // second column
+            updateSVGColumn(old_source_doc, derived_doc, 'source_derive', 'fb-svg-mid-column');
+        }
     }
 
-    function updateSVGColumn(base_doc, comp_doc, comp_type) {
-        var source_iframe_container_top = getiFrameOffsetTop(base_doc);
-        var derived_iframe_container_top = getiFrameOffsetTop(comp_doc);
+    function updateSVGColumn(left_doc, right_doc, comp_type, svg_column_id) {
+        var source_iframe_container_top = getiFrameOffsetTop(left_doc);
+        var derived_iframe_container_top = getiFrameOffsetTop(right_doc);
 
         if (source_iframe_container_top < 0 || derived_iframe_container_top < 0) return;
 
         var svg_container_top = $('#fb-td-mid-column').offset().top;
 
         var x_left = 0;
-        var x_right = $('#fb-svg-mid-column').width();
+        var x_right = $('#' + svg_column_id).width();
 
         // remove all polygons
-        $('#fb-svg-mid-column').find('.fb-svg-polygons').remove(); 
+        $('#' + svg_column_id).find('.fb-svg-polygons').remove();
 
-        $(comp_doc.body).children().each(function (index) {
+        $(right_doc.body).children().each(function (index) {
             var comp = $(this);
             if (comp.hasClass("fb_tinymce_left_column") == false && comp.hasClass("fb_tinymce_left_column_icon") == false) {
                 var source_id = null;
                 if (comp_type == 'source_derive') {
                     source_id = comp.attr('data-source-id');
                 }
+                else if (comp_type == 'source_source') {
+                    source_id = comp.attr('id');
+                }
 
                 if (source_id && source_id != 'none') {
-                    var source_element = base_doc.getElementById(source_id);
+                    var source_element = left_doc.getElementById(source_id);
                     if (source_element) {
                         var y_bottom_right = -1;
                         var y_top_right = -1;
@@ -967,7 +993,7 @@ jQuery(document).ready(function ($) {
 
                         // calculate y_bottom_right and y_top_right
                         if (comp.attr('class') && comp.attr('class').indexOf("fb-display-none") >= 0) {
-                            var derived_bottom = getParentOffsetBottom(comp.attr("id"), comp_doc.body);
+                            var derived_bottom = getParentOffsetBottom(comp.attr("id"), right_doc.body);
                             if (derived_bottom >= 0) {
                                 derived_bottom += (derived_iframe_container_top - svg_container_top);
                                 y_bottom_right = derived_bottom;
@@ -989,7 +1015,7 @@ jQuery(document).ready(function ($) {
 
                         // calcuate y_top_left and y_bottom_left
                         if ($(source_element).attr('class') && $(source_element).attr('class').indexOf("fb-display-none") >= 0) {
-                            var source_bottom = getParentOffsetBottom($(source_element).attr("id"), base_doc.body);
+                            var source_bottom = getParentOffsetBottom($(source_element).attr("id"), left_doc.body);
                             if (source_bottom >= 0) {
                                 source_bottom += (source_iframe_container_top - svg_container_top);
                                 y_top_left = source_bottom;
@@ -1020,9 +1046,15 @@ jQuery(document).ready(function ($) {
                             polygon.setAttribute("points", points);
                             polygon.setAttribute("id", comp.attr('id'));
                             //polygon.setAttribute("source_mce_id", source_mce_id);
-                            var x = source_element.innerHTML;
-                            var y = comp.html();
-                            if (source_element.innerHTML == comp.html()) {
+
+                            var s_clone = $(source_element).clone();
+                            var d_clone = comp.clone();
+
+                            var source_clean = unwrapDeleteInsertTag(s_clone);
+                            var comp_clean = unwrapDeleteInsertTag(d_clone);
+
+                            //if (source_element.innerHTML == comp.html()) {
+                            if (source_clean == comp_clean) {
                                 polygon.setAttribute("fill", "green");
                             }
                             else {
@@ -1037,7 +1069,7 @@ jQuery(document).ready(function ($) {
                             }, function () {
                                 $(polygon).css("opacity", 0.2);
                             });
-                            document.getElementById('fb-svg-mid-column').appendChild(polygon);
+                            document.getElementById(svg_column_id).appendChild(polygon);
                         }
                     }
                 }
