@@ -115,32 +115,47 @@ margin: 30px;
 
 /* html diff */
 span.insert {
-    background-color: #fcf7af;
 }
 
 span.delete {
     text-decoration: line-through;
-    opacity: 0.7;
+    opacity: 0.6;
 }
 
 span.insert-ss {
+    background-color: #cefbcc;
 }
 
 span.insert-sd {
+    background-color: #faee3d;
 }
 
 span.delete-ss {
+    background-color: #cefbcc;
 }
 
 span.delete-sd {
+    background-color: #faee3d;
 }
 
-span.insert-highlight {
+span.insert-highlight-ss {
+    background-color: #9cfb98;
+}
+
+span.insert-highlight-sd {
     background-color: #f7e113;
 }
 
-span.delete-highlight {
+span.delete-highlight-ss {
     text-decoration: line-through;
     opacity: 1;
     font-weight: bold;
+    background-color: #9cfb98;
+}
+
+span.delete-highlight-sd {
+    text-decoration: line-through;
+    opacity: 1;
+    font-weight: bold;
+    background-color: #f7e113;
 }

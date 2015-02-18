@@ -884,47 +884,58 @@ jQuery(document).ready(function ($) {
                     var derive_bookmark;
                     if (comp_type == 'source_derive') derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); // use a non-html bookmark
 
-                    var source_element = base_doc.getElementById(source_id);
-                    if (source_element) {
+                    var base = base_doc.getElementById(source_id);
+                    if (base) {
                         //var derive_clean = comp.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
                         //var derive_html = derive_clean.html();
                         var derive_html = unwrapDeleteInsertTagjQuery(comp);
 
-                        var source_html = $(source_element).html();
+                        var source_html = $(base).html();
 
 
                         if (source_html != derive_html) {
-                            // derive element
+                            // comp element
                             var r1 = html_diff(source_html, derive_html, 'insert'); 
                             comp.html(r1);
 
-                            // source element
+                            if (comp_type == 'source_derive') {
+                                $(comp).find('span.insert').each(function () {
+                                    $(this).addClass('insert-sd');
+                                });
+                            }
+                            else if (comp_type == 'source_source') {
+                                $(comp).find('span.insert').each(function () {
+                                    $(this).addClass('insert-ss');
+                                });
+                            }
+
+                            // base element
                             var r2 = html_diff(source_html, derive_html, 'delete');
-                            $(source_element).html(r2);
+                            $(base).html(r2);
 
                             if (comp_type == 'source_derive') {
-                                $(source_element).find('span.delete').each(function () {
-                                    console.log("$(this).hasClass('delete-ss') == " + $(this).hasClass('delete-ss'));
+                                $(base).find('span.delete').each(function () {
                                     if ($(this).hasClass('delete-ss') == false) {
                                         $(this).addClass('delete-sd');
                                     }
                                 });
                             }
                             else if (comp_type == 'source_source') {
-                                $(source_element).find('span.delete').each(function () {
-                                    console.log("$(this).hasClass('delete-sd') == " + $(this).hasClass('delete-sd'));
+                                $(base).find('span.delete').each(function () {
                                     if ($(this).hasClass('delete-sd') == false) {
                                         $(this).addClass('delete-ss');
                                     }
                                 });
                             }
+
+                            //console.log($(base).prop('outerHTML'));
                         }
                         else if (source_html == derive_html) {
                             // derive element
                             comp.html(derive_html);
 
                             // source element
-                            $(source_element).html(source_html);
+                            $(base).html(source_html);
                         }
                     }
                     else {
@@ -1097,35 +1108,27 @@ jQuery(document).ready(function ($) {
                                 console.log('..............hover..............');
 
                                 if (comp_type == 'source_derive') {                                   
-                                    $(left).find('span.delete-sd').each(function () { $(this).addClass('delete-highlight'); });
+                                    $(left).find('span.delete-sd').each(function () { $(this).addClass('delete-highlight-sd'); });
 
-                                    right.find('span.insert').each(function () { $(this).addClass('insert-highlight'); });
+                                    right.find('span.insert').each(function () { $(this).addClass('insert-highlight-sd'); });
                                 }
                                 else if (comp_type == 'source_source') {
-                                    $(left).find('span.insert').each(function () { $(this).addClass('insert-highlight'); });
+                                    $(left).find('span.insert').each(function () { $(this).addClass('insert-highlight-ss'); });
 
-                                    right.find('span.delete-ss').each(function () { $(this).addClass('delete-highlight'); });
+                                    right.find('span.delete-ss').each(function () { $(this).addClass('delete-highlight-ss'); });
                                 }
 
-                                /*
-                                $(left).find('span.insert').each(function () { $(this).addClass('insert-highlight'); });
-                                $(left).find('span.delete').each(function () { $(this).addClass('delete-highlight'); });
-
-                                right.find('span.insert').each(function () { $(this).addClass('insert-highlight'); });
-                                right.find('span.delete').each(function () { $(this).addClass('delete-highlight'); });
-                                */
-
-                                console.log($(left).prop('outerHTML'));
-                                console.log($(right).prop('outerHTML'));
+                                //console.log($(left).prop('outerHTML'));
+                                //console.log($(right).prop('outerHTML'));
 
                             }, function () {
                                 $(polygon).css("opacity", 0.2);
 
-                                $(left).find('span.insert').each(function () { $(this).removeClass('insert-highlight'); });
-                                $(left).find('span.delete').each(function () { $(this).removeClass('delete-highlight'); });
+                                $(left).find('span.insert').each(function () { $(this).removeClass('insert-highlight-ss insert-highlight-sd'); });
+                                $(left).find('span.delete').each(function () { $(this).removeClass('delete-highlight-ss delete-highlight-sd'); });
 
-                                right.find('span.insert').each(function () { $(this).removeClass('insert-highlight'); });
-                                right.find('span.delete').each(function () { $(this).removeClass('delete-highlight'); });
+                                right.find('span.insert').each(function () { $(this).removeClass('insert-highlight-ss insert-highlight-sd'); });
+                                right.find('span.delete').each(function () { $(this).removeClass('delete-highlight-ss delete-highlight-sd'); });
                             });
                             document.getElementById(svg_column_id).appendChild(polygon);
                         }
