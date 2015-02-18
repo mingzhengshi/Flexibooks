@@ -8,7 +8,6 @@ jQuery(document).ready(function ($) {
     var derived_mce_init_done = false;
     var source_mce_init_count = 0;
     var previous_source_revisions = []; // list of previous source revisions for merge
-    var columns_of_editors = 2;
 
     var tab_counter = 0;
     var tab_template = "<li id='#{id}'><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
@@ -38,8 +37,10 @@ jQuery(document).ready(function ($) {
         $tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
         var $selected = $("#fb-tabs-sources ul>li a").eq($tabIndex).attr('href');
 
+        setupOldSourceMce();
         update();
     });
+
 
 
     //----------------------------------------------------------------------------------------
@@ -250,13 +251,13 @@ jQuery(document).ready(function ($) {
 
     $("#fb-button-show-previous-source").button().click(function () {
         if ($(this).attr('value') == "Show Previous Source") {
-            columns_of_editors = 3;
+            flexibook.columns_of_editors = 3;
             $(this).attr('value', 'Hide Previous Source');
-            var table = $('#fb-table-derive-document-editors');
 
+            var table = $('#fb-table-derive-document-editors');
             table.find('tr').each(function () {
                 $(this).find('td').eq(0).after('<td id="fb-td-merge-mid-column"><svg id="fb-svg-merge-mid-column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/></svg></td>');
-                $(this).find('td').eq(1).after('<td id="fb-td-old-source-mce" style="vertical-align:top"><h3 style="margin-bottom:8px">Source Document</h3><div id="fb-div-old-source-mce"></div></td>');
+                $(this).find('td').eq(1).after('<td id="fb-td-old-source-mce" style="vertical-align:top"><h3 id="fb-old-source-heading" style="margin-bottom:8px">Source Document</h3><div id="fb-div-old-source-mce"></div></td>');
             });
 
             table.find('colgroup').each(function () {
@@ -272,15 +273,28 @@ jQuery(document).ready(function ($) {
             $("#fb-div-old-source-mce").append("<textarea id='fb-old-source-mce' style='height:600px'></textarea>");
             tinymce.execCommand('mceAddEditor', false, 'fb-old-source-mce');
 
+            setupOldSourceMce();
+
+            update();
+        }
+    });
+    $("#fb-button-show-previous-source").prop('disabled', true);
+
+    function setupOldSourceMce() {
+        if (flexibook.columns_of_editors == 3) {
+            var old_mce = tinymce.get('fb-old-source-mce');
+
             // get active tab id
             var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
             if (typeof tab_id == typeof undefined || tab_id == null) return;
             var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
-
             var source_mce = tinymce.get(source_mce_id);
-            var old_mce = tinymce.get('fb-old-source-mce');
-
             var post_id = source_mce.post_id;
+
+            var revision_date = getSourceRevisionDate(post_id);
+            if (revision_date == null) revision_date = 'latest';
+            $('#fb-old-source-heading').html('Source Document (' + revision_date + ')');
+
             var old_content = getSourceRevisionContent(post_id);
             if (old_content != null) {
                 old_mce.setContent(old_content);
@@ -289,11 +303,8 @@ jQuery(document).ready(function ($) {
                 var content = source_mce.getContent();
                 old_mce.setContent(content);
             }
-
-            update();
         }
-    });
-    $("#fb-button-show-previous-source").prop('disabled', true);
+    }
 
     function getSourcePostInit(post_id, total) {
         $.post(ajaxurl,
@@ -365,6 +376,15 @@ jQuery(document).ready(function ($) {
         for (var i = 0; i < previous_source_revisions.length; i++) {
             if (previous_source_revisions[i].post_id == post_id) {
                 return previous_source_revisions[i].post_content;
+            }
+        }
+        return null;
+    }
+
+    function getSourceRevisionDate(post_id) {
+        for (var i = 0; i < previous_source_revisions.length; i++) {
+            if (previous_source_revisions[i].post_id == post_id) {
+                return previous_source_revisions[i].post_modified;
             }
         }
         return null;
@@ -835,10 +855,10 @@ jQuery(document).ready(function ($) {
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
         var source_doc = tinymce.get(source_mce_id).getDoc();
 
-        if (columns_of_editors == 2) {
+        if (flexibook.columns_of_editors == 2) {
             updateHTMLDiffColumn(source_doc, derived_doc, 'source_derive', true);
         }
-        else if (columns_of_editors == 3) {
+        else if (flexibook.columns_of_editors == 3) {
             var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
 
             updateHTMLDiffColumn(old_source_doc, derived_doc, 'source_derive', true);
@@ -981,10 +1001,10 @@ jQuery(document).ready(function ($) {
         var source_mce = tinymce.get(source_mce_id);
         var source_doc = source_mce.getDoc();
 
-        if (columns_of_editors == 2) {
+        if (flexibook.columns_of_editors == 2) {
             updateSVGColumn(source_doc, derived_doc, 'source_derive', 'fb-svg-mid-column');
         }
-        else if (columns_of_editors == 3) {
+        else if (flexibook.columns_of_editors == 3) {
             var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
 
             // first column

@@ -1,6 +1,7 @@
 ﻿var Flexibook = (function () {
     function Flexibook() {
         this.name = "fb";
+        this.columns_of_editors = 2;
         this.deriveMceInitCallback = {};
         this.mergeIconClickCallback = {};
     }
