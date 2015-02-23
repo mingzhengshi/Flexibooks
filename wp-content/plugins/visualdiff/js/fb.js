@@ -3,11 +3,16 @@
         this.name = "fb";
         this.columns_of_editors = 2;
         this.deriveMceInitCallback = {};
+        this.showPreviousSourceIconClickCallback = {};
         this.mergeIconClickCallback = {};
     }
 
     Flexibook.prototype.regDeriveMceInitCallback = function (callback) {
         this.deriveMceInitCallback = callback;
+    };
+
+    Flexibook.prototype.regShowPreviousSourceIconClickCallback = function (callback) {
+        this.showPreviousSourceIconClickCallback = callback;
     };
 
     Flexibook.prototype.regMergeIconClickCallback = function (callback) {

@@ -135,7 +135,7 @@ jQuery(document).ready(function ($) {
                 var moreIconID = 'more-' + $(node).attr('id');
                 var noIconID = 'mnon-' + $(node).attr('id');
 
-                createMergeIcon(moreIconID, top, width - 50, '&#8681', mcase, "Three-column view");
+                createMergeIcon(moreIconID, top, width - 50, 'III', mcase, "Show previous source (three-column view)");
                 createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
             }
             else if (mcase == 5) {
@@ -402,6 +402,11 @@ jQuery(document).ready(function ($) {
                 else if (this_icon.html().charCodeAt() == '9655') {
                     insertContent(targetID);
                 }
+                // click the show previous source button
+                else if (this_icon.html() == 'III') {
+                    var callback = flexibook.showPreviousSourceIconClickCallback;
+                    if (callback) callback();
+                }
                 // click the merge button
                 else if (isMergeIcons(this_icon)) {
                     var mcase = this_icon.prop('data-mcase');
@@ -440,7 +445,7 @@ jQuery(document).ready(function ($) {
         function isMergeIcons(this_icon) {
             if ((this_icon.html().charCodeAt() == '10003') ||
                 (this_icon.html().charCodeAt() == '10007') ||
-                (this_icon.html().charCodeAt() == '8681') ||
+                (this_icon.html() == 'III') ||
                 (this_icon.html().charCodeAt() == '8680')) {
                 return true;
             }

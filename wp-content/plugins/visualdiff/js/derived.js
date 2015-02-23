@@ -250,9 +250,15 @@ jQuery(document).ready(function ($) {
     });
 
     $("#fb-button-show-previous-source").button().click(function () {
-        if ($(this).attr('value') == "Show Previous Source") {
+        showPreviousSource();
+    });
+    $("#fb-button-show-previous-source").prop('disabled', true);
+
+    function showPreviousSource() {
+        var this_button = $("#fb-button-show-previous-source");
+        if (this_button.attr('value') == "Show Previous Source") {
             flexibook.columns_of_editors = 3;
-            $(this).attr('value', 'Hide Previous Source');
+            this_button.attr('value', 'Hide Previous Source');
 
             var table = $('#fb-table-derive-document-editors');
             table.find('tr').each(function () {
@@ -277,8 +283,11 @@ jQuery(document).ready(function ($) {
 
             update();
         }
+    }
+
+    flexibook.regShowPreviousSourceIconClickCallback(function () {
+        showPreviousSource();
     });
-    $("#fb-button-show-previous-source").prop('disabled', true);
 
     function setupOldSourceMce() {
         if (flexibook.columns_of_editors == 3) {
