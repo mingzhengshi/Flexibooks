@@ -128,23 +128,23 @@ jQuery(document).ready(function ($) {
                 var yesIconID = 'myes-' + $(node).attr('id');
                 var noIconID = 'mnon-' + $(node).attr('id');
 
-                createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase);
-                createMergeIcon(noIconID, top, width, '&#10007', mcase);
+                createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase, "Accept the change in source document");
+                createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
             }
             else if (mcase == 3) {
                 var moreIconID = 'more-' + $(node).attr('id');
                 var noIconID = 'mnon-' + $(node).attr('id');
 
-                createMergeIcon(moreIconID, top, width - 50, '&#8681', mcase);
-                createMergeIcon(noIconID, top, width, '&#10007', mcase);
+                createMergeIcon(moreIconID, top, width - 50, '&#8681', mcase, "Three-column view");
+                createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
             }
             else if (mcase == 5) {
                 var insIconID = 'mins-' + $(node).attr('id');
                 var noIconID = 'mnon-' + $(node).attr('id');
 
                 //createMergeIcon(noIconID, top, width - 100, 'del', mcase);
-                createMergeIcon(insIconID, top, width - 50, '&#8680', mcase);
-                createMergeIcon(noIconID, top, width, '&#10007', mcase);
+                createMergeIcon(insIconID, top, width - 50, '&#8680', mcase, "Insert the new paragraph to derived document");
+                createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore this change");
             }
 
             setupIconEvents();
@@ -366,10 +366,7 @@ jQuery(document).ready(function ($) {
                     $(this).css('cursor', 'pointer');
                     on_icon_hover = true;
 
-                    if (($(this).html().charCodeAt() == '10003') ||
-                        ($(this).html().charCodeAt() == '10007') ||
-                        ($(this).html().charCodeAt() == '8681') ||
-                        ($(this).html().charCodeAt() == '8680')) {
+                    if (isMergeIcons($(this))) {
                         $(this).css('opacity', 1);
                     }
                 },
@@ -378,42 +375,36 @@ jQuery(document).ready(function ($) {
                     $(this).css('cursor', 'text');
                     on_icon_hover = false;
 
-                    if (($(this).html().charCodeAt() == '10003') ||
-                        ($(this).html().charCodeAt() == '10007') ||
-                        ($(this).html().charCodeAt() == '8681') ||
-                        ($(this).html().charCodeAt() == '8680')) {
+                    if (isMergeIcons($(this))) {
                         $(this).css('opacity', 0.3);
                     }
                 }
             );
 
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').click(function () {
-                var targetID = $(this).attr('id').substr(5);
+                var this_icon = $(this);
+                var targetID = this_icon.attr('id').substr(5);
                 if (targetID == null) return;
 
                 // click the minus box: collapse
-                if ($(this).html().charCodeAt() == '8863') {
+                if (this_icon.html().charCodeAt() == '8863') {
                     collapseOrExpand(targetID, true);
 
-                    $(this).html('&#8862');  // switch to plus box
+                    this_icon.html('&#8862');  // switch to plus box
                 }
                 // click the plug box: expand
-                else if ($(this).html().charCodeAt() == '8862') {
+                else if (this_icon.html().charCodeAt() == '8862') {
                     collapseOrExpand(targetID, false);
 
-                    $(this).html('&#8863');  // switch to minus box
+                    this_icon.html('&#8863');  // switch to minus box
                 }
                 // click the push button: add content
-                else if ($(this).html().charCodeAt() == '9655') {
+                else if (this_icon.html().charCodeAt() == '9655') {
                     insertContent(targetID);
                 }
                 // click the merge button
-                else if (($(this).html().charCodeAt() == '10003') ||
-                         ($(this).html().charCodeAt() == '10007') ||
-                         ($(this).html().charCodeAt() == '8681') ||
-                         ($(this).html().charCodeAt() == '8680')) {
-                    var mcase = $(this).attr('title');
-                    var mcase1 = $(this).prop('data-mcase');
+                else if (isMergeIcons(this_icon)) {
+                    var mcase = this_icon.prop('data-mcase');
                     switch (mcase) {
                         case "1":
                         case "3":
@@ -427,16 +418,16 @@ jQuery(document).ready(function ($) {
                             });
 
                             var callback = flexibook.mergeIconClickCallback;
-                            if (callback) callback($(this).html().charCodeAt(), post_id, source_item_id, derive_item_id, $(this).attr('title'));
+                            if (callback) callback(this_icon.html().charCodeAt(), post_id, source_item_id, derive_item_id, mcase);
 
                             break;
                         case "5":
                             var post_id = editor.post_id;
-                            var source_item_id = $(this).attr('id').substr(5);
+                            var source_item_id = this_icon.attr('id').substr(5);
                             var derive_item_id = null;
 
                             var callback = flexibook.mergeIconClickCallback;
-                            if (callback) callback($(this).html().charCodeAt(), post_id, source_item_id, derive_item_id, $(this).attr('title'));
+                            if (callback) callback(this_icon.html().charCodeAt(), post_id, source_item_id, derive_item_id, mcase);
 
                             break;
                     }
@@ -444,6 +435,16 @@ jQuery(document).ready(function ($) {
 
                 resetIcons();
             });
+        }
+
+        function isMergeIcons(this_icon) {
+            if ((this_icon.html().charCodeAt() == '10003') ||
+                (this_icon.html().charCodeAt() == '10007') ||
+                (this_icon.html().charCodeAt() == '8681') ||
+                (this_icon.html().charCodeAt() == '8680')) {
+                return true;
+            }
+            return false;
         }
 
         function setupDerivedElementID() {
@@ -611,14 +612,14 @@ jQuery(document).ready(function ($) {
             editor.getBody().appendChild(icon);
         }
 
-        function createMergeIcon(id, top, left, text, mcase) {
+        function createMergeIcon(id, top, left, text, mcase, title) {
             //text = typeof text !== 'undefined' ? text : '&#8863'; // default parameter
 
             var icon = document.createElement('div');
             icon.className = 'fb_tinymce_left_column_icon';
             icon.id = id;
             icon['data-mcase'] = mcase; 
-            icon.title = mcase; // ms - temp
+            icon.title = title; // ms - temp
             icon.innerHTML = text;
             icon.style.position = 'absolute';
             icon.style.top = top + 'px';

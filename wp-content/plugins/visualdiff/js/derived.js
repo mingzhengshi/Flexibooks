@@ -509,6 +509,9 @@ jQuery(document).ready(function ($) {
                                     }
                                 }
                                 */
+
+                                n_this.attr('data-merge-case', 5);
+                                n_this.css('background-color', 'lightgreen');
                             }
 
 
