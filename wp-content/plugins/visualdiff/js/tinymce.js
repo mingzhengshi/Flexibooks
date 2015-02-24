@@ -23,32 +23,31 @@ jQuery(document).ready(function ($) {
                 if (callback) callback();
             }
 
-            resetIcons();
+            update();
         });
 
         editor.on('SetContent', function () {
-            //var callback = flexibook.mceSetContentCallback;
-            //if (callback) callback();
 
-            resetIcons();
+            update();
         });
 
         editor.on('change', function (e) {
             //console.log('change event', e);
             setupDerivedElementID();
-            resetIcons();
+
+            update();
         });
 
         editor.on('PostProcess', function (e) {
-            resetIcons();
+            update();
         });
 
         editor.on('activate', function (e) {
-            resetIcons();
+            update();
         });
 
         editor.on('focus', function (e) {
-            resetIcons();
+            update();
         });
 
         editor.on('cut', function (e) {
@@ -130,7 +129,7 @@ jQuery(document).ready(function ($) {
             var height = $(node).height();
             var top = offset.top - 22 + height / 2;
             var width = $(editor.getBody()).width();
-            
+
             if (mcase == 1) {
                 var yesIconID = 'myes-' + $(node).attr('id');
                 var noIconID = 'mnon-' + $(node).attr('id');
@@ -231,7 +230,7 @@ jQuery(document).ready(function ($) {
                     });
                     copied_content = cont;
                 }
-                // one paragraphs or part of one paragraph has been selected
+                    // one paragraphs or part of one paragraph has been selected
                 else {
                     copied_mode = "single";
                     var node = $(copied_node).clone();
@@ -327,7 +326,13 @@ jQuery(document).ready(function ($) {
             return false;
         }
 
-        // functions
+        function update() {
+            var callback = flexibook.deriveUpdateCallback;
+            if (callback) callback();
+
+            resetIcons();
+        }
+
         function resetIcons() {
             $(editor.getBody()).find('.fb_tinymce_left_column').remove();
             var left_column = document.createElement('div');
@@ -405,27 +410,27 @@ jQuery(document).ready(function ($) {
 
                     this_icon.html('&#8862');  // switch to plus box
                 }
-                // click the plug box: expand
+                    // click the plug box: expand
                 else if (this_icon.html().charCodeAt() == '8862') {
                     collapseOrExpand(targetID, false);
 
                     this_icon.html('&#8863');  // switch to minus box
                 }
-                // click the push button: add content
+                    // click the push button: add content
                 else if (this_icon.html().charCodeAt() == '9655') {
                     insertContent(targetID);
                 }
-                // click the show previous source button
+                    // click the show previous source button
                 else if (this_icon.html() == 'III') {
                     var callback = flexibook.showPreviousSourceIconClickCallback;
                     if (callback) callback();
                 }
-                // click the show previous source button
+                    // click the show previous source button
                 else if (this_icon.html() == 'II') {
                     var callback = flexibook.showPreviousSourceIconClickCallback;
                     if (callback) callback();
                 }
-                // click the merge button
+                    // click the merge button
                 else if (isMergeIcons(this_icon)) {
                     var mcase = this_icon.prop('data-mcase');
                     switch (mcase) {
@@ -456,7 +461,7 @@ jQuery(document).ready(function ($) {
                     }
                 }
 
-                resetIcons();
+                update();
             });
         }
 
@@ -642,7 +647,7 @@ jQuery(document).ready(function ($) {
             var icon = document.createElement('div');
             icon.className = 'fb_tinymce_left_column_icon';
             icon.id = id;
-            icon['data-mcase'] = mcase; 
+            icon['data-mcase'] = mcase;
             icon.title = title; // ms - temp
             icon.innerHTML = text;
             icon.style.position = 'absolute';

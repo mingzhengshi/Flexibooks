@@ -242,8 +242,8 @@ function fb_add_meta_box_derived_document_callback() {
     <input id="fb-input-derived-meta" style="display:none;" name="fb-derived-meta" value="<?php echo htmlentities($derived_meta); ?>" />  
     <tr>
         <td>Source ID</td>
+        <td>Dependent Version</td>
         <td>Current Version</td>
-        <td>Lastest Version</td>
         <td>Merge Requests</td>
     </tr>
 </table>

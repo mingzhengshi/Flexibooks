@@ -30,7 +30,7 @@ jQuery(document).ready(function ($) {
 
         updateSourceTabsInput();
     });
-   
+
     source_tabs.on("tabsactivate", function (event, ui) {
         console.log("tab activate...");
         //var active_tab_id = $(".ui-state-active").attr("id");
@@ -41,12 +41,10 @@ jQuery(document).ready(function ($) {
         update();
     });
 
-
-
     //----------------------------------------------------------------------------------------
     // init
 
-    flexibook.regMceSetContentCallback(function () {
+    flexibook.regDeriveUpdateCallback(function () {
         update();
     });
 
@@ -62,10 +60,10 @@ jQuery(document).ready(function ($) {
         if (opened_source_tabs_ids != null && opened_source_tabs_ids.trim().length > 0) {
             var ids = opened_source_tabs_ids.split(";");
             for (var i = 0; i < ids.length - 1; i++) {
-                getSourcePostInit(ids[i].trim(), ids.length-1);
+                getSourcePostInit(ids[i].trim(), ids.length - 1);
             }
         }
-        
+
         // meta: derived document
         var derived_meta_string = $("#fb-input-derived-meta").val();
         if (derived_meta_string != null && derived_meta_string.trim().length > 0) {
@@ -77,8 +75,6 @@ jQuery(document).ready(function ($) {
 
         derived_mce_init_done = true;
     });
-    //$('#button-show-network-' + this.id).prop('disabled', false);
-
 
     flexibook.regMergeIconClickCallback(function (icon, post_id, s_id, d_id, mcase) {
         var new_doc = null;
@@ -126,15 +122,16 @@ jQuery(document).ready(function ($) {
                     $(derived_doc.body).find("[id]").each(function () {
                         if ($(this).attr('id').trim() == d_id) {
                             $(this).html(new_s_item);
+                            $(this).css('background-color', 'initial');
                             if ($(this).attr('data-merge-case')) {
                                 $(this).removeAttr('data-merge-case');
+                                setNumberOfMergeRequests(post_id, -1);
                             }
-                            $(this).css('background-color', 'initial');
                             return false; // break 
                         }
                     });
                 }
-                // ignore the changes in the new source document
+                    // ignore the changes in the new source document
                 else if (icon == '10007') {
                     // source document
                     $(new_doc.body).find("[id]").each(function () {
@@ -149,19 +146,20 @@ jQuery(document).ready(function ($) {
                     // ms - does not consider multiple ids in one paragraph
                     $(derived_doc.body).find("[id]").each(function () {
                         if ($(this).attr('id').trim() == d_id) {
+                            $(this).css('background-color', 'initial');
                             if ($(this).attr('data-merge-case')) {
                                 $(this).removeAttr('data-merge-case');
+                                setNumberOfMergeRequests(post_id, -1);
                             }
-                            $(this).css('background-color', 'initial');
                             return false; // break 
                         }
-                    });                   
+                    });
                 }
 
                 update();
                 break;
-            // case 3:
-            // source documen is modified; derive document is modified
+                // case 3:
+                // source documen is modified; derive document is modified
             case "3":
                 // show more options 
                 if (icon == '8681') {
@@ -187,14 +185,14 @@ jQuery(document).ready(function ($) {
 
 
                 }
-                
-                
+
+
 
 
                 update();
                 break;
-            // case 5:
-            // add item in source document; section exists in derived document
+                // case 5:
+                // add item in source document; section exists in derived document
             case "5":
                 // source document
                 if (icon == '8680') {
@@ -211,10 +209,11 @@ jQuery(document).ready(function ($) {
                                         $(clone).css('background-color', 'initial');
                                         if ($(clone).attr('data-merge-case')) {
                                             $(clone).removeAttr('data-merge-case');
+                                            setNumberOfMergeRequests(post_id, -1);
                                         }
                                         //$(clone).insertAfter("#" + $(this).attr('id'));
                                         var outer = $(this).prop('outerHTML') + $(clone).prop('outerHTML');
-                                        $(this).prop('outerHTML', outer); 
+                                        $(this).prop('outerHTML', outer);
                                         found = true;
                                         return false;
                                     }
@@ -228,19 +227,21 @@ jQuery(document).ready(function ($) {
                             $(this).css('background-color', 'initial');
                             if ($(this).attr('data-merge-case')) {
                                 $(this).removeAttr('data-merge-case');
+                                setNumberOfMergeRequests(post_id, -1);
                             }
 
                             return false; // break 
                         }
                     });
                 }
-                // ignore the changes in the new source document
+                    // ignore the changes in the new source document
                 else if (icon == '10007') {
                     $(new_doc.body).find("[id]").each(function () {
                         if ($(this).attr('id').trim() == s_id) {
                             $(this).css('background-color', 'initial');
                             if ($(this).attr('data-merge-case')) {
                                 $(this).removeAttr('data-merge-case');
+                                setNumberOfMergeRequests(post_id, -1);
                             }
 
                             return false; // break 
@@ -329,7 +330,7 @@ jQuery(document).ready(function ($) {
 
             var revision_date = getSourceRevisionDate(post_id);
             if (revision_date == null) revision_date = 'latest';
-            $('#fb-old-source-heading').html('Source Document (' + revision_date + ')');
+            $('#fb-old-source-heading').html('Dependent Source (' + revision_date + ')');
 
             var old_content = getSourceRevisionContent(post_id);
             if (old_content != null) {
@@ -373,8 +374,8 @@ jQuery(document).ready(function ($) {
         if (!meta_source_versions || meta_source_versions.length <= 0) return;
 
         for (var i = 0; i < meta_source_versions.length; i++) {
-            if (meta_source_versions[i].source_post_current_modified != meta_source_versions[i].source_post_latest_modified) {
-                getSourcePostRevision(meta_source_versions[i].source_post_id, meta_source_versions[i].source_post_current_modified);
+            if (meta_source_versions[i].source_post_previous_version != meta_source_versions[i].source_post_current_version) {
+                getSourcePostRevision(meta_source_versions[i].source_post_id, meta_source_versions[i].source_post_previous_version);
                 $("#fb-button-show-previous-source").prop('disabled', false);
             }
         }
@@ -481,11 +482,13 @@ jQuery(document).ready(function ($) {
                                             if (derive_element.trim() == old_element.trim()) {
                                                 $(this).attr('data-merge-case', 1);
                                                 $(this).css('background-color', 'lightpink');
+                                                setNumberOfMergeRequests(post_id, 1);
                                             }
-                                            // merge case 3:
+                                                // merge case 3:
                                             else {
                                                 $(this).attr('data-merge-case', 3);
                                                 $(this).css('background-color', 'lightpink');
+                                                setNumberOfMergeRequests(post_id, 1);
                                             }
 
                                             return false; // break each function
@@ -512,6 +515,7 @@ jQuery(document).ready(function ($) {
                                             if (p_exist) {
                                                 n_this.attr('data-merge-case', 5);
                                                 n_this.css('background-color', 'lightgreen');
+                                                setNumberOfMergeRequests(post_id, 1);
                                             }
                                         }
                                     }
@@ -546,8 +550,10 @@ jQuery(document).ready(function ($) {
                                 }
                                 */
 
+                                // merge case 5:
                                 n_this.attr('data-merge-case', 5);
                                 n_this.css('background-color', 'lightgreen');
+                                setNumberOfMergeRequests(post_id, 1);
                             }
 
 
@@ -559,6 +565,17 @@ jQuery(document).ready(function ($) {
                 break;
             }
         };
+    }
+
+    function setNumberOfMergeRequests(post_id, value) {
+        if (!meta_source_versions || meta_source_versions.length <= 0) return;
+
+        for (var j = 0; j < meta_source_versions.length; j++) {
+            if (post_id == meta_source_versions[j].source_post_id) {
+                meta_source_versions[j]['number_of_merges'] += value;
+                break;
+            }
+        }
     }
 
     function getParentID(body, id) {
@@ -718,7 +735,7 @@ jQuery(document).ready(function ($) {
         modal: true,
         height: "auto",
         width: 1600,
-        open: function (event, ui) {          
+        open: function (event, ui) {
         },
         close: function () {
             //tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-top-source");
@@ -758,7 +775,7 @@ jQuery(document).ready(function ($) {
             $(".ui-selected", this).each(function () {
                 var post_id = $(this).attr("source-post-id");
                 selected_sources.push(post_id);
-            });           
+            });
         }
     });
 
@@ -786,16 +803,16 @@ jQuery(document).ready(function ($) {
                     meta_source_versions.pop();
                 }
             }
-            
+
             for (var i = 0; i < post_ids.length; i++) {
                 var post_ids_exist = false;
                 for (var j = 0; j < meta_source_versions.length; j++) {
                     if (post_ids[i] == meta_source_versions[j].source_post_id) {
-                        
+
                         // ms - not yet consider the source editors have been closed 
                         for (var t = 0; t < tinymce.editors.length; t++) {
                             if (tinymce.editors[t].post_id == post_ids[i]) {
-                                meta_source_versions[j]['source_post_latest_modified'] = tinymce.editors[t].post_modified;
+                                meta_source_versions[j]['source_post_current_version'] = tinymce.editors[t].post_modified;
                                 break;
                             }
                         };
@@ -835,9 +852,9 @@ jQuery(document).ready(function ($) {
             var cell3 = row.insertCell(2);
             var cell4 = row.insertCell(3);
             cell1.innerHTML = meta_source_versions[i].source_post_id;
-            cell2.innerHTML = meta_source_versions[i].source_post_current_modified;
-            cell3.innerHTML = meta_source_versions[i].source_post_latest_modified;
-            cell4.innerHTML = "";
+            cell2.innerHTML = meta_source_versions[i].source_post_previous_version;
+            cell3.innerHTML = meta_source_versions[i].source_post_current_version;
+            cell4.innerHTML = meta_source_versions[i].number_of_merges;
         }
 
         if (table.rows.length > 1) {
@@ -853,12 +870,13 @@ jQuery(document).ready(function ($) {
     function createNewDeriveMetaObject(post_id) {
         var obj = new Object();
         obj['source_post_id'] = post_id;
+        obj['number_of_merges'] = 0;
 
         // ms - not yet consider the source editors have been closed 
         for (var j = 0; j < tinymce.editors.length; j++) {
             if (tinymce.editors[j].post_id == post_id) {
-                obj['source_post_current_modified'] = tinymce.editors[j].post_modified;
-                obj['source_post_latest_modified'] = tinymce.editors[j].post_modified;
+                obj['source_post_previous_version'] = tinymce.editors[j].post_modified;
+                obj['source_post_current_version'] = tinymce.editors[j].post_modified;
                 break;
             }
         };
@@ -906,7 +924,7 @@ jQuery(document).ready(function ($) {
         }
     }
 
-    function updateHTMLDiffColumn(base_doc, comp_doc, comp_type, clean_base) {     
+    function updateHTMLDiffColumn(base_doc, comp_doc, comp_type, clean_base) {
         // firstly clean base document
         if (clean_base) {
             $(base_doc.body).children().each(function (index) {
@@ -954,7 +972,7 @@ jQuery(document).ready(function ($) {
 
                         if (source_html != derive_html) {
                             // comp element
-                            var r1 = html_diff(source_html, derive_html, 'insert'); 
+                            var r1 = html_diff(source_html, derive_html, 'insert');
                             comp.html(r1);
 
                             if (comp_type == 'source_derive') {
@@ -1021,7 +1039,7 @@ jQuery(document).ready(function ($) {
                         comp.html(newHtml);
 
                         // restore the selection bookmark
-                        if (comp_type == 'source_derive') tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark); 
+                        if (comp_type == 'source_derive') tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark);
                     }
                 }
 
@@ -1029,7 +1047,7 @@ jQuery(document).ready(function ($) {
             }
         });
     }
-    
+
     function updateSVG() {
         var derived_doc = tinymce.get('fb-derived-mce').getDoc();
 
@@ -1166,7 +1184,7 @@ jQuery(document).ready(function ($) {
 
                                 console.log('..............hover..............');
 
-                                if (comp_type == 'source_derive') {                                   
+                                if (comp_type == 'source_derive') {
                                     $(left).find('span.delete-sd').each(function () { $(this).addClass('delete-highlight-sd'); });
 
                                     right.find('span.insert').each(function () { $(this).addClass('insert-highlight-sd'); });
@@ -1343,10 +1361,10 @@ jQuery(document).ready(function ($) {
         // 3. source top
         addTinyMceEditor("#fb-merge-mce-top-source");
         var source_post_id = $(derive_element_top).attr('data-source-post-id');
-        var source_post_current_modified = null;
+        var source_post_previous_version = null;
         for (var i = 0; i < meta_source_versions.length; i++) {
             if (source_post_id == meta_source_versions[i].source_post_id) {
-                source_post_current_modified = meta_source_versions[i].source_post_current_modified;
+                source_post_previous_version = meta_source_versions[i].source_post_previous_version;
                 break;
             }
         }
@@ -1354,7 +1372,7 @@ jQuery(document).ready(function ($) {
         var source_top_outerhtml = '';
 
         // the source post has been modified
-        if (source_post_current_modified != null) {
+        if (source_post_previous_version != null) {
             for (var i = 0; i < previous_source_revisions.length; i++) {
                 if (previous_source_revisions[i].post_id == source_post_id) {
                     var old_mce = tinymce.get("fb-invisible-editor");
@@ -1372,7 +1390,7 @@ jQuery(document).ready(function ($) {
                 }
             }
         }
-        // the source post does not change: the same as new source element
+            // the source post does not change: the same as new source element
         else {
             source_top_outerhtml = $(source_element_bottom).prop('outerHTML');
         }
@@ -1478,7 +1496,7 @@ jQuery(document).ready(function ($) {
     function removeAllEditor() {
         var length = tinymce.editors.length;
         for (var i = length; i > 0; i--) {
-            tinymce.execCommand('mceRemoveEditor', false, tinymce.editors[i-1].id);
+            tinymce.execCommand('mceRemoveEditor', false, tinymce.editors[i - 1].id);
         };
     }
 });

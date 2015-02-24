@@ -2,10 +2,12 @@
     function Flexibook() {
         this.name = "fb";
         this.columns_of_editors = 2;
+
+        // callbacks
         this.deriveMceInitCallback = {};
         this.showPreviousSourceIconClickCallback = {};
         this.mergeIconClickCallback = {};
-        this.mceSetContentCallback = {};
+        this.deriveUpdateCallback = {};
     }
 
     Flexibook.prototype.regDeriveMceInitCallback = function (callback) {
@@ -20,8 +22,8 @@
         this.mergeIconClickCallback = callback;
     };
 
-    Flexibook.prototype.regMceSetContentCallback = function (callback) {
-        this.mceSetContentCallback = callback;
+    Flexibook.prototype.regDeriveUpdateCallback = function (callback) {
+        this.deriveUpdateCallback = callback;
     };
 
     Flexibook.prototype.print = function () {
