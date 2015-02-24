@@ -46,6 +46,10 @@ jQuery(document).ready(function ($) {
     //----------------------------------------------------------------------------------------
     // init
 
+    flexibook.regMceSetContentCallback(function () {
+        update();
+    });
+
     flexibook.regDeriveMceInitCallback(function () {
         if (derived_mce_init_done == true) return;
 
@@ -250,11 +254,15 @@ jQuery(document).ready(function ($) {
     });
 
     $("#fb-button-show-previous-source").button().click(function () {
-        showPreviousSource();
+        togglePreviousSource();
     });
     $("#fb-button-show-previous-source").prop('disabled', true);
 
-    function showPreviousSource() {
+    flexibook.regShowPreviousSourceIconClickCallback(function () {
+        togglePreviousSource();
+    });
+
+    function togglePreviousSource() {
         var this_button = $("#fb-button-show-previous-source");
         if (this_button.attr('value') == "Show Previous Source") {
             flexibook.columns_of_editors = 3;
@@ -283,11 +291,30 @@ jQuery(document).ready(function ($) {
 
             update();
         }
-    }
+        else if (this_button.attr('value') == "Hide Previous Source") {
+            flexibook.columns_of_editors = 2;
+            this_button.attr('value', 'Show Previous Source');
 
-    flexibook.regShowPreviousSourceIconClickCallback(function () {
-        showPreviousSource();
-    });
+            var table = $('#fb-table-derive-document-editors');
+
+            tinymce.execCommand('mceRemoveEditor', false, 'fb-old-source-mce');
+
+            table.find('tr').each(function () {
+                $(this).find('td').eq(2).remove();
+                $(this).find('td').eq(1).remove();
+            });
+
+            table.find('colgroup').each(function () {
+                $(this).empty();
+                $(this).append('<col span="1" style="width: 49%;">');
+                $(this).append('<col span="1" style="width: 2%;">');
+                $(this).append('<col span="1" style="width: 49%;">');
+                return false;
+            });
+
+            update();
+        }
+    }
 
     function setupOldSourceMce() {
         if (flexibook.columns_of_editors == 3) {

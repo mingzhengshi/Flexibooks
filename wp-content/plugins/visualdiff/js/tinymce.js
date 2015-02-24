@@ -26,6 +26,13 @@ jQuery(document).ready(function ($) {
             resetIcons();
         });
 
+        editor.on('SetContent', function () {
+            //var callback = flexibook.mceSetContentCallback;
+            //if (callback) callback();
+
+            resetIcons();
+        });
+
         editor.on('change', function (e) {
             //console.log('change event', e);
             setupDerivedElementID();
@@ -133,9 +140,15 @@ jQuery(document).ready(function ($) {
             }
             else if (mcase == 3) {
                 var moreIconID = 'more-' + $(node).attr('id');
+                var mlesIconID = 'mles-' + $(node).attr('id');
                 var noIconID = 'mnon-' + $(node).attr('id');
 
-                createMergeIcon(moreIconID, top, width - 50, 'III', mcase, "Show previous source (three-column view)");
+                if (flexibook.columns_of_editors == 2) {
+                    createMergeIcon(moreIconID, top, width - 50, 'III', mcase, "Show previous source (three-column view)");
+                }
+                else if (flexibook.columns_of_editors == 3) {
+                    createMergeIcon(mlesIconID, top, width - 50, 'II', mcase, "Hide previous source (two-column view)");
+                }
                 createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
             }
             else if (mcase == 5) {
@@ -407,6 +420,11 @@ jQuery(document).ready(function ($) {
                     var callback = flexibook.showPreviousSourceIconClickCallback;
                     if (callback) callback();
                 }
+                // click the show previous source button
+                else if (this_icon.html() == 'II') {
+                    var callback = flexibook.showPreviousSourceIconClickCallback;
+                    if (callback) callback();
+                }
                 // click the merge button
                 else if (isMergeIcons(this_icon)) {
                     var mcase = this_icon.prop('data-mcase');
@@ -446,6 +464,7 @@ jQuery(document).ready(function ($) {
             if ((this_icon.html().charCodeAt() == '10003') ||
                 (this_icon.html().charCodeAt() == '10007') ||
                 (this_icon.html() == 'III') ||
+                (this_icon.html() == 'II') ||
                 (this_icon.html().charCodeAt() == '8680')) {
                 return true;
             }

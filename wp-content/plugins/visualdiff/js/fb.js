@@ -5,6 +5,7 @@
         this.deriveMceInitCallback = {};
         this.showPreviousSourceIconClickCallback = {};
         this.mergeIconClickCallback = {};
+        this.mceSetContentCallback = {};
     }
 
     Flexibook.prototype.regDeriveMceInitCallback = function (callback) {
@@ -17,6 +18,10 @@
 
     Flexibook.prototype.regMergeIconClickCallback = function (callback) {
         this.mergeIconClickCallback = callback;
+    };
+
+    Flexibook.prototype.regMceSetContentCallback = function (callback) {
+        this.mceSetContentCallback = callback;
     };
 
     Flexibook.prototype.print = function () {
