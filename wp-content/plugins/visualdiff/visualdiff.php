@@ -393,7 +393,7 @@ function fb_save_document($postid, $post){
     global $_POST;
     // set the ID to the parent post, not the revision
     //$postid = (wp_is_post_revision( $postid )) ? wp_is_post_revision( $post ) : $postid;
-    
+
     if ($post->post_type == 'derived') {
         update_post_meta($postid, "_fb-derived-mce", $_POST["fb-derived-mce"]); // save the data
         //update_post_meta($postid, "_fb-derived-mce-version-1", "test");

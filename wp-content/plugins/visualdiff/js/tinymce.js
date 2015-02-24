@@ -327,8 +327,13 @@ jQuery(document).ready(function ($) {
         }
 
         function update() {
-            var callback = flexibook.deriveUpdateCallback;
-            if (callback) callback();
+            /*
+            // flexibook only init in derived document
+            if (flexibook) {
+                var callback = flexibook.deriveUpdateCallback;
+                if (callback) callback();
+            }
+            */
 
             resetIcons();
         }

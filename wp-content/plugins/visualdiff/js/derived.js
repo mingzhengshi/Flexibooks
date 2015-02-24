@@ -209,7 +209,6 @@ jQuery(document).ready(function ($) {
                                         $(clone).css('background-color', 'initial');
                                         if ($(clone).attr('data-merge-case')) {
                                             $(clone).removeAttr('data-merge-case');
-                                            setNumberOfMergeRequests(post_id, -1);
                                         }
                                         //$(clone).insertAfter("#" + $(this).attr('id'));
                                         var outer = $(this).prop('outerHTML') + $(clone).prop('outerHTML');
@@ -830,6 +829,15 @@ jQuery(document).ready(function ($) {
 
         var meta_source_versions_string = JSON.stringify(meta_source_versions);
         $("#fb-input-derived-meta").val(meta_source_versions_string);
+
+        // update Publish button
+        $("#publish").prop('disabled', false);
+        for (var i = 0; i < meta_source_versions.length; i++) {
+            if (meta_source_versions[i].number_of_merges > 0) {
+                $("#publish").prop('disabled', true);
+                break;
+            }
+        }
 
         // update meta box source versions
         updateMetaBoxSourceVersions();
