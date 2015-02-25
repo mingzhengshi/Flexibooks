@@ -131,17 +131,8 @@ jQuery(document).ready(function ($) {
                         }
                     });
                 }
-                    // ignore the changes in the new source document
+                // ignore the changes in the new source document
                 else if (icon == '10007') {
-                    // source document
-                    $(new_doc.body).find("[id]").each(function () {
-                        if ($(this).attr('id').trim() == s_id) {
-                            //$(this).css('background-color', 'initial');
-
-                            return false; // break 
-                        }
-                    });
-
                     // derive document
                     // ms - does not consider multiple ids in one paragraph
                     $(derived_doc.body).find("[id]").each(function () {
@@ -185,14 +176,25 @@ jQuery(document).ready(function ($) {
 
 
                 }
-
-
-
+                else if (icon == '10007') {
+                    // derive document
+                    // ms - does not consider multiple ids in one paragraph
+                    $(derived_doc.body).find("[id]").each(function () {
+                        if ($(this).attr('id').trim() == d_id) {
+                            $(this).css('background-color', 'initial');
+                            if ($(this).attr('data-merge-case')) {
+                                $(this).removeAttr('data-merge-case');
+                                setNumberOfMergeRequests(post_id, -1);
+                            }
+                            return false; // break 
+                        }
+                    });
+                }
 
                 update();
                 break;
-                // case 5:
-                // add item in source document; section exists in derived document
+            // case 5:
+            // add item in source document; section exists in derived document
             case "5":
                 // source document
                 if (icon == '8680') {
@@ -248,6 +250,27 @@ jQuery(document).ready(function ($) {
                     });
                 }
 
+                update();
+                break;
+            case "6":
+                if (icon == '10003') {
+
+                }
+                // ignore the changes in the new source document
+                else if (icon == '10007') {
+                    // derive document
+                    // ms - does not consider multiple ids in one paragraph
+                    $(derived_doc.body).find("[id]").each(function () {
+                        if ($(this).attr('id').trim() == d_id) {
+                            $(this).css('background-color', 'initial');
+                            if ($(this).attr('data-merge-case')) {
+                                $(this).removeAttr('data-merge-case');
+                                setNumberOfMergeRequests(post_id, -1);
+                            }
+                            return false; // break 
+                        }
+                    });
+                }
                 update();
                 break;
         }
@@ -436,6 +459,7 @@ jQuery(document).ready(function ($) {
                 old_mce.setContent(old_content);
                 var old_doc = old_mce.getDoc();
 
+                // cases 1, 2, 3, 4, 5
                 $(new_doc.body).children().each(function (index) {
                     var n_this = $(this);
                     if (n_this.hasClass("fb_tinymce_left_column") == false && n_this.hasClass("fb_tinymce_left_column_icon") == false) {
@@ -483,7 +507,7 @@ jQuery(document).ready(function ($) {
                                                 $(this).css('background-color', 'lightpink');
                                                 setNumberOfMergeRequests(post_id, 1);
                                             }
-                                                // merge case 3:
+                                            // merge case 3:
                                             else {
                                                 $(this).attr('data-merge-case', 3);
                                                 $(this).css('background-color', 'lightpink');
@@ -561,6 +585,46 @@ jQuery(document).ready(function ($) {
                     }
                 });
 
+                // cases 6, 7, 8
+                $(old_doc.body).children().each(function (index) {
+                    var o_this = $(this);
+                    if (o_this.hasClass("fb_tinymce_left_column") == false && o_this.hasClass("fb_tinymce_left_column_icon") == false) {
+                        var id = o_this.attr('id');
+                        if (id && id != 'none') {
+                            var exist_new_source = false;
+                            var exist_derive = false;
+
+                            $(new_doc.body).find("[id]").each(function () {
+                                if ($(this).attr('id').trim() == id) {
+                                    exist_new_source = true;
+                                    return false; // break
+                                }
+                            });
+
+                            // cases 6, 7, 8: deleted in new source document
+                            if (!exist_new_source) {
+                                $(derived_doc.body).find("[id]").each(function () {
+                                    if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == id) {
+                                        // case 6 and 8: exist in derived document
+                                        exist_derive = true;
+                                        $(this).attr('data-merge-case', 6);
+                                        $(this).css('background-color', 'lightpink');
+                                        setNumberOfMergeRequests(post_id, 1);
+                                        return false; // break each function
+                                    }
+                                });
+
+                                // case 7: not exist in derived document
+                                if (!exist_derive) {
+                                    // do nothing
+                                }
+                            }
+
+
+                        }
+                    }
+                });
+
                 break;
             }
         };
@@ -572,6 +636,9 @@ jQuery(document).ready(function ($) {
         for (var j = 0; j < meta_source_versions.length; j++) {
             if (post_id == meta_source_versions[j].source_post_id) {
                 meta_source_versions[j]['number_of_merges'] += value;
+                if (value == -1 && meta_source_versions[j]['number_of_merges'] == 0) {
+                    meta_source_versions[j]['source_post_previous_version'] = meta_source_versions[j]['source_post_current_version']
+                }
                 break;
             }
         }

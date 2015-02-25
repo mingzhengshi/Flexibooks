@@ -154,9 +154,15 @@ jQuery(document).ready(function ($) {
                 var insIconID = 'mins-' + $(node).attr('id');
                 var noIconID = 'mnon-' + $(node).attr('id');
 
-                //createMergeIcon(noIconID, top, width - 100, 'del', mcase);
                 createMergeIcon(insIconID, top, width - 50, '&#8680', mcase, "Insert the new paragraph to derived document");
-                createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore this change");
+                createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore this new paragraph");
+            }
+            else if (mcase == 6) {
+                var yesIconID = 'myes-' + $(node).attr('id');
+                var noIconID = 'mnon-' + $(node).attr('id');
+
+                createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase, "Accept the deletion in source document");
+                createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the deletion in source document");
             }
 
             setupIconEvents();
@@ -441,6 +447,7 @@ jQuery(document).ready(function ($) {
                     switch (mcase) {
                         case "1":
                         case "3":
+                        case "6":
                             var post_id;
                             var source_item_id;
                             var derive_item_id = targetID;
