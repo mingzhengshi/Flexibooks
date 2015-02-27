@@ -203,9 +203,10 @@ jQuery(document).ready(function ($) {
                             var clone = $(this).clone();
                             var parent_id = getParentID(new_doc.body, s_id);
                             var prev_id = getPreviousID(new_doc.body, s_id);
+                            var next_id = getNextID(new_doc.body, s_id);
 
+                            var found = false;
                             if (parent_id != null && prev_id != null) {
-                                var found = false;
                                 $($(derived_doc.body).children().get().reverse()).each(function () {
                                     if ($(this).attr("data-source-id") && $(this).attr("data-source-id") == prev_id) {
                                         $(clone).css('background-color', 'initial');
@@ -221,6 +222,26 @@ jQuery(document).ready(function ($) {
                                 });
                             }
 
+                            // if prev paragraph is not found in derive document
+                            if (found == false) {
+                                if (parent_id != null && next_id != null) {
+                                    $($(derived_doc.body).children().get().reverse()).each(function () {
+                                        if ($(this).attr("data-source-id") && $(this).attr("data-source-id") == next_id) {
+                                            $(clone).css('background-color', 'initial');
+                                            if ($(clone).attr('data-merge-case')) {
+                                                $(clone).removeAttr('data-merge-case');
+                                            }
+                                            //$(clone).insertAfter("#" + $(this).attr('id'));
+                                            var outer = $(clone).prop('outerHTML') + $(this).prop('outerHTML');
+                                            $(this).prop('outerHTML', outer);
+                                            found = true;
+                                            return false;
+                                        }
+                                    });
+                                }
+                            }
+
+                            // if next paragraph is also not found in derive document
                             if (found == false) {
 
                             }
@@ -684,6 +705,25 @@ jQuery(document).ready(function ($) {
         });
 
         return previous;
+    }
+
+    function getNextID(body, id) {
+        var start = false;
+        var next = null;
+        $($(body).children().get()).each(function () {
+            if (start == true) {
+                next = $(this).attr('id');
+                return false;
+            }
+
+            if (start == false) {
+                if ($(this).attr("id") && $(this).attr("id") == id) {
+                    start = true;
+                }
+            }
+        });
+
+        return next;
     }
 
     //----------------------------------------------------------------------------------------
