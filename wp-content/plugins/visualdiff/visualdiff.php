@@ -38,6 +38,7 @@ add_filter( 'mce_external_plugins', 'fb_tinymce_plugin' );
 // tinymce custom formats
 add_filter( 'mce_buttons_2', 'fb_mce_editor_buttons' );
 add_filter( 'tiny_mce_before_init', 'fb_mce_before_init' );
+
 // add js
 add_action('admin_print_scripts', 'fb_admin_print_scripts');
 
@@ -241,7 +242,7 @@ function fb_add_meta_box_derived_document_callback() {
 <table id="fb-table-derived-meta" cellspacing="10">
     <input id="fb-input-derived-meta" style="display:none;" name="fb-derived-meta" value="<?php echo htmlentities($derived_meta); ?>" />  
     <tr>
-        <td>Source ID</td>
+        <td>Source Name</td>
         <td>Dependent Version</td>
         <td>Current Version</td>
         <td>Merge Requests</td>

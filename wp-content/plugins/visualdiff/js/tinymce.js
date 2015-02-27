@@ -333,13 +333,10 @@ jQuery(document).ready(function ($) {
         }
 
         function update() {
-            /*
-            // flexibook only init in derived document
-            if (flexibook) {
+            if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 var callback = flexibook.deriveUpdateCallback;
                 if (callback) callback();
             }
-            */
 
             resetIcons();
         }

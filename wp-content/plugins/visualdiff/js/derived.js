@@ -271,6 +271,7 @@ jQuery(document).ready(function ($) {
                         }
                     });
                 }
+
                 update();
                 break;
         }
@@ -772,6 +773,7 @@ jQuery(document).ready(function ($) {
         });
         source_mce["post_id"] = post_id;
         source_mce["post_modified"] = post_modified;
+        source_mce["post_name"] = title;
 
         if (tab_counter == 0) {
             tinymce.get('fb-derived-mce').on('change', function (e) {
@@ -879,6 +881,7 @@ jQuery(document).ready(function ($) {
                         for (var t = 0; t < tinymce.editors.length; t++) {
                             if (tinymce.editors[t].post_id == post_ids[i]) {
                                 meta_source_versions[j]['source_post_current_version'] = tinymce.editors[t].post_modified;
+                                meta_source_versions[j]['source_post_name'] = tinymce.editors[t].post_name;
                                 break;
                             }
                         };
@@ -898,6 +901,7 @@ jQuery(document).ready(function ($) {
         $("#fb-input-derived-meta").val(meta_source_versions_string);
 
         // update Publish button
+        $("#publish").attr('value', 'Save');
         $("#publish").prop('disabled', false);
         for (var i = 0; i < meta_source_versions.length; i++) {
             if (meta_source_versions[i].number_of_merges > 0) {
@@ -926,7 +930,7 @@ jQuery(document).ready(function ($) {
             var cell2 = row.insertCell(1);
             var cell3 = row.insertCell(2);
             var cell4 = row.insertCell(3);
-            cell1.innerHTML = meta_source_versions[i].source_post_id;
+            cell1.innerHTML = meta_source_versions[i].source_post_name;
             cell2.innerHTML = meta_source_versions[i].source_post_previous_version;
             cell3.innerHTML = meta_source_versions[i].source_post_current_version;
             cell4.innerHTML = meta_source_versions[i].number_of_merges;
@@ -952,6 +956,7 @@ jQuery(document).ready(function ($) {
             if (tinymce.editors[j].post_id == post_id) {
                 obj['source_post_previous_version'] = tinymce.editors[j].post_modified;
                 obj['source_post_current_version'] = tinymce.editors[j].post_modified;
+                obj['source_post_name'] = tinymce.editors[j].post_name;
                 break;
             }
         };
