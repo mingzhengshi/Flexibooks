@@ -81,7 +81,7 @@ li.exercise table tr th {
 li.exercise table tr td {
    padding: 8px;
    border: 1px #186da5 solid;
- }
+}
 
 hr.answer { 
    padding-top: 20px;
@@ -95,6 +95,14 @@ body {
 font-family: Frutiger CE 45 Light;
 margin: 30px;
 }
+
+/* styles */
+p.assessed{
+        font-family: Frutiger CE 45 Light;
+        font-size: 14px; /* word font size 8 */
+        color: black;
+}
+
 
 /* folding editor */
 .fb-collapse {

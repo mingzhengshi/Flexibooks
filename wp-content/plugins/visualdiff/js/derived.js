@@ -44,6 +44,17 @@ jQuery(document).ready(function ($) {
     //----------------------------------------------------------------------------------------
     // init
 
+    flexibook.regActivateSourceTab(function (post_id, source_item_id) {
+        var index = meta_source_tabs_post_ids.indexOf(post_id);
+        if (index >= 0) {
+            //$('#fb-tabs-sources').tabs('select', index);
+            $('#fb-tabs-sources').tabs("option", "active", index);
+        }
+
+        setupOldSourceMce();
+        update();
+    });
+
     flexibook.regDeriveUpdateCallback(function () {
         update();
     });
@@ -278,6 +289,7 @@ jQuery(document).ready(function ($) {
                     $(derived_doc.body).find("[id]").each(function () {
                         if ($(this).attr('id').trim() == d_id) {
                             $(this).remove();
+                            setNumberOfMergeRequests(post_id, -1);
                         }
                     });
                 }

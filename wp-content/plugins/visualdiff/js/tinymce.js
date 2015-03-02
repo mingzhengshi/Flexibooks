@@ -117,8 +117,22 @@ jQuery(document).ready(function ($) {
                 node = $(node).parent()[0]; // only consider that case when one paragraph has been selected
                 id = $(node).attr('id');
             }
-
             if (node.tagName.toLowerCase() == 'body') return; // if the node is the body again, then return
+
+            // derived editor only: change view of source document according to derive selections
+            if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                var post_id = $(node).attr('data-source-post-id');
+                var source_item_id = $(node).attr('data-source-id');
+
+                var callback = flexibook.activateSourceTab;
+                if (callback) callback(post_id, source_item_id);
+            }
+
+
+
+            //-----------------------------------------------------------------------------------------------
+            // merge cases
+
             if (!$(node).attr('data-merge-case')) return;
             if ($(node).attr('data-merge-case') <= 0) return;
 

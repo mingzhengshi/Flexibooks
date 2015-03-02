@@ -88,13 +88,18 @@ function fb_mce_before_init( $settings ) {
         ),
         array(
             'title' => 'Exercise',
-            'block' => 'li',
+            'block' => 'li', /*??*/
             'classes' => 'exercise'
         ),
         array(
             'title' => 'Answer',
             'block' => 'hr',
             'classes' => 'answer'
+        ),
+        array(
+            'title' => 'assessed outcomes',
+            'block' => 'p',
+            'classes' => 'assessed'
         )
     );
 
