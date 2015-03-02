@@ -275,7 +275,11 @@ jQuery(document).ready(function ($) {
                 break;
             case "6":
                 if (icon == '10003') {
-
+                    $(derived_doc.body).find("[id]").each(function () {
+                        if ($(this).attr('id').trim() == d_id) {
+                            $(this).remove();
+                        }
+                    });
                 }
                 // ignore the changes in the new source document
                 else if (icon == '10007') {
@@ -507,13 +511,6 @@ jQuery(document).ready(function ($) {
                                 var new_element = clean.html();
 
                                 if (new_element.trim() != old_element.trim()) {
-                                    /*
-                                    console.log('new_element:');
-                                    console.log(new_element.trim());
-                                    console.log('old_element:');
-                                    console.log(old_element.trim());
-                                    */
-
                                     // derive element                                  
                                     $(derived_doc.body).find("[id]").each(function () {
                                         if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == id) {

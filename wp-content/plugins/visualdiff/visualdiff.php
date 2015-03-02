@@ -85,6 +85,16 @@ function fb_mce_before_init( $settings ) {
             'title' => 'Heading 2 Activity',
             'block' => 'h2',
             'classes' => 'activity'
+        ),
+        array(
+            'title' => 'Exercise',
+            'block' => 'li',
+            'classes' => 'exercise'
+        ),
+        array(
+            'title' => 'Answer',
+            'block' => 'hr',
+            'classes' => 'answer'
         )
     );
 
@@ -406,6 +416,8 @@ function fb_save_document($postid, $post){
 function fb_filter_post_data($data , $postarr) {
     if ($data['post_type'] == 'source') {
         $post_content = $data['post_content'];
+        if (!isset($post_content) || strlen($post_content) <= 0) return;
+        
         $html_parser = str_get_html($post_content);            
         
         foreach ($html_parser->nodes as $node){       
