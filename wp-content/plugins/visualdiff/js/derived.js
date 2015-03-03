@@ -17,8 +17,6 @@ jQuery(document).ready(function ($) {
     var tab_counter = 0;
     var tab_template = "<li id='#{id}'><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
-    //removeAllEditor();
-
     //----------------------------------------------------------------------------------------
     // source tabs
 
@@ -58,7 +56,9 @@ jQuery(document).ready(function ($) {
 
         setupOldSourceMce();
 
-        updateSourcePosition(d_id);
+        if (floating_sources) {
+            updateSourcePosition(d_id);
+        }
 
         update();
     });
@@ -319,6 +319,28 @@ jQuery(document).ready(function ($) {
 
                 update();
                 break;
+        }
+    });
+
+    $("#fb-button-floating-source").button().click(function () {
+        var this_button = $("#fb-button-floating-source");
+        if (this_button.attr('value') == "Turn Off Floating") {
+            this_button.attr('value', 'Turn On Floating');
+            floating_sources = false;
+
+            if (source_tab_original_margin_top >= 0) {
+                $('#fb-tabs-sources').css('margin-top', source_tab_original_margin_top);
+            }
+
+            if (flexibook.columns_of_editors == 3) {
+                $("#fb-div-old-source-mce").css('margin-top', 0);
+            }
+
+            update();
+        }
+        else if (this_button.attr('value') == "Turn On Floating") {
+            this_button.attr('value', 'Turn Off Floating');
+            floating_sources = true;
         }
     });
 
@@ -1356,7 +1378,7 @@ jQuery(document).ready(function ($) {
         var derived_doc = tinymce.get('fb-derived-mce').getDoc();
 
         if (source_tab_original_margin_top < 0) {
-            source_tab_original_margin_top = $('#fb-tabs-sources').css('margin-top');
+            source_tab_original_margin_top = parseInt($('#fb-tabs-sources').css('margin-top'), 10);
         }
         else {
             $('#fb-tabs-sources').css('margin-top', source_tab_original_margin_top);           
