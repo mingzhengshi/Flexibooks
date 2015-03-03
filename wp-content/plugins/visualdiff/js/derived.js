@@ -1,14 +1,19 @@
 jQuery(document).ready(function ($) {
+    var derived_mce_init_done = false;
+    var source_mce_init_count = 0;
+
+    var meta_source_tabs_post_ids = [];
+    var meta_source_versions = []; // list of objects
+    var previous_source_revisions = []; // list of previous source revisions for merge
+
+    var floating_sources = true;
+    var source_tab_original_margin_top = -1;
+
+    // source tabs
     var selected_sources = [];
     var source_tabs = $('#fb-tabs-sources').tabs().css({
         'min-height': '850px'
     });
-    var meta_source_tabs_post_ids = [];
-    var meta_source_versions = []; // list of objects
-    var derived_mce_init_done = false;
-    var source_mce_init_count = 0;
-    var previous_source_revisions = []; // list of previous source revisions for merge
-
     var tab_counter = 0;
     var tab_template = "<li id='#{id}'><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
@@ -44,7 +49,7 @@ jQuery(document).ready(function ($) {
     //----------------------------------------------------------------------------------------
     // init
 
-    flexibook.regActivateSourceTab(function (post_id, source_item_id) {
+    flexibook.regDerivedElementMouseUpCallback(function (post_id, d_id) {
         var index = meta_source_tabs_post_ids.indexOf(post_id);
         if (index >= 0) {
             //$('#fb-tabs-sources').tabs('select', index);
@@ -52,6 +57,9 @@ jQuery(document).ready(function ($) {
         }
 
         setupOldSourceMce();
+
+        updateSourcePosition(d_id);
+
         update();
     });
 
@@ -1343,6 +1351,115 @@ jQuery(document).ready(function ($) {
             }
         });
     }
+
+    function updateSourcePosition(d_id) {
+        var derived_doc = tinymce.get('fb-derived-mce').getDoc();
+
+        if (source_tab_original_margin_top < 0) {
+            source_tab_original_margin_top = $('#fb-tabs-sources').css('margin-top');
+        }
+
+        // get active tab id
+        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
+        if (typeof tab_id == typeof undefined || tab_id == null) return;
+        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
+        var source_mce = tinymce.get(source_mce_id);
+        var source_doc = source_mce.getDoc();
+
+        if (flexibook.columns_of_editors == 2) {
+            updateSourcePositionColumn(source_doc, derived_doc, d_id);
+        }
+        else if (flexibook.columns_of_editors == 3) {
+            var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
+
+            updateSourcePositionColumn(source_doc, derived_doc, d_id, 0);
+            updateSourcePositionColumn(old_source_doc, derived_doc, d_id, 1);
+        }
+    }
+
+    function updateSourcePositionColumn(source_doc, derive_doc, d_id, column_number) {
+        var source_iframe_container_top = getiFrameOffsetTop(left_doc);
+        var derived_iframe_container_top = getiFrameOffsetTop(derive_doc);
+
+        if (source_iframe_container_top < 0 || derived_iframe_container_top < 0) return;
+
+        var svg_container_top = $('#fb-td-mid-column').offset().top;
+
+        $(derive_doc.body).children().each(function (index) {
+            var derive = $(this);
+            if (derive.attr('id') == d_id) {
+                if (derive.hasClass("fb_tinymce_left_column") == false && derive.hasClass("fb_tinymce_left_column_icon") == false) {
+                    var source_id = derive.attr('data-source-id');
+
+                    if (source_id && source_id != 'none') {
+                        var source = source_doc.getElementById(source_id);
+                        if (source) {
+                            var y_bottom_right = -1;
+                            var y_top_right = -1;
+                            var y_top_left = -1;
+                            var y_bottom_left = -1;
+
+                            // calculate y_bottom_right and y_top_right
+                            if (derive.attr('class') && derive.attr('class').indexOf("fb-display-none") >= 0) {
+                                var derived_bottom = getParentOffsetBottom(derive.attr("id"), derive_doc.body);
+                                if (derived_bottom >= 0) {
+                                    derived_bottom += (derived_iframe_container_top - svg_container_top);
+                                    y_bottom_right = derived_bottom;
+                                    y_top_right = derived_bottom;
+                                }
+                            }
+                            else {
+                                var derived_height = derive.height();
+                                var derived_outer_height = derive.outerHeight(true);
+                                var derived_top = derive.position().top;
+                                var derived_padding_top = parseInt(derive.css('padding-top'), 10);
+                                var derived_margin_top = parseInt(derive.css('margin-top'), 10);
+                                derived_top += (derived_iframe_container_top - svg_container_top);
+                                derived_top -= (derived_padding_top + derived_margin_top);
+
+                                y_bottom_right = derived_top + derived_outer_height;
+                                y_top_right = derived_top;
+                            }
+
+                            // calcuate y_top_left and y_bottom_left
+                            if ($(source).attr('class') && $(source).attr('class').indexOf("fb-display-none") >= 0) {
+                                var source_bottom = getParentOffsetBottom($(source).attr("id"), source_doc.body);
+                                if (source_bottom >= 0) {
+                                    source_bottom += (source_iframe_container_top - svg_container_top);
+                                    y_top_left = source_bottom;
+                                    y_bottom_left = source_bottom;
+                                }
+                            }
+                            else {
+                                var source_height = $(source).height();
+                                var source_outer_height = $(source).outerHeight(true);
+                                var source_top = $(source).position().top;
+                                var source_padding_top = parseInt($(source).css('padding-top'), 10);
+                                var source_margin_top = parseInt($(source).css('margin-top'), 10);
+                                source_top += (source_iframe_container_top - svg_container_top);
+                                source_top -= (source_padding_top + source_margin_top);
+
+                                y_top_left = source_top;
+                                y_bottom_left = source_top + source_outer_height;
+                            }
+
+                            if (y_top_right > y_top_left) {
+                                if (column_number == 0) {
+                                    var t = source_tab_original_margin_top + (y_top_right - y_top_left)
+                                    $('#fb-tabs-sources').css('margin-top', t);
+                                }
+
+                            }
+
+                        }
+                    }
+                }
+                return false; // break
+            }
+        });
+    }
+
+    //------------------------------------------------------------------------------------------------------
 
     function svgOnClick(id, source_mce_id) {
         fb_merge_dialog.dialog("open");

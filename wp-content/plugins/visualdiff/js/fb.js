@@ -8,7 +8,7 @@
         this.showPreviousSourceIconClickCallback = {};
         this.mergeIconClickCallback = {};
         this.deriveUpdateCallback = {};
-        this.activateSourceTab = {};
+        this.derivedElementMouseUpCallback = {};
     }
 
     Flexibook.prototype.regDeriveMceInitCallback = function (callback) {
@@ -27,8 +27,8 @@
         this.deriveUpdateCallback = callback;
     };
 
-    Flexibook.prototype.regActivateSourceTab = function (callback) {
-        this.activateSourceTab = callback;
+    Flexibook.prototype.regDerivedElementMouseUpCallback = function (callback) {
+        this.derivedElementMouseUpCallback = callback;
     };
 
     Flexibook.prototype.print = function () {
