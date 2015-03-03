@@ -1358,6 +1358,13 @@ jQuery(document).ready(function ($) {
         if (source_tab_original_margin_top < 0) {
             source_tab_original_margin_top = $('#fb-tabs-sources').css('margin-top');
         }
+        else {
+            $('#fb-tabs-sources').css('margin-top', source_tab_original_margin_top);           
+        }
+
+        if (flexibook.columns_of_editors == 3) {
+            $("#fb-div-old-source-mce").css('margin-top', 0);
+        }
 
         // get active tab id
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
@@ -1367,7 +1374,7 @@ jQuery(document).ready(function ($) {
         var source_doc = source_mce.getDoc();
 
         if (flexibook.columns_of_editors == 2) {
-            updateSourcePositionColumn(source_doc, derived_doc, d_id);
+            updateSourcePositionColumn(source_doc, derived_doc, d_id, 0);
         }
         else if (flexibook.columns_of_editors == 3) {
             var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
@@ -1378,7 +1385,7 @@ jQuery(document).ready(function ($) {
     }
 
     function updateSourcePositionColumn(source_doc, derive_doc, d_id, column_number) {
-        var source_iframe_container_top = getiFrameOffsetTop(left_doc);
+        var source_iframe_container_top = getiFrameOffsetTop(source_doc);
         var derived_iframe_container_top = getiFrameOffsetTop(derive_doc);
 
         if (source_iframe_container_top < 0 || derived_iframe_container_top < 0) return;
@@ -1443,14 +1450,18 @@ jQuery(document).ready(function ($) {
                                 y_bottom_left = source_top + source_outer_height;
                             }
 
-                            if (y_top_right > y_top_left) {
-                                if (column_number == 0) {
-                                    var t = source_tab_original_margin_top + (y_top_right - y_top_left)
-                                    $('#fb-tabs-sources').css('margin-top', t);
+                            if (y_bottom_right >= 0 && y_top_right >= 0 && y_top_left >= 0 && y_bottom_left >= 0) {
+                                if (y_top_right > y_top_left) {
+                                    if (column_number == 0) {
+                                        var t = parseInt(source_tab_original_margin_top, 10) + y_top_right - y_top_left;
+                                        $('#fb-tabs-sources').css('margin-top', t);
+                                    }
+                                    else if (column_number == 1) {
+                                        var t = y_top_right - y_top_left;
+                                        $("#fb-div-old-source-mce").css('margin-top', t);
+                                    }
                                 }
-
                             }
-
                         }
                     }
                 }
