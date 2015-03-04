@@ -164,7 +164,7 @@ jQuery(document).ready(function ($) {
             // derived editor only
             // drag and drop paragraphs
             // ms - test
-            /*
+
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 var offset = $(node).offset(); // absolute position relative to the document
                 var height = $(node).height();
@@ -177,11 +177,11 @@ jQuery(document).ready(function ($) {
                 var icon = document.createElement('div');
                 icon.id = moveIconID;
                 icon.title = "draggable";
-                icon.className = 'fb_tinymce_left_column_icon';
-                icon.innerHTML = 'd';
-                //icon.style.position = 'absolute';
-                //icon.style.top = 200 + 'px';
-                //icon.style.left = 10 + 'px';
+                icon.className = 'fb_tinymce_left_column_icon no-select-text';
+                icon.innerHTML = '&#10003';
+                icon.style.position = 'absolute';
+                icon.style.top = top + 'px';
+                icon.style.left = 10 + 'px';
                 icon.style.fontSize = '120%';
 
                 //icon.style.paddingLeft = '9px';
@@ -198,12 +198,13 @@ jQuery(document).ready(function ($) {
                 icon.style.backgroundColor = '#dedede';
                 icon.style.opacity = 1;
 
+                icon.contentEditable = false;
                 icon.draggable = true;
 
                 editor.getBody().appendChild(icon);
-
+                setupIconEvents();
             }
-            */
+
 
             //-----------------------------------------------------------------------------------------------
             // merge cases
