@@ -52,6 +52,38 @@ jQuery(document).ready(function ($) {
 
         editor.on('cut', function (e) {
             onCutOrCopy(e);
+
+            /*
+            if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                    var icon = document.createElement('div');
+                    icon.id = 'move-test-id-1234';
+                    icon.title = "draggable";
+                    icon.className = 'fb_tinymce_left_column_icon2';
+                    icon.innerHTML = 'd';
+                    //icon.style.position = 'absolute';
+                    //icon.style.top = 200 + 'px';
+                    //icon.style.left = 10 + 'px';
+                    icon.style.fontSize = '120%';
+
+                    //icon.style.paddingLeft = '9px';
+                    //icon.style.paddingRight = '9px';
+
+                    icon.style.border = 'solid';
+                    icon.style.borderWidth = '1px';
+                    icon.style.borderColor = 'grey';
+                    icon.style.borderRadius = '18px';
+
+                    icon.style.width = '36px';
+                    icon.style.textAlign = 'center';
+                    //icon.style.height = '8px';
+                    icon.style.backgroundColor = '#dedede';
+                    icon.style.opacity = 1;
+
+                    icon.draggable = true;
+
+                    editor.getBody().appendChild(icon);
+            }
+            */
         });
 
         editor.on('copy', function (e) {
@@ -120,7 +152,8 @@ jQuery(document).ready(function ($) {
 
             if (node.tagName.toLowerCase() == 'body') return; // if the node is the body again, then return
 
-            // derived editor only: change view of source document according to derive selections
+            // derived editor only 
+            // change view of source document according to derive selections
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 var post_id = $(node).attr('data-source-post-id');
 
@@ -128,7 +161,49 @@ jQuery(document).ready(function ($) {
                 if (callback) callback(post_id, id);
             }
 
+            // derived editor only
+            // drag and drop paragraphs
+            // ms - test
+            /*
+            if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                var offset = $(node).offset(); // absolute position relative to the document
+                var height = $(node).height();
+                var top = offset.top - 22 + height / 2;
+                var width = $(editor.getBody()).width();
 
+                var moveIconID = 'move-' + $(node).attr('id');
+
+
+                var icon = document.createElement('div');
+                icon.id = moveIconID;
+                icon.title = "draggable";
+                icon.className = 'fb_tinymce_left_column_icon';
+                icon.innerHTML = 'd';
+                //icon.style.position = 'absolute';
+                //icon.style.top = 200 + 'px';
+                //icon.style.left = 10 + 'px';
+                icon.style.fontSize = '120%';
+
+                //icon.style.paddingLeft = '9px';
+                //icon.style.paddingRight = '9px';
+
+                icon.style.border = 'solid';
+                icon.style.borderWidth = '1px';
+                icon.style.borderColor = 'grey';
+                icon.style.borderRadius = '18px';
+
+                icon.style.width = '36px';
+                icon.style.textAlign = 'center';
+                //icon.style.height = '8px';
+                icon.style.backgroundColor = '#dedede';
+                icon.style.opacity = 1;
+
+                icon.draggable = true;
+
+                editor.getBody().appendChild(icon);
+
+            }
+            */
 
             //-----------------------------------------------------------------------------------------------
             // merge cases
@@ -597,7 +672,6 @@ jQuery(document).ready(function ($) {
                 for (var i = 0; i < children.length; i++) {
                     var element = children[i];
                     if (element.className.indexOf("fb_tinymce_left_column") >= 0) continue;
-                    //if (element.className.indexOf("fb_tinymce_left_column_icon") >= 0) continue;
 
                     if (start == false) {
                         if (element.id == targetID) {
@@ -671,7 +745,7 @@ jQuery(document).ready(function ($) {
             icon.className = 'fb_tinymce_left_column_icon';
             icon.id = id;
             icon['data-mcase'] = mcase;
-            icon.title = title; // ms - temp
+            icon.title = title; 
             icon.innerHTML = text;
             icon.style.position = 'absolute';
             icon.style.top = top + 'px';

@@ -152,6 +152,7 @@ function fb_admin_print_scripts() {
     wp_enqueue_script('jquery-ui-dialog');
     wp_enqueue_script('jquery-ui-selectable');
     wp_enqueue_script('jquery-ui-button');
+    //wp_enqueue_script('jquery-ui-draggable'); 
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -397,8 +398,8 @@ function fb_post_box_derived_document_callback() {
         <h3 style="margin-bottom:8px">Derived Document</h3>
         <div>
 <?php    
-    $derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
-    //$derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
+    //$derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
+    $derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
     wp_editor($content, 'fb-derived-mce', $derived_editor_args);      
 ?>   
         </div>
