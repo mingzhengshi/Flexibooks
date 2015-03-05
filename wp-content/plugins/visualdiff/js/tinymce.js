@@ -6,6 +6,10 @@ jQuery(document).ready(function ($) {
     var copied_mode = "";
 
     var on_icon_hover = false;
+    var _mouseX = -1;
+    var _mouseY = -1;
+    var _dragging = false;
+    var _dragged_item_id = -1;
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
 
@@ -173,6 +177,7 @@ jQuery(document).ready(function ($) {
 
                 createDraggableIcon(moveIconID, top, width, '&#9776', 'Move this item')
                 setupDraggableIconEvents(moveIconID);
+                setupIconEvents();
             }
 
 
@@ -398,6 +403,33 @@ jQuery(document).ready(function ($) {
                 if (callback) callback();
             }
 
+            if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                $(editor.getBody()).children().on('dragenter', function () {
+                    if (_dragging == false) return;
+                    $(editor.getBody()).find('.fb_tinymce_dragging').remove();
+
+                    var item = $(this);
+                    if (item.attr('id') == _dragged_item_id) return;
+
+                    if (item.hasClass("fb_tinymce_left_column") == false && item.hasClass("fb_tinymce_left_column_icon") == false && item.hasClass("fb_tinymce_dragging") == false) {                                                                     
+                        var dragged_item = editor.getDoc().getElementById(_dragged_item_id);
+
+                        var clone = $(dragged_item).clone();
+                        $(clone).addClass('fb_tinymce_dragging');
+                        $(clone).css('opacity', 0.5);
+
+                        //dragged_item_height = $(dragged_item).outerHeight(true);
+                        //clone_outer = $(clone).prop('outerHTML');
+
+                        //var insert = '<div class="fb_tinymce_dragging" height="' + dragged_item_height + 'px"></div>';
+                        //var outer = item.prop('outerHTML') + insert;
+                        //item.prop('outerHTML', outer);
+                        $(clone).insertAfter(item);
+                        console.log("mouse enter: " + item.attr('id'));
+                    }
+                });
+            }
+
             resetIcons();
         }
 
@@ -448,18 +480,29 @@ jQuery(document).ready(function ($) {
         function setupDraggableIconEvents(icon_id) {
             var icon = editor.getDoc().getElementById(icon_id);
             icon.addEventListener('dragstart', function (event) {
+                _dragging = true;
+
+                var targetID = icon.id.substr(5);
+                if (targetID == null) return;
+                _dragged_item_id = targetID;
+
                 console.log('dragstart');
             });
 
+            /*
             icon.addEventListener('drag', function (event) {
+                if (Math.abs(event.clientX - _mouseX) <= 2 && Math.abs(event.clientY - _mouseY) <= 2) return;
+                _mouseX = event.clientX;
+                _mouseY = event.clientY;
                 console.log('dragging: ' + event.clientX + ", " + event.clientY);
             });
+            */
 
             icon.addEventListener('dragend', function (event) {
+                _dragging = false;
+
                 console.log('dragend');
             });
-
-
         }
 
         function setupIconEvents() {

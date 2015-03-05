@@ -67,6 +67,10 @@ jQuery(document).ready(function ($) {
         update();
     });
 
+    flexibook.regiFrameOffsetTopCallback(function (doc) {
+        return getiFrameOffsetTop(doc);
+    });
+
     flexibook.regDeriveMceInitCallback(function () {
         if (derived_mce_init_done == true) return;
 
@@ -1757,7 +1761,7 @@ jQuery(document).ready(function ($) {
 
         return bottom;
     }
-
+    
     function getiFrameOffsetTop(doc) {
         var iframes = document.getElementsByTagName("iframe");
         for (var i = 0; i < iframes.length; i++) {

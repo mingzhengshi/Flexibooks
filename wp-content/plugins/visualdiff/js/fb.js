@@ -9,6 +9,7 @@
         this.mergeIconClickCallback = {};
         this.deriveUpdateCallback = {};
         this.derivedElementMouseUpCallback = {};
+        this.iFrameOffsetTopCallback = {};
     }
 
     Flexibook.prototype.regDeriveMceInitCallback = function (callback) {
@@ -29,6 +30,10 @@
 
     Flexibook.prototype.regDerivedElementMouseUpCallback = function (callback) {
         this.derivedElementMouseUpCallback = callback;
+    };
+
+    Flexibook.prototype.regiFrameOffsetTopCallback = function (callback) {
+        this.iFrameOffsetTopCallback = callback;
     };
 
     Flexibook.prototype.print = function () {
