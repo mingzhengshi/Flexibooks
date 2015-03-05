@@ -163,8 +163,6 @@ jQuery(document).ready(function ($) {
 
             // derived editor only
             // drag and drop paragraphs
-            // ms - test
-
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 var offset = $(node).offset(); // absolute position relative to the document
                 var height = $(node).height();
@@ -173,36 +171,8 @@ jQuery(document).ready(function ($) {
 
                 var moveIconID = 'move-' + $(node).attr('id');
 
-
-                var icon = document.createElement('div');
-                icon.id = moveIconID;
-                icon.title = "draggable";
-                icon.className = 'fb_tinymce_left_column_icon no-select-text';
-                icon.innerHTML = '&#10003';
-                icon.style.position = 'absolute';
-                icon.style.top = top + 'px';
-                icon.style.left = 10 + 'px';
-                icon.style.fontSize = '120%';
-
-                //icon.style.paddingLeft = '9px';
-                //icon.style.paddingRight = '9px';
-
-                icon.style.border = 'solid';
-                icon.style.borderWidth = '1px';
-                icon.style.borderColor = 'grey';
-                icon.style.borderRadius = '18px';
-
-                icon.style.width = '36px';
-                icon.style.textAlign = 'center';
-                //icon.style.height = '8px';
-                icon.style.backgroundColor = '#dedede';
-                icon.style.opacity = 1;
-
-                icon.contentEditable = false;
-                icon.draggable = true;
-
-                editor.getBody().appendChild(icon);
-                setupIconEvents();
+                createDraggableIcon(moveIconID, top, width, '&#9776', 'Move this item')
+                setupDraggableIconEvents(moveIconID);
             }
 
 
@@ -475,6 +445,23 @@ jQuery(document).ready(function ($) {
             setupIconEvents();
         }
 
+        function setupDraggableIconEvents(icon_id) {
+            var icon = editor.getDoc().getElementById(icon_id);
+            icon.addEventListener('dragstart', function (event) {
+                console.log('dragstart');
+            });
+
+            icon.addEventListener('drag', function (event) {
+                console.log('dragging: ' + event.clientX + ", " + event.clientY);
+            });
+
+            icon.addEventListener('dragend', function (event) {
+                console.log('dragend');
+            });
+
+
+        }
+
         function setupIconEvents() {
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').hover(
                 // handlerIn
@@ -482,7 +469,7 @@ jQuery(document).ready(function ($) {
                     $(this).css('cursor', 'pointer');
                     on_icon_hover = true;
 
-                    if (isMergeIcons($(this))) {
+                    if (isMergeIcons($(this)) || isDraggableIcons($(this))) {
                         $(this).css('opacity', 1);
                     }
                 },
@@ -491,7 +478,7 @@ jQuery(document).ready(function ($) {
                     $(this).css('cursor', 'text');
                     on_icon_hover = false;
 
-                    if (isMergeIcons($(this))) {
+                    if (isMergeIcons($(this)) || isDraggableIcons($(this))) {
                         $(this).css('opacity', 0.3);
                     }
                 }
@@ -570,6 +557,13 @@ jQuery(document).ready(function ($) {
                 (this_icon.html() == 'III') ||
                 (this_icon.html() == 'II') ||
                 (this_icon.html().charCodeAt() == '8680')) {
+                return true;
+            }
+            return false;
+        }
+
+        function isDraggableIcons(this_icon) {
+            if (this_icon.html().charCodeAt() == '9776') {
                 return true;
             }
             return false;
@@ -768,6 +762,33 @@ jQuery(document).ready(function ($) {
             icon.style.opacity = 0.3;
 
             editor.getBody().appendChild(icon);
+        }
+
+        function createDraggableIcon(id, top, left, text, title) {
+            var icon = document.createElement('div');
+            icon.className = 'fb_tinymce_left_column_icon';
+            icon.id = id;
+            icon.title = title;
+            icon.innerHTML = text;
+            icon.style.position = 'absolute';
+            icon.style.top = top + 'px';
+            icon.style.left = left + 'px';
+            icon.style.fontSize = '150%';
+
+            //icon.style.paddingLeft = '9px';
+            //icon.style.paddingRight = '9px';
+
+            icon.style.width = '36px';
+            icon.style.textAlign = 'center';
+            //icon.style.height = '8px';
+            //icon.style.backgroundColor = '#dedede';
+            icon.style.opacity = 0.3;
+
+            icon.contentEditable = false;
+            icon.draggable = true;
+
+            editor.getBody().appendChild(icon);
+
         }
     });
 });
