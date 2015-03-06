@@ -10,6 +10,7 @@ jQuery(document).ready(function ($) {
     var _mouseY = -1;
     var _dragging = false;
     var _dragged_item_id = -1;
+    var _dragged_item_copy = null;
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
 
@@ -168,18 +169,20 @@ jQuery(document).ready(function ($) {
             // derived editor only
             // drag and drop paragraphs
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
-                var offset = $(node).offset(); // absolute position relative to the document
-                var height = $(node).height();
-                var top = offset.top - 22 + height / 2;
-                var width = $(editor.getBody()).width();
+                if (!$(node).attr('data-merge-case')) {
+                    var offset = $(node).offset(); // absolute position relative to the document
+                    var height = $(node).height();
+                    var top = offset.top - 22 + height / 2;
+                    var width = $(editor.getBody()).width();
 
-                var moveIconID = 'move-' + $(node).attr('id');
+                    var moveIconID = 'move-' + $(node).attr('id');
 
-                createDraggableIcon(moveIconID, top, width, '&#9776', 'Move this item')
-                setupDraggableIconEvents(moveIconID);
-                setupIconEvents();
+                    createDraggableIcon(moveIconID, top, width, '&#9776', 'Move this item');
+
+                    setupDraggableIconEvents(moveIconID);
+                    setupIconEvents();
+                }
             }
-
 
             //-----------------------------------------------------------------------------------------------
             // merge cases
@@ -406,15 +409,16 @@ jQuery(document).ready(function ($) {
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 $(editor.getBody()).children().on('dragenter', function () {
                     if (_dragging == false) return;
-                    $(editor.getBody()).find('.fb_tinymce_dragging').remove();
 
                     var item = $(this);
                     if (item.attr('id') == _dragged_item_id) return;
 
-                    if (item.hasClass("fb_tinymce_left_column") == false && item.hasClass("fb_tinymce_left_column_icon") == false && item.hasClass("fb_tinymce_dragging") == false) {                                                                     
-                        var dragged_item = editor.getDoc().getElementById(_dragged_item_id);
+                    $(editor.getBody()).find('.fb_tinymce_dragging').remove();
 
-                        var clone = $(dragged_item).clone();
+                    if (item.hasClass("fb_tinymce_left_column") == false && item.hasClass("fb_tinymce_left_column_icon") == false && item.hasClass("fb_tinymce_dragging") == false) {                                                                     
+                        //var dragged_item = editor.getDoc().getElementById(_dragged_item_id);
+
+                        var clone = $(_dragged_item_copy).clone();
                         $(clone).addClass('fb_tinymce_dragging');
                         $(clone).css('opacity', 0.5);
 
@@ -485,6 +489,11 @@ jQuery(document).ready(function ($) {
                 var targetID = icon.id.substr(5);
                 if (targetID == null) return;
                 _dragged_item_id = targetID;
+                var dragged_item = editor.getDoc().getElementById(_dragged_item_id);
+                _dragged_item_copy = $(dragged_item).clone();
+
+                $(dragged_item).addClass('fb_tinymce_dragging');
+                $(dragged_item).css('opacity', 0.5);
 
                 console.log('dragstart');
             });
@@ -500,6 +509,10 @@ jQuery(document).ready(function ($) {
 
             icon.addEventListener('dragend', function (event) {
                 _dragging = false;
+
+                var dragged_item = editor.getDoc().getElementById(_dragged_item_id);
+                $(dragged_item).removeClass('fb_tinymce_dragging');
+                $(dragged_item).css('opacity', 1);
 
                 console.log('dragend');
             });
