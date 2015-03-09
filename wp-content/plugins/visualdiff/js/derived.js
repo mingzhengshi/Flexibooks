@@ -67,9 +67,15 @@ jQuery(document).ready(function ($) {
         update();
     });
 
-    flexibook.regiFrameOffsetTopCallback(function (doc) {
-        return getiFrameOffsetTop(doc);
+    flexibook.regOnDragEndCallback(function () {
+        var derived_doc = tinymce.get('fb-derived-mce').getDoc();
+        var dragged_item = derived_doc.getElementById(flexibook.dragged_item_id);
+        $(dragged_item).removeClass('fb_tinymce_dragging');
+        $(dragged_item).css('opacity', 1);
+
+        //update();
     });
+
 
     flexibook.regDeriveMceInitCallback(function () {
         if (derived_mce_init_done == true) return;

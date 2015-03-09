@@ -9,7 +9,7 @@ jQuery(document).ready(function ($) {
     var _mouseX = -1;
     var _mouseY = -1;
     var _dragging = false;
-    var _dragged_item_id = -1;
+    //var _dragged_item_id = -1;
     var _dragged_item_copy = null;
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
@@ -168,7 +168,8 @@ jQuery(document).ready(function ($) {
 
             // derived editor only
             // drag and drop paragraphs
-            if (editor.id.indexOf("fb-derived-mce") >= 0) {
+            if (editor.id.indexOf("fb-derived-mce") >= 0 ||
+                editor.id.indexOf("fb-source-mce") >= 0) {
                 if (!$(node).attr('data-merge-case')) {
                     var offset = $(node).offset(); // absolute position relative to the document
                     var height = $(node).height();
@@ -180,7 +181,6 @@ jQuery(document).ready(function ($) {
                     createDraggableIcon(moveIconID, top, width, '&#9776', 'Move this item');
 
                     setupDraggableIconEvents(moveIconID);
-                    setupIconEvents();
                 }
             }
 
@@ -411,23 +411,15 @@ jQuery(document).ready(function ($) {
                     if (_dragging == false) return;
 
                     var item = $(this);
-                    if (item.attr('id') == _dragged_item_id) return;
+                    if (item.attr('id') == flexibook.dragged_item_id) return;
 
                     $(editor.getBody()).find('.fb_tinymce_dragging').remove();
 
                     if (item.hasClass("fb_tinymce_left_column") == false && item.hasClass("fb_tinymce_left_column_icon") == false && item.hasClass("fb_tinymce_dragging") == false) {                                                                     
-                        //var dragged_item = editor.getDoc().getElementById(_dragged_item_id);
-
                         var clone = $(_dragged_item_copy).clone();
                         $(clone).addClass('fb_tinymce_dragging');
                         $(clone).css('opacity', 0.5);
 
-                        //dragged_item_height = $(dragged_item).outerHeight(true);
-                        //clone_outer = $(clone).prop('outerHTML');
-
-                        //var insert = '<div class="fb_tinymce_dragging" height="' + dragged_item_height + 'px"></div>';
-                        //var outer = item.prop('outerHTML') + insert;
-                        //item.prop('outerHTML', outer);
                         $(clone).insertAfter(item);
                         console.log("mouse enter: " + item.attr('id'));
                     }
@@ -488,33 +480,44 @@ jQuery(document).ready(function ($) {
 
                 var targetID = icon.id.substr(5);
                 if (targetID == null) return;
-                _dragged_item_id = targetID;
-                var dragged_item = editor.getDoc().getElementById(_dragged_item_id);
+
+                $(this).css('opacity', 0); // hide the icon
+                flexibook.dragged_item_id = targetID;
+                var dragged_item = editor.getDoc().getElementById(flexibook.dragged_item_id);
                 _dragged_item_copy = $(dragged_item).clone();
 
-                $(dragged_item).addClass('fb_tinymce_dragging');
-                $(dragged_item).css('opacity', 0.5);
-
-                console.log('dragstart');
+                if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                    $(dragged_item).addClass('fb_tinymce_dragging');
+                    $(dragged_item).css('opacity', 0.5);
+                }
+                else if (editor.id.indexOf("fb-source-mce") >= 0) {
+                    var post_id = editor.post_id;
+                    $(_dragged_item_copy).attr("data-source-post-id", post_id);
+                }
+                //console.log('dragstart');
             });
 
             /*
             icon.addEventListener('drag', function (event) {
-                if (Math.abs(event.clientX - _mouseX) <= 2 && Math.abs(event.clientY - _mouseY) <= 2) return;
-                _mouseX = event.clientX;
-                _mouseY = event.clientY;
-                console.log('dragging: ' + event.clientX + ", " + event.clientY);
+                $(editor.getBody()).css('cursor', 'crosshair');
             });
             */
 
             icon.addEventListener('dragend', function (event) {
                 _dragging = false;
 
-                var dragged_item = editor.getDoc().getElementById(_dragged_item_id);
-                $(dragged_item).removeClass('fb_tinymce_dragging');
-                $(dragged_item).css('opacity', 1);
+                if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                    var dragged_item = editor.getDoc().getElementById(flexibook.dragged_item_id);
+                    $(dragged_item).removeClass('fb_tinymce_dragging');
+                    $(dragged_item).css('opacity', 1);
+                }
+                else if (editor.id.indexOf("fb-source-mce") >= 0) {
+                    var callback = flexibook.onDragEndCallback;
+                    if (callback) callback();
 
-                console.log('dragend');
+                    setupDerivedElementID();
+                }
+                //console.log('dragend');
             });
         }
 
