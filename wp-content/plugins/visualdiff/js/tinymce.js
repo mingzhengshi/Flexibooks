@@ -169,7 +169,6 @@ jQuery(document).ready(function ($) {
                 if (callback) callback(post_id, id);
             }
 
-            // derived editor only
             // drag and drop paragraphs
             if (editor.id.indexOf("fb-derived-mce") >= 0 ||
                 editor.id.indexOf("fb-source-mce") >= 0) {
@@ -436,6 +435,7 @@ jQuery(document).ready(function ($) {
 
         function resetIcons() {
             $(editor.getBody()).find('.fb_tinymce_left_column').remove();
+            /*
             var left_column = document.createElement('div');
             left_column.style.position = 'absolute';
             left_column.style.top = 0;
@@ -449,6 +449,7 @@ jQuery(document).ready(function ($) {
             left_column.style.backgroundColor = '#e8e8e8';
             left_column.className = 'fb_tinymce_left_column';
             editor.getBody().appendChild(left_column);
+            */
 
             // add svg element
             $(editor.getBody()).find('.fb_tinymce_left_column_svg').remove();
@@ -470,7 +471,7 @@ jQuery(document).ready(function ($) {
                 }
                 else if (classes && classes.indexOf("fb-collapse") >= 0) {
                     if (tagName == 'h1') {
-                        createIcon(foldingIconID, offset.top, 0, '&#8862', '150%'); // folding icon: plus 
+                        createIcon(foldingIconID, offset.top, -1, '&#8862', '150%'); // folding icon: plus 
                     }
                     else if (tagName == 'h2') {
                         createIcon(foldingIconID, offset.top, 10, '&#8862', '120%'); // folding icon: plus 
@@ -482,7 +483,7 @@ jQuery(document).ready(function ($) {
                 }
                 else {
                     if (tagName == 'h1') {
-                        createIcon(foldingIconID, offset.top, 0, '&#8863', '150%'); // folding icon: minus 
+                        createIcon(foldingIconID, offset.top, -1, '&#8863', '150%'); // folding icon: minus 
                     }
                     else if (tagName == 'h2') {
                         createIcon(foldingIconID, offset.top, 10, '&#8863', '120%'); // folding icon: minus 
@@ -751,6 +752,8 @@ jQuery(document).ready(function ($) {
                 if (this_icon.html().charCodeAt() == '8863') {
                     var targetID = this_icon.attr('id').substr(5);
                     if (targetID == null) return true; // continue
+                    var targetElement = editor.getDoc().getElementById(targetID);
+                    var tagName = $(targetElement).prop("tagName").toLowerCase();
 
                     var children = $(editor.getBody()).children();
                     if (children == null || children.length <= 0) return true; // continue
@@ -797,16 +800,33 @@ jQuery(document).ready(function ($) {
                     var x2 = x1;
                     var y2 = b_offset.top + $(lastElement).height();
 
+                    y1 += 7; // test
+                    if (tagName == 'h2') {
+                        y2 -= 3;
+                    }
+
+                    var color = 'grey';
                     var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                     line.setAttribute('x1', x1);
                     line.setAttribute('y1', y1);
                     line.setAttribute('x2', x2);
                     line.setAttribute('y2', y2);
-                    line.setAttribute('stroke', 'black');
+                    line.setAttribute('stroke', color);
                     line.setAttribute('stroke-width', 1);
                     var svg_id = editor.id + '-svg';
                     var svg = editor.getDoc().getElementById(svg_id);
                     if (svg) svg.appendChild(line);
+
+                    var hline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    hline.setAttribute('x1', x2);
+                    hline.setAttribute('y1', y2);
+                    hline.setAttribute('x2', x2 + 5);
+                    hline.setAttribute('y2', y2);
+                    hline.setAttribute('stroke', color);
+                    hline.setAttribute('stroke-width', 1);
+                    var svg_id = editor.id + '-svg';
+                    var svg = editor.getDoc().getElementById(svg_id);
+                    if (svg) svg.appendChild(hline);
                 }
 
                 
@@ -887,7 +907,7 @@ jQuery(document).ready(function ($) {
             icon.style.fontSize = fontsize;
             //icon.style.width = '8px';
             //icon.style.height = '8px';
-            //icon.style.backgroundColor = '#ff0000';
+            //icon.style.backgroundColor = '#ffffff';
 
             editor.getBody().appendChild(icon);
         }
