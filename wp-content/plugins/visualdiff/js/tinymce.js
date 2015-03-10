@@ -20,19 +20,21 @@ jQuery(document).ready(function ($) {
             }
 
             if (editor.id.indexOf("fb-source-mce") >= 0) {
+                $(editor.getBody()).css('margin-left', 50);
             }
 
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 // when the derived mce is inited; we can load the source mce
                 var callback = flexibook.deriveMceInitCallback;
                 if (callback) callback();
+
+                $(editor.getBody()).css('margin-left', 50);
             }
 
             update();
         });
 
         editor.on('SetContent', function () {
-
             update();
         });
 
@@ -134,7 +136,8 @@ jQuery(document).ready(function ($) {
 
         editor.on('mouseup', function (e) {
             if (on_icon_hover) return;
-            resetIcons();
+            //resetIcons();
+            update();
             onMouseUp(e);
         });
 
@@ -406,6 +409,7 @@ jQuery(document).ready(function ($) {
                 if (callback) callback();
             }
 
+            // setup drag event for derive elements
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 $(editor.getBody()).children().on('dragenter', function () {
                     if (_dragging == false) return;
@@ -427,6 +431,7 @@ jQuery(document).ready(function ($) {
             }
 
             resetIcons();
+            drawLines();
         }
 
         function resetIcons() {
@@ -444,6 +449,11 @@ jQuery(document).ready(function ($) {
             left_column.className = 'fb_tinymce_left_column';
             editor.getBody().appendChild(left_column);
 
+            // add svg element
+            var id = editor.id + '-svg';
+            $(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/></svg>');
+
+            // reset icons
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').remove(); // clear all existing icons
             $(editor.getBody()).find('h1, h2, h3').each(function (index) {
                 var foldingIconID = 'fold-' + $(this).attr('id');
@@ -451,20 +461,33 @@ jQuery(document).ready(function ($) {
                 var offset = $(this).offset(); // absolute position relative to the document
                 //var height = $(this).height();
                 var classes = $(this).attr('class');
+                var tagName = $(this).prop("tagName").toLowerCase();
 
                 if (classes && classes.indexOf("fb-display-none") >= 0) {
                     //var test = 1;
                 }
                 else if (classes && classes.indexOf("fb-collapse") >= 0) {
-                    createIcon(foldingIconID, offset.top, -0.5, '&#8862'); // folding icon: plus 
+                    if (tagName == 'h1') {
+                        createIcon(foldingIconID, offset.top, 0, '&#8862', '150%'); // folding icon: plus 
+                    }
+                    else if (tagName == 'h2') {
+                        createIcon(foldingIconID, offset.top, 10, '&#8862', '120%'); // folding icon: plus 
+                    }
+
                     if (editor.id.indexOf("fb-source-mce") >= 0) {
-                        createIcon(pushIconID, offset.top + 15, -0.5, '&#9655');
+                        createIcon(pushIconID, offset.top, 30, '&#9655', '120%');
                     }
                 }
                 else {
-                    createIcon(foldingIconID, offset.top, -0.5, '&#8863'); // folding icon: minus 
+                    if (tagName == 'h1') {
+                        createIcon(foldingIconID, offset.top, 0, '&#8863', '150%'); // folding icon: minus 
+                    }
+                    else if (tagName == 'h2') {
+                        createIcon(foldingIconID, offset.top, 10, '&#8863', '120%'); // folding icon: minus 
+                    }
+             
                     if (editor.id.indexOf("fb-source-mce") >= 0) {
-                        createIcon(pushIconID, offset.top + 15, -0.5, '&#9655');
+                        createIcon(pushIconID, offset.top, 30, '&#9655', '120%');
                     }
                 }
             });
@@ -718,6 +741,67 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        function drawLines() {         
+            $(editor.getBody()).find('.fb_tinymce_left_column_icon').each(function () {
+                var this_icon = $(this);
+                // for each minus icon: draw line 
+                if (this_icon.html().charCodeAt() == '8863') {
+                    var targetID = this_icon.attr('id').substr(5);
+                    if (targetID == null) return;
+
+                    var children = $(editor.getBody()).children();
+                    if (children == null || children.length <= 0) return;
+
+                    var start = false;
+                    var targetLevel = 10000;
+                    var lastElement;
+
+                    // get the last element of the section
+                    for (var i = 0; i < children.length; i++) {
+                        var element = children[i];
+                        if (element.className.indexOf("fb_tinymce_left_column") >= 0) continue;
+
+                        if (start == false) {
+                            if (element.id == targetID) {
+                                start = true;
+                                targetLevel = parseInt(element.tagName.substr(1));
+                            }
+                        }
+                        else {
+                            if ((element.tagName.toLowerCase() == 'h1') || (element.tagName.toLowerCase() == 'h2') || (element.tagName.toLowerCase() == 'h3')) {
+                                var level = parseInt(element.tagName.substr(1));
+                                if (level <= targetLevel) {
+                                    break;
+                                }
+                                else {
+                                    lastElement = element;
+                                }
+                            }
+                            else {
+                                lastElement = element;
+                            }
+                        }
+                    }
+
+                    var t_offset = this_icon.offset(); // absolute position relative to the document
+                    var b_offset = $(lastElement).offset(); // absolute position relative to the document
+
+                    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', t_offset.left);
+                    line.setAttribute('y1', t_offset.top);
+                    line.setAttribute('x2', t_offset.left);
+                    line.setAttribute('y2', b_offset.top);
+                    //line.setAttribute('stroke', 'grey');
+                    //line.setAttribute('stroke-width', 1);
+                    var svg_id = editor.id + '-svg';
+                    var svg = editor.getDoc().getElementById(svg_id);
+                    if (svg) svg.appendChild(line);
+                }
+
+                
+            });
+        }
+
         function collapseOrExpand(targetID, collapse) {
             var start = false;
             var targetLevel = 10000;
@@ -775,7 +859,7 @@ jQuery(document).ready(function ($) {
             }
         }
 
-        function createIcon(id, top, left, text) {
+        function createIcon(id, top, left, text, fontsize) {
             //text = typeof text !== 'undefined' ? text : '&#8863'; // default parameter
 
             var icon = document.createElement('div');
@@ -785,6 +869,7 @@ jQuery(document).ready(function ($) {
             icon.style.position = 'absolute';
             icon.style.top = top + 'px';
             icon.style.left = left + 'px';
+            icon.style.fontSize = fontsize;
             //icon.style.width = '8px';
             //icon.style.height = '8px';
             //icon.style.backgroundColor = '#ff0000';
