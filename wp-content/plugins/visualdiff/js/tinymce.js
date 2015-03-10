@@ -441,6 +441,7 @@ jQuery(document).ready(function ($) {
             left_column.style.top = 0;
             left_column.style.left = 0;
             left_column.style.width = '12px';
+            left_column.style.zIndex = -2;
 
             //var body_height = $(editor.getBody()).height();
             //left_column.style.height = body_height + 'px';
@@ -450,8 +451,9 @@ jQuery(document).ready(function ($) {
             editor.getBody().appendChild(left_column);
 
             // add svg element
+            $(editor.getBody()).find('.fb_tinymce_left_column_svg').remove();
             var id = editor.id + '-svg';
-            $(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/></svg>');
+            $(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column_svg" style="position:absolute; top:0px; left:0px; height: 100%; width: 50px; z-index: -1;" xmlns="http://www.w3.org/2000/svg"/></svg>');
 
             // reset icons
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').remove(); // clear all existing icons
@@ -702,6 +704,7 @@ jQuery(document).ready(function ($) {
             if (children != null && children.length > 0) {
                 for (var i = 0; i < children.length; i++) {
                     var element = children[i];
+                    if (element.tagName == 'svg') continue;
                     if (element.className.indexOf("fb_tinymce_left_column") >= 0) continue;
 
                     if (start == false) {
@@ -747,10 +750,10 @@ jQuery(document).ready(function ($) {
                 // for each minus icon: draw line 
                 if (this_icon.html().charCodeAt() == '8863') {
                     var targetID = this_icon.attr('id').substr(5);
-                    if (targetID == null) return;
+                    if (targetID == null) return true; // continue
 
                     var children = $(editor.getBody()).children();
-                    if (children == null || children.length <= 0) return;
+                    if (children == null || children.length <= 0) return true; // continue
 
                     var start = false;
                     var targetLevel = 10000;
@@ -759,6 +762,7 @@ jQuery(document).ready(function ($) {
                     // get the last element of the section
                     for (var i = 0; i < children.length; i++) {
                         var element = children[i];
+                        if (element.tagName == 'svg') continue;
                         if (element.className.indexOf("fb_tinymce_left_column") >= 0) continue;
 
                         if (start == false) {
@@ -783,16 +787,23 @@ jQuery(document).ready(function ($) {
                         }
                     }
 
+                    if (!lastElement) return true; // continue
+
                     var t_offset = this_icon.offset(); // absolute position relative to the document
                     var b_offset = $(lastElement).offset(); // absolute position relative to the document
 
+                    var x1 = t_offset.left + this_icon.width() / 2;
+                    var y1 = t_offset.top + this_icon.height() / 2;
+                    var x2 = x1;
+                    var y2 = b_offset.top + $(lastElement).height();
+
                     var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    line.setAttribute('x1', t_offset.left);
-                    line.setAttribute('y1', t_offset.top);
-                    line.setAttribute('x2', t_offset.left);
-                    line.setAttribute('y2', b_offset.top);
-                    //line.setAttribute('stroke', 'grey');
-                    //line.setAttribute('stroke-width', 1);
+                    line.setAttribute('x1', x1);
+                    line.setAttribute('y1', y1);
+                    line.setAttribute('x2', x2);
+                    line.setAttribute('y2', y2);
+                    line.setAttribute('stroke', 'black');
+                    line.setAttribute('stroke-width', 1);
                     var svg_id = editor.id + '-svg';
                     var svg = editor.getDoc().getElementById(svg_id);
                     if (svg) svg.appendChild(line);
@@ -809,6 +820,10 @@ jQuery(document).ready(function ($) {
             if (children != null && children.length > 0) {
                 for (var i = 0; i < children.length; i++) {
                     var element = children[i];
+                    //console.log(element);
+                    //console.log(element.tagName);
+                    //console.log(element.className);
+                    if (element.tagName == 'svg') continue;
                     if (element.className.indexOf("fb_tinymce_left_column") >= 0) continue;
 
                     if (start == false) {

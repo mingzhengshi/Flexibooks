@@ -26,6 +26,7 @@ add_filter( 'wp_insert_post_data' , 'fb_filter_post_data' , '99', 2 );
 // mce editor
 add_filter('mce_css', 'fb_mce_editor_style');
 //add_filter('teeny_mce_buttons', array( 'bold', 'italic' ), 'fb_editor_jstree_selection' );
+add_filter('tiny_mce_before_init', 'fb_allow_all_tinymce_elements_attributes');
 
 // ajax action
 add_action( 'wp_ajax_fb_source_query', 'fb_source_query' );
@@ -615,6 +616,22 @@ function fb_mce_editor_style($url) {
     $url .= trailingslashit( plugin_dir_url(__FILE__) ) . 'css/editor.css';
     
     return $url;
+}
+
+function fb_allow_all_tinymce_elements_attributes( $init ) {
+
+    // Allow all elements and all attributes
+    $ext = '*[*]';
+
+    // Add to extended_valid_elements if it already exists
+    if ( isset( $init['extended_valid_elements'] ) ) {
+        $init['extended_valid_elements'] .= ',' . $ext;
+    } else {
+        $init['extended_valid_elements'] = $ext;
+    }
+
+    // return value
+    return $init;
 }
 
 /*
