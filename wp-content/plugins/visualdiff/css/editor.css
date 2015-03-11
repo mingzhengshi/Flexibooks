@@ -120,6 +120,11 @@ p.assessed{
     display: none;
 }
 
+/* section highlight */
+.fb-section-highlight {
+    background-color: #f0f0f0;
+}
+
 /* html diff */
 span.insert {
 }

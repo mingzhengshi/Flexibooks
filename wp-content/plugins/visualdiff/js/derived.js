@@ -1363,7 +1363,7 @@ jQuery(document).ready(function ($) {
                             $(polygon).css("cursor", "pointer");
                             $(polygon).css("opacity", 1);
 
-                            console.log('..............hover..............');
+                            //console.log('..............hover..............');
 
                             if (comp_type == 'source_derive') {
                                 $(left).find('span.delete-sd').each(function () { $(this).addClass('delete-highlight-sd'); });

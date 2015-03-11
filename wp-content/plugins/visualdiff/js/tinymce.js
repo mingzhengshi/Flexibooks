@@ -551,20 +551,36 @@ jQuery(document).ready(function ($) {
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').hover(
                 // handlerIn
                 function () {
-                    $(this).css('cursor', 'pointer');
+                    var this_icon = $(this);
+                    var targetID = this_icon.attr('id').substr(5);
+                    if (targetID == null) return;
+
+                    this_icon.css('cursor', 'pointer');
                     on_icon_hover = true;
 
-                    if (isMergeIcons($(this)) || isDraggableIcons($(this))) {
-                        $(this).css('opacity', 1);
+                    if (this_icon.html().charCodeAt() == '8863') {
+                        sectionHighlight(targetID, true);
+                    }
+
+                    if (isMergeIcons(this_icon) || isDraggableIcons(this_icon)) {
+                        this_icon.css('opacity', 1);
                     }
                 },
                 // handlerOut
                 function () {
-                    $(this).css('cursor', 'text');
+                    var this_icon = $(this);
+                    var targetID = this_icon.attr('id').substr(5);
+                    if (targetID == null) return;
+
+                    this_icon.css('cursor', 'text');
                     on_icon_hover = false;
 
-                    if (isMergeIcons($(this)) || isDraggableIcons($(this))) {
-                        $(this).css('opacity', 0.3);
+                    if (this_icon.html().charCodeAt() == '8863') {
+                        sectionHighlight(targetID, false);
+                    }
+
+                    if (isMergeIcons(this_icon) || isDraggableIcons(this_icon)) {
+                        this_icon.css('opacity', 0.3);
                     }
                 }
             );
@@ -705,8 +721,7 @@ jQuery(document).ready(function ($) {
             if (children != null && children.length > 0) {
                 for (var i = 0; i < children.length; i++) {
                     var element = children[i];
-                    if (element.tagName == 'svg') continue;
-                    if (element.className.indexOf("fb_tinymce_left_column") >= 0) continue;
+                    if (isAdminElement(element)) continue;
 
                     if (start == false) {
                         if (element.id == targetID) {
@@ -745,6 +760,12 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        function isAdminElement(element) {
+            if (element.tagName == 'svg') return true;
+            if (element.className.indexOf("fb_tinymce_left_column") >= 0) return true;
+            return false;
+        }
+
         function drawLines() {         
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').each(function () {
                 var this_icon = $(this);
@@ -765,8 +786,7 @@ jQuery(document).ready(function ($) {
                     // get the last element of the section
                     for (var i = 0; i < children.length; i++) {
                         var element = children[i];
-                        if (element.tagName == 'svg') continue;
-                        if (element.className.indexOf("fb_tinymce_left_column") >= 0) continue;
+                        if (isAdminElement(element)) continue;
 
                         if (start == false) {
                             if (element.id == targetID) {
@@ -806,6 +826,29 @@ jQuery(document).ready(function ($) {
                     }
 
                     var color = 'grey';
+                    var svg_id = editor.id + '-svg';
+                    var svg = editor.getDoc().getElementById(svg_id);
+
+                    // line for events
+                    var eline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    eline.setAttribute('x1', x1);
+                    eline.setAttribute('y1', y1);
+                    eline.setAttribute('x2', x2);
+                    eline.setAttribute('y2', y2);
+                    eline.setAttribute('stroke', 'white'); // should be invisible
+                    eline.setAttribute('stroke-width', 7);
+                    //eline.style.zIndex = -1;
+                    //line.style.padding = '2px';
+                    $(eline).hover(function () {
+                        $(eline).css("cursor", "default");
+                        //console.log('..............line hover..............');
+                        sectionHighlight(targetID, true);
+                    }, function () {
+                        sectionHighlight(targetID, false);
+                    });                                       
+                    if (svg) svg.appendChild(eline);
+
+                    // line for visualization
                     var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                     line.setAttribute('x1', x1);
                     line.setAttribute('y1', y1);
@@ -813,10 +856,10 @@ jQuery(document).ready(function ($) {
                     line.setAttribute('y2', y2);
                     line.setAttribute('stroke', color);
                     line.setAttribute('stroke-width', 1);
-                    var svg_id = editor.id + '-svg';
-                    var svg = editor.getDoc().getElementById(svg_id);
+                    //line.style.zIndex = 1;
                     if (svg) svg.appendChild(line);
 
+                    // short horizontal line in the end of the section
                     var hline = document.createElementNS('http://www.w3.org/2000/svg', 'line');
                     hline.setAttribute('x1', x2);
                     hline.setAttribute('y1', y2);
@@ -824,13 +867,62 @@ jQuery(document).ready(function ($) {
                     hline.setAttribute('y2', y2);
                     hline.setAttribute('stroke', color);
                     hline.setAttribute('stroke-width', 1);
-                    var svg_id = editor.id + '-svg';
-                    var svg = editor.getDoc().getElementById(svg_id);
                     if (svg) svg.appendChild(hline);
                 }
 
                 
             });
+        }
+
+        function sectionHighlight(id, on) {
+            var start = false;
+            var targetLevel = 10000;
+            var children = $(editor.getBody()).children();
+            if (children != null && children.length > 0) {
+                for (var i = 0; i < children.length; i++) {
+                    var element = children[i];
+                    if (isAdminElement(element)) continue;
+
+                    if (start == false) {
+                        if (element.id == id) {
+                            start = true;
+                            targetLevel = parseInt(element.tagName.substr(1));
+
+                            if (on) {
+                                $(element).addClass('fb-section-highlight');
+                            }
+                            else {
+                                $(element).removeClass('fb-section-highlight');
+                            }
+                        }
+                    }
+                    else {
+                        if ((element.tagName.toLowerCase() == 'h1') || (element.tagName.toLowerCase() == 'h2') || (element.tagName.toLowerCase() == 'h3')) {
+                            var level = parseInt(element.tagName.substr(1));
+                            if (level <= targetLevel) {
+                                break;
+                            }
+                            else {
+                                if (on) {
+                                    $(element).addClass('fb-section-highlight');
+                                }
+                                else {
+                                    $(element).removeClass('fb-section-highlight');
+                                }
+                            }
+                        }
+                        else {
+                            if (on) {
+                                $(element).addClass('fb-section-highlight');
+                            }
+                            else {
+                                $(element).removeClass('fb-section-highlight');
+                            }
+                        }
+                    }
+                }
+            }
+
         }
 
         function collapseOrExpand(targetID, collapse) {
@@ -840,11 +932,7 @@ jQuery(document).ready(function ($) {
             if (children != null && children.length > 0) {
                 for (var i = 0; i < children.length; i++) {
                     var element = children[i];
-                    //console.log(element);
-                    //console.log(element.tagName);
-                    //console.log(element.className);
-                    if (element.tagName == 'svg') continue;
-                    if (element.className.indexOf("fb_tinymce_left_column") >= 0) continue;
+                    if (isAdminElement(element)) continue;
 
                     if (start == false) {
                         if (element.id == targetID) {
