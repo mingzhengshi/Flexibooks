@@ -23,6 +23,10 @@ jQuery(document).ready(function ($) {
                 $(editor.getBody()).css('margin-left', 50);
             }
 
+            if (editor.id.indexOf("fb-old-source-mce") >= 0) {
+                $(editor.getBody()).css('margin-left', 50);
+            }
+
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 // when the derived mce is inited; we can load the source mce
                 var callback = flexibook.deriveMceInitCallback;
@@ -59,38 +63,6 @@ jQuery(document).ready(function ($) {
 
         editor.on('cut', function (e) {
             onCutOrCopy(e);
-
-            /*
-            if (editor.id.indexOf("fb-derived-mce") >= 0) {
-                    var icon = document.createElement('div');
-                    icon.id = 'move-test-id-1234';
-                    icon.title = "draggable";
-                    icon.className = 'fb_tinymce_left_column_icon2';
-                    icon.innerHTML = 'd';
-                    //icon.style.position = 'absolute';
-                    //icon.style.top = 200 + 'px';
-                    //icon.style.left = 10 + 'px';
-                    icon.style.fontSize = '120%';
-
-                    //icon.style.paddingLeft = '9px';
-                    //icon.style.paddingRight = '9px';
-
-                    icon.style.border = 'solid';
-                    icon.style.borderWidth = '1px';
-                    icon.style.borderColor = 'grey';
-                    icon.style.borderRadius = '18px';
-
-                    icon.style.width = '36px';
-                    icon.style.textAlign = 'center';
-                    //icon.style.height = '8px';
-                    icon.style.backgroundColor = '#dedede';
-                    icon.style.opacity = 1;
-
-                    icon.draggable = true;
-
-                    editor.getBody().appendChild(icon);
-            }
-            */
         });
 
         editor.on('copy', function (e) {
@@ -558,7 +530,7 @@ jQuery(document).ready(function ($) {
                     this_icon.css('cursor', 'pointer');
                     on_icon_hover = true;
 
-                    if (this_icon.html().charCodeAt() == '8863') {
+                    if (this_icon.html().charCodeAt() == '8863' || this_icon.html().charCodeAt() == '8862') {
                         sectionHighlight(targetID, true);
                     }
 
@@ -575,7 +547,7 @@ jQuery(document).ready(function ($) {
                     this_icon.css('cursor', 'text');
                     on_icon_hover = false;
 
-                    if (this_icon.html().charCodeAt() == '8863') {
+                    if (this_icon.html().charCodeAt() == '8863' || this_icon.html().charCodeAt() == '8862') {
                         sectionHighlight(targetID, false);
                     }
 

@@ -88,19 +88,56 @@ function fb_mce_before_init( $settings ) {
             'classes' => 'activity'
         ),
         array(
-            'title' => 'Exercise',
-            'block' => 'li', /*??*/
-            'classes' => 'exercise'
-        ),
-        array(
             'title' => 'Answer',
             'block' => 'hr',
             'classes' => 'answer'
         ),
         array(
+            'title' => 'body text italic',
+            //'block' => 'p',
+            'inline' => 'span',
+            'classes' => 'body-text-italic'
+        ),
+        array(
             'title' => 'assessed outcomes',
             'block' => 'p',
             'classes' => 'assessed'
+        ),
+        array(
+            'title' => 'C head SM',
+            'block' => 'p',
+            'classes' => 'c-head-sm'
+        ),
+        array(
+            'title' => 'D head SM',
+            'block' => 'p',
+            'classes' => 'd-head-sm'
+        ),
+        array(
+            'title' => 'diagram',
+            'block' => 'p',
+            'classes' => 'diagram'
+        ),
+        array(
+            'title' => 'diagram2',
+            'block' => 'p',
+            'classes' => 'diagram2'
+        ),
+        array(
+            'title' => 'question SM',
+            //'block' => 'p',
+            'inline' => 'span',
+            'classes' => 'question-sm'
+        ),
+        array(
+            'title' => 'Subtitle',
+            'block' => 'p',
+            'classes' => 'subtitle'
+        ),
+        array(
+            'title' => 'Title',
+            'block' => 'p',
+            'classes' => 'title'
         )
     );
 

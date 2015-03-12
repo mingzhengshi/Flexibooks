@@ -430,7 +430,7 @@ jQuery(document).ready(function ($) {
 
             var revision_date = getSourceRevisionDate(post_id);
             if (revision_date == null) revision_date = 'latest';
-            $('#fb-old-source-heading').html('Dependent Source (' + revision_date + ')');
+            $('#fb-old-source-heading').html('Old Source (' + revision_date + ')');
 
             var old_content = getSourceRevisionContent(post_id);
             if (old_content != null) {
