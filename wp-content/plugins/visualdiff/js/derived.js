@@ -7,6 +7,7 @@ jQuery(document).ready(function ($) {
     var previous_source_revisions = []; // list of previous source revisions for merge
 
     var floating_sources = true;
+    var highlighting_source = false;  
     var source_tab_original_margin_top = -1;
 
     // source tabs
@@ -354,6 +355,20 @@ jQuery(document).ready(function ($) {
         }
     });
 
+    $("#fb-button-highlight-source").button().click(function () {
+        var this_button = $("#fb-button-highlight-source");
+        if (this_button.attr('value') == "Turn Off Source Highlight") {
+            this_button.attr('value', 'Turn On Source Highlight');
+            highlighting_source = false;
+        }
+        else if (this_button.attr('value') == "Turn On Source Highlight") {
+            this_button.attr('value', 'Turn Off Source Highlight');
+            highlighting_source = true;
+        }
+
+        update();
+    });
+
     $("#fb-button-show-previous-source").button().click(function () {
         togglePreviousSource();
     });
@@ -433,6 +448,7 @@ jQuery(document).ready(function ($) {
             $('#fb-old-source-heading').html('Old Source (' + revision_date + ')');
 
             var old_content = getSourceRevisionContent(post_id);
+            old_mce["post_id"] = post_id; // ms
             if (old_content != null) {
                 old_mce.setContent(old_content);
             }
@@ -940,8 +956,54 @@ jQuery(document).ready(function ($) {
 
     function update() {
         updateMetaSourceVersions();
+        updateSourceHighlight();
         updateHTMLDiff();
         updateSVG();
+    }
+
+    function updateSourceHighlight() {
+        // get active tab id
+        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
+        if (typeof tab_id == typeof undefined || tab_id == null) return;
+        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
+        var source_mce = tinymce.get(source_mce_id);
+        var source_doc = source_mce.getDoc();
+        var pid = source_mce.post_id;
+
+        highlightSource(source_doc, pid);
+
+        if (flexibook.columns_of_editors == 3) {
+            var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
+            highlightSource(old_source_doc, pid);
+        }
+    }
+
+    function highlightSource(source_doc, pid) {
+        if (highlighting_source == false) {
+            $(source_doc.body).children().each(function (index) {
+                $(this).css("opacity", 1);
+            });
+        }
+        else {
+            $(source_doc.body).children().each(function (index) {
+                $(this).css("opacity", 0.5);
+            });
+
+            var derived_doc = tinymce.get('fb-derived-mce').getDoc();
+            $(derived_doc.body).children().each(function (index) {
+                var derive = $(this);
+                if (isTinymceAdminElement(derive)) return true; // continue
+                var source_id = derive.attr('data-source-id');
+                var source_post_id = derive.attr('data-source-post-id');
+
+                if (source_post_id && source_post_id == pid && source_id && source_id != 'none') {
+                    var source = source_doc.getElementById(source_id);
+                    if (source) {
+                        $(source).css("opacity", 1);
+                    }
+                }
+            });
+        }
     }
 
     function updateMetaSourceVersions() {

@@ -410,7 +410,8 @@ function fb_post_box_derived_document_callback() {
 <div> 
     <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" style="margin-right:10px"/>      
     <input id="fb-button-show-previous-source" type="button" value="Show Previous Source" class="button-secondary" style="margin-right:10px"/>   
-    <input id="fb-button-floating-source" type="button" value="Turn Off Floating" class="button-secondary">
+    <input id="fb-button-floating-source" type="button" value="Turn Off Floating" class="button-secondary" style="margin-right:10px">
+    <input id="fb-button-highlight-source" type="button" value="Turn On Source Highlight" class="button-secondary">
     <textarea id="fb-invisible-editor" style="display:none;"></textarea>
     <input id="fb-input-source-tabs" style="display:none;" name="fb-opened-source-post-ids" value="<?php echo $source_posts_ids; ?>" />   
 </div>

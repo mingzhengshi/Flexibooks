@@ -471,54 +471,6 @@ jQuery(document).ready(function ($) {
             setupIconEvents();
         }
 
-        function setupDraggableIconEvents(icon_id) {
-            var icon = editor.getDoc().getElementById(icon_id);
-            icon.addEventListener('dragstart', function (event) {
-                _dragging = true;
-
-                var targetID = icon.id.substr(5);
-                if (targetID == null) return;
-
-                $(this).css('opacity', 0); // hide the icon
-                flexibook.dragged_item_id = targetID;
-                var dragged_item = editor.getDoc().getElementById(flexibook.dragged_item_id);
-                _dragged_item_copy = $(dragged_item).clone();
-
-                if (editor.id.indexOf("fb-derived-mce") >= 0) {
-                    $(dragged_item).addClass('fb_tinymce_dragging');
-                    $(dragged_item).css('opacity', 0.5);
-                }
-                else if (editor.id.indexOf("fb-source-mce") >= 0) {
-                    var post_id = editor.post_id;
-                    $(_dragged_item_copy).attr("data-source-post-id", post_id);
-                }
-                //console.log('dragstart');
-            });
-
-            /*
-            icon.addEventListener('drag', function (event) {
-                $(editor.getBody()).css('cursor', 'crosshair');
-            });
-            */
-
-            icon.addEventListener('dragend', function (event) {
-                _dragging = false;
-
-                if (editor.id.indexOf("fb-derived-mce") >= 0) {
-                    var dragged_item = editor.getDoc().getElementById(flexibook.dragged_item_id);
-                    $(dragged_item).removeClass('fb_tinymce_dragging');
-                    $(dragged_item).css('opacity', 1);
-                }
-                else if (editor.id.indexOf("fb-source-mce") >= 0) {
-                    var callback = flexibook.onDragEndCallback;
-                    if (callback) callback();
-
-                    setupDerivedElementID();
-                }
-                //console.log('dragend');
-            });
-        }
-
         function setupIconEvents() {
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').hover(
                 // handlerIn
@@ -534,7 +486,8 @@ jQuery(document).ready(function ($) {
                         sectionHighlight(targetID, true);
                     }
 
-                    if (isMergeIcons(this_icon) || isDraggableIcons(this_icon)) {
+                    //if (isMergeIcons(this_icon) || isDraggableIcons(this_icon)) {
+                    if (isMergeIcons(this_icon)) {
                         this_icon.css('opacity', 1);
                     }
                 },
@@ -551,7 +504,8 @@ jQuery(document).ready(function ($) {
                         sectionHighlight(targetID, false);
                     }
 
-                    if (isMergeIcons(this_icon) || isDraggableIcons(this_icon)) {
+                    //if (isMergeIcons(this_icon) || isDraggableIcons(this_icon)) {
+                    if (isMergeIcons(this_icon)) {
                         this_icon.css('opacity', 0.3);
                     }
                 }
@@ -621,6 +575,69 @@ jQuery(document).ready(function ($) {
                 }
 
                 update();
+            });
+        }
+
+        function setupDraggableIconEvents(icon_id) {
+            var icon = editor.getDoc().getElementById(icon_id);
+
+            $(icon).hover(
+                // handlerIn
+                function () {
+                    var this_icon = $(this);
+                    this_icon.css('cursor', 'pointer');
+                    this_icon.css('opacity', 1);
+                },
+                // handlerOut
+                function () {
+                    var this_icon = $(this);
+                    this_icon.css('opacity', 0.3);
+                }
+            );
+
+            icon.addEventListener('dragstart', function (event) {
+                _dragging = true;
+
+                var targetID = icon.id.substr(5);
+                if (targetID == null) return;
+
+                $(this).css('opacity', 0); // hide the icon
+                flexibook.dragged_item_id = targetID;
+                var dragged_item = editor.getDoc().getElementById(flexibook.dragged_item_id);
+                _dragged_item_copy = $(dragged_item).clone();
+
+                if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                    $(dragged_item).addClass('fb_tinymce_dragging');
+                    $(dragged_item).css('opacity', 0.5);
+                }
+                else if (editor.id.indexOf("fb-source-mce") >= 0) {
+                    var post_id = editor.post_id;
+                    $(_dragged_item_copy).attr("data-source-post-id", post_id);
+                }
+                //console.log('dragstart');
+            });
+
+            /*
+            icon.addEventListener('drag', function (event) {
+                $(editor.getBody()).css('cursor', 'crosshair');
+            });
+            */
+
+            icon.addEventListener('dragend', function (event) {
+                _dragging = false;
+
+                if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                    var dragged_item = editor.getDoc().getElementById(flexibook.dragged_item_id);
+                    $(dragged_item).removeClass('fb_tinymce_dragging');
+                    $(dragged_item).css('opacity', 1);
+                }
+                else if (editor.id.indexOf("fb-source-mce") >= 0) {
+                    var callback = flexibook.onDragEndCallback;
+                    if (callback) callback();
+
+                    setupDerivedElementID();
+                }
+                //console.log('dragend');
             });
         }
 
