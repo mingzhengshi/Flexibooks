@@ -141,7 +141,8 @@ jQuery(document).ready(function ($) {
                 if (callback) callback(post_id, id);
             }
 
-            // drag and drop paragraphs
+            // 1. quick delete paragraph - derived editor only 
+            // 2. drag and drop paragraphs
             if (editor.id.indexOf("fb-derived-mce") >= 0 ||
                 editor.id.indexOf("fb-source-mce") >= 0) {
                 if (!$(node).attr('data-merge-case')) {
@@ -151,60 +152,67 @@ jQuery(document).ready(function ($) {
                     var width = $(editor.getBody()).width();
 
                     var moveIconID = 'move-' + $(node).attr('id');
+                    var draggable = true;
+                    if (editor.id.indexOf("fb-source-mce") >= 0) {
+                        createEditIcon(moveIconID, top, width, '&#9776', 'Drag and drop this item to derive document', draggable);
+                    }
+                    else if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                        createEditIcon(moveIconID, top, width, '&#9776', 'Move this item', draggable);
+                    }
 
-                    createDraggableIcon(moveIconID, top, width, '&#9776', 'Move this item');
-
-                    setupDraggableIconEvents(moveIconID);
+                    if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                        var deleteIconID = 'qdel-' + $(node).attr('id');
+                        createEditIcon(deleteIconID, top, width - 50, '&#10005', 'Delete this item', false);
+                    }
                 }
             }
 
             //-----------------------------------------------------------------------------------------------
             // merge cases
 
-            if (!$(node).attr('data-merge-case')) return;
-            if ($(node).attr('data-merge-case') <= 0) return;
+            if ($(node).attr('data-merge-case') && $(node).attr('data-merge-case') > 0) {
+                var mcase = $(node).attr('data-merge-case');
+                // setup merge icon
 
-            var mcase = $(node).attr('data-merge-case');
-            // setup merge icon
+                var offset = $(node).offset(); // absolute position relative to the document
+                var height = $(node).height();
+                var top = offset.top - 22 + height / 2;
+                var width = $(editor.getBody()).width();
 
-            var offset = $(node).offset(); // absolute position relative to the document
-            var height = $(node).height();
-            var top = offset.top - 22 + height / 2;
-            var width = $(editor.getBody()).width();
+                if (mcase == 1) {
+                    var yesIconID = 'myes-' + $(node).attr('id');
+                    var noIconID = 'mnon-' + $(node).attr('id');
 
-            if (mcase == 1) {
-                var yesIconID = 'myes-' + $(node).attr('id');
-                var noIconID = 'mnon-' + $(node).attr('id');
-
-                createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase, "Accept the change in source document");
-                createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
-            }
-            else if (mcase == 3) {
-                var moreIconID = 'more-' + $(node).attr('id');
-                var mlesIconID = 'mles-' + $(node).attr('id');
-                var noIconID = 'mnon-' + $(node).attr('id');
-
-                if (flexibook.columns_of_editors == 2) {
-                    createMergeIcon(moreIconID, top, width - 50, 'III', mcase, "Show previous source (three-column view)");
+                    createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase, "Accept the change in source document");
+                    createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
                 }
-                else if (flexibook.columns_of_editors == 3) {
-                    createMergeIcon(mlesIconID, top, width - 50, 'II', mcase, "Hide previous source (two-column view)");
+                else if (mcase == 3) {
+                    var moreIconID = 'more-' + $(node).attr('id');
+                    var mlesIconID = 'mles-' + $(node).attr('id');
+                    var noIconID = 'mnon-' + $(node).attr('id');
+
+                    if (flexibook.columns_of_editors == 2) {
+                        createMergeIcon(moreIconID, top, width - 50, 'III', mcase, "Show previous source (three-column view)");
+                    }
+                    else if (flexibook.columns_of_editors == 3) {
+                        createMergeIcon(mlesIconID, top, width - 50, 'II', mcase, "Hide previous source (two-column view)");
+                    }
+                    createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
                 }
-                createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
-            }
-            else if (mcase == 5) {
-                var insIconID = 'mins-' + $(node).attr('id');
-                var noIconID = 'mnon-' + $(node).attr('id');
+                else if (mcase == 5) {
+                    var insIconID = 'mins-' + $(node).attr('id');
+                    var noIconID = 'mnon-' + $(node).attr('id');
 
-                createMergeIcon(insIconID, top, width - 50, '&#8680', mcase, "Insert the new paragraph to derived document");
-                createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore this new paragraph");
-            }
-            else if (mcase == 6) {
-                var yesIconID = 'myes-' + $(node).attr('id');
-                var noIconID = 'mnon-' + $(node).attr('id');
+                    createMergeIcon(insIconID, top, width - 50, '&#8680', mcase, "Insert the new paragraph to derived document");
+                    createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore this new paragraph");
+                }
+                else if (mcase == 6) {
+                    var yesIconID = 'myes-' + $(node).attr('id');
+                    var noIconID = 'mnon-' + $(node).attr('id');
 
-                createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase, "Accept the deletion in source document");
-                createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the deletion in source document");
+                    createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase, "Accept the deletion in source document");
+                    createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the deletion in source document");
+                }
             }
 
             setupIconEvents();
@@ -472,6 +480,16 @@ jQuery(document).ready(function ($) {
         }
 
         function setupIconEvents() {
+            $(editor.getBody()).find('.fb_tinymce_left_column_icon').each(function () {
+                var this_icon = $(this);
+
+                // move icon
+                if (this_icon.html().charCodeAt() == '9776') {
+                    var id = this_icon.attr('id');
+                    setupDraggableIconEvents(id);
+                }
+            });
+
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').hover(
                 // handlerIn
                 function () {
@@ -486,8 +504,8 @@ jQuery(document).ready(function ($) {
                         sectionHighlight(targetID, true);
                     }
 
-                    //if (isMergeIcons(this_icon) || isDraggableIcons(this_icon)) {
-                    if (isMergeIcons(this_icon)) {
+                    if (isMergeIcons(this_icon) || isEditIcons(this_icon)) {
+                    //if (isMergeIcons(this_icon)) {
                         this_icon.css('opacity', 1);
                     }
                 },
@@ -504,8 +522,8 @@ jQuery(document).ready(function ($) {
                         sectionHighlight(targetID, false);
                     }
 
-                    //if (isMergeIcons(this_icon) || isDraggableIcons(this_icon)) {
-                    if (isMergeIcons(this_icon)) {
+                    if (isMergeIcons(this_icon) || isEditIcons(this_icon)) {
+                    //if (isMergeIcons(this_icon)) {
                         this_icon.css('opacity', 0.3);
                     }
                 }
@@ -531,6 +549,11 @@ jQuery(document).ready(function ($) {
                     // click the push button: add content
                 else if (this_icon.html().charCodeAt() == '9655') {
                     insertContent(targetID);
+                }
+                    // click the delete button: delete this item
+                else if (this_icon.html().charCodeAt() == '10005') {
+                    var targetElement = editor.getDoc().getElementById(targetID);
+                    $(targetElement).remove();
                 }
                     // click the show previous source button
                 else if (this_icon.html() == 'III') {
@@ -580,7 +603,7 @@ jQuery(document).ready(function ($) {
 
         function setupDraggableIconEvents(icon_id) {
             var icon = editor.getDoc().getElementById(icon_id);
-
+            /*
             $(icon).hover(
                 // handlerIn
                 function () {
@@ -594,7 +617,7 @@ jQuery(document).ready(function ($) {
                     this_icon.css('opacity', 0.3);
                 }
             );
-
+            */
             icon.addEventListener('dragstart', function (event) {
                 _dragging = true;
 
@@ -652,8 +675,9 @@ jQuery(document).ready(function ($) {
             return false;
         }
 
-        function isDraggableIcons(this_icon) {
-            if (this_icon.html().charCodeAt() == '9776') {
+        function isEditIcons(this_icon) {
+            if (this_icon.html().charCodeAt() == '9776' || 
+               (this_icon.html().charCodeAt() == '10005')) {
                 return true;
             }
             return false;
@@ -1020,7 +1044,7 @@ jQuery(document).ready(function ($) {
             editor.getBody().appendChild(icon);
         }
 
-        function createDraggableIcon(id, top, left, text, title) {
+        function createEditIcon(id, top, left, text, title, draggable) {
             var icon = document.createElement('div');
             icon.className = 'fb_tinymce_left_column_icon';
             icon.id = id;
@@ -1041,7 +1065,7 @@ jQuery(document).ready(function ($) {
             icon.style.opacity = 0.3;
 
             icon.contentEditable = false;
-            icon.draggable = true;
+            if (draggable) icon.draggable = true;
 
             editor.getBody().appendChild(icon);
 
