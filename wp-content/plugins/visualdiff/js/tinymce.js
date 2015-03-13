@@ -108,9 +108,11 @@ jQuery(document).ready(function ($) {
 
         editor.on('mouseup', function (e) {
             if (on_icon_hover) return;
-            //resetIcons();
-            update();
+            //update(); // use update function will setup icon events twice
+            resetIcons();
             onMouseUp(e);
+            setupIconEvents();
+            drawLines();
         });
 
         function onMouseUp(e) {
@@ -141,8 +143,11 @@ jQuery(document).ready(function ($) {
                 if (callback) callback(post_id, id);
             }
 
+            //-----------------------------------------------------------------------------------------------
+            // edit icons
             // 1. quick delete paragraph - derived editor only 
             // 2. drag and drop paragraphs
+
             if (editor.id.indexOf("fb-derived-mce") >= 0 ||
                 editor.id.indexOf("fb-source-mce") >= 0) {
                 if (!$(node).attr('data-merge-case')) {
@@ -168,7 +173,7 @@ jQuery(document).ready(function ($) {
             }
 
             //-----------------------------------------------------------------------------------------------
-            // merge cases
+            // merge icons
 
             if ($(node).attr('data-merge-case') && $(node).attr('data-merge-case') > 0) {
                 var mcase = $(node).attr('data-merge-case');
@@ -214,8 +219,6 @@ jQuery(document).ready(function ($) {
                     createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the deletion in source document");
                 }
             }
-
-            setupIconEvents();
         }
 
         function onEnterKeyDown(e) {
@@ -410,6 +413,7 @@ jQuery(document).ready(function ($) {
             }
 
             resetIcons();
+            setupIconEvents();
             drawLines();
         }
 
@@ -476,7 +480,6 @@ jQuery(document).ready(function ($) {
             });
 
             on_icon_hover = false;
-            setupIconEvents();
         }
 
         function setupIconEvents() {
@@ -624,7 +627,11 @@ jQuery(document).ready(function ($) {
                 var targetID = icon.id.substr(5);
                 if (targetID == null) return;
 
-                $(this).css('opacity', 0); // hide the icon
+                $(this).css('opacity', 0); // hide the drag icon
+                var deleteIconID = 'qdel-' + targetID;
+                var delete_icon = editor.getDoc().getElementById(deleteIconID);
+                $(delete_icon).css('opacity', 0); // hide the delete icon
+
                 flexibook.dragged_item_id = targetID;
                 var dragged_item = editor.getDoc().getElementById(flexibook.dragged_item_id);
                 _dragged_item_copy = $(dragged_item).clone();
