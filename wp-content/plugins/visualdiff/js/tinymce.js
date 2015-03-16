@@ -12,6 +12,8 @@ jQuery(document).ready(function ($) {
     //var _dragged_item_id = -1;
     var _dragged_item_copy = null;
 
+    var _select_content = null;
+
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
 
         // events
@@ -39,11 +41,12 @@ jQuery(document).ready(function ($) {
         });
 
         editor.on('SetContent', function () {
+            console.log('on set content');
             update();
         });
 
         editor.on('change', function (e) {
-            //console.log('change event', e);
+            console.log('on change');
             setupDerivedElementID();
 
             update();
@@ -70,34 +73,44 @@ jQuery(document).ready(function ($) {
         });
 
         editor.on('keydown', function (e) {
+            console.log('........................................................');
+            console.log('on key down');
+
+            flexibook.postpone_update = true;
+
             // backspace key
             if (e.keyCode == 8) {
-                flexibook.postpone_update = true;
-                console.log('backspace key down');
+                //flexibook.postpone_update = true;
+                //console.log('backspace key down');
             }
                 // enter key
             else if (e.keyCode == 13) {
-                onEnterKeyDown(e);
+                //onEnterKeyDown(e);
             }
                 // delete key
             else if (e.keyCode == 46) {
-                flexibook.postpone_update = true;
-                console.log('delete key down');
+                //flexibook.postpone_update = true;
+                //console.log('delete key down');
             }
+
         });
 
         editor.on('keyup', function (e) {
+            console.log('on key up');
+
+            flexibook.postpone_update = false;
+
+            //update();
+
             // backspace key
             if (e.keyCode == 8) {
-                console.log('backspace key up');
-                flexibook.postpone_update = false;
-                update();
+                //console.log('backspace key up');
+                //update();
             }
                 // delete key
             else if (e.keyCode == 46) {
-                console.log('delete key up');
-                flexibook.postpone_update = false;
-                update();
+                //console.log('delete key up');
+                //update();
             }
         });
 
