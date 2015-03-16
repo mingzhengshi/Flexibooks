@@ -955,6 +955,8 @@ jQuery(document).ready(function ($) {
     });
 
     function update() {
+        if (flexibook.postpone_update == true) return;
+
         updateMetaSourceVersions();
         updateSourceHighlight();
         updateHTMLDiff();
@@ -1196,7 +1198,10 @@ jQuery(document).ready(function ($) {
                 // stores a bookmark of the current selection
                 var derive_bookmark;
                 if (comp_type == 'source_derive') derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true); // use a non-html bookmark
-
+                //console.log(tinymce.get('fb-derived-mce').selection);
+                //console.log(tinymce.get('fb-derived-mce').selection.getNode());
+                //console.log(derive_bookmark);
+                console.log('derive_bookmark');
                 var base = base_doc.getElementById(source_id);
                 if (base) {
                     //var derive_clean = comp.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
@@ -1204,7 +1209,6 @@ jQuery(document).ready(function ($) {
                     var derive_html = unwrapDeleteInsertTagjQuery(comp);
 
                     var source_html = $(base).html();
-
 
                     if (source_html != derive_html) {
                         // comp element

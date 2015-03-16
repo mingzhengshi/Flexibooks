@@ -72,7 +72,8 @@ jQuery(document).ready(function ($) {
         editor.on('keydown', function (e) {
             // backspace key
             if (e.keyCode == 8) {
-
+                flexibook.postpone_update = true;
+                console.log('backspace key down');
             }
                 // enter key
             else if (e.keyCode == 13) {
@@ -80,7 +81,23 @@ jQuery(document).ready(function ($) {
             }
                 // delete key
             else if (e.keyCode == 46) {
+                flexibook.postpone_update = true;
+                console.log('delete key down');
+            }
+        });
 
+        editor.on('keyup', function (e) {
+            // backspace key
+            if (e.keyCode == 8) {
+                console.log('backspace key up');
+                flexibook.postpone_update = false;
+                update();
+            }
+                // delete key
+            else if (e.keyCode == 46) {
+                console.log('delete key up');
+                flexibook.postpone_update = false;
+                update();
             }
         });
 
@@ -462,7 +479,12 @@ jQuery(document).ready(function ($) {
                     }
 
                     if (editor.id.indexOf("fb-source-mce") >= 0) {
-                        createIcon(pushIconID, offset.top, 30, '&#9655', '120%');
+                        if (tagName == 'h1') {
+                            createIcon(pushIconID, offset.top, 22, '&#9655', '150%');
+                        }
+                        else if (tagName == 'h2') {
+                            createIcon(pushIconID, offset.top, 30, '&#9655', '120%');
+                        }                     
                     }
                 }
                 else {
@@ -474,7 +496,12 @@ jQuery(document).ready(function ($) {
                     }
              
                     if (editor.id.indexOf("fb-source-mce") >= 0) {
-                        createIcon(pushIconID, offset.top, 30, '&#9655', '120%');
+                        if (tagName == 'h1') {
+                            createIcon(pushIconID, offset.top, 22, '&#9655', '150%');
+                        }
+                        else if (tagName == 'h2') {
+                            createIcon(pushIconID, offset.top, 30, '&#9655', '120%');
+                        }
                     }
                 }
             });

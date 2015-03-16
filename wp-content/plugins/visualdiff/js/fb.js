@@ -3,6 +3,7 @@
         this.name = "fb";
         this.columns_of_editors = 2;
         this.dragged_item_id = -1;
+        this.postpone_update = false;
 
         // callbacks
         this.deriveMceInitCallback = {};
