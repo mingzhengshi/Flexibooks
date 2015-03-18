@@ -73,6 +73,8 @@ jQuery(document).ready(function ($) {
         });
 
         editor.on('keydown', function (e) {
+            if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
+
             console.log('........................................................');
             console.log('on key down');
 
@@ -96,6 +98,8 @@ jQuery(document).ready(function ($) {
         });
 
         editor.on('keyup', function (e) {
+            if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
+
             console.log('on key up');
 
             flexibook.postpone_update = false;
