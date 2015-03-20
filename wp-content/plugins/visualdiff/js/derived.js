@@ -492,7 +492,7 @@ jQuery(document).ready(function ($) {
         for (var i = 0; i < meta_source_versions.length; i++) {
             if (meta_source_versions[i].source_post_previous_version != meta_source_versions[i].source_post_current_version) {
                 getSourcePostRevision(meta_source_versions[i].source_post_id, meta_source_versions[i].source_post_previous_version);
-                $("#fb-button-show-previous-source").prop('disabled', false);
+                //$("#fb-button-show-previous-source").prop('disabled', false);
             }
         }
     }
@@ -592,13 +592,19 @@ jQuery(document).ready(function ($) {
                                         // merge case 1:
                                         if (derive_element.trim() == old_element.trim()) {
                                             $(this).attr('data-merge-case', 1);
-                                            $(this).css('background-color', 'lightpink');
+                                            $(this).css('border-style', 'dotted');
+                                            $(this).css('border-width', '1px');
+                                            $(this).css('border-color', 'orange');
+                                            //$(this).css('background-color', 'lightpink');
                                             setNumberOfMergeRequests(post_id, 1);
                                         }
                                             // merge case 3:
                                         else {
                                             $(this).attr('data-merge-case', 3);
-                                            $(this).css('background-color', 'lightpink');
+                                            $(this).css('border-style', 'dotted');
+                                            $(this).css('border-width', '1px');
+                                            $(this).css('border-color', 'orange');
+                                            //$(this).css('background-color', 'lightpink');
                                             setNumberOfMergeRequests(post_id, 1);
                                         }
 
@@ -1149,14 +1155,71 @@ jQuery(document).ready(function ($) {
 
         if (flexibook.columns_of_editors == 2) {
             updateHTMLDiffColumn(source_doc, derived_doc, 'source_derive', true);
+
+            var merge = false;
+            for (var i = 0; i < meta_source_versions.length; i++) {
+                if (meta_source_versions[i].number_of_merges > 0) {
+                    merge = true;
+                    break;
+                }
+            }
+
+            if (merge) {
+                updateHTMLDiffMerge();
+            }
         }
         else if (flexibook.columns_of_editors == 3) {
+            // disable three columns view
+            /*
             var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
 
             updateHTMLDiffColumn(old_source_doc, derived_doc, 'source_derive', true);
 
             updateHTMLDiffColumn(old_source_doc, source_doc, 'source_source', false);
+            */
         }
+    }
+
+    function updateHTMLDiffMerge() {
+        var derived_doc = tinymce.get('fb-derived-mce').getDoc();
+
+        // get active tab id
+        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
+        if (typeof tab_id == typeof undefined || tab_id == null) return;
+        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
+        var source_doc = tinymce.get(source_mce_id).getDoc();
+
+        var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
+
+        $(derived_doc.body).children().each(function (index) {
+            var derive = $(this);
+
+            if (isTinymceAdminElement(derive)) return true; // continue
+            if (!derive.attr('data-merge-case')) return true; // continue
+
+            var source_id = derive.attr('data-source-id');
+
+            if (source_id && source_id != 'none') {
+                var source = source_doc.getElementById(source_id);
+                if (source) {
+                    var mcase = derive.attr('data-merge-case');
+                    switch (mcase) {
+                        // case 1:
+                        // source documen is modified; derive document is unchanged
+                        case "1":
+
+
+
+                            break;
+                    }
+
+
+                }
+
+
+
+            }
+        });
     }
 
     function updateHTMLDiffColumn(base_doc, comp_doc, comp_type, clean_base) {
@@ -1299,6 +1362,8 @@ jQuery(document).ready(function ($) {
             updateSVGColumn(source_doc, derived_doc, 'source_derive', 'fb-svg-mid-column');
         }
         else if (flexibook.columns_of_editors == 3) {
+            // disable three columns view
+            /*
             var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
 
             // first column
@@ -1307,6 +1372,7 @@ jQuery(document).ready(function ($) {
 
             // second column
             updateSVGColumn(old_source_doc, derived_doc, 'source_derive', 'fb-svg-mid-column');
+            */
         }
     }
 
