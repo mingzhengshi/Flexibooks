@@ -184,13 +184,15 @@ p.title {
 
 /* html diff */
 span.insert {
+    background-color: #faee3d;
 }
 
 span.delete {
     text-decoration: line-through;
-    opacity: 0.6;
+    opacity: 0.5;
 }
 
+/*
 span.insert-ss {
     background-color: #cefbcc;
 }
@@ -204,7 +206,7 @@ span.delete-ss {
 }
 
 span.delete-sd {
-    /*background-color: #faee3d;*/
+    background-color: #faee3d;
 }
 
 span.insert-highlight-ss {
@@ -228,3 +230,4 @@ span.delete-highlight-sd {
     font-weight: bold;
     background-color: #f7e113;
 }
+*/

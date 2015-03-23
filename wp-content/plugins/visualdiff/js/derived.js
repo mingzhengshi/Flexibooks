@@ -575,9 +575,12 @@ jQuery(document).ready(function ($) {
 
                         // if the id exist in the old source 
                         if (exist_old_source) {
+                            /*
                             var clean = n_this.find('span.delete').contents().unwrap().end().end(); // remove all delete tags
                             clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
                             var new_element = clean.html();
+                            */
+                            var new_element = unwrapDeleteInsertTagjQuery(n_this);
 
                             if (new_element.trim() != old_element.trim()) {
                                 // derive element                                  
@@ -585,9 +588,12 @@ jQuery(document).ready(function ($) {
                                     if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == id) {
                                         exist_derive = true;
 
+                                        /*
                                         var clean = $(this).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
                                         clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
                                         var derive_element = clean.html();
+                                        */
+                                        var derive_element = unwrapDeleteInsertTagjQuery($(this));
 
                                         // merge case 1:
                                         if (derive_element.trim() == old_element.trim()) {
@@ -597,8 +603,14 @@ jQuery(document).ready(function ($) {
                                             $(this).css('border-color', 'orange');
                                             //$(this).css('background-color', 'lightpink');
                                             setNumberOfMergeRequests(post_id, 1);
+
+                                            // base element
+                                            var diff = html_diff_compact(derive_element, new_element);
+                                            $(this).html(diff);
+                                            n_this.html(diff);
+                                            n_this.attr('data-merge-case', 1); // this modification is in memory only, will not be saved to database
                                         }
-                                            // merge case 3:
+                                        // merge case 3:
                                         else {
                                             $(this).attr('data-merge-case', 3);
                                             $(this).css('border-style', 'dotted');
@@ -613,6 +625,8 @@ jQuery(document).ready(function ($) {
                                 });
 
                                 if (exist_derive == false) {
+                                    // merge case 2: delete in derive, no changes or modified in source
+                                    /*
                                     // source document
                                     if (n_this.prop("tagName").toLowerCase() != 'h1' &&
                                         n_this.prop("tagName").toLowerCase() != 'h2' &&
@@ -628,13 +642,14 @@ jQuery(document).ready(function ($) {
                                             });
                                         }
 
-                                        // merge case 5:
+                                        // use merge case 5:
                                         if (p_exist) {
                                             n_this.attr('data-merge-case', 5);
                                             n_this.css('background-color', 'lightgreen');
                                             setNumberOfMergeRequests(post_id, 1);
                                         }
                                     }
+                                    */
                                 }
                                 else {
                                     // source document
@@ -668,15 +683,16 @@ jQuery(document).ready(function ($) {
                             */
 
                             // merge case 5:
-                            n_this.attr('data-merge-case', 5);
-                            n_this.css('background-color', 'lightgreen');
+                            //n_this.attr('data-merge-case', 5);
+                            //n_this.css('background-color', 'lightgreen');
+                            var html = n_this.html();
+                            var html = "<span class='insert'>" + html + "</span>";
+                            n_this.html(html);
+                            n_this.attr('data-merge-case', 5); // this modification is in memory only, will not be saved to database
+                            addNewItemToDerive(n_this, new_doc, derived_doc);
                             setNumberOfMergeRequests(post_id, 1);
                         }
-
-
-
                     }
-
                 });
 
                 // cases 6, 7, 8
@@ -703,7 +719,14 @@ jQuery(document).ready(function ($) {
                                     // case 6 and 8: exist in derived document
                                     exist_derive = true;
                                     $(this).attr('data-merge-case', 6);
-                                    $(this).css('background-color', 'lightpink');
+                                    $(this).css('border-style', 'dotted');
+                                    $(this).css('border-width', '1px');
+                                    $(this).css('border-color', 'orange');
+                                    //var html = $(this).html();
+                                    var html = unwrapDeleteInsertTagjQuery($(this));
+                                    var html = "<span class='delete'>" + html + "</span>";
+                                    $(this).html(html);
+                                    //$(this).css('background-color', 'lightpink');
                                     setNumberOfMergeRequests(post_id, 1);
                                     return false; // break each function
                                 }
@@ -723,6 +746,59 @@ jQuery(document).ready(function ($) {
                 break;
             }
         };
+    }
+
+    // merge case 5: add item in source, where section exists in derive
+    function addNewItemToDerive(element, new_doc, derived_doc) {
+        var clone = element.clone();
+        var s_id = $(clone).attr('id').trim();
+        var parent_id = getParentID(new_doc.body, s_id);
+        var prev_id = getPreviousID(new_doc.body, s_id);
+        var next_id = getNextID(new_doc.body, s_id);
+
+        var found = false;
+        if (parent_id != null && prev_id != null) {
+            $($(derived_doc.body).children().get().reverse()).each(function () {
+                if ($(this).attr("data-source-id") && $(this).attr("data-source-id") == prev_id) {
+                    $(clone).attr('data-merge-case', 5);
+                    $(clone).css('border-style', 'dotted');
+                    $(clone).css('border-width', '1px');
+                    $(clone).css('border-color', 'orange');
+                    //var newHtml = unwrapDeleteInsertTagjQuery(comp);
+                    var html = $(clone).html();
+                    var html = "<span class='insert'>" + html + "</span>";
+                    $(clone).html(html);
+                    $(clone).insertAfter($(this));
+                    found = true;
+                    return false;
+                }
+            });
+        }
+
+        // if prev paragraph is not found in derive document
+        if (found == false) {
+            if (parent_id != null && next_id != null) {
+                $($(derived_doc.body).children().get().reverse()).each(function () {
+                    if ($(this).attr("data-source-id") && $(this).attr("data-source-id") == next_id) {
+                        $(clone).attr('data-merge-case', 5);
+                        $(clone).css('border-style', 'dotted');
+                        $(clone).css('border-width', '1px');
+                        $(clone).css('border-color', 'orange');
+                        var html = $(clone).html();
+                        var html = "<span class='insert'>" + html + "</span>";
+                        $(clone).html(html);
+                        $(clone).insertAfter($(this));
+                        found = true;
+                        return false;
+                    }
+                });
+            }
+        }
+
+        // if next paragraph is also not found in derive document
+        if (found == false) {
+
+        }
     }
 
     function setNumberOfMergeRequests(post_id, value) {
@@ -1156,6 +1232,7 @@ jQuery(document).ready(function ($) {
         if (flexibook.columns_of_editors == 2) {
             updateHTMLDiffColumn(source_doc, derived_doc, 'source_derive', true);
 
+            /*
             var merge = false;
             for (var i = 0; i < meta_source_versions.length; i++) {
                 if (meta_source_versions[i].number_of_merges > 0) {
@@ -1167,6 +1244,7 @@ jQuery(document).ready(function ($) {
             if (merge) {
                 updateHTMLDiffMerge();
             }
+            */
         }
         else if (flexibook.columns_of_editors == 3) {
             // disable three columns view
@@ -1207,7 +1285,14 @@ jQuery(document).ready(function ($) {
                         // case 1:
                         // source documen is modified; derive document is unchanged
                         case "1":
+                            // clear both source and derive elements
+                            var source_html = unwrapDeleteInsertTag(source);
+                            source.html(source_html);
 
+                            var derive_html = unwrapDeleteInsertTagjQuery(derive);
+                            derive.html(derive_html);
+
+                            var old_source = old_source_doc.getElementById(source_id);
 
 
                             break;
@@ -1229,6 +1314,7 @@ jQuery(document).ready(function ($) {
                 var base = $(this);
                 //if (base.hasClass("fb_tinymce_left_column") == false && base.hasClass("fb_tinymce_left_column_icon") == false) {
                 if (isTinymceAdminElement(base)) return true; // continue
+                if (base.attr('data-merge-case')) return true; // continue; ms - skip the elements that require merge actions
                 var id = base.attr('id');
 
                 if (id && id != 'none') {
@@ -1246,6 +1332,7 @@ jQuery(document).ready(function ($) {
 
             //if (comp.hasClass("fb_tinymce_left_column") == false && comp.hasClass("fb_tinymce_left_column_icon") == false) {
             if (isTinymceAdminElement(comp)) return true; // continue
+            if (comp.attr('data-merge-case')) return true; // continue; ms - skip the elements that require merge actions
             //var source_id = comp.attr('data-source-id');
             var source_id = null;
             if (comp_type == 'source_derive') {
@@ -1278,6 +1365,7 @@ jQuery(document).ready(function ($) {
                         var r1 = html_diff(source_html, derive_html, 'insert');
                         comp.html(r1);
 
+                        /*
                         if (comp_type == 'source_derive') {
                             $(comp).find('span.insert').each(function () {
                                 $(this).addClass('insert-sd');
@@ -1288,11 +1376,13 @@ jQuery(document).ready(function ($) {
                                 $(this).addClass('insert-ss');
                             });
                         }
+                        */
 
                         // base element
                         var r2 = html_diff(source_html, derive_html, 'delete');
                         $(base).html(r2);
 
+                        /*
                         if (comp_type == 'source_derive') {
                             $(base).find('span.delete').each(function () {
                                 if ($(this).hasClass('delete-ss') == false) {
@@ -1307,6 +1397,7 @@ jQuery(document).ready(function ($) {
                                 }
                             });
                         }
+                        */
 
                         //console.log($(base).prop('outerHTML'));
                     }
@@ -1496,7 +1587,7 @@ jQuery(document).ready(function ($) {
                             $(polygon).css("opacity", 1);
 
                             //console.log('..............hover..............');
-
+                            /*
                             if (comp_type == 'source_derive') {
                                 $(left).find('span.delete-sd').each(function () { $(this).addClass('delete-highlight-sd'); });
 
@@ -1507,18 +1598,20 @@ jQuery(document).ready(function ($) {
 
                                 right.find('span.delete-ss').each(function () { $(this).addClass('delete-highlight-ss'); });
                             }
-
+                            */
                             //console.log($(left).prop('outerHTML'));
                             //console.log($(right).prop('outerHTML'));
 
                         }, function () {
                             $(polygon).css("opacity", 0.2);
 
+                            /*
                             $(left).find('span.insert').each(function () { $(this).removeClass('insert-highlight-ss insert-highlight-sd'); });
                             $(left).find('span.delete').each(function () { $(this).removeClass('delete-highlight-ss delete-highlight-sd'); });
 
                             right.find('span.insert').each(function () { $(this).removeClass('insert-highlight-ss insert-highlight-sd'); });
                             right.find('span.delete').each(function () { $(this).removeClass('delete-highlight-ss delete-highlight-sd'); });
+                            */
                         });
                         document.getElementById(svg_column_id).appendChild(polygon);
                     }
