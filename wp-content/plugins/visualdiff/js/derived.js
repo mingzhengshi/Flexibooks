@@ -608,6 +608,23 @@ jQuery(document).ready(function ($) {
                                             var diff = html_diff_compact(derive_element, new_element);
                                             $(this).html(diff);
                                             n_this.html(diff);
+
+                                            $(this).find('span.insert').each(function () {
+                                                $(this).addClass('insert-merge');
+                                            });
+
+                                            $(this).find('span.delete').each(function () {
+                                                $(this).addClass('delete-merge');
+                                            });
+
+                                            n_this.find('span.insert').each(function () {
+                                                $(this).addClass('insert-merge');
+                                            });
+
+                                            n_this.find('span.delete').each(function () {
+                                                $(this).addClass('delete-merge');
+                                            });
+
                                             n_this.attr('data-merge-case', 1); // this modification is in memory only, will not be saved to database
                                         }
                                         // merge case 3:
@@ -686,7 +703,7 @@ jQuery(document).ready(function ($) {
                             //n_this.attr('data-merge-case', 5);
                             //n_this.css('background-color', 'lightgreen');
                             var html = n_this.html();
-                            var html = "<span class='insert'>" + html + "</span>";
+                            var html = "<span class='insert insert-merge'>" + html + "</span>";
                             n_this.html(html);
                             n_this.attr('data-merge-case', 5); // this modification is in memory only, will not be saved to database
                             addNewItemToDerive(n_this, new_doc, derived_doc);
@@ -724,7 +741,7 @@ jQuery(document).ready(function ($) {
                                     $(this).css('border-color', 'orange');
                                     //var html = $(this).html();
                                     var html = unwrapDeleteInsertTagjQuery($(this));
-                                    var html = "<span class='delete'>" + html + "</span>";
+                                    var html = "<span class='delete delete-merge'>" + html + "</span>";
                                     $(this).html(html);
                                     //$(this).css('background-color', 'lightpink');
                                     setNumberOfMergeRequests(post_id, 1);

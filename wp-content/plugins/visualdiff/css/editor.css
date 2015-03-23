@@ -184,10 +184,20 @@ p.title {
 
 /* html diff */
 span.insert {
-    background-color: #faee3d;
+    border-style: dotted;
+    border-width: 1px;
+    border-color: lightgray;
 }
 
 span.delete {
+    opacity: 0.3;
+}
+
+span.insert-merge {
+    background-color: #faee3d;
+}
+
+span.delete-merge {
     text-decoration: line-through;
     opacity: 0.5;
 }

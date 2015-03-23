@@ -23,10 +23,12 @@ jQuery(document).ready(function ($) {
 
             if (editor.id.indexOf("fb-source-mce") >= 0) {
                 $(editor.getBody()).css('margin-left', 50);
-                $(editor).find('.mce-toolbar-grp').each(function () {
+
+                /*
+                $(editor.getDoc()).find('.mce-toolbar-grp').each(function () {
                     $(this).css('display', 'none');
                 })
-                
+                */
             }
 
             if (editor.id.indexOf("fb-old-source-mce") >= 0) {
