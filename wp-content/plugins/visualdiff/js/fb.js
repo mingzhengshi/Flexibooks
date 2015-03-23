@@ -5,15 +5,19 @@
         this.dragged_item_id = -1;
         this.postpone_update = false;
 
-        // callbacks
+        // mce editor callbacks
         this.deriveMceInitCallback = {};
         this.showPreviousSourceIconClickCallback = {};
         this.mergeIconClickCallback = {};
         this.deriveUpdateCallback = {};
         this.derivedElementMouseUpCallback = {};
         this.onDragEndCallback = {};
+
+        // derive document callbacks
+        //this.addMergeIconsCallback = {};
     }
 
+    // mce editor callbacks
     Flexibook.prototype.regDeriveMceInitCallback = function (callback) {
         this.deriveMceInitCallback = callback;
     };
@@ -38,6 +42,14 @@
         this.onDragEndCallback = callback;
     };
 
+    // derive document callbacks
+    /*
+    Flexibook.prototype.regAddMergeIconsCallback = function (callback) {
+        this.addMergeIconsCallback = callback;
+    };
+    */
+
+    // others
     Flexibook.prototype.print = function () {
         console.log("flexibook name:" + this.name);
     }

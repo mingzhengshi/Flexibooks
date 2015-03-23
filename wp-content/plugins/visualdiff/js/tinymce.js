@@ -18,6 +18,56 @@ jQuery(document).ready(function ($) {
 
         // events
         editor.on('init', function () {
+            /*
+            flexibook.regAddMergeIconsCallback(function (id) {
+                var node = editor.getDoc().getElementById(id);
+                if ($(node).attr('data-merge-case') && $(node).attr('data-merge-case') > 0) {
+                    var mcase = $(node).attr('data-merge-case');
+                    // setup merge icon
+
+                    var offset = $(node).offset(); // absolute position relative to the document
+                    var height = $(node).height();
+                    var top = offset.top - 22 + height / 2;
+                    var width = $(editor.getBody()).width();
+
+                    if (mcase == 1) {
+                        var yesIconID = 'myes-' + $(node).attr('id');
+                        var noIconID = 'mnon-' + $(node).attr('id');
+
+                        createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept the change in source document");
+                        createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore the change in source document");
+                    }
+                    else if (mcase == 3) {
+                        var moreIconID = 'more-' + $(node).attr('id');
+                        var mlesIconID = 'mles-' + $(node).attr('id');
+                        var noIconID = 'mnon-' + $(node).attr('id');
+
+                        if (flexibook.columns_of_editors == 2) {
+                            createMergeIcon(moreIconID, top, width - 50, 'III', mcase, "Show previous source (three-column view)");
+                        }
+                        else if (flexibook.columns_of_editors == 3) {
+                            createMergeIcon(mlesIconID, top, width - 50, 'II', mcase, "Hide previous source (two-column view)");
+                        }
+                        createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
+                    }
+                    else if (mcase == 5) {
+                        var yesIconID = 'myes-' + $(node).attr('id');
+                        var noIconID = 'mnon-' + $(node).attr('id');
+
+                        createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept this new paragraph");
+                        createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore this new paragraph");
+                    }
+                    else if (mcase == 6) {
+                        var yesIconID = 'myes-' + $(node).attr('id');
+                        var noIconID = 'mnon-' + $(node).attr('id');
+
+                        createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept the deletion in source document");
+                        createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore the deletion in source document");
+                    }
+                }
+            });
+            */
+
             if (editor.id.indexOf("fb-merge-mce") >= 0) {
             }
 
@@ -214,7 +264,7 @@ jQuery(document).ready(function ($) {
 
             //-----------------------------------------------------------------------------------------------
             // merge icons
-
+            /*
             if ($(node).attr('data-merge-case') && $(node).attr('data-merge-case') > 0) {
                 var mcase = $(node).attr('data-merge-case');
                 // setup merge icon
@@ -228,8 +278,8 @@ jQuery(document).ready(function ($) {
                     var yesIconID = 'myes-' + $(node).attr('id');
                     var noIconID = 'mnon-' + $(node).attr('id');
 
-                    createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase, "Accept the change in source document");
-                    createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
+                    createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept the change in source document");
+                    createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore the change in source document");
                 }
                 else if (mcase == 3) {
                     var moreIconID = 'more-' + $(node).attr('id');
@@ -245,20 +295,21 @@ jQuery(document).ready(function ($) {
                     createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
                 }
                 else if (mcase == 5) {
-                    var insIconID = 'mins-' + $(node).attr('id');
+                    var yesIconID = 'myes-' + $(node).attr('id');
                     var noIconID = 'mnon-' + $(node).attr('id');
 
-                    createMergeIcon(insIconID, top, width - 50, '&#8680', mcase, "Insert the new paragraph to derived document");
-                    createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore this new paragraph");
+                    createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept this new paragraph");
+                    createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore this new paragraph");
                 }
                 else if (mcase == 6) {
                     var yesIconID = 'myes-' + $(node).attr('id');
                     var noIconID = 'mnon-' + $(node).attr('id');
 
-                    createMergeIcon(yesIconID, top, width - 50, '&#10003', mcase, "Accept the deletion in source document");
-                    createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the deletion in source document");
+                    createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept the deletion in source document");
+                    createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore the deletion in source document");
                 }
             }
+            */
         }
 
         function onEnterKeyDown(e) {
@@ -529,6 +580,58 @@ jQuery(document).ready(function ($) {
                 }
             });
 
+            //-----------------------------------------------------------------------------------------------
+            // merge icons
+            if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                $(editor.getBody()).children().each(function (index) {
+                    var node = $(this);
+                    if (node.attr('data-merge-case') && node.attr('data-merge-case') > 0) {
+                        var mcase = node.attr('data-merge-case');
+                        // setup merge icon
+
+                        var offset = node.offset(); // absolute position relative to the document
+                        var height = node.height();
+                        var top = offset.top - 22 + height / 2;
+                        var width = $(editor.getBody()).width();
+
+                        if (mcase == 1) {
+                            var yesIconID = 'myes-' + node.attr('id');
+                            var noIconID = 'mnon-' + node.attr('id');
+
+                            createMergeIcon(yesIconID, top, width + 60, '&#10003', mcase, "Accept the change in source document");
+                            createMergeIcon(noIconID, top, width + 105, '&#10007', mcase, "Ignore the change in source document");
+                        }
+                        else if (mcase == 3) {
+                            var moreIconID = 'more-' + node.attr('id');
+                            var mlesIconID = 'mles-' + node.attr('id');
+                            var noIconID = 'mnon-' + node.attr('id');
+
+                            if (flexibook.columns_of_editors == 2) {
+                                createMergeIcon(moreIconID, top, width - 50, 'III', mcase, "Show previous source (three-column view)");
+                            }
+                            else if (flexibook.columns_of_editors == 3) {
+                                createMergeIcon(mlesIconID, top, width - 50, 'II', mcase, "Hide previous source (two-column view)");
+                            }
+                            createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
+                        }
+                        else if (mcase == 5) {
+                            var yesIconID = 'myes-' + node.attr('id');
+                            var noIconID = 'mnon-' + node.attr('id');
+
+                            createMergeIcon(yesIconID, top, width + 60, '&#10003', mcase, "Accept this new paragraph");
+                            createMergeIcon(noIconID, top, width + 105, '&#10007', mcase, "Ignore this new paragraph");
+                        }
+                        else if (mcase == 6) {
+                            var yesIconID = 'myes-' + node.attr('id');
+                            var noIconID = 'mnon-' + node.attr('id');
+
+                            createMergeIcon(yesIconID, top, width + 60, '&#10003', mcase, "Accept the deletion in source document");
+                            createMergeIcon(noIconID, top, width + 105, '&#10007', mcase, "Ignore the deletion in source document");
+                        }
+                    }
+                });
+            }
+
             on_icon_hover = false;
         }
 
@@ -624,6 +727,7 @@ jQuery(document).ready(function ($) {
                     switch (mcase) {
                         case "1":
                         case "3":
+                        case "5":
                         case "6":
                             var post_id;
                             var source_item_id;
@@ -638,6 +742,7 @@ jQuery(document).ready(function ($) {
                             if (callback) callback(this_icon.html().charCodeAt(), post_id, source_item_id, derive_item_id, mcase);
 
                             break;
+                        /*
                         case "5":
                             var post_id = editor.post_id;
                             var source_item_id = this_icon.attr('id').substr(5);
@@ -647,6 +752,7 @@ jQuery(document).ready(function ($) {
                             if (callback) callback(this_icon.html().charCodeAt(), post_id, source_item_id, derive_item_id, mcase);
 
                             break;
+                        */
                     }
                 }
 
