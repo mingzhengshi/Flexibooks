@@ -249,27 +249,26 @@ jQuery(document).ready(function ($) {
                 break;
             case "6":
                 if (icon == '10003') {
-                    $(derived_doc.body).find("[id]").each(function () {
-                        if ($(this).attr('id').trim() == d_id) {
-                            $(this).remove();
-                            setNumberOfMergeRequests(post_id, -1);
-                        }
-                    });
+                    var source = new_doc.getElementById(s_id);
+                    var derive = derived_doc.getElementById(d_id);
+
+                    $(source).remove();
+                    $(derive).remove();
+                    setNumberOfMergeRequests(post_id, -1);
                 }
                 // ignore the changes in the new source document
                 else if (icon == '10007') {
                     // derive document
                     // ms - does not consider multiple ids in one paragraph
-                    $(derived_doc.body).find("[id]").each(function () {
-                        if ($(this).attr('id').trim() == d_id) {
-                            $(this).css('background-color', 'initial');
-                            if ($(this).attr('data-merge-case')) {
-                                $(this).removeAttr('data-merge-case');
-                                setNumberOfMergeRequests(post_id, -1);
-                            }
-                            return false; // break 
-                        }
-                    });
+                    var source = new_doc.getElementById(s_id);
+                    var derive = derived_doc.getElementById(d_id);
+                    var clean = unwrapDeleteInsertTag(derive);
+
+                    $(source).remove();                   
+                    $(derive).html(clean);
+                    $(derive).css('border-style', 'none');
+                    if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
+                    setNumberOfMergeRequests(post_id, -1);
                 }
 
                 update();
@@ -460,14 +459,10 @@ jQuery(document).ready(function ($) {
                         $(derived_doc.body).css('margin-right', 100);
                     }
 
-                    // tinymce update
-                    //console.log('fb-derived-mce: ' + tinymce.get('fb-derived-mce'));
-                    //console.log('fb-derived-mce plugin: ' + tinymce.get('fb-derived-mce').plugins);
-                    //console.log('fb-derived-mce fb_folding_editor: ' + tinymce.get('fb-derived-mce').plugins.fb_folding_editor);
-                    //console.log('fb-derived-mce update: ' + tinymce.get('fb-derived-mce').plugins.fb_folding_editor.update());
-                    //tinymce.get('fb-derived-mce').plugins.fb_folding_editor.update();
+                    // call tinymce plugin function
+                    //tinymce.get('fb-derived-mce').plugins.fb_folding_editor.update(); 
 
-                    update(); // ms - test
+                    update();
                 }
                 else {
                 }
@@ -515,7 +510,6 @@ jQuery(document).ready(function ($) {
                 // cases 1, 2, 3, 4, 5
                 $(new_doc.body).children().each(function (index) {
                     var n_this = $(this);
-                    //if (n_this.hasClass("fb_tinymce_left_column") == false && n_this.hasClass("fb_tinymce_left_column_icon") == false) {
                     if (isTinymceAdminElement(n_this)) return true; // continue
                     var id = n_this.attr('id');
                     if (id && id != 'none') {
@@ -528,17 +522,12 @@ jQuery(document).ready(function ($) {
                             if ($(this).attr('id').trim() == id) {
                                 exist_old_source = true;
                                 old_element = $(this).html();
-                                return false; // break each function
+                                return false; // break 
                             }
                         });
 
                         // if the id exist in the old source 
                         if (exist_old_source) {
-                            /*
-                            var clean = n_this.find('span.delete').contents().unwrap().end().end(); // remove all delete tags
-                            clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
-                            var new_element = clean.html();
-                            */
                             var new_element = unwrapDeleteInsertTagjQuery(n_this);
 
                             if (new_element.trim() != old_element.trim()) {
@@ -547,11 +536,6 @@ jQuery(document).ready(function ($) {
                                     if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == id) {
                                         exist_derive = true;
 
-                                        /*
-                                        var clean = $(this).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
-                                        clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
-                                        var derive_element = clean.html();
-                                        */
                                         var derive_element = unwrapDeleteInsertTagjQuery($(this));
 
                                         // merge case 1:
@@ -560,7 +544,6 @@ jQuery(document).ready(function ($) {
                                             $(this).css('border-style', 'dotted');
                                             $(this).css('border-width', '1px');
                                             $(this).css('border-color', 'orange');
-                                            //$(this).css('background-color', 'lightpink');
                                             setNumberOfMergeRequests(post_id, 1);
 
                                             // base element
@@ -584,10 +567,7 @@ jQuery(document).ready(function ($) {
                                                 $(this).addClass('delete-merge');
                                             });
 
-                                            //var callback = flexibook.addMergeIconsCallback;
-                                            //if (callback) callback($(this).attr('id'));
-
-                                            n_this.attr('data-merge-case', 1); // this modification is in memory only, will not be saved to database
+                                            n_this.attr('data-merge-case', 1); 
                                         }
                                         // merge case 3:
                                         else {
@@ -638,7 +618,6 @@ jQuery(document).ready(function ($) {
                         }
                         else {
                             // source document
-                            /*
                             if (n_this.prop("tagName").toLowerCase() != 'h1' &&
                                 n_this.prop("tagName").toLowerCase() != 'h2' &&
                                 n_this.prop("tagName").toLowerCase() != 'h3') {
@@ -655,21 +634,24 @@ jQuery(document).ready(function ($) {
 
                                 // merge case 5:
                                 if (p_exist) {
-                                    n_this.attr('data-merge-case', 5);
-                                    n_this.css('background-color', 'lightgreen');
+                                    var html = n_this.html();
+                                    var html = "<span class='insert insert-merge'>" + html + "</span>";
+                                    n_this.html(html);
+                                    n_this.attr('data-merge-case', 5); // this modification is in memory only, will not be saved to database
+                                    addNewItemToDerive(n_this, new_doc, derived_doc, post_id);
+                                    setNumberOfMergeRequests(post_id, 1);
                                 }
                             }
-                            */
 
                             // merge case 5:
-                            //n_this.attr('data-merge-case', 5);
-                            //n_this.css('background-color', 'lightgreen');
+                            /*
                             var html = n_this.html();
                             var html = "<span class='insert insert-merge'>" + html + "</span>";
                             n_this.html(html);
                             n_this.attr('data-merge-case', 5); // this modification is in memory only, will not be saved to database
                             addNewItemToDerive(n_this, new_doc, derived_doc, post_id);
                             setNumberOfMergeRequests(post_id, 1);
+                            */
                         }
                     }
                 });
@@ -695,8 +677,9 @@ jQuery(document).ready(function ($) {
                         if (!exist_new_source) {
                             $(derived_doc.body).find("[id]").each(function () {
                                 if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == id) {
-                                    // case 6 and 8: exist in derived document
+                                    // case 6: exist in derived document
                                     exist_derive = true;
+                                    addDeleteItemToSource(o_this, new_doc, old_doc, post_id);
                                     $(this).attr('data-merge-case', 6);
                                     $(this).css('border-style', 'dotted');
                                     $(this).css('border-width', '1px');
@@ -725,6 +708,56 @@ jQuery(document).ready(function ($) {
                 break;
             }
         };
+    }
+
+    // merge case 6: delete item in source, unchange in derive
+    function addDeleteItemToSource(element, new_doc, old_doc, post_id) {
+        var clone = element.clone();
+        var s_id = $(clone).attr('id').trim();
+        var parent_id = getParentID(old_doc.body, s_id);
+        var prev_id = getPreviousID(old_doc.body, s_id);
+        var next_id = getNextID(old_doc.body, s_id);
+
+        var found = false;
+        if (parent_id != null && prev_id != null) {
+            $($(new_doc.body).children().get().reverse()).each(function () {
+                if ($(this).attr("id") && $(this).attr("id") == prev_id) {
+                    $(clone).attr('data-merge-case', 6);
+
+                    var html = unwrapDeleteInsertTag(clone);
+                    //var html = $(clone).html();
+                    var html = "<span class='delete delete-merge'>" + html + "</span>";
+                    $(clone).html(html);
+                    $(clone).insertAfter($(this));
+
+                    found = true;
+                    return false;
+                }
+            });
+        }
+
+        // if prev paragraph is not found in new source document
+        if (found == false) {
+            if (parent_id != null && next_id != null) {
+                $($(new_doc.body).children().get().reverse()).each(function () {
+                    if ($(this).attr("id") && $(this).attr("id") == next_id) {
+                        $(clone).attr('data-merge-case', 6);
+
+                        var html = unwrapDeleteInsertTag(clone);
+                        var html = "<span class='delete delete-merge'>" + html + "</span>";
+                        $(clone).html(html);
+                        $(clone).insertBefore($(this));
+                        found = true;
+                        return false;
+                    }
+                });
+            }
+        }
+
+        // if next paragraph is also not found in new source document
+        if (found == false) {
+
+        }
     }
 
     // merge case 5: add item in source, where section exists in derive
@@ -773,7 +806,7 @@ jQuery(document).ready(function ($) {
                         var html = $(clone).html();
                         var html = "<span class='insert'>" + html + "</span>";
                         $(clone).html(html);
-                        $(clone).insertAfter($(this));
+                        $(clone).insertBefore($(this));
                         found = true;
                         return false;
                     }
