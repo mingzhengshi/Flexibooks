@@ -1343,14 +1343,11 @@ jQuery(document).ready(function ($) {
         if (clean_base) {
             $(base_doc.body).children().each(function (index) {
                 var base = $(this);
-                //if (base.hasClass("fb_tinymce_left_column") == false && base.hasClass("fb_tinymce_left_column_icon") == false) {
                 if (isTinymceAdminElement(base)) return true; // continue
                 if (base.attr('data-merge-case')) return true; // continue; ms - skip the elements that require merge actions
                 var id = base.attr('id');
 
                 if (id && id != 'none') {
-                    //var source_clean = base.find('span.delete').contents().unwrap().end().end(); // remove all delete tags
-                    //var source_html = source_clean.html();
                     var source_html = unwrapDeleteInsertTagjQuery(base);
                     base.html(source_html);
                 }
@@ -1382,7 +1379,7 @@ jQuery(document).ready(function ($) {
                 //console.log(tinymce.get('fb-derived-mce').selection);
                 //console.log(tinymce.get('fb-derived-mce').selection.getNode());
                 //console.log(derive_bookmark);
-                console.log('derive_bookmark');
+                //console.log('derive_bookmark');
                 var base = base_doc.getElementById(source_id);
                 if (base) {
                     //var derive_clean = comp.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
@@ -1441,11 +1438,17 @@ jQuery(document).ready(function ($) {
                     }
                 }
                 else {
-                    //var new_derive_clean = comp.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
-                    //var newHtml = new_derive_clean.html();
-                    var newHtml = unwrapDeleteInsertTagjQuery(comp);
-                    var newHtml = "<span class='insert'>" + newHtml + "</span>";
-                    comp.html(newHtml);
+                    if (comp.prop("tagName").toLowerCase() == 'ol') {
+                        //console.log(comp.prop('outerHTML'));
+                    }
+                    console.log(comp.prop("tagName") + ": " + comp.prop('outerHTML'));
+                    // bugs - this section generates bugs especially for <ol>, <ul> ... elements, disable for now
+                    if ((comp.prop("tagName").toLowerCase() != 'ol') &&
+                        (comp.prop("tagName").toLowerCase() != 'ul')) {
+                        var newHtml = unwrapDeleteInsertTagjQuery(comp);
+                        var newHtml = "<span class='insert'>" + newHtml + "</span>";
+                        comp.html(newHtml);
+                    }
                 }
 
                 // restore the selection bookmark
@@ -1453,18 +1456,24 @@ jQuery(document).ready(function ($) {
             }
             else {
                 if (id && id != 'none') {
-                    // stores a bookmark of the current selection
-                    var derive_bookmark;
-                    if (comp_type == 'source_derive') derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true);
+                    if (comp.prop("tagName") == 'ol') {
+                        //console.log(comp.prop('outerHTML'));
+                    }
+                    console.log(comp.prop("tagName") + ": " + comp.prop('outerHTML'));
+                    // bugs - this section generates bugs especially for <ol>, <ul> ... elements, disable for now
+                    if ((comp.prop("tagName").toLowerCase() != 'ol') &&
+                        (comp.prop("tagName").toLowerCase() != 'ul')) {
+                        var derive_bookmark;
+                        // stores a bookmark of the current selection
+                        if (comp_type == 'source_derive') derive_bookmark = tinymce.get('fb-derived-mce').selection.getBookmark(2, true);
 
-                    //var new_derive_clean = comp.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
-                    //var newHtml = new_derive_clean.html();
-                    var newHtml = unwrapDeleteInsertTagjQuery(comp);
-                    var newHtml = "<span class='insert'>" + newHtml + "</span>";
-                    comp.html(newHtml);
+                        var newHtml = unwrapDeleteInsertTagjQuery(comp);
+                        var newHtml = "<span class='insert'>" + newHtml + "</span>";
+                        comp.html(newHtml);
 
-                    // restore the selection bookmark
-                    if (comp_type == 'source_derive') tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark);
+                        // restore the selection bookmark
+                        if (comp_type == 'source_derive') tinymce.get('fb-derived-mce').selection.moveToBookmark(derive_bookmark);
+                    }
                 }
             }
         });
