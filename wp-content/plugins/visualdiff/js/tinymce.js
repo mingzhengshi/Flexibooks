@@ -18,56 +18,6 @@ jQuery(document).ready(function ($) {
 
         // events
         editor.on('init', function () {
-            /*
-            flexibook.regAddMergeIconsCallback(function (id) {
-                var node = editor.getDoc().getElementById(id);
-                if ($(node).attr('data-merge-case') && $(node).attr('data-merge-case') > 0) {
-                    var mcase = $(node).attr('data-merge-case');
-                    // setup merge icon
-
-                    var offset = $(node).offset(); // absolute position relative to the document
-                    var height = $(node).height();
-                    var top = offset.top - 22 + height / 2;
-                    var width = $(editor.getBody()).width();
-
-                    if (mcase == 1) {
-                        var yesIconID = 'myes-' + $(node).attr('id');
-                        var noIconID = 'mnon-' + $(node).attr('id');
-
-                        createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept the change in source document");
-                        createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore the change in source document");
-                    }
-                    else if (mcase == 3) {
-                        var moreIconID = 'more-' + $(node).attr('id');
-                        var mlesIconID = 'mles-' + $(node).attr('id');
-                        var noIconID = 'mnon-' + $(node).attr('id');
-
-                        if (flexibook.columns_of_editors == 2) {
-                            createMergeIcon(moreIconID, top, width - 50, 'III', mcase, "Show previous source (three-column view)");
-                        }
-                        else if (flexibook.columns_of_editors == 3) {
-                            createMergeIcon(mlesIconID, top, width - 50, 'II', mcase, "Hide previous source (two-column view)");
-                        }
-                        createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
-                    }
-                    else if (mcase == 5) {
-                        var yesIconID = 'myes-' + $(node).attr('id');
-                        var noIconID = 'mnon-' + $(node).attr('id');
-
-                        createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept this new paragraph");
-                        createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore this new paragraph");
-                    }
-                    else if (mcase == 6) {
-                        var yesIconID = 'myes-' + $(node).attr('id');
-                        var noIconID = 'mnon-' + $(node).attr('id');
-
-                        createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept the deletion in source document");
-                        createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore the deletion in source document");
-                    }
-                }
-            });
-            */
-
             if (editor.id.indexOf("fb-merge-mce") >= 0) {
             }
 
@@ -103,7 +53,7 @@ jQuery(document).ready(function ($) {
 
         editor.on('change', function (e) {
             console.log('on change');
-            setupDerivedElementID();
+            //setupDerivedElementID();
 
             update();
         });
@@ -477,6 +427,8 @@ jQuery(document).ready(function ($) {
         }
 
         function update() {
+            setupDerivedElementID(); // ms
+
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 var callback = flexibook.deriveUpdateCallback;
                 if (callback) callback();
@@ -664,6 +616,12 @@ jQuery(document).ready(function ($) {
                     //if (isMergeIcons(this_icon)) {
                         this_icon.css('opacity', 1);
                     }
+                    /*
+                    if (isMergeIcons(this_icon)) {
+                        this_icon.css('border-color', 'grey');
+                        this_icon.css('background-color', '#dedede');
+                    }
+                    */
                 },
                 // handlerOut
                 function () {
@@ -682,6 +640,12 @@ jQuery(document).ready(function ($) {
                     //if (isMergeIcons(this_icon)) {
                         this_icon.css('opacity', 0.3);
                     }
+                    /*
+                    if (isMergeIcons(this_icon)) {
+                        this_icon.css('border-color', 'white');
+                        this_icon.css('background-color', 'white');
+                    }
+                    */
                 }
             );
 
@@ -1196,12 +1160,14 @@ jQuery(document).ready(function ($) {
             icon.style.border = 'solid';
             icon.style.borderWidth = '1px';
             icon.style.borderColor = 'grey';
+            //icon.style.borderColor = 'white';
             icon.style.borderRadius = '18px';
 
             icon.style.width = '36px';
             icon.style.textAlign = 'center';
             //icon.style.height = '8px';
             icon.style.backgroundColor = '#dedede';
+            //icon.style.backgroundColor = '#ffffff';
             icon.style.opacity = 0.3;
 
             editor.getBody().appendChild(icon);

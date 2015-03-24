@@ -459,6 +459,14 @@ jQuery(document).ready(function ($) {
                         var derived_doc = tinymce.get('fb-derived-mce').getDoc();
                         $(derived_doc.body).css('margin-right', 100);
                     }
+
+                    // tinymce update
+                    //console.log('fb-derived-mce: ' + tinymce.get('fb-derived-mce'));
+                    //console.log('fb-derived-mce plugin: ' + tinymce.get('fb-derived-mce').plugins);
+                    //console.log('fb-derived-mce fb_folding_editor: ' + tinymce.get('fb-derived-mce').plugins.fb_folding_editor);
+                    //console.log('fb-derived-mce update: ' + tinymce.get('fb-derived-mce').plugins.fb_folding_editor.update());
+                    //tinymce.get('fb-derived-mce').plugins.fb_folding_editor.update();
+
                     update(); // ms - test
                 }
                 else {

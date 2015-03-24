@@ -5,16 +5,13 @@
         this.dragged_item_id = -1;
         this.postpone_update = false;
 
-        // mce editor callbacks
+        // callbacks
         this.deriveMceInitCallback = {};
         this.showPreviousSourceIconClickCallback = {};
         this.mergeIconClickCallback = {};
         this.deriveUpdateCallback = {};
         this.derivedElementMouseUpCallback = {};
         this.onDragEndCallback = {};
-
-        // derive document callbacks
-        //this.addMergeIconsCallback = {};
     }
 
     // mce editor callbacks
@@ -41,13 +38,6 @@
     Flexibook.prototype.regOnDragEndCallback = function (callback) {
         this.onDragEndCallback = callback;
     };
-
-    // derive document callbacks
-    /*
-    Flexibook.prototype.regAddMergeIconsCallback = function (callback) {
-        this.addMergeIconsCallback = callback;
-    };
-    */
 
     // others
     Flexibook.prototype.print = function () {
