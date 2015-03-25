@@ -420,6 +420,11 @@ jQuery(document).ready(function ($) {
                         //addTinyMceEditor("#fb-invisible-editor");
                         tinymce.execCommand('mceAddEditor', false, 'fb-invisible-editor');
 
+                        // hide source document toolbars
+                        $('#fb-td-source-mces').find('.mce-toolbar-grp').each(function () {
+                            $(this).css('display', 'none');
+                        });
+
                         updateMetaSourceVersions();
                         getPreviousSourceVersions();
                     }
@@ -438,6 +443,12 @@ jQuery(document).ready(function ($) {
                 //$("#fb-button-show-previous-source").prop('disabled', false);
             }
         }
+
+        /*
+        if (!isMergeMode()) {
+            update();
+        }
+        */
     }
 
     function getSourcePostRevision(post_id, post_modified) {
@@ -1438,11 +1449,8 @@ jQuery(document).ready(function ($) {
                     }
                 }
                 else {
-                    if (comp.prop("tagName").toLowerCase() == 'ol') {
-                        //console.log(comp.prop('outerHTML'));
-                    }
-                    console.log(comp.prop("tagName") + ": " + comp.prop('outerHTML'));
-                    // bugs - this section generates bugs especially for <ol>, <ul> ... elements, disable for now
+                    //console.log(comp.prop("tagName") + ": " + comp.prop('outerHTML'));
+                    // bugs - this section generates bugs especially for <ol>, <ul> ... elements, disable these elements for now
                     if ((comp.prop("tagName").toLowerCase() != 'ol') &&
                         (comp.prop("tagName").toLowerCase() != 'ul')) {
                         var newHtml = unwrapDeleteInsertTagjQuery(comp);
@@ -1456,11 +1464,8 @@ jQuery(document).ready(function ($) {
             }
             else {
                 if (id && id != 'none') {
-                    if (comp.prop("tagName") == 'ol') {
-                        //console.log(comp.prop('outerHTML'));
-                    }
-                    console.log(comp.prop("tagName") + ": " + comp.prop('outerHTML'));
-                    // bugs - this section generates bugs especially for <ol>, <ul> ... elements, disable for now
+                    //console.log(comp.prop("tagName") + ": " + comp.prop('outerHTML'));
+                    // bugs - this section generates bugs especially for <ol>, <ul> ... elements, disable these elements for now
                     if ((comp.prop("tagName").toLowerCase() != 'ol') &&
                         (comp.prop("tagName").toLowerCase() != 'ul')) {
                         var derive_bookmark;

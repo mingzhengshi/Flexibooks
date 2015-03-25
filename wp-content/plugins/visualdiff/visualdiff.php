@@ -54,19 +54,18 @@ function fb_tinymce_plugin( $tinymce_vb ) {
 //-----------------------------------------------------------------------------------------------
 // tinymce custom formats
 function fb_mce_editor_buttons( $buttons ) {
-    array_unshift( $buttons, 'styleselect' );
-    return $buttons;
-    
-    // remove the format button
-    /*
+    // remove the 'formatselect' button from the buttons
     $value = array_search( 'formatselect', $buttons );
-    if ($value !== FALSE) {
+    if ( FALSE !== $value ) {
         foreach ( $buttons as $key => $value ) {
             if ( 'formatselect' === $value )
                 unset( $buttons[$key] );
         }
     }
-     */
+    
+    // add 'styleselect' to the buttons
+    array_unshift( $buttons, 'styleselect' );
+    return $buttons;
 }
 
 function fb_mce_before_init( $settings ) {
