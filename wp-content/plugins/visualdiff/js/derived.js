@@ -200,7 +200,7 @@ jQuery(document).ready(function ($) {
                     // derive document
                     // ms - does not consider multiple ids in one paragraph
 
-                    // note: always remove option two paragraph
+                    // note: always remove option 2 
                     if (d_id.indexOf('-option2') >= 0) {
                         var op1_id = d_id.substr(0, d_id.length - 8);
 

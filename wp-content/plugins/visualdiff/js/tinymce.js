@@ -567,7 +567,7 @@ jQuery(document).ready(function ($) {
                             }
                             */
 
-                            createMergeIcon(yesIconID, top, width + 60, '&#10003', mcase, "Accept the change in source document");
+                            createMergeIcon(yesIconID, top, width + 60, '&#10003', mcase, "Choose this option");
                             //createMergeText(textID, offset.top, 'OPTION', mcase);
                         }
                         else if (mcase == 5) {
