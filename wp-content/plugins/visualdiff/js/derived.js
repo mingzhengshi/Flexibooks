@@ -196,19 +196,57 @@ jQuery(document).ready(function ($) {
 
 
                 }
-                else if (icon == '10007') {
+                else if (icon == '10003') {
                     // derive document
                     // ms - does not consider multiple ids in one paragraph
-                    $(derived_doc.body).find("[id]").each(function () {
-                        if ($(this).attr('id').trim() == d_id) {
-                            $(this).css('background-color', 'initial');
-                            if ($(this).attr('data-merge-case')) {
-                                $(this).removeAttr('data-merge-case');
-                                setNumberOfMergeRequests(post_id, -1);
-                            }
-                            return false; // break 
-                        }
-                    });
+
+                    // note: always remove option two paragraph
+                    if (d_id.indexOf('-option2') >= 0) {
+                        var op1_id = d_id.substr(0, d_id.length - 8);
+
+                        var source = new_doc.getElementById(s_id);
+                        var derive_op1 = derived_doc.getElementById(op1_id);
+                        var derive_op2 = derived_doc.getElementById(d_id);
+
+                        $(source).find('.delete-merge').remove();
+                        var clean = unwrapDeleteInsertTag(source);
+                        $(source).html(clean);
+
+                        $(derive_op2).find('.delete-merge').remove();
+                        clean = unwrapDeleteInsertTag(derive_op2);
+                        $(derive_op1).html(clean);
+
+                        $(derive_op1).css('border-style', 'none');
+                        $(derive_op1).css('margin-left', '0px');
+
+                        if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
+                        if ($(derive_op1).attr('data-merge-case')) $(derive_op1).removeAttr('data-merge-case');
+
+                        $(derive_op2).remove();
+                    }
+                    else {
+                        var source = new_doc.getElementById(s_id);
+                        var derive = derived_doc.getElementById(d_id);
+
+                        $(source).find('.delete-merge').remove();
+                        var clean = unwrapDeleteInsertTag(source);
+                        $(source).html(clean);
+
+                        $(derive).find('.delete-merge').remove();
+                        clean = unwrapDeleteInsertTag(derive);
+                        $(derive).html(clean);
+
+                        $(derive).css('border-style', 'none');
+                        $(derive).css('margin-left', '0px');
+
+                        if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
+                        if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
+
+                        var derive_op2 = derived_doc.getElementById(d_id + '-option2');
+                        $(derive_op2).remove();
+                    }
+
+                    setNumberOfMergeRequests(post_id, -1);
                 }
 
                 update();
@@ -560,7 +598,6 @@ jQuery(document).ready(function ($) {
                                             // base element
                                             var diff = html_diff_compact(derive_element, new_element);
                                             $(this).html(diff);
-                                            n_this.html(diff);
 
                                             $(this).find('span.insert').each(function () {
                                                 $(this).addClass('insert-merge');
@@ -569,6 +606,8 @@ jQuery(document).ready(function ($) {
                                             $(this).find('span.delete').each(function () {
                                                 $(this).addClass('delete-merge');
                                             });
+
+                                            n_this.html(diff);
 
                                             n_this.find('span.insert').each(function () {
                                                 $(this).addClass('insert-merge');
@@ -586,26 +625,48 @@ jQuery(document).ready(function ($) {
                                             $(this).css('border-style', 'dotted');
                                             $(this).css('border-width', '1px');
                                             $(this).css('border-color', 'orange');
-                                            $(this).css('margin-left', '80px');
 
-                                            //$(this).css('margin-bottom', '0px');
-
-                                            /*
-                                            var top = $(this).offset().top;
-                                            var text = document.createElement('div');
-                                            //text.className = 'fb_tinymce_left_column_icon';
-                                            text.innerHTML = 'OPTION I';
-                                            text.style.position = 'absolute';
-                                            text.style.top = top + 'px';
-                                            text.style.left = '50px';
-
-                                            derived_doc.body.appendChild(text);
-                                            */
-
-
-
-
+                                            $(this).css('margin-left', '50px');
                                             setNumberOfMergeRequests(post_id, 1);
+                                            
+                                            var d_diff = html_diff_compact(old_element, derive_element);
+                                            $(this).html(d_diff);
+
+                                            $(this).find('span.insert').each(function () {
+                                                $(this).addClass('insert-merge');
+                                            });
+
+                                            $(this).find('span.delete').each(function () {
+                                                $(this).addClass('delete-merge');
+                                            });
+
+                                            var s_diff = html_diff_compact(old_element, new_element);
+                                            n_this.html(s_diff);
+
+                                            n_this.find('span.insert').each(function () {
+                                                $(this).addClass('insert-merge');
+                                            });
+
+                                            n_this.find('span.delete').each(function () {
+                                                $(this).addClass('delete-merge');
+                                            });
+
+                                            n_this.attr('data-merge-case', 3);
+                                            
+                                            var op2 = $(this).clone();
+                                            $(op2).css('margin-bottom', '3px');
+                                            $(op2).attr('id', $(this).attr('id') + '-option2');
+                                            $(op2).html(s_diff);
+
+                                            $(op2).find('span.insert').each(function () {
+                                                $(this).addClass('insert-merge');
+                                            });
+
+                                            $(op2).find('span.delete').each(function () {
+                                                $(this).addClass('delete-merge');
+                                            });
+
+                                            $(op2).insertBefore($(this));                                           
                                         }
 
                                         return false; // break each function

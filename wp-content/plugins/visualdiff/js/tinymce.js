@@ -556,7 +556,8 @@ jQuery(document).ready(function ($) {
                         else if (mcase == 3) {
                             var moreIconID = 'more-' + node.attr('id');
                             var mlesIconID = 'mles-' + node.attr('id');
-                            var noIconID = 'mnon-' + node.attr('id');
+                            var yesIconID = 'myes-' + node.attr('id');
+                            var textID = 'mtxt-' + node.attr('id');
                             /*
                             if (flexibook.columns_of_editors == 2) {
                                 createMergeIcon(moreIconID, top, width + 60, 'III', mcase, "Show previous source (three-column view)");
@@ -566,8 +567,8 @@ jQuery(document).ready(function ($) {
                             }
                             */
 
-                            createMergeIcon(noIconID, top, width + 105, '&#10007', mcase, "Ignore the change in source document");
-                            createMergeText(offset.top, 'OPTION', mcase);
+                            createMergeIcon(yesIconID, top, width + 60, '&#10003', mcase, "Accept the change in source document");
+                            //createMergeText(textID, offset.top, 'OPTION', mcase);
                         }
                         else if (mcase == 5) {
                             var yesIconID = 'myes-' + node.attr('id');
@@ -1176,9 +1177,10 @@ jQuery(document).ready(function ($) {
             editor.getBody().appendChild(icon);
         }
 
-        function createMergeText(top, text, mcase) {
+        function createMergeText(id, top, text, mcase) {
             var t = document.createElement('div');
-            t.className = 'fb_tinymce_left_column_icon';
+            t.className = 'fb_tinymce_left_column';
+            t.id = id;
             t['data-mcase'] = mcase;
             t.innerHTML = text;
             t.style.position = 'absolute';
