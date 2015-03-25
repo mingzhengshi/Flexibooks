@@ -586,7 +586,25 @@ jQuery(document).ready(function ($) {
                                             $(this).css('border-style', 'dotted');
                                             $(this).css('border-width', '1px');
                                             $(this).css('border-color', 'orange');
-                                            //$(this).css('background-color', 'lightpink');
+                                            $(this).css('margin-left', '80px');
+
+                                            //$(this).css('margin-bottom', '0px');
+
+                                            /*
+                                            var top = $(this).offset().top;
+                                            var text = document.createElement('div');
+                                            //text.className = 'fb_tinymce_left_column_icon';
+                                            text.innerHTML = 'OPTION I';
+                                            text.style.position = 'absolute';
+                                            text.style.top = top + 'px';
+                                            text.style.left = '50px';
+
+                                            derived_doc.body.appendChild(text);
+                                            */
+
+
+
+
                                             setNumberOfMergeRequests(post_id, 1);
                                         }
 

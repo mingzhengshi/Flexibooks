@@ -557,14 +557,17 @@ jQuery(document).ready(function ($) {
                             var moreIconID = 'more-' + node.attr('id');
                             var mlesIconID = 'mles-' + node.attr('id');
                             var noIconID = 'mnon-' + node.attr('id');
-
+                            /*
                             if (flexibook.columns_of_editors == 2) {
-                                createMergeIcon(moreIconID, top, width - 50, 'III', mcase, "Show previous source (three-column view)");
+                                createMergeIcon(moreIconID, top, width + 60, 'III', mcase, "Show previous source (three-column view)");
                             }
                             else if (flexibook.columns_of_editors == 3) {
-                                createMergeIcon(mlesIconID, top, width - 50, 'II', mcase, "Hide previous source (two-column view)");
+                                createMergeIcon(mlesIconID, top, width + 60, 'II', mcase, "Hide previous source (two-column view)");
                             }
-                            createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
+                            */
+
+                            createMergeIcon(noIconID, top, width + 105, '&#10007', mcase, "Ignore the change in source document");
+                            createMergeText(offset.top, 'OPTION', mcase);
                         }
                         else if (mcase == 5) {
                             var yesIconID = 'myes-' + node.attr('id');
@@ -1171,6 +1174,18 @@ jQuery(document).ready(function ($) {
             icon.style.opacity = 0.3;
 
             editor.getBody().appendChild(icon);
+        }
+
+        function createMergeText(top, text, mcase) {
+            var t = document.createElement('div');
+            t.className = 'fb_tinymce_left_column_icon';
+            t['data-mcase'] = mcase;
+            t.innerHTML = text;
+            t.style.position = 'absolute';
+            t.style.top = top + 'px';
+            t.style.left = '50px';
+
+            editor.getBody().appendChild(t);
         }
 
         function createEditIcon(id, top, left, text, title, draggable) {
