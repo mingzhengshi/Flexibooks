@@ -1693,8 +1693,23 @@ jQuery(document).ready(function ($) {
                         var s_clone = $(left).clone();
                         var d_clone = right.clone();
 
+                        $(s_clone).find("br").remove();
+                        $(d_clone).find("br").remove();
+
                         var source_clean = unwrapDeleteInsertTag(s_clone);
                         var comp_clean = unwrapDeleteInsertTag(d_clone);
+
+                        console.log(source_clean);
+                        console.log(comp_clean);
+
+                        //$(s_clone).html(source_clean);
+                        //$(d_clone).html(comp_clean);
+
+                        //source_clean = cleanWhitespace(s_clone);
+                        //comp_clean = cleanWhitespace(d_clone);
+
+                        //console.log(source_clean);
+                        //console.log(comp_clean);
 
                         //if (left.innerHTML == comp.html()) {
                         if (source_clean == comp_clean) {
@@ -1743,6 +1758,14 @@ jQuery(document).ready(function ($) {
             }
 
         });
+    }
+
+    function cleanWhitespace(element) {
+        clone = $(element).clone();
+        $(clone).contents().filter(function () {
+            return (this.nodeType == 3 && !/\S/.test(this.nodeValue)); // \s matches whitespace (spaces, tabs and new lines). \S is negated \s
+        }).remove();
+        return $(clone).html();
     }
 
     function updateSourcePosition(d_id) {
