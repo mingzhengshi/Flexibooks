@@ -503,10 +503,12 @@ jQuery(document).ready(function ($) {
                     compareSourceRevisions(post_id, obj.content);
 
                     // ms
+                    /*
                     if (isMergeMode()) {
                         var derived_doc = tinymce.get('fb-derived-mce').getDoc();
                         $(derived_doc.body).css('margin-right', 100);
                     }
+                    */
 
                     // call tinymce plugin function
                     //tinymce.get('fb-derived-mce').plugins.fb_folding_editor.update(); 

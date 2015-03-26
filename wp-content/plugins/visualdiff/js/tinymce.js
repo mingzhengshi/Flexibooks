@@ -23,7 +23,7 @@ jQuery(document).ready(function ($) {
 
             if (editor.id.indexOf("fb-source-mce") >= 0) {
                 $(editor.getBody()).css('margin-left', 50);
-
+                $(editor.getBody()).css('margin-right', 100);
                 /*
                 $(editor.getDoc()).find('.mce-toolbar-grp').each(function () {
                     $(this).css('display', 'none');
@@ -33,6 +33,7 @@ jQuery(document).ready(function ($) {
 
             if (editor.id.indexOf("fb-old-source-mce") >= 0) {
                 $(editor.getBody()).css('margin-left', 50);
+                $(editor.getBody()).css('margin-right', 100);
             }
 
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
@@ -41,6 +42,7 @@ jQuery(document).ready(function ($) {
                 if (callback) callback();
 
                 $(editor.getBody()).css('margin-left', 50);
+                $(editor.getBody()).css('margin-right', 100);
             }
 
             update();
@@ -200,15 +202,15 @@ jQuery(document).ready(function ($) {
                     var moveIconID = 'move-' + $(node).attr('id');
                     var draggable = true;
                     if (editor.id.indexOf("fb-source-mce") >= 0) {
-                        createEditIcon(moveIconID, top, width, '&#9776', 'Drag and drop this item to derive document', draggable);
+                        createEditIcon(moveIconID, top, width + 60, '&#9776', 'Drag and drop this item to derive document', draggable);
                     }
                     else if (editor.id.indexOf("fb-derived-mce") >= 0) {
-                        createEditIcon(moveIconID, top, width, '&#9776', 'Move this item', draggable);
+                        createEditIcon(moveIconID, top, width + 105, '&#9776', 'Move this item', draggable);
                     }
 
                     if (editor.id.indexOf("fb-derived-mce") >= 0) {
                         var deleteIconID = 'qdel-' + $(node).attr('id');
-                        createEditIcon(deleteIconID, top, width - 50, '&#10005', 'Delete this item', false);
+                        createEditIcon(deleteIconID, top, width + 60, '&#10005', 'Delete this item', false);
                     }
                 }
             }
