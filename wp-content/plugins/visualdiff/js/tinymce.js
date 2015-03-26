@@ -153,6 +153,7 @@ jQuery(document).ready(function ($) {
             onMouseUp(e);
             setupIconEvents();
             drawLines();
+            drawLinesMergeElements();
         });
 
         function onMouseUp(e) {
@@ -458,6 +459,7 @@ jQuery(document).ready(function ($) {
             resetIcons();
             setupIconEvents();
             drawLines();
+            drawLinesMergeElements();
         }
 
         function resetIcons() {
@@ -481,7 +483,8 @@ jQuery(document).ready(function ($) {
             // add svg element
             $(editor.getBody()).find('.fb_tinymce_left_column_svg').remove();
             var id = editor.id + '-svg';
-            $(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column_svg" style="position:absolute; top:0px; left:0px; height: 100%; width: 50px; z-index: -1;" xmlns="http://www.w3.org/2000/svg"/></svg>');
+            //$(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column_svg" style="position:absolute; top:0px; left:0px; height: 100%; width: 50px; z-index: -1;" xmlns="http://www.w3.org/2000/svg"/></svg>');
+            $(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column_svg" style="position:absolute; top:0px; left:0px; height: 100%; width: 100%; z-index: -1;" xmlns="http://www.w3.org/2000/svg"/></svg>'); // ms - test
 
             // reset icons
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').remove(); // clear all existing icons
@@ -537,6 +540,9 @@ jQuery(document).ready(function ($) {
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 $(editor.getBody()).children().each(function (index) {
                     var node = $(this);
+                    var classes = node.attr('class');
+                    if (classes && classes.indexOf("fb-display-none") >= 0) return true; // continue
+
                     if (node.attr('data-merge-case') && node.attr('data-merge-case') > 0) {
                         var mcase = node.attr('data-merge-case');
                         // setup merge icon
@@ -567,7 +573,7 @@ jQuery(document).ready(function ($) {
                             }
                             */
 
-                            createMergeIcon(yesIconID, top, width + 60, '&#10003', mcase, "Choose this option");
+                            createMergeIcon(yesIconID, top, width + 60, '&#10003', mcase, "Accept this option");
                             //createMergeText(textID, offset.top, 'OPTION', mcase);
                         }
                         else if (mcase == 5) {
@@ -908,6 +914,74 @@ jQuery(document).ready(function ($) {
             if (element.tagName == 'svg') return true;
             if (element.className.indexOf("fb_tinymce_left_column") >= 0) return true;
             return false;
+        }
+
+        function drawLinesMergeElements() {
+            if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                $(editor.getBody()).children().each(function (index) {
+                    var node = $(this);
+                    var id = node.attr('id');
+                    var classes = node.attr('class');
+                    if (classes && classes.indexOf("fb-display-none") >= 0) return true; // continue
+
+                    if (node.attr('data-merge-case') && node.attr('data-merge-case') > 0) {
+                        var mcase = node.attr('data-merge-case');
+
+                        var offset = node.offset(); // absolute position relative to the document
+                        var height = node.height();
+                        var top = offset.top;
+                        var width = $(editor.getBody()).width();
+
+                        if (mcase == 3) {
+                            if (id.indexOf('-option2') < 0) {
+                                var op2 = editor.getDoc().getElementById(id + '-option2');
+                                var op2_offset = $(op2).offset(); // absolute position relative to the document
+                                var op2_height = $(op2).height();
+
+                                // note: option 2 on top of option 1
+                                var x1 = width + 53; // why 53? - because the body have margin-left = 50
+                                var y1 = op2_offset.top;
+                                var x2 = width + 53;
+                                var y2 = offset.top + height;
+
+                                var color = 'orange';
+                                var svg_id = editor.id + '-svg';
+                                var svg = editor.getDoc().getElementById(svg_id);
+
+                                var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                                line.setAttribute('x1', x1);
+                                line.setAttribute('y1', y1);
+                                line.setAttribute('x2', x2);
+                                line.setAttribute('y2', y2);
+                                line.setAttribute('stroke', color);
+                                line.setAttribute('stroke-width', 4);
+                                //line.style.zIndex = 1;
+                                if (svg) svg.appendChild(line);
+                            }
+                        }
+                        else {
+                            var x1 = width + 53; 
+                            var y1 = offset.top;
+                            var x2 = width + 53;
+                            var y2 = offset.top + height;
+
+                            var color = 'orange';
+                            var svg_id = editor.id + '-svg';
+                            var svg = editor.getDoc().getElementById(svg_id);
+
+                            var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                            line.setAttribute('x1', x1);
+                            line.setAttribute('y1', y1);
+                            line.setAttribute('x2', x2);
+                            line.setAttribute('y2', y2);
+                            line.setAttribute('stroke', color);
+                            line.setAttribute('stroke-width', 2);
+                            //line.style.zIndex = 1;
+                            if (svg) svg.appendChild(line);
+                        }
+                    }
+                });
+            }
         }
 
         function drawLines() {         

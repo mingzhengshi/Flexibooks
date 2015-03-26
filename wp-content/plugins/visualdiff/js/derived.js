@@ -217,7 +217,7 @@ jQuery(document).ready(function ($) {
                         $(derive_op1).html(clean);
 
                         $(derive_op1).css('border-style', 'none');
-                        $(derive_op1).css('margin-left', '0px');
+                        //$(derive_op1).css('margin-left', '0px');
 
                         if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
                         if ($(derive_op1).attr('data-merge-case')) $(derive_op1).removeAttr('data-merge-case');
@@ -237,7 +237,7 @@ jQuery(document).ready(function ($) {
                         $(derive).html(clean);
 
                         $(derive).css('border-style', 'none');
-                        $(derive).css('margin-left', '0px');
+                        //$(derive).css('margin-left', '0px');
 
                         if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
                         if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
@@ -626,7 +626,7 @@ jQuery(document).ready(function ($) {
                                             $(this).css('border-width', '1px');
                                             $(this).css('border-color', 'orange');
 
-                                            $(this).css('margin-left', '50px');
+                                            //$(this).css('margin-left', '50px');
                                             setNumberOfMergeRequests(post_id, 1);
                                             
                                             var d_diff = html_diff_compact(old_element, derive_element);
