@@ -339,7 +339,7 @@ function fb_post_box_derived_document_callback() {
     </ol>
 </div>
 
-<div id="fb-merge-dialog" title="Merge Document">
+<!--div id="fb-merge-dialog" title="Merge Document">
     <table style="width:100%">
         <colgroup>
             <col span="1" style="width: 49%;">
@@ -404,7 +404,7 @@ function fb_post_box_derived_document_callback() {
             </td>	
         </tr>
     </table>
-</div>
+</div-->
 
 <div> 
     <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" style="margin-right:10px"/>      

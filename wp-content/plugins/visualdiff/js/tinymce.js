@@ -1290,7 +1290,6 @@ jQuery(document).ready(function ($) {
             if (draggable) icon.draggable = true;
 
             editor.getBody().appendChild(icon);
-
         }
     });
 });
