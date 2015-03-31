@@ -294,6 +294,7 @@ function fb_add_meta_box_derived_document_callback() {
 <table id="fb-table-derived-meta" cellspacing="10">
     <input id="fb-input-derived-meta" style="display:none;" name="fb-derived-meta" value="<?php echo htmlentities($derived_meta); ?>" />  
     <tr>
+        <td>Derive Name</td>
         <td>Source Name</td>
         <td>Dependent Version</td>
         <td>Current Version</td>
