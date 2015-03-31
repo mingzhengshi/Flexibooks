@@ -4,6 +4,7 @@
         this.columns_of_editors = 2;
         this.dragged_item_id = -1;
         this.postpone_update = false;
+        this.active_derive_mce = null;
 
         // callbacks
         this.deriveMceInitCallback = {};

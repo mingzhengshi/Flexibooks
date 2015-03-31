@@ -289,8 +289,7 @@ function fb_add_meta_box_derived_document_callback() {
     
     // use js object and json encode for $derived_meta
     
-    
-    
+        
 ?>     
 <table id="fb-table-derived-meta" cellspacing="10">
     <input id="fb-input-derived-meta" style="display:none;" name="fb-derived-meta" value="<?php echo htmlentities($derived_meta); ?>" />  
@@ -339,81 +338,10 @@ function fb_post_box_derived_document_callback() {
     </ol>
 </div>
 
-<!--div id="fb-merge-dialog" title="Merge Document">
-    <table style="width:100%">
-        <colgroup>
-            <col span="1" style="width: 49%;">
-            <col span="1" style="width: 2%;">
-            <col span="1" style="width: 49%;">
-        </colgroup>
-        <tr>
-            <td>
-                <div>
-                    <p>Source Old</p>
-                    <textarea id="fb-merge-mce-top-source"></textarea>
-                </div>
-            </td>
-            <td>            
-                <div>
-                    <input type="button" id="fb-button-source-old-and-derive-old" value=&#8596 class="button-secondary">
-                </div>
-            </td>
-            <td>
-                <div>
-                    <p>Derive Old</p>
-                    <textarea id="fb-merge-mce-top-derive"></textarea>
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div style="text-align:center">
-                    <input type="button" id="fb-button-source-old-and-source-new" value=&#8597 class="button-secondary">
-                </div>
-            </td>
-            <td>
-                <div style="text-align:center">
-                    <input type="button" id="fb-button-source-new-and-derive-old" value=&#9585 class="button-secondary">
-                </div>
-            </td>
-            <td>
-                <div style="text-align:center">
-                    <input type="button" id="fb-button-derive-old-and-derive-new" value=&#8597 class="button-secondary">
-                    <input type="button" id="fb-button-derive-old-to-derive-new" value=&#8595 class="button-secondary">
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <div>
-                    <p>Source New</p>
-                    <textarea id="fb-merge-mce-bottom-source"></textarea>
-                </div>
-            </td>
-            <td>
-                <div>
-                    <input type="button" id="fb-button-source-new-and-derive-new" value=&#8596 class="button-secondary" style="margin-bottom:5px">
-                    <input type="button" id="fb-button-source-new-to-derive-new" value=&#8594 class="button-secondary">
-                </div>
-            </td>
-            <td>
-                <div>
-                    <p>Derive New</p>
-                    <textarea id="fb-merge-mce-bottom-derive"></textarea>
-                </div>
-            </td>	
-        </tr>
-    </table>
-</div-->
-
-<div> 
-    <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" style="margin-right:10px"/>      
-    <input id="fb-button-show-previous-source" type="button" value="Show Previous Source" class="button-secondary" style="margin-right:10px"/>   
-    <input id="fb-button-floating-source" type="button" value="Turn Off Floating" class="button-secondary" style="margin-right:10px">
-    <input id="fb-button-highlight-source" type="button" value="Turn On Source Highlight" class="button-secondary">
-    <textarea id="fb-invisible-editor" style="display:none;"></textarea>
-    <input id="fb-input-source-tabs" style="display:none;" name="fb-opened-source-post-ids" value="<?php echo $source_posts_ids; ?>" />   
+<div id="fb-add-derive-dialog" title="Add Derive Documents">
+    Title: <input id="fb-derive-document-title" type="text"/> 
 </div>
+
 <table id="fb-table-derive-document-editors" class="fb-source-and-derived-editors">
   <colgroup>
     <col span="1" style="width: 49%;">
@@ -423,6 +351,21 @@ function fb_post_box_derived_document_callback() {
 
   <tr id="fb-tr-derive-document-editors">
     <td id="fb-td-source-mces" style="vertical-align:top">
+        <div> 
+            <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" style="margin-right:10px"/>      
+            <!--input id="fb-button-show-previous-source" type="button" value="Show Previous Source" class="button-secondary" style="margin-right:10px"/-->   
+            <input id="fb-button-floating-source" type="button" value="Turn Off Floating" class="button-secondary" style="margin-right:10px">
+            <input id="fb-button-highlight-source" type="button" value="Turn On Source Highlight" class="button-secondary">
+            <!--textarea id="fb-invisible-editor" style="display:none;"></textarea-->
+            <div style="display:none;">
+<?php 
+                //$derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
+                $derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
+                wp_editor('', 'fb-invisible-editor', $derived_editor_args);      
+?>  
+            </div>
+            <input id="fb-input-source-tabs" style="display:none;" name="fb-opened-source-post-ids" value="<?php echo $source_posts_ids; ?>" />   
+        </div>
         <div id="fb-tabs-sources" class="fb-tabs-sources-display-none">
             <ul id="fb-ul-source-tabs">
             </ul>
@@ -432,13 +375,20 @@ function fb_post_box_derived_document_callback() {
         <svg id="fb-svg-mid-column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/>
         </svg>
     </td>
-    <td id="fb-td-derive-mce" style="vertical-align:top">
-        <h3 style="margin-bottom:8px">Derived Document</h3>
-        <div>
-<?php    
+    <td id="fb-td-derive-mces" style="vertical-align:top">
+        <!--h3 style="margin-bottom:8px">Derived Document</h3-->
+        <div> 
+            <input id="fb-button-add-derive-document" type="button" value="Add Derive Document" class="button-secondary" style="margin-right:10px"/>      
+        </div>
+        <div id="fb-tabs-derives" style="margin-top:14px;" class="fb-tabs-sources-display-none">
+            <ul id="fb-ul-derive-tabs">
+            </ul>
+<?php 
+    /*
     //$derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
     $derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
     wp_editor($content, 'fb-derived-mce', $derived_editor_args);      
+    */
 ?>   
         </div>
     </td>		
@@ -502,17 +452,6 @@ function fb_add_revision_compare_page(){
     //add_submenu_page('none', 'Revisions test', 'Revisions test','visualdiff/revisioncompare.php');
     add_submenu_page('none', 'Revisions test', 'Revisions test', 'read', 'fb-revisions', $func);
 }
-
-/*
-add_filter( 'the_content', 'add_content' );
-
-function add_content( $content ) {
-    $x = 1;
-    $y = 2;
-    $z = $x + $y;
-    return $content . '<p>Thanks for Reading! </p>' . $z;
-}
-*/
 
 function fb_admin_footer() {
     // Only load js on revision screen
