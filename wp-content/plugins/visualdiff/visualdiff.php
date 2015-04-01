@@ -337,7 +337,7 @@ function fb_post_box_derived_document_callback() {
     global $post;
     $custom = get_post_custom($post->ID);
     $source_posts_ids = (!empty($custom["_fb-opened-source-post-ids"][0])) ? $custom["_fb-opened-source-post-ids"][0] : '';
-    $content = (!empty($custom["_fb-derived-mce"][0])) ? $custom["_fb-derived-mce"][0] : '';
+    //$content = (!empty($custom["_fb-derived-mce"][0])) ? $custom["_fb-derived-mce"][0] : '';
     
 ?>               
 <div id="fb-source-selection-dialog" title="Source Documents">
@@ -357,6 +357,23 @@ function fb_post_box_derived_document_callback() {
 
 <div id="fb-add-derive-dialog" title="Add Derive Documents">
     Title: <input id="fb-derive-document-title" type="text"/> 
+</div>
+
+<div id="fb-data-derive-mces" style="display:none;">
+<?php
+    foreach($custom as $k => $v) {
+        if(strpos($k, "_fb-derived-mce-title") === 0) {
+            $title = (!empty($v[0])) ? $v[0] : '';
+            $number = substr($k, -1);
+            $mce_key = "_fb-derived-mce-" . $number;
+            $content = (!empty($custom[$mce_key][0])) ? $custom[$mce_key][0] : '';
+            
+            echo "<div data-title='" . $title . "'>" . $content . "</div>";
+        }
+    }
+
+  
+?> 
 </div>
 
 <table id="fb-table-derive-document-editors" class="fb-source-and-derived-editors">

@@ -40,8 +40,8 @@ jQuery(document).ready(function ($) {
 
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 // when the derived mce is inited; we can load the source mce
-                var callback = flexibook.deriveMceInitCallback;
-                if (callback) callback();
+                //var callback = flexibook.deriveMceInitCallback;
+                //if (callback) callback();
 
                 //$(editor.getBody()).css('margin-left', 50);
                 $(editor.getBody()).css('margin-right', 100);

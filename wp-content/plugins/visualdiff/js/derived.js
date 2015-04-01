@@ -108,8 +108,18 @@ jQuery(document).ready(function ($) {
 
     flexibook.regDeriveMceInitCallback(function () {
         if (derived_mce_init_done == true) return;
+        derived_mce_init_done = true;
 
         $("#fb-button-open-source-document").prop('disabled', false);
+
+        // meta: derive tabs
+        $("#fb-data-derive-mces").children().each(function (index) {
+            var title = $(this).attr('data-title');
+            var content = $(this).html();
+
+            addDeriveTab(title, content);
+        });
+        $("#fb-data-derive-mces").remove();
 
         // meta: opened source tabs 
         var opened_source_tabs_ids = $("#fb-input-source-tabs").val();
@@ -130,8 +140,6 @@ jQuery(document).ready(function ($) {
 
         // get previous source version for merge
         //getPreviousSourceVersions();
-
-        derived_mce_init_done = true;
     });
 
     flexibook.regMergeIconClickCallback(function (icon, post_id, s_id, d_id, mcase) {
@@ -484,7 +492,7 @@ jQuery(document).ready(function ($) {
                     if (source_mce_init_count == total) {
                         // add tinymce editor
                         //addTinyMceEditor("#fb-invisible-editor");
-                        tinymce.execCommand('mceAddEditor', false, 'fb-invisible-editor');
+                        //tinymce.execCommand('mceAddEditor', false, 'fb-invisible-editor'); // ms
 
                         // hide source document toolbars
                         $('#fb-td-source-mces').find('.mce-toolbar-grp').each(function () {
@@ -1147,15 +1155,16 @@ jQuery(document).ready(function ($) {
     function addDeriveTab(title, content) {
         var tab_id = "fb-tabs-derive-" + tab_counter_derive;
         var mce_id = 'fb-derived-mce-' + tab_counter_derive;
+        var mce_title = 'fb-derived-mce-title-' + tab_counter_derive;
         var li_id = tab_id + "-selector";
         var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id).replace(/#\{label\}/g, title).replace(/#\{id\}/g, li_id));
 
         $("#fb-ul-derive-tabs").append(li);
         derive_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
 
-
         //$("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
-        $("#" + tab_id).append("<textarea id='" + mce_id + "' name='" + mce_id + "' style='height:600px'></textarea>"); // use 'name' to save
+        $("#" + tab_id).append("<textarea id='" + mce_id + "' name='" + mce_id + "' style='height:600px'></textarea>"); // save to database
+        $("#" + tab_id).append("<input id='" + mce_title + "' name='" + mce_title + "' value='" + title + "' style='display:none'/>"); // save to database
         //tinymce.init();
         tinymce.execCommand('mceAddEditor', false, mce_id);
 
