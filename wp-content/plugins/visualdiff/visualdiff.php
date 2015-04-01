@@ -226,7 +226,15 @@ function fb_source_revision_query() {
     
     global $wpdb;
     $status = 'inherit';
-    $post_revision = $wpdb->get_results("SELECT * FROM $wpdb->posts WHERE post_type = 'revision' AND post_parent = '$post_id' AND post_status = '$status' AND post_modified = '$post_modified'");
+    $post_revision = $wpdb->get_results(
+        "
+        SELECT * FROM $wpdb->posts 
+        WHERE post_type = 'revision' 
+            AND post_parent = '$post_id' 
+            AND post_status = '$status' 
+            AND post_modified = '$post_modified'
+        ");
+    
     if (count($post_revision) == 1) {
         $post_content = $post_revision[0]->post_content;       
     }
@@ -248,7 +256,15 @@ function fb_source_element_revision_query() {
     
     global $wpdb;
     $status = 'inherit';
-    $post_revision = $wpdb->get_results("SELECT * FROM $wpdb->posts WHERE post_type = 'revision' AND post_parent = '$post_id' AND post_status = '$status' AND post_modified = '$post_modified'");
+    $post_revision = $wpdb->get_results(
+        "
+        SELECT * FROM $wpdb->posts 
+        WHERE post_type = 'revision' 
+            AND post_parent = '$post_id' 
+            AND post_status = '$status' 
+            AND post_modified = '$post_modified'
+        ");
+    
     if (count($post_revision) == 1) {
         $post_content = $post_revision[0]->post_content;
         
@@ -401,12 +417,31 @@ function fb_post_box_derived_document_callback() {
 
 function fb_save_document($postid, $post){
     global $_POST;
+    global $wpdb;
     // set the ID to the parent post, not the revision
     //$postid = (wp_is_post_revision( $postid )) ? wp_is_post_revision( $post ) : $postid;
 
+    $mce_substring = "_fb-derived-mce";
+    
     if ($post->post_type == 'derived') {
-        update_post_meta($postid, "_fb-derived-mce", $_POST["fb-derived-mce"]); // save the data
-        //update_post_meta($postid, "_fb-derived-mce-version-1", "test");
+        $wpdb->query( 
+	        $wpdb->prepare( 
+		        "
+                DELETE FROM $wpdb->postmeta
+		        WHERE post_id = %d
+		        AND meta_key LIKE %s
+		        ",
+	            $postid, '%' . $mce_substring . '%' 
+                )
+        );
+        
+        foreach($_POST as $k => $v) {
+            if(strpos($k, "fb-derived-mce") === 0) {
+                update_post_meta($postid, "_" . $k, $v); // save the data
+            }
+        }
+        
+        //update_post_meta($postid, "_fb-derived-mce", $_POST["fb-derived-mce"]); // save the data
         update_post_meta($postid, "_fb-opened-source-post-ids", $_POST["fb-opened-source-post-ids"]);
         update_post_meta($postid, "_fb-derived-meta", $_POST["fb-derived-meta"]);
     }

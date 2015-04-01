@@ -1155,7 +1155,7 @@ jQuery(document).ready(function ($) {
 
 
         //$("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
-        $("#" + tab_id).append("<textarea id='" + mce_id + "' style='height:600px'></textarea>");
+        $("#" + tab_id).append("<textarea id='" + mce_id + "' name='" + mce_id + "' style='height:600px'></textarea>"); // use 'name' to save
         //tinymce.init();
         tinymce.execCommand('mceAddEditor', false, mce_id);
 
