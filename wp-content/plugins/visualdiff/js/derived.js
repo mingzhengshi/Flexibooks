@@ -1,5 +1,6 @@
 jQuery(document).ready(function ($) {
     var derived_mce_init_done = false;
+    var derived_mce_init_called = false;
     var source_mce_init_count = 0;
 
     var meta_source_tabs_post_ids = [];
@@ -61,7 +62,12 @@ jQuery(document).ready(function ($) {
         $("#" + panelId).remove();
         derive_tabs.tabs("refresh");
 
+        //var derive_mce_id = panelId.replace("fb-tabs-derive", "fb-derived-mce");
+        //tinymce.execCommand('mceRemoveEditor', false, derive_mce_id); // error
+
         flexibook.active_derive_mce = getActiveDeriveMce();
+
+        update();
     });
 
     derive_tabs.on("tabsactivate", function (event, ui) {
@@ -107,8 +113,8 @@ jQuery(document).ready(function ($) {
     });
 
     flexibook.regDeriveMceInitCallback(function () {
-        if (derived_mce_init_done == true) return;
-        derived_mce_init_done = true;
+        if (derived_mce_init_called == true) return;
+        derived_mce_init_called = true;
 
         $("#fb-button-open-source-document").prop('disabled', false);
 
@@ -140,6 +146,8 @@ jQuery(document).ready(function ($) {
 
         // get previous source version for merge
         //getPreviousSourceVersions();
+
+        derived_mce_init_done = true;
     });
 
     flexibook.regMergeIconClickCallback(function (icon, post_id, s_id, d_id, mcase) {
@@ -500,6 +508,7 @@ jQuery(document).ready(function ($) {
                         });
 
                         updateMetaSourceVersions();
+                        updateMetaBoxSourceVersions();
                         getPreviousSourceVersions();
                     }
                 }
@@ -1251,6 +1260,7 @@ jQuery(document).ready(function ($) {
         if (flexibook.postpone_update == true) return;
 
         updateMetaSourceVersions();
+        updateMetaBoxSourceVersions();
         updateSourceHighlight();
         updateHTMLDiff();
         updateSVG();
@@ -1305,6 +1315,27 @@ jQuery(document).ready(function ($) {
 
     function updateMetaSourceVersions() {
         if (derived_mce_init_done == false) return;
+
+        // remove objects from meta_source_versions if they are not longer in derived tabs 
+        var names = [];
+        $('#fb-tabs-derives .ui-tabs-nav a').each(function () {
+            names.push($(this).html());
+        });
+        /*
+        // the mce editor has not been removed 
+        for (var i = 0; i < tinymce.editors.length; i++) {
+            var e = tinymce.editors[i];
+            if (e.id.indexOf("fb-derived-mce") >= 0) {
+                names.push(e.post_name);
+            }
+        }
+        */
+        for (var i = meta_source_versions.length - 1; i >= 0; i--) {
+            if (names.indexOf(meta_source_versions[i].derive_post_name) == -1) {
+                meta_source_versions.splice(i, 1);
+            }
+        }
+
         if (!flexibook.active_derive_mce) return;
 
         var post_ids = getUniqueSourcePostIDs();
@@ -1316,11 +1347,11 @@ jQuery(document).ready(function ($) {
             }
         }
         else {
-            // firstly, remove objects from meta_source_versions if they are not longer in derived document 
+            // firstly, remove objects from meta_source_versions if they are not longer in a derived document 
             for (var i = meta_source_versions.length - 1; i >= 0; i--) {
                 if (derive_post_name == meta_source_versions[i].derive_post_name) {
                     if (post_ids.indexOf(meta_source_versions[i].source_post_id) == -1) {
-                        meta_source_versions.pop();
+                        meta_source_versions.splice(i, 1);
                     }
                 }
             }
@@ -1361,9 +1392,6 @@ jQuery(document).ready(function ($) {
                 break;
             }
         }
-
-        // update meta box source versions
-        updateMetaBoxSourceVersions();
     }
 
     function updateMetaBoxSourceVersions() {
@@ -1375,6 +1403,8 @@ jQuery(document).ready(function ($) {
                 table.deleteRow(i);
             }
         }
+
+        if (!flexibook.active_derive_mce) return;
 
         for (var i = 0; i < meta_source_versions.length; i++) {
             var row = table.insertRow();
@@ -1569,7 +1599,11 @@ jQuery(document).ready(function ($) {
     }
 
     function updateSVG() {
-        if (!flexibook.active_derive_mce) return;
+        if (!flexibook.active_derive_mce) {
+            // remove all polygons
+            $('#fb-svg-mid-column').find('.fb-svg-polygons').remove();
+            return;
+        }
         var derived_doc = flexibook.active_derive_mce.getDoc();
 
         // get active tab id
@@ -1705,8 +1739,8 @@ jQuery(document).ready(function ($) {
                         var source_clean = unwrapDeleteInsertTag(s_clone);
                         var comp_clean = unwrapDeleteInsertTag(d_clone);
 
-                        console.log(source_clean);
-                        console.log(comp_clean);
+                        //console.log(source_clean);
+                        //console.log(comp_clean);
 
                         //$(s_clone).html(source_clean);
                         //$(d_clone).html(comp_clean);
@@ -1731,7 +1765,6 @@ jQuery(document).ready(function ($) {
                             $(polygon).css("cursor", "pointer");
                             $(polygon).css("opacity", 1);
 
-                            //console.log('..............hover..............');
                             /*
                             if (comp_type == 'source_derive') {
                                 $(left).find('span.delete-sd').each(function () { $(this).addClass('delete-highlight-sd'); });
@@ -1744,9 +1777,6 @@ jQuery(document).ready(function ($) {
                                 right.find('span.delete-ss').each(function () { $(this).addClass('delete-highlight-ss'); });
                             }
                             */
-                            //console.log($(left).prop('outerHTML'));
-                            //console.log($(right).prop('outerHTML'));
-
                         }, function () {
                             $(polygon).css("opacity", 0.2);
 

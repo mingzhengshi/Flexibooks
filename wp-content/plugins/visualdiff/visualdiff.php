@@ -412,7 +412,7 @@ function fb_post_box_derived_document_callback() {
     <td id="fb-td-derive-mces" style="vertical-align:top">
         <!--h3 style="margin-bottom:8px">Derived Document</h3-->
         <div> 
-            <input id="fb-button-add-derive-document" type="button" value="Add Derive Document" class="button-secondary" style="margin-right:10px"/>      
+            <input id="fb-button-add-derive-document" type="button" value="Add Derive Section" class="button-secondary" style="margin-right:10px"/>      
         </div>
         <div id="fb-tabs-derives" style="margin-top:14px;" class="fb-tabs-sources-display-none">
             <ul id="fb-ul-derive-tabs">
