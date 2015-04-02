@@ -144,9 +144,6 @@ jQuery(document).ready(function ($) {
             meta_source_versions = JSON.parse(derived_meta_string);
         }
 
-        // get previous source version for merge
-        //getPreviousSourceVersions();
-
         derived_mce_init_done = true;
     });
 
@@ -508,7 +505,6 @@ jQuery(document).ready(function ($) {
                         });
 
                         updateMetaSourceVersions();
-                        updateMetaBoxSourceVersions();
                         getPreviousSourceVersions();
                     }
                 }
@@ -522,7 +518,7 @@ jQuery(document).ready(function ($) {
 
         for (var i = 0; i < meta_source_versions.length; i++) {
             if (meta_source_versions[i].source_post_previous_version != meta_source_versions[i].source_post_current_version) {
-                getSourcePostRevision(meta_source_versions[i].source_post_id, meta_source_versions[i].source_post_previous_version);
+                getSourcePostRevision(meta_source_versions[i].source_post_id, meta_source_versions[i].source_post_previous_version, meta_source_versions[i].derive_post_name);
                 //$("#fb-button-show-previous-source").prop('disabled', false);
             }
         }
@@ -534,7 +530,7 @@ jQuery(document).ready(function ($) {
         */
     }
 
-    function getSourcePostRevision(post_id, post_modified) {
+    function getSourcePostRevision(post_id, post_modified, derive_post_name) {
         $.post(ajaxurl,
             {
                 'action': 'fb_source_revision_query',
@@ -545,7 +541,7 @@ jQuery(document).ready(function ($) {
                 if (status.toLowerCase() == "success") {
                     var obj = JSON.parse(data);
                     createSourceRevisionObject(post_id, post_modified, obj.content);
-                    compareSourceRevisions(post_id, obj.content);
+                    compareSourceRevisions(post_id, obj.content, derive_post_name);
 
                     update();
                 }
@@ -555,6 +551,13 @@ jQuery(document).ready(function ($) {
     }
 
     function createSourceRevisionObject(post_id, post_modified, post_content) {
+        // avoid duplicate objects
+        for (var i = 0; i < previous_source_revisions.length; i++) {
+            if (previous_source_revisions[i].post_id == post_id) {
+                return;
+            }
+        }
+
         var obj = new Object();
 
         obj['post_id'] = post_id;
@@ -582,12 +585,20 @@ jQuery(document).ready(function ($) {
         return null;
     }
 
-    function compareSourceRevisions(post_id, old_content) {
+    function compareSourceRevisions(post_id, old_content, derive_post_name) {
         for (var i = 0; i < tinymce.editors.length; i++) {
             if (tinymce.editors[i].post_id == post_id) {
                 var new_doc = tinymce.editors[i].getDoc();
 
-                var derived_doc = getActiveDeriveMce().getDoc();
+                var derived_doc = null;
+                for (var j = 0; j < tinymce.editors.length; j++) {
+                    if (tinymce.editors[j].id.indexOf("fb-derived-mce") >= 0 && tinymce.editors[j].post_name == derive_post_name) {
+                        derived_doc = tinymce.editors[j].getDoc();
+                        break;
+                    }
+                }
+                if (derived_doc == null) return;
+
                 var old_mce = tinymce.get("fb-invisible-editor");
                 old_mce.setContent(old_content);
                 var old_doc = old_mce.getDoc();
@@ -1260,7 +1271,6 @@ jQuery(document).ready(function ($) {
         if (flexibook.postpone_update == true) return;
 
         updateMetaSourceVersions();
-        updateMetaBoxSourceVersions();
         updateSourceHighlight();
         updateHTMLDiff();
         updateSVG();
@@ -1330,17 +1340,50 @@ jQuery(document).ready(function ($) {
             }
         }
         */
+
         for (var i = meta_source_versions.length - 1; i >= 0; i--) {
             if (names.indexOf(meta_source_versions[i].derive_post_name) == -1) {
                 meta_source_versions.splice(i, 1);
             }
         }
 
-        if (!flexibook.active_derive_mce) return;
+        /*
+        if (!flexibook.active_derive_mce) {
+            updateMetaBoxSourceVersions();
+            return;
+        }
+        */
 
-        var post_ids = getUniqueSourcePostIDs();
-        var derive_post_name = flexibook.active_derive_mce.post_name;
+        for (var e = 0; e < tinymce.editors.length; e++) {
+            if (tinymce.editors[e].id.indexOf("fb-derived-mce") >= 0) {
+                var derive_post_name = tinymce.editors[e].post_name;
+                var derived_doc = tinymce.editors[e].getDoc();
+                var post_ids = getUniqueSourcePostIDs(derived_doc);
 
+                updateMetaSourceVersionsForDeriveSection(derive_post_name, post_ids);
+            }
+        }
+
+        //var post_ids = getUniqueSourcePostIDs(flexibook.active_derive_mce.getDoc());
+        //var derive_post_name = flexibook.active_derive_mce.post_name;
+
+        var meta_source_versions_string = JSON.stringify(meta_source_versions);
+        $("#fb-input-derived-meta").val(meta_source_versions_string);
+
+        // update Publish button
+        $("#publish").attr('value', 'Save');
+        $("#publish").prop('disabled', false);
+        for (var i = 0; i < meta_source_versions.length; i++) {
+            if (meta_source_versions[i].number_of_merges > 0) {
+                $("#publish").prop('disabled', true);
+                break;
+            }
+        }
+
+        updateMetaBoxSourceVersions();
+    }
+
+    function updateMetaSourceVersionsForDeriveSection(derive_post_name, post_ids) {
         if (meta_source_versions.length == 0) {
             for (var i = 0; i < post_ids.length; i++) {
                 createNewDeriveMetaObject(derive_post_name, post_ids[i]);
@@ -1377,19 +1420,6 @@ jQuery(document).ready(function ($) {
                 if (post_ids_exist == false) {
                     createNewDeriveMetaObject(derive_post_name, post_ids[i]);
                 }
-            }
-        }
-
-        var meta_source_versions_string = JSON.stringify(meta_source_versions);
-        $("#fb-input-derived-meta").val(meta_source_versions_string);
-
-        // update Publish button
-        $("#publish").attr('value', 'Save');
-        $("#publish").prop('disabled', false);
-        for (var i = 0; i < meta_source_versions.length; i++) {
-            if (meta_source_versions[i].number_of_merges > 0) {
-                $("#publish").prop('disabled', true);
-                break;
             }
         }
     }
@@ -1456,9 +1486,8 @@ jQuery(document).ready(function ($) {
         meta_source_versions.push(obj);
     }
 
-    function getUniqueSourcePostIDs() {
+    function getUniqueSourcePostIDs(derived_doc) {
         var ids = [];
-        var derived_doc = flexibook.active_derive_mce.getDoc();
 
         $(derived_doc.body).find("[data-source-post-id]").each(function (index) {
             var post_id = $(this).attr('data-source-post-id').trim();
