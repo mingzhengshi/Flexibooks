@@ -1340,32 +1340,22 @@ jQuery(document).ready(function ($) {
             }
         }
         */
-
         for (var i = meta_source_versions.length - 1; i >= 0; i--) {
             if (names.indexOf(meta_source_versions[i].derive_post_name) == -1) {
                 meta_source_versions.splice(i, 1);
             }
         }
 
-        /*
-        if (!flexibook.active_derive_mce) {
-            updateMetaBoxSourceVersions();
-            return;
-        }
-        */
-
-        for (var e = 0; e < tinymce.editors.length; e++) {
-            if (tinymce.editors[e].id.indexOf("fb-derived-mce") >= 0) {
-                var derive_post_name = tinymce.editors[e].post_name;
-                var derived_doc = tinymce.editors[e].getDoc();
-                var post_ids = getUniqueSourcePostIDs(derived_doc);
-
-                updateMetaSourceVersionsForDeriveSection(derive_post_name, post_ids);
+        // update meta_source_versions
+        $('#fb-tabs-derives .ui-tabs-nav a').each(function () {
+            var derive_post_name = $(this).html();
+            var derive_doc = getDeriveDocByName(derive_post_name);
+            
+            if (derive_doc != null) {
+                var post_ids = getUniqueSourcePostIDs(derive_doc);
+                updateMetaSourceVersionsForDeriveSection(derive_post_name, post_ids)
             }
-        }
-
-        //var post_ids = getUniqueSourcePostIDs(flexibook.active_derive_mce.getDoc());
-        //var derive_post_name = flexibook.active_derive_mce.post_name;
+        });
 
         var meta_source_versions_string = JSON.stringify(meta_source_versions);
         $("#fb-input-derived-meta").val(meta_source_versions_string);
@@ -1381,6 +1371,17 @@ jQuery(document).ready(function ($) {
         }
 
         updateMetaBoxSourceVersions();
+    }
+
+    function getDeriveDocByName(derive_post_name) {
+        for (var e = 0; e < tinymce.editors.length; e++) {
+            if (tinymce.editors[e].id.indexOf("fb-derived-mce") >= 0 && tinymce.editors[e].post_name == derive_post_name) {
+                var derived_doc = tinymce.editors[e].getDoc();
+                return derived_doc;
+            }
+        }
+
+        return null;
     }
 
     function updateMetaSourceVersionsForDeriveSection(derive_post_name, post_ids) {
