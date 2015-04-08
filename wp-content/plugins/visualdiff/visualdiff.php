@@ -40,6 +40,18 @@ add_filter( 'tiny_mce_before_init', 'fb_mce_before_init' );
 // add js
 add_action('admin_print_scripts', 'fb_admin_print_scripts');
 
+// include wordpress dashicons
+add_action( 'admin_enqueue_scripts', 'fb_custom_tinymce_dashicons' );
+
+//-----------------------------------------------------------------------------------------------
+// Called on the admin_enqueue_scripts action, enqueues CSS to 
+// make all WordPress Dashicons available to TinyMCE. This is
+// where most of the magic happens.
+
+function fb_custom_tinymce_dashicons() {
+	wp_enqueue_style( 'custom_tinymce_dashicons', plugins_url( 'css/custom-tinymce-dashicons.css', __FILE__ ) );
+}
+
 //-----------------------------------------------------------------------------------------------
 // load external TinyMCE plugins
  
@@ -52,6 +64,9 @@ function fb_tinymce_plugin( $tinymce_vb ) {
 // tinymce custom formats
 
 function fb_mce_editor_buttons( $buttons ) {
+    //---------------------------------------------------------------------
+    // I think this section is not required for tinymce advanced (plugin)
+    
     // remove the 'formatselect' button from the buttons
     $value = array_search( 'formatselect', $buttons );
     if ( FALSE !== $value ) {
@@ -63,6 +78,13 @@ function fb_mce_editor_buttons( $buttons ) {
     
     // add 'styleselect' to the buttons
     array_unshift( $buttons, 'styleselect' );
+    
+    
+    //---------------------------------------------------------------------
+    // add custom buttons
+    
+    array_push( $buttons, 'fb_custom_button_1' );
+    
     return $buttons;
 }
 

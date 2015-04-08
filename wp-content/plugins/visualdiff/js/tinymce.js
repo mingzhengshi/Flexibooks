@@ -166,6 +166,17 @@ jQuery(document).ready(function ($) {
             drawLinesMergeElements();
         });
 
+        // add custom buttons
+        editor.addButton('fb_custom_button_1', {
+            //text: 'Test Button',
+            title: 'Test Button',
+            icon: 'icon dashicons-media-spreadsheet',
+            onclick: function () {
+                console.log('Test button on click');
+            }
+        });
+
+
         function onMouseUp(e) {
             console.log("tinymce mouse up event");
 

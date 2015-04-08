@@ -1719,6 +1719,7 @@
     <Content Include="wp-content\plugins\tinymce-visualblocks\plugin.min.js" />
     <Content Include="wp-content\plugins\tinymce-visualblocks\readme.txt" />
     <Content Include="wp-content\plugins\tinymce-visualblocks\screenshot-1.png" />
+    <Content Include="wp-content\plugins\visualdiff\css\custom-tinymce-dashicons.css" />
     <Content Include="wp-content\plugins\visualdiff\css\derived.css" />
     <Content Include="wp-content\plugins\visualdiff\css\editor.css" />
     <Content Include="wp-content\plugins\visualdiff\css\editor_div.css" />
