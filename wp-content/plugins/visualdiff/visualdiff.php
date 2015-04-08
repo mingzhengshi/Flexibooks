@@ -16,22 +16,19 @@ add_action( 'init', 'fb_create_post_type' );
 add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
 add_action( 'add_meta_boxes', 'fb_add_meta_box_revision' );
 
-
 add_action( 'edit_page_form', 'fb_add_post_box_derived_document' );
 add_action( 'edit_form_advanced', 'fb_add_post_box_derived_document' );
 add_action( 'save_post', 'fb_save_document', 1, 2);
 add_filter( 'wp_insert_post_data' , 'fb_filter_post_data' , '99', 2 );
 
-
-// mce editor
-add_filter('mce_css', 'fb_mce_editor_style');
-//add_filter('teeny_mce_buttons', array( 'bold', 'italic' ), 'fb_editor_jstree_selection' );
-add_filter('tiny_mce_before_init', 'fb_allow_all_tinymce_elements_attributes');
-
 // ajax action
 add_action( 'wp_ajax_fb_source_query', 'fb_source_query' );
 add_action( 'wp_ajax_fb_source_revision_query', 'fb_source_revision_query' );
 add_action( 'wp_ajax_fb_source_element_revision_query', 'fb_source_element_revision_query' );
+
+// tinymce editor
+add_filter('mce_css', 'fb_mce_editor_style');
+add_filter('tiny_mce_before_init', 'fb_allow_all_tinymce_elements_attributes');
 
 // tinymce plugin
 add_filter( 'mce_external_plugins', 'fb_tinymce_plugin' );
@@ -53,6 +50,7 @@ function fb_tinymce_plugin( $tinymce_vb ) {
 
 //-----------------------------------------------------------------------------------------------
 // tinymce custom formats
+
 function fb_mce_editor_buttons( $buttons ) {
     // remove the 'formatselect' button from the buttons
     $value = array_search( 'formatselect', $buttons );
@@ -310,8 +308,8 @@ function fb_add_meta_box_derived_document_callback() {
 <table id="fb-table-derived-meta" cellspacing="10">
     <input id="fb-input-derived-meta" style="display:none;" name="fb-derived-meta" value="<?php echo htmlentities($derived_meta); ?>" />  
     <tr>
-        <td>Derive Name</td>
-        <td>Source Name</td>
+        <td>Derive Unit</td>
+        <td>Source Unit</td>
         <td>Dependent Version</td>
         <td>Current Version</td>
         <td>Merge Requests</td>

@@ -62,8 +62,12 @@ jQuery(document).ready(function ($) {
         $("#" + panelId).remove();
         derive_tabs.tabs("refresh");
 
-        //var derive_mce_id = panelId.replace("fb-tabs-derive", "fb-derived-mce");
-        //tinymce.execCommand('mceRemoveEditor', false, derive_mce_id); // error
+        for (var i = 0; i < tinymce.editors.length; i++) {
+            console.log('mce id: ' + tinymce.editors[i].id);
+        }
+
+        var derive_mce_id = panelId.replace("fb-tabs-derive", "fb-derived-mce");
+        tinymce.execCommand('mceRemoveEditor', false, derive_mce_id); // error
 
         flexibook.active_derive_mce = getActiveDeriveMce();
 
@@ -1332,7 +1336,7 @@ jQuery(document).ready(function ($) {
             names.push($(this).html());
         });
         /*
-        // the mce editor has not been removed 
+        // bug: the mce editor has not been removed 
         for (var i = 0; i < tinymce.editors.length; i++) {
             var e = tinymce.editors[i];
             if (e.id.indexOf("fb-derived-mce") >= 0) {
