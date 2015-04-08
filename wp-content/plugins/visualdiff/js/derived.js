@@ -62,9 +62,11 @@ jQuery(document).ready(function ($) {
         $("#" + panelId).remove();
         derive_tabs.tabs("refresh");
 
+        /*
         for (var i = 0; i < tinymce.editors.length; i++) {
             console.log('mce id: ' + tinymce.editors[i].id);
         }
+        */
 
         var derive_mce_id = panelId.replace("fb-tabs-derive", "fb-derived-mce");
         tinymce.execCommand('mceRemoveEditor', false, derive_mce_id); // error
