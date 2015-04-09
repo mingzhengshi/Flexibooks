@@ -101,7 +101,8 @@ jQuery(document).ready(function ($) {
 
         if (!doc) return;
 
-
+        $(doc.body).find('.toc').eq(0).prepend('<p></p>');
+        $(doc.body).find('.toc').eq(0).prepend('<div class="toc-title">Title</div>');
     });
 
     flexibook.regDerivedElementMouseUpCallback(function (post_id, d_id) {
@@ -254,8 +255,6 @@ jQuery(document).ready(function ($) {
 
                     }
                     */
-
-
                 }
                 else if (icon == '10003') {
                     // derive document
@@ -374,6 +373,8 @@ jQuery(document).ready(function ($) {
                 break;
         }
     });
+
+    //$("#fb-select-teacher-student-version").selectmenu();
 
     $("#fb-button-floating-source").button().click(function () {
         var this_button = $("#fb-button-floating-source");

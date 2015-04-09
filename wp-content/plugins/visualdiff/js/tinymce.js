@@ -181,7 +181,6 @@ jQuery(document).ready(function ($) {
 
         //---------------------------------------------------------------------
         /*
-        <div>
             <div>
               <p>Chapter One</p>
               <ul>
@@ -196,7 +195,6 @@ jQuery(document).ready(function ($) {
                   <li>Section Six</li>
               </ul>
             </div>
-        </div>
         */
         function updateTableOfContent() {
             // firstly remove the toc if it already exists
@@ -1074,6 +1072,7 @@ jQuery(document).ready(function ($) {
                     var targetID = this_icon.attr('id').substr(5);
                     if (targetID == null) return true; // continue
                     var targetElement = editor.getDoc().getElementById(targetID);
+                    if (!targetElement) return true; // continue
                     var tagName = $(targetElement).prop("tagName").toLowerCase();
 
                     var children = $(editor.getBody()).children();
