@@ -14,6 +14,8 @@ jQuery(document).ready(function ($) {
 
     var _select_content = null;
 
+    var _TOC_ID = "table_of_content";
+
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
 
         // events
@@ -167,15 +169,63 @@ jQuery(document).ready(function ($) {
         });
 
         // add custom buttons
-        editor.addButton('fb_custom_button_1', {
-            //text: 'Test Button',
-            title: 'Test Button',
+        editor.addButton('fb_custom_button_table_of_content', {
+            title: 'Update Table of Content',
             icon: 'icon dashicons-media-spreadsheet',
             onclick: function () {
                 console.log('Test button on click');
+
+                updateTableOfContent();
             }
         });
 
+        //---------------------------------------------------------------------
+        /*
+        <div>
+            <div>
+              <p>Chapter One</p>
+              <ul>
+                  <li>Section One</li>
+                  <li>Section Two </li>
+                  <li>Section Three </li>
+              </ul>
+              <p>Chapter Two</p>
+              <ul>
+                  <li>Section Four</li>
+                  <li>Section Five</li>
+                  <li>Section Six</li>
+              </ul>
+            </div>
+        </div>
+        */
+        function updateTableOfContent() {
+            // firstly remove the toc if it already exists
+            $(editor.getBody()).find('.toc').remove();
+
+            $(editor.getBody()).prepend('<div id="' + _TOC_ID + '" class="toc"></div>');
+            toc = editor.getDoc().getElementById(_TOC_ID);
+
+            var ul = null;
+
+            $(editor.getBody()).children().each(function (index) {
+                var element = $(this);
+                if (isAdminElementjQuery(element)) return true; // continue
+
+                if (element.hasClass("main-heading-1") == true) {
+                    $(toc).append('<p class="toc-main-heading-1">' + element.html() + '</p>');
+                    ul = $(toc).append('<ul></ul>');
+                }
+
+                if (element.hasClass("main-heading-2") == true) {
+                    if (ul != null) {
+                        ul.append('<li class="toc-main-heading-2">' + element.html() + '</li>');
+                    }
+                }
+            });
+
+            var callback = flexibook.tableOfContentCallback;
+            if (callback) callback(editor.id);
+        }
 
         function onMouseUp(e) {
             console.log("tinymce mouse up event");
@@ -935,8 +985,16 @@ jQuery(document).ready(function ($) {
         }
 
         function isAdminElement(element) {
-            if (element.tagName == 'svg') return true;
-            if (element.className.indexOf("fb_tinymce_left_column") >= 0) return true;
+            return isAdminElementjQuery($(element));
+        }
+
+        function isAdminElementjQuery(element) {
+            if (element.prop("tagName").toLowerCase() == 'svg') return true;
+            if (element.hasClass("fb_tinymce_left_column") == true ||
+                element.hasClass("fb_tinymce_left_column_icon") == true ||
+                element.hasClass("fb_tinymce_left_column_svg") == true) return true;
+            //if (element.tagName == 'svg') return true;
+            //if (element.className.indexOf("fb_tinymce_left_column") >= 0) return true;
             return false;
         }
 

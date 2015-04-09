@@ -168,6 +168,22 @@ p.title {
     text-align: center;
 }
 
+/* table of content*/
+.toc {
+
+
+}
+
+.toc-main-heading-1 {
+    font-size: 12pt;
+    font-weight: bold;
+}
+
+.toc-main-heading-2 {
+    font-size: 10pt;
+
+}
+
 /* folding editor */
 .fb-collapse {
 

@@ -34,7 +34,8 @@ add_filter('tiny_mce_before_init', 'fb_allow_all_tinymce_elements_attributes');
 add_filter( 'mce_external_plugins', 'fb_tinymce_plugin' );
 
 // tinymce custom formats
-add_filter( 'mce_buttons_2', 'fb_mce_editor_buttons' );
+add_filter( 'mce_buttons_2', 'fb_mce_editor_buttons_second_row' );
+add_filter( 'mce_buttons_3', 'fb_mce_editor_buttons_third_row' );
 add_filter( 'tiny_mce_before_init', 'fb_mce_before_init' );
 
 // add js
@@ -61,9 +62,9 @@ function fb_tinymce_plugin( $tinymce_vb ) {
 }
 
 //-----------------------------------------------------------------------------------------------
-// tinymce custom formats
+// tinymce custom buttons
 
-function fb_mce_editor_buttons( $buttons ) {
+function fb_mce_editor_buttons_second_row( $buttons ) {
     //---------------------------------------------------------------------
     // I think this section is not required for tinymce advanced (plugin)
     
@@ -83,8 +84,14 @@ function fb_mce_editor_buttons( $buttons ) {
     //---------------------------------------------------------------------
     // add custom buttons
     
-    array_push( $buttons, 'fb_custom_button_1' );
+    //array_push( $buttons, 'fb_custom_button_1' );
     
+    return $buttons;
+}
+
+function fb_mce_editor_buttons_third_row( $buttons ) {
+    // add custom buttons
+    array_push( $buttons, 'fb_custom_button_table_of_content' );
     return $buttons;
 }
 
@@ -174,20 +181,20 @@ function fb_derived_admin_head() {
         $fb_js_url = plugins_url( 'js/fb.js' , __FILE__ );
         $htmldiff_js_url = plugins_url( 'js/htmldiff.js' , __FILE__ );
         $derived_js_url = plugins_url( 'js/derived.js' , __FILE__ );
-        $jstree_js_url = plugins_url( 'lib/jstree/jstree.min.js' , __FILE__ );
+        //$jstree_js_url = plugins_url( 'lib/jstree/jstree.min.js' , __FILE__ );
         
         $derived_css_url = plugins_url( 'css/derived.css' , __FILE__ );
-        $jstree_css_url = plugins_url( 'lib/jstree/themes/default/style.min.css' , __FILE__ );
+        //$jstree_css_url = plugins_url( 'lib/jstree/themes/default/style.min.css' , __FILE__ );
         //$editor_div_css_url = plugins_url( 'css/editor_div.css' , __FILE__ );
         $jquery_css_url = plugins_url( 'css/jquery-ui-themes-1.11.2/themes/smoothness/jquery-ui.css' , __FILE__ );
     
         echo '<script type="text/javascript" src="' . $fb_js_url . '" ></script>';
         echo '<script type="text/javascript" src="' . $htmldiff_js_url . '" ></script>'; // need to come first; to be used in other js files;
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
-        echo '<script type="text/javascript" src="' . $jstree_js_url . '" ></script>';
+        //echo '<script type="text/javascript" src="' . $jstree_js_url . '" ></script>';
         
         echo '<link rel="stylesheet" type="text/css" href="' . $derived_css_url . '" />';
-        echo '<link rel="stylesheet" type="text/css" href="' . $jstree_css_url . '" />';
+        //echo '<link rel="stylesheet" type="text/css" href="' . $jstree_css_url . '" />';
         //echo '<link rel="stylesheet" type="text/css" href="' . $editor_div_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $jquery_css_url . '" />';
     }    
@@ -682,71 +689,6 @@ function fb_allow_all_tinymce_elements_attributes( $init ) {
     // return value
     return $init;
 }
-
-/*
-// add styles drop-down 
-add_filter( 'mce_buttons_2', 'fb_mce_editor_buttons' );
-
-function fb_mce_editor_buttons( $buttons ) {
-    array_unshift( $buttons, 'styleselect' );
-    return $buttons;
-}
-
-// attach callback to 'tiny_mce_before_init' 
-add_filter( 'tiny_mce_before_init', 'fb_mce_before_init_insert_formats' );  
-
-// callback function to filter the MCE settings
-function fb_mce_before_init_insert_formats( $init_array ) {  
-	// Define the style_formats array
-	$style_formats = array(  
-		// Each array child is a format with it's own settings
-		array(  
-			'title' => 'h2 activity',  
-			'block' => 'h2',  
-			'classes' => 'h2.activity',
-			'wrapper' => true,			
-		)
-	);  
-    
-	// Insert the array, JSON ENCODED, into 'style_formats'
-	$init_array['style_formats'] = json_encode( $style_formats );  
-	
-	return $init_array;  
-    
-} 
-*/
-
-/*
-// add styles/classes to the styles drop-down
-add_filter( 'tiny_mce_before_init', 'fb_mce_before_init' );
-
-function fb_mce_before_init( $settings ) {
-    $style_formats = array(
-        array(
-            'title' => 'Download Link',
-            'selector' => 'a',
-            'classes' => 'download'
-            ),
-        array(
-            'title' => 'Testimonial',
-            'selector' => 'p',
-            'classes' => 'testimonial',
-        )
-    );
-    
-    $settings['style_formats'] = json_encode( $style_formats );
-    
-    return $settings;   
-}
-
-// add custom stylesheet to the website front-end with hook 'wp_enqueue_scripts'
-add_action('wp_enqueue_scripts', 'fb_mce_editor_enqueue');
-
-function fb_mce_editor_enqueue() {
-    $style_url = trailingslashit( plugin_dir_url(__FILE__) ) . '/css/editor.css';
-    wp_enqueue_style( 'myCustomStyles', $style_url );
-}
-*/
 
 
 //-----------------------------------------------------------------------------------------------

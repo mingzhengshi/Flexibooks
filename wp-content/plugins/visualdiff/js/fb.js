@@ -13,6 +13,7 @@
         this.deriveUpdateCallback = {};
         this.derivedElementMouseUpCallback = {};
         this.onDragEndCallback = {};
+        this.tableOfContentCallback = {};
     }
 
     // mce editor callbacks
@@ -38,6 +39,10 @@
 
     Flexibook.prototype.regOnDragEndCallback = function (callback) {
         this.onDragEndCallback = callback;
+    };
+
+    Flexibook.prototype.regTableOfContentCallback = function (callback) {
+        this.tableOfContentCallback = callback;
     };
 
     // others

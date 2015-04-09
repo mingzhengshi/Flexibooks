@@ -90,6 +90,20 @@ jQuery(document).ready(function ($) {
     //----------------------------------------------------------------------------------------
     // init
 
+    flexibook.regTableOfContentCallback(function (editor_id) {
+        var doc = null
+        for (var i = 0; i < tinymce.editors.length; i++) {
+            if (tinymce.editors[i].id == editor_id) {
+                var doc = tinymce.editors[i].getDoc();
+                break;
+            }
+        }
+
+        if (!doc) return;
+
+
+    });
+
     flexibook.regDerivedElementMouseUpCallback(function (post_id, d_id) {
         var index = meta_source_tabs_post_ids.indexOf(post_id);
         if (index >= 0) {
