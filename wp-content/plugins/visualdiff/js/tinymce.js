@@ -16,10 +16,19 @@ jQuery(document).ready(function ($) {
 
     var _TOC_ID = "table_of_content";
 
+    var _screen_dpi = -1;
+
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
+        var page_boundary_on = false;
+        var page_boundary_on_body_background_color = '#ebebeb';
 
         // events
         editor.on('init', function () {
+            // test dpi
+            $(editor.getBody()).append('<div id="div_dpi" class="dpi_test" style="width:1in;visible:hidden;padding:0px"></div>');
+            _screen_dpi = editor.getDoc().getElementById('div_dpi').offsetWidth;
+            $(editor.getDoc()).find('.dpi_test').remove();
+
             $(editor.getBody()).css('margin-left', 50); // for all editors
 
             if (editor.id.indexOf("fb-merge-mce") >= 0) {
@@ -173,11 +182,52 @@ jQuery(document).ready(function ($) {
             title: 'Update Table of Content',
             icon: 'icon dashicons-media-spreadsheet',
             onclick: function () {
-                console.log('Test button on click');
+                //console.log('Test button on click');
 
                 updateTableOfContent();
             }
         });
+
+        editor.addButton('fb_custom_button_page_boundary', {
+            title: 'Toggle Page Boundary',
+            icon: 'icon dashicons-tablet',
+            onclick: function () {
+                //console.log('Test button on click');
+                togglePageBoundary();
+            }
+        });
+
+        function togglePageBoundary() {           
+            page_boundary_on = !page_boundary_on;
+            if (page_boundary_on) {
+                $(editor.getBody()).css('background-color', page_boundary_on_body_background_color);
+
+                var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
+                var body_margin_right = parseInt($(editor.getBody()).css('margin-right'), 10);
+                var body_margin_top = parseInt($(editor.getBody()).css('margin-top'), 10);
+
+                var body_offset = $(editor.getBody()).offset();
+                var body_width = $(editor.getBody()).width();
+                var body_height = $(editor.getBody()).height();
+
+                var page_height_in_pixel = _screen_dpi * 10.89; // 10.89 inch
+
+                var total_page_height = 0;
+                var page_count = 0;
+
+                while (body_height > total_page_height) {
+                    //createPageBoundary('test', body_offset.top - 2, body_offset.left - 2, body_width + 4, 264);
+                    createPageBoundary('page-boundary-' + page_count, total_page_height + 2, body_offset.left - 10, body_width + 20, page_height_in_pixel - 2);
+
+                    total_page_height += page_height_in_pixel;
+                    page_count++;
+                }
+
+
+
+            }
+        }
+
 
         //---------------------------------------------------------------------
         /*
@@ -990,7 +1040,8 @@ jQuery(document).ready(function ($) {
             if (element.prop("tagName").toLowerCase() == 'svg') return true;
             if (element.hasClass("fb_tinymce_left_column") == true ||
                 element.hasClass("fb_tinymce_left_column_icon") == true ||
-                element.hasClass("fb_tinymce_left_column_svg") == true) return true;
+                element.hasClass("fb_tinymce_left_column_svg") == true ||
+                element.hasClass("fb_tinymce_left_column_page") == true) return true;
             //if (element.tagName == 'svg') return true;
             //if (element.className.indexOf("fb_tinymce_left_column") >= 0) return true;
             return false;
@@ -1124,7 +1175,15 @@ jQuery(document).ready(function ($) {
                         y2 -= 3;
                     }
 
-                    var color = 'grey';
+                    var line_color = 'lightgrey';
+                    var event_line_color = 'white'; // should be invisible
+
+                    // change the line color if page boundary is on
+                    if (page_boundary_on) {
+                        line_color = 'grey';
+                        event_line_color = page_boundary_on_body_background_color;
+                    }
+
                     var svg_id = editor.id + '-svg';
                     var svg = editor.getDoc().getElementById(svg_id);
 
@@ -1134,7 +1193,7 @@ jQuery(document).ready(function ($) {
                     eline.setAttribute('y1', y1);
                     eline.setAttribute('x2', x2);
                     eline.setAttribute('y2', y2);
-                    eline.setAttribute('stroke', 'white'); // should be invisible
+                    eline.setAttribute('stroke', event_line_color); 
                     eline.setAttribute('stroke-width', 7);
                     //eline.style.zIndex = -1;
                     //line.style.padding = '2px';
@@ -1153,7 +1212,7 @@ jQuery(document).ready(function ($) {
                     line.setAttribute('y1', y1);
                     line.setAttribute('x2', x2);
                     line.setAttribute('y2', y2);
-                    line.setAttribute('stroke', color);
+                    line.setAttribute('stroke', line_color);
                     line.setAttribute('stroke-width', 1);
                     //line.style.zIndex = 1;
                     if (svg) svg.appendChild(line);
@@ -1164,7 +1223,7 @@ jQuery(document).ready(function ($) {
                     hline.setAttribute('y1', y2);
                     hline.setAttribute('x2', x2 + 5);
                     hline.setAttribute('y2', y2);
-                    hline.setAttribute('stroke', color);
+                    hline.setAttribute('stroke', line_color);
                     hline.setAttribute('stroke-width', 1);
                     if (svg) svg.appendChild(hline);
                 }
@@ -1369,6 +1428,28 @@ jQuery(document).ready(function ($) {
             if (draggable) icon.draggable = true;
 
             editor.getBody().appendChild(icon);
+        }
+
+        // the size of A4: 210mm × 297mm or 8.27in × 11.69in
+        // 1 inch = 25.4 millimetres
+        function createPageBoundary(id, top, left, width, height) {
+            var page = document.createElement('div');
+            page.className = 'fb_tinymce_left_column_page';
+            page.id = id;
+            page.style.position = 'absolute';
+            page.style.top = top + 'px';
+            page.style.left = left + 'px';
+            page.style.width = width + 'px';
+            page.style.height = height + 'px';
+            //page.style.height = height + 'cm';
+            page.style.zIndex = -1;
+            page.style.backgroundColor = '#ffffff';
+            //page.style.borderStyle = 'solid';
+            page.style.borderStyle = 'dotted';
+            page.style.borderWidth = '1px';
+            page.style.borderColor = 'grey';
+
+            editor.getBody().appendChild(page);
         }
     });
 });

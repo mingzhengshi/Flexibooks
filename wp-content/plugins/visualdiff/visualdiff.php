@@ -92,6 +92,7 @@ function fb_mce_editor_buttons_second_row( $buttons ) {
 function fb_mce_editor_buttons_third_row( $buttons ) {
     // add custom buttons
     array_push( $buttons, 'fb_custom_button_table_of_content' );
+    array_push( $buttons, 'fb_custom_button_page_boundary' );
     return $buttons;
 }
 

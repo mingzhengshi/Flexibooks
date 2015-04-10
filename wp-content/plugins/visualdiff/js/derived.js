@@ -1686,7 +1686,8 @@ jQuery(document).ready(function ($) {
         if (element.prop("tagName").toLowerCase() == 'svg') return true;
         if (element.hasClass("fb_tinymce_left_column") == true ||
             element.hasClass("fb_tinymce_left_column_icon") == true ||
-            element.hasClass("fb_tinymce_left_column_svg") == true) return true;
+            element.hasClass("fb_tinymce_left_column_svg") == true ||
+            element.hasClass("fb_tinymce_left_column_page") == true) return true;
         //if (element.attr('class').indexOf("fb_tinymce_left_column") >= 0) return true;
         return false;
     }
