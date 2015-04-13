@@ -102,9 +102,6 @@ jQuery(document).ready(function ($) {
         var height = $(doc.body).find('.toc').eq(0).height();
         height = (1015 - height) / 2;
         $(doc.body).find('.toc').eq(0).prepend('<div style="height:' + height + 'px"></div>'); // prepend a dummy div
-        // ms - temp: see css of toc
-        //$(doc.body).find('.toc').eq(0).css('position', 'absolute');
-        //$(doc.body).find('.toc').eq(0).css('top', (1015 - height) / 2);
     });
 
     flexibook.regDerivedElementMouseUpCallback(function (post_id, d_id) {

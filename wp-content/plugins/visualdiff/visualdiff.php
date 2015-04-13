@@ -90,10 +90,14 @@ function fb_mce_editor_buttons_second_row( $buttons ) {
 }
 
 function fb_mce_editor_buttons_third_row( $buttons ) {
+    $type = get_current_screen()->post_type;
+    
     // add custom buttons
-    array_push( $buttons, 'fb_custom_button_table_of_content' );
-    array_push( $buttons, 'fb_custom_button_page_boundary' );
-    return $buttons;
+    if ($type == 'derived') {
+        array_push( $buttons, 'fb_custom_button_table_of_content' );
+        array_push( $buttons, 'fb_custom_button_page_boundary' );
+        return $buttons;
+    }
 }
 
 function fb_mce_before_init( $settings ) {
@@ -178,8 +182,13 @@ function fb_mce_before_init( $settings ) {
 // for derived post type only
 function fb_derived_admin_head() {
     $type = get_current_screen()->post_type;
-    if ($type == 'derived') {
+    
+    if (($type == 'derived') || ($type == 'source')) {
         $fb_js_url = plugins_url( 'js/fb.js' , __FILE__ );
+        echo '<script type="text/javascript" src="' . $fb_js_url . '" ></script>';
+    }
+    
+    if ($type == 'derived') {
         $htmldiff_js_url = plugins_url( 'js/htmldiff.js' , __FILE__ );
         $derived_js_url = plugins_url( 'js/derived.js' , __FILE__ );
         //$jstree_js_url = plugins_url( 'lib/jstree/jstree.min.js' , __FILE__ );
@@ -189,7 +198,7 @@ function fb_derived_admin_head() {
         //$editor_div_css_url = plugins_url( 'css/editor_div.css' , __FILE__ );
         $jquery_css_url = plugins_url( 'css/jquery-ui-themes-1.11.2/themes/smoothness/jquery-ui.css' , __FILE__ );
     
-        echo '<script type="text/javascript" src="' . $fb_js_url . '" ></script>';
+
         echo '<script type="text/javascript" src="' . $htmldiff_js_url . '" ></script>'; // need to come first; to be used in other js files;
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
         //echo '<script type="text/javascript" src="' . $jstree_js_url . '" ></script>';
@@ -198,7 +207,12 @@ function fb_derived_admin_head() {
         //echo '<link rel="stylesheet" type="text/css" href="' . $jstree_css_url . '" />';
         //echo '<link rel="stylesheet" type="text/css" href="' . $editor_div_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $jquery_css_url . '" />';
-    }    
+    }   
+    else if ($type == 'source') {        
+        $source_js_url = plugins_url( 'js/source.js' , __FILE__ );
+        
+        echo '<script type="text/javascript" src="' . $source_js_url . '" ></script>';
+    }
 }
 
 function fb_derived_admin_footer() {

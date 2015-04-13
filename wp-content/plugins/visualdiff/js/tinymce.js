@@ -224,19 +224,13 @@ jQuery(document).ready(function ($) {
                     page_count++;
                     */
 
-                    // pixels
-                    
+                    // pixels                
                     createPageBoundary('page-boundary-' + page_count, total_page_height + 1, body_offset.left - 10, body_width + 20, page_height_in_pixel - 1);
                     total_page_height += page_height_in_pixel;
-                    page_count++;
-                    
+                    page_count++;                  
                 }
-
-
-
             }
         }
-
 
         //---------------------------------------------------------------------
         function updateTableOfContent() {
@@ -264,8 +258,17 @@ jQuery(document).ready(function ($) {
                 }
             });
 
-            var callback = flexibook.tableOfContentCallback;
-            if (callback) callback(editor.id);
+            var post_name = editor.post_name;
+
+            if (!post_name) {
+                // if post_name property does not exist, then it is a source document
+                var callback = flexibook.sourceTableOfContentCallback;
+                if (callback) callback();
+            }
+            else {
+                var callback = flexibook.tableOfContentCallback;
+                if (callback) callback(editor.id);
+            }
         }
 
         function onMouseUp(e) {
