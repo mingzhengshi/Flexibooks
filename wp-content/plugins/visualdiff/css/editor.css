@@ -169,9 +169,12 @@ p.title {
 }
 
 /* table of content*/
+.toc-page {
+    height: 1015px; /* ms - test */
+}
+
 .toc {
-
-
+    /*vertical-align: middle;*/ /*not for div*/
 }
 
 .toc-title {
@@ -187,7 +190,6 @@ p.title {
 
 .toc-main-heading-2 {
     font-size: 10pt;
-
 }
 
 /* folding editor */

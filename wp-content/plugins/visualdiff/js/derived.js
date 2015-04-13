@@ -46,8 +46,8 @@ jQuery(document).ready(function ($) {
     source_tabs.on("tabsactivate", function (event, ui) {
         // console.log("tab activate...");
         // var active_tab_id = $(".ui-state-active").attr("id");
-        $tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
-        var $selected = $("#fb-tabs-sources ul>li a").eq($tabIndex).attr('href');
+        //var tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
+        //var selected = $("#fb-tabs-sources ul>li a").eq(tabIndex).attr('href');
 
         setupOldSourceMce();
         update();
@@ -68,6 +68,9 @@ jQuery(document).ready(function ($) {
         }
         */
 
+        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
+        if (!tab_id) return;
+
         var derive_mce_id = panelId.replace("fb-tabs-derive", "fb-derived-mce");
         tinymce.execCommand('mceRemoveEditor', false, derive_mce_id); // error
 
@@ -79,8 +82,8 @@ jQuery(document).ready(function ($) {
     derive_tabs.on("tabsactivate", function (event, ui) {
         // console.log("tab activate...");
         // var active_tab_id = $(".ui-state-active").attr("id");
-        $tabIndex = $('#fb-tabs-derives').tabs('option', 'active');
-        var $selected = $("#fb-tabs-derives ul>li a").eq($tabIndex).attr('href');
+        //var tabIndex = $('#fb-tabs-derives').tabs('option', 'active');
+        //var selected = $("#fb-tabs-derives ul>li a").eq(tabIndex).attr('href');
 
         flexibook.active_derive_mce = getActiveDeriveMce();
 
@@ -91,18 +94,17 @@ jQuery(document).ready(function ($) {
     // init
 
     flexibook.regTableOfContentCallback(function (editor_id) {
-        var doc = null
-        for (var i = 0; i < tinymce.editors.length; i++) {
-            if (tinymce.editors[i].id == editor_id) {
-                var doc = tinymce.editors[i].getDoc();
-                break;
-            }
-        }
+        if (!flexibook.active_derive_mce) return;
+        var doc = flexibook.active_derive_mce.getDoc();
+        var title = flexibook.active_derive_mce.post_name;
+        $(doc.body).find('.toc').eq(0).prepend('<div class="toc-title">' + title + '</div>');
 
-        if (!doc) return;
-
-        $(doc.body).find('.toc').eq(0).prepend('<p></p>');
-        $(doc.body).find('.toc').eq(0).prepend('<div class="toc-title">Title</div>');
+        var height = $(doc.body).find('.toc').eq(0).height();
+        height = (1015 - height) / 2;
+        $(doc.body).find('.toc').eq(0).prepend('<div style="height:' + height + 'px"></div>'); // prepend a dummy div
+        // ms - temp: see css of toc
+        //$(doc.body).find('.toc').eq(0).css('position', 'absolute');
+        //$(doc.body).find('.toc').eq(0).css('top', (1015 - height) / 2);
     });
 
     flexibook.regDerivedElementMouseUpCallback(function (post_id, d_id) {
@@ -481,7 +483,7 @@ jQuery(document).ready(function ($) {
 
             // get active tab id
             var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
-            if (typeof tab_id == typeof undefined || tab_id == null) return;
+            if (!tab_id) return;
             var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
             var source_mce = tinymce.get(source_mce_id);
             var post_id = source_mce.post_id;
@@ -1229,7 +1231,7 @@ jQuery(document).ready(function ($) {
     function getActiveDeriveMce() {
         // get active tab id
         var tab_id = $("#fb-tabs-derives .ui-tabs-panel:visible").attr("id");
-        if (typeof tab_id == typeof undefined || tab_id == null) return null;
+        if (!tab_id) return null;
         var derive_mce_id = tab_id.replace("fb-tabs-derive", "fb-derived-mce");
         var derive_mce = tinymce.get(derive_mce_id);
 
@@ -1300,7 +1302,7 @@ jQuery(document).ready(function ($) {
     function updateSourceHighlight() {
         // get active tab id
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
-        if (typeof tab_id == typeof undefined || tab_id == null) return;
+        if (!tab_id) return;
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
         var source_mce = tinymce.get(source_mce_id);
         var source_doc = source_mce.getDoc();
@@ -1532,7 +1534,7 @@ jQuery(document).ready(function ($) {
 
         // get active tab id
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
-        if (typeof tab_id == typeof undefined || tab_id == null) return;
+        if (!tab_id) return;
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
         var source_doc = tinymce.get(source_mce_id).getDoc();
 
@@ -1659,7 +1661,7 @@ jQuery(document).ready(function ($) {
 
         // get active tab id
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
-        if (typeof tab_id == typeof undefined || tab_id == null) return;
+        if (!tab_id) return;
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
         var source_mce = tinymce.get(source_mce_id);
         var source_doc = source_mce.getDoc();
@@ -1687,7 +1689,8 @@ jQuery(document).ready(function ($) {
         if (element.hasClass("fb_tinymce_left_column") == true ||
             element.hasClass("fb_tinymce_left_column_icon") == true ||
             element.hasClass("fb_tinymce_left_column_svg") == true ||
-            element.hasClass("fb_tinymce_left_column_page") == true) return true;
+            element.hasClass("fb_tinymce_left_column_page") == true ||
+            element.hasClass("toc-page") == true) return true;
         //if (element.attr('class').indexOf("fb_tinymce_left_column") >= 0) return true;
         return false;
     }
@@ -1873,7 +1876,7 @@ jQuery(document).ready(function ($) {
 
         // get active tab id
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
-        if (typeof tab_id == typeof undefined || tab_id == null) return;
+        if (!tab_id) return;
         var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
         var source_mce = tinymce.get(source_mce_id);
         var source_doc = source_mce.getDoc();

@@ -1,4 +1,5 @@
 jQuery(document).ready(function ($) {
+    // global variables
     // record the latest copy event
     var copied_from_editor_id = "";
     var copied_content = "";
@@ -6,17 +7,13 @@ jQuery(document).ready(function ($) {
     var copied_mode = "";
 
     var on_icon_hover = false;
-    var _mouseX = -1;
-    var _mouseY = -1;
-    var _dragging = false;
-    //var _dragged_item_id = -1;
-    var _dragged_item_copy = null;
 
-    var _select_content = null;
+    var fb_dragging = false;
+    var fb_dragged_item_copy = null;
 
-    var _TOC_ID = "table_of_content";
+    var FB_TOC_ID = "table_of_content";
 
-    var _screen_dpi = -1;
+    var fb_screen_dpi = -1;
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
         var page_boundary_on = false;
@@ -26,7 +23,7 @@ jQuery(document).ready(function ($) {
         editor.on('init', function () {
             // test dpi
             $(editor.getBody()).append('<div id="div_dpi" class="dpi_test" style="width:1in;visible:hidden;padding:0px"></div>');
-            _screen_dpi = editor.getDoc().getElementById('div_dpi').offsetWidth;
+            fb_screen_dpi = editor.getDoc().getElementById('div_dpi').offsetWidth;
             $(editor.getDoc()).find('.dpi_test').remove();
 
             $(editor.getBody()).css('margin-left', 50); // for all editors
@@ -210,17 +207,29 @@ jQuery(document).ready(function ($) {
                 var body_width = $(editor.getBody()).width();
                 var body_height = $(editor.getBody()).height();
 
-                var page_height_in_pixel = _screen_dpi * 10.89; // 10.89 inch
+                var page_height_in_pixel = fb_screen_dpi * 10.89; // 10.89 inch
 
                 var total_page_height = 0;
                 var page_count = 0;
 
                 while (body_height > total_page_height) {
-                    //createPageBoundary('test', body_offset.top - 2, body_offset.left - 2, body_width + 4, 264);
-                    createPageBoundary('page-boundary-' + page_count, total_page_height + 2, body_offset.left - 10, body_width + 20, page_height_in_pixel - 2);
+                    // cm
+                    /*
+                    var page_id = 'page-boundary-' + page_count;
+                    createPageBoundary(page_id, total_page_height, body_offset.left - 10, body_width + 20, 29.7);
+                    var page = editor.getDoc().getElementById(page_id);
+                    var page_height = $(page).height();
+                    total_page_height += page_height;
 
+                    page_count++;
+                    */
+
+                    // pixels
+                    
+                    createPageBoundary('page-boundary-' + page_count, total_page_height + 1, body_offset.left - 10, body_width + 20, page_height_in_pixel - 1);
                     total_page_height += page_height_in_pixel;
                     page_count++;
+                    
                 }
 
 
@@ -230,28 +239,12 @@ jQuery(document).ready(function ($) {
 
 
         //---------------------------------------------------------------------
-        /*
-            <div>
-              <p>Chapter One</p>
-              <ul>
-                  <li>Section One</li>
-                  <li>Section Two </li>
-                  <li>Section Three </li>
-              </ul>
-              <p>Chapter Two</p>
-              <ul>
-                  <li>Section Four</li>
-                  <li>Section Five</li>
-                  <li>Section Six</li>
-              </ul>
-            </div>
-        */
         function updateTableOfContent() {
             // firstly remove the toc if it already exists
-            $(editor.getBody()).find('.toc').remove();
+            $(editor.getBody()).find('.toc-page').remove();
 
-            $(editor.getBody()).prepend('<div id="' + _TOC_ID + '" class="toc"></div>');
-            toc = editor.getDoc().getElementById(_TOC_ID);
+            $(editor.getBody()).prepend('<div class="toc-page"><div id="' + FB_TOC_ID + '" class="toc"></div></div>');
+            toc = editor.getDoc().getElementById(FB_TOC_ID);
 
             var ul = null;
 
@@ -557,7 +550,7 @@ jQuery(document).ready(function ($) {
             // setup drag event for derive elements
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 $(editor.getBody()).children().on('dragenter', function () {
-                    if (_dragging == false) return;
+                    if (fb_dragging == false) return;
 
                     var item = $(this);
                     if (item.attr('id') == flexibook.dragged_item_id) return;
@@ -565,7 +558,7 @@ jQuery(document).ready(function ($) {
                     $(editor.getBody()).find('.fb_tinymce_dragging').remove();
 
                     if (item.hasClass("fb_tinymce_left_column") == false && item.hasClass("fb_tinymce_left_column_icon") == false && item.hasClass("fb_tinymce_dragging") == false) {                                                                     
-                        var clone = $(_dragged_item_copy).clone();
+                        var clone = $(fb_dragged_item_copy).clone();
                         $(clone).addClass('fb_tinymce_dragging');
                         $(clone).css('opacity', 0.5);
 
@@ -871,7 +864,7 @@ jQuery(document).ready(function ($) {
             );
             */
             icon.addEventListener('dragstart', function (event) {
-                _dragging = true;
+                fb_dragging = true;
 
                 var targetID = icon.id.substr(5);
                 if (targetID == null) return;
@@ -883,7 +876,7 @@ jQuery(document).ready(function ($) {
 
                 flexibook.dragged_item_id = targetID;
                 var dragged_item = editor.getDoc().getElementById(flexibook.dragged_item_id);
-                _dragged_item_copy = $(dragged_item).clone();
+                fb_dragged_item_copy = $(dragged_item).clone();
 
                 if (editor.id.indexOf("fb-derived-mce") >= 0) {
                     $(dragged_item).addClass('fb_tinymce_dragging');
@@ -891,7 +884,7 @@ jQuery(document).ready(function ($) {
                 }
                 else if (editor.id.indexOf("fb-source-mce") >= 0) {
                     var post_id = editor.post_id;
-                    $(_dragged_item_copy).attr("data-source-post-id", post_id);
+                    $(fb_dragged_item_copy).attr("data-source-post-id", post_id);
                 }
                 //console.log('dragstart');
             });
@@ -903,7 +896,7 @@ jQuery(document).ready(function ($) {
             */
 
             icon.addEventListener('dragend', function (event) {
-                _dragging = false;
+                fb_dragging = false;
 
                 if (editor.id.indexOf("fb-derived-mce") >= 0) {
                     var dragged_item = editor.getDoc().getElementById(flexibook.dragged_item_id);
@@ -1041,7 +1034,8 @@ jQuery(document).ready(function ($) {
             if (element.hasClass("fb_tinymce_left_column") == true ||
                 element.hasClass("fb_tinymce_left_column_icon") == true ||
                 element.hasClass("fb_tinymce_left_column_svg") == true ||
-                element.hasClass("fb_tinymce_left_column_page") == true) return true;
+                element.hasClass("fb_tinymce_left_column_page") == true ||
+                element.hasClass("toc-page") == true) return true;
             //if (element.tagName == 'svg') return true;
             //if (element.className.indexOf("fb_tinymce_left_column") >= 0) return true;
             return false;
@@ -1430,7 +1424,7 @@ jQuery(document).ready(function ($) {
             editor.getBody().appendChild(icon);
         }
 
-        // the size of A4: 210mm × 297mm or 8.27in × 11.69in
+        // the size of A4: 210mm x 297mm or 8.27in x 11.69in
         // 1 inch = 25.4 millimetres
         function createPageBoundary(id, top, left, width, height) {
             var page = document.createElement('div');
@@ -1444,10 +1438,10 @@ jQuery(document).ready(function ($) {
             //page.style.height = height + 'cm';
             page.style.zIndex = -1;
             page.style.backgroundColor = '#ffffff';
-            //page.style.borderStyle = 'solid';
-            page.style.borderStyle = 'dotted';
+            page.style.borderStyle = 'solid';
+            //page.style.borderStyle = 'dotted';
             page.style.borderWidth = '1px';
-            page.style.borderColor = 'grey';
+            page.style.borderColor = 'lightgrey';
 
             editor.getBody().appendChild(page);
         }
