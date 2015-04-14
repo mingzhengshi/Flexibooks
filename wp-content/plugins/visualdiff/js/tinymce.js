@@ -180,7 +180,7 @@ jQuery(document).ready(function ($) {
             icon: 'icon dashicons-media-spreadsheet',
             onclick: function () {
                 //console.log('Test button on click');
-
+                updatePageBoundary();
                 updateTableOfContent();
             }
         });
@@ -194,41 +194,53 @@ jQuery(document).ready(function ($) {
             }
         });
 
-        function togglePageBoundary() {           
+        function togglePageBoundary() {
             page_boundary_on = !page_boundary_on;
+            updatePageBoundary();
+            update();
+        }
+
+        function updatePageBoundary() {
+            $(editor.getBody()).find('.fb_tinymce_left_column_page').remove();
+
+            //var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
+            //var body_margin_right = parseInt($(editor.getBody()).css('margin-right'), 10);
+            //var body_margin_top = parseInt($(editor.getBody()).css('margin-top'), 10);
+
+            var body_offset = $(editor.getBody()).offset();
+            var body_width = $(editor.getBody()).width();
+            var body_height = $(editor.getBody()).height();
+
+            var page_height_in_pixel = fb_screen_dpi * 10.89; // 10.89 inch
+
+            var total_page_height = 0;
+            var page_count = 0;
+
+            while (body_height > total_page_height) {
+                // cm
+                /*
+                var page_id = 'page-boundary-' + page_count;
+                createPageBoundary(page_id, total_page_height, body_offset.left - 10, body_width + 20, 29.7);
+                var page = editor.getDoc().getElementById(page_id);
+                var page_height = $(page).height();
+                total_page_height += page_height;
+
+                page_count++;
+                */
+
+                // pixels                
+                createPageBoundary('page-boundary-' + page_count, total_page_height + 1, body_offset.left - 10, body_width + 20, page_height_in_pixel - 1);
+                total_page_height += page_height_in_pixel;
+                page_count++;
+            }
+
             if (page_boundary_on) {
                 $(editor.getBody()).css('background-color', page_boundary_on_body_background_color);
-
-                var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
-                var body_margin_right = parseInt($(editor.getBody()).css('margin-right'), 10);
-                var body_margin_top = parseInt($(editor.getBody()).css('margin-top'), 10);
-
-                var body_offset = $(editor.getBody()).offset();
-                var body_width = $(editor.getBody()).width();
-                var body_height = $(editor.getBody()).height();
-
-                var page_height_in_pixel = fb_screen_dpi * 10.89; // 10.89 inch
-
-                var total_page_height = 0;
-                var page_count = 0;
-
-                while (body_height > total_page_height) {
-                    // cm
-                    /*
-                    var page_id = 'page-boundary-' + page_count;
-                    createPageBoundary(page_id, total_page_height, body_offset.left - 10, body_width + 20, 29.7);
-                    var page = editor.getDoc().getElementById(page_id);
-                    var page_height = $(page).height();
-                    total_page_height += page_height;
-
-                    page_count++;
-                    */
-
-                    // pixels                
-                    createPageBoundary('page-boundary-' + page_count, total_page_height + 1, body_offset.left - 10, body_width + 20, page_height_in_pixel - 1);
-                    total_page_height += page_height_in_pixel;
-                    page_count++;                  
-                }
+                $(editor.getBody()).find('.fb_tinymce_left_column_page').css('visibility', 'visible');
+            }
+            else {
+                $(editor.getBody()).css('background-color', '#ffffff');
+                $(editor.getBody()).find('.fb_tinymce_left_column_page').css('visibility', 'hidden');
             }
         }
 
@@ -246,14 +258,30 @@ jQuery(document).ready(function ($) {
                 var element = $(this);
                 if (isAdminElementjQuery(element)) return true; // continue
 
+                var page_number = -1;
+                if ((element.hasClass("main-heading-1") == true) || (element.hasClass("main-heading-2") == true)) {
+                    $(editor.getBody()).find('.fb_tinymce_left_column_page').each(function (index) {
+                        var id1 = element.attr('id');
+                        var id2 = $(this).attr('id');
+                        if (isOverlap(id1, id2)) {
+                            page_number = parseInt(id2.substr(id2.length - 1), 10);
+                            return false; // break 
+                        }
+                    });
+                }
+
+                if (!page_number || page_number < 0) return;
+                page_number += 1; // page_number starts from 0;
+
                 if (element.hasClass("main-heading-1") == true) {
-                    $(toc).append('<p class="toc-main-heading-1">' + element.html() + '</p>');
-                    ul = $(toc).append('<ul></ul>');
+                    $(toc).append('<p class="toc-main-heading-1"><span class="toc-heading-span">' + element.html() + '</span><span class="toc-page-number-span">' + page_number + '</span></p>');
+                    ul = $('<ul class="toc-ul"></ul>');
+                    $(toc).append(ul);
                 }
 
                 if (element.hasClass("main-heading-2") == true) {
                     if (ul != null) {
-                        ul.append('<li class="toc-main-heading-2">' + element.html() + '</li>');
+                        ul.append('<li class="toc-main-heading-2"><span class="toc-heading-span">' + element.html() + '</span><span class="toc-page-number-span">' + page_number + '</span></li>');
                     }
                 }
             });
@@ -269,6 +297,18 @@ jQuery(document).ready(function ($) {
                 var callback = flexibook.tableOfContentCallback;
                 if (callback) callback(editor.id);
             }
+        }
+
+        function isOverlap(id1, id2) {
+            var r1 = editor.getDoc().getElementById(id1).getBoundingClientRect();
+            var r2 = editor.getDoc().getElementById(id2).getBoundingClientRect();
+
+            var overlap = !(r1.right < r2.left ||
+                            r1.left > r2.right ||
+                            r1.bottom < r2.top ||
+                            r1.top > r2.bottom)
+
+            return overlap;
         }
 
         function onMouseUp(e) {

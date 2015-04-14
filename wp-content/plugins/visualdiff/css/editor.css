@@ -168,7 +168,7 @@ p.title {
     text-align: center;
 }
 
-/* table of content*/
+/* the page that contains table of content */
 .toc-page {
     height: 1015px; /* ms - test */
 }
@@ -181,15 +181,44 @@ p.title {
     font-size: 45pt;
     color: #1f6ca5;
     text-align: center;
+    margin-bottom: 20pt;
 }
 
 .toc-main-heading-1 {
     font-size: 12pt;
     font-weight: bold;
+    margin-bottom: 3pt;
+    overflow-x: hidden;
 }
 
+.toc-ul {
+    list-style: none;
+    width: 100%;  
+    overflow-x: hidden;
+    margin-bottom: 10pt;
+}
+
+/* toc-li */
 .toc-main-heading-2 {
     font-size: 10pt;
+    padding-left: 15pt;
+}
+
+.toc-heading-span {
+    background: white;
+}
+
+.toc-page-number-span {
+    float: right;
+    background: white;
+}
+
+/* pseudo-elements */
+.toc-main-heading-1::before, .toc-main-heading-2::before {
+    float: left;
+    width: 0;
+    white-space: nowrap;
+    content:". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "
 }
 
 /* folding editor */

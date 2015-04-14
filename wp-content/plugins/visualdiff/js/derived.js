@@ -1987,9 +1987,10 @@ jQuery(document).ready(function ($) {
     */
 
     function unwrapDeleteInsertTag(element) {
-        var clean = $(element).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
-        clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
-        return clean.html();
+        return unwrapDeleteInsertTagjQuery($(element));
+        //var clean = $(element).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
+        //clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
+        //return clean.html();
     }
 
     function unwrapDeleteInsertTagjQuery(element) {
