@@ -10,6 +10,7 @@ jQuery(document).ready(function ($) {
     var floating_sources = true;
     var highlighting_source = false;  
     var source_tab_original_margin_top = -1;
+    var source_tab_current_margin_top = -1;
 
     // source tabs
     var selected_sources = [];
@@ -62,12 +63,6 @@ jQuery(document).ready(function ($) {
         $("#" + panelId).remove();
         derive_tabs.tabs("refresh");
 
-        /*
-        for (var i = 0; i < tinymce.editors.length; i++) {
-            console.log('mce id: ' + tinymce.editors[i].id);
-        }
-        */
-
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
         if (!tab_id) return;
 
@@ -110,13 +105,32 @@ jQuery(document).ready(function ($) {
             $('#fb-tabs-sources').tabs("option", "active", index);
         }
 
-        //setupOldSourceMce();
+        // test
+        /*
+        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
+        if (!tab_id) return;
+        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
+        var source_mce = tinymce.get(source_mce_id);
+        //console.log(source_mce.getBody());
+        //console.log(flexibook.active_derive_mce.getBody());
+        //tinymce.execInstanceCommand(source_mce_id, "mceFocus");
+        //source_mce.getBody().scrollTop = 300;
+        //$(source_mce.getBody()).scrollTop(500);
+        //$(source_mce.getBody()).find('.activity').get(0).scrollIntoView();
 
+        //$(source_mce.getBody()).animate({ scrollTop: 300 }, { duration: 'medium', easing: 'swing' });
+        //$(flexibook.active_derive_mce.getBody()).find('#' + d_id).get(0).scrollIntoView();
+        //$(flexibook.active_derive_mce.getBody()).animate({ scrollTop: 300 }, { duration: 'medium', easing: 'swing' });
+        //$(flexibook.active_derive_mce.getBody()).scrollTop(500);
+        */
+        // test end
+
+        
         if (floating_sources) {
             updateSourcePosition(d_id);
         }
 
-        update();
+        //update();        
     });
 
     flexibook.regDeriveUpdateCallback(function () {
@@ -515,10 +529,6 @@ jQuery(document).ready(function ($) {
 
                     source_mce_init_count++;
                     if (source_mce_init_count == total) {
-                        // add tinymce editor
-                        //addTinyMceEditor("#fb-invisible-editor");
-                        //tinymce.execCommand('mceAddEditor', false, 'fb-invisible-editor'); // ms
-
                         // hide source document toolbars
                         $('#fb-td-source-mces').find('.mce-toolbar-grp').each(function () {
                             $(this).css('display', 'none');
@@ -1696,7 +1706,7 @@ jQuery(document).ready(function ($) {
         var source_iframe_container_top = getiFrameOffsetTop(left_doc);
         var derived_iframe_container_top = getiFrameOffsetTop(right_doc);
 
-        if (source_iframe_container_top < 0 || derived_iframe_container_top < 0) return;
+        if (!source_iframe_container_top || !derived_iframe_container_top) return;
 
         var svg_container_top = $('#fb-td-mid-column').offset().top;
 
@@ -1860,11 +1870,13 @@ jQuery(document).ready(function ($) {
         if (!flexibook.active_derive_mce) return;
         var derived_doc = flexibook.active_derive_mce.getDoc();
 
+        source_tab_current_margin_top = parseInt($('#fb-tabs-sources').css('margin-top'), 10);
+
         if (source_tab_original_margin_top < 0) {
             source_tab_original_margin_top = parseInt($('#fb-tabs-sources').css('margin-top'), 10);
         }
         else {
-            $('#fb-tabs-sources').css('margin-top', source_tab_original_margin_top);           
+            $('#fb-tabs-sources').css('margin-top', source_tab_original_margin_top); // reset to its original position          
         }
 
         if (flexibook.columns_of_editors == 3) {
@@ -1893,7 +1905,7 @@ jQuery(document).ready(function ($) {
         var source_iframe_container_top = getiFrameOffsetTop(source_doc);
         var derived_iframe_container_top = getiFrameOffsetTop(derive_doc);
 
-        if (source_iframe_container_top < 0 || derived_iframe_container_top < 0) return;
+        if (!source_iframe_container_top || !derived_iframe_container_top) return;
 
         var svg_container_top = $('#fb-td-mid-column').offset().top;
 
@@ -1960,16 +1972,26 @@ jQuery(document).ready(function ($) {
                             if (y_top_right > y_top_left) {
                                 if (column_number == 0) {
                                     var t = parseInt(source_tab_original_margin_top, 10) + y_top_right - y_top_left;
-                                    $('#fb-tabs-sources').css('margin-top', t);
+                                    //$('#fb-tabs-sources').css('margin-top', t); // static
+                                    $('#fb-tabs-sources').css('margin-top', source_tab_current_margin_top);
+                                    $('#fb-tabs-sources').animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
                                 }
                                 else if (column_number == 1) {
                                     var t = y_top_right - y_top_left;
                                     $("#fb-div-old-source-mce").css('margin-top', t);
                                 }
                             }
+                            else {
+                                // use negative margin
+                                if (column_number == 0) {
+                                    var t = parseInt(source_tab_original_margin_top, 10) + y_top_right - y_top_left;
+                                    //$('#fb-tabs-sources').css('margin-top', t); // static
+                                    $('#fb-tabs-sources').css('margin-top', source_tab_current_margin_top);
+                                    $('#fb-tabs-sources').animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update});
+                                }
+                            }
                         }
                     }
-
                 }
                 return false; // break
             }
@@ -2040,7 +2062,7 @@ jQuery(document).ready(function ($) {
             }
         }
 
-        return -1;
+        return null;
     }
 
     function removeAllEditor() {

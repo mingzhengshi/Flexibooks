@@ -26,6 +26,7 @@ jQuery(document).ready(function ($) {
             fb_screen_dpi = editor.getDoc().getElementById('div_dpi').offsetWidth;
             $(editor.getDoc()).find('.dpi_test').remove();
 
+            $(editor.getDoc()).css('overflow-y', 'scroll');
             $(editor.getBody()).css('margin-left', 50); // for all editors
 
             if (editor.id.indexOf("fb-merge-mce") >= 0) {
