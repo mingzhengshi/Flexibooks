@@ -1078,6 +1078,7 @@ jQuery(document).ready(function ($) {
     var fb_source_selection_dialog = $("#fb-source-selection-dialog").dialog({
         autoOpen: false,
         modal: true,
+        width: "25%",
         buttons: {
             Open: function () {
                 //addTab();
@@ -1689,6 +1690,7 @@ jQuery(document).ready(function ($) {
             */
         }
 
+        /*
         console.log('derive document:');
         $(derived_doc.body).children().each(function (index) {
             var right = $(this);
@@ -1697,6 +1699,7 @@ jQuery(document).ready(function ($) {
                 console.log(right.html());
             }
         });
+        */
     }
 
     function isTinymceAdminElement(element) {
@@ -1706,7 +1709,8 @@ jQuery(document).ready(function ($) {
             element.hasClass("fb_tinymce_left_column_svg") == true ||
             element.hasClass("fb_tinymce_left_column_page") == true ||
             element.hasClass("toc-page") == true ||
-            element.hasClass("mce-resizehandle") == true) return true;
+            element.hasClass("mce-resizehandle") == true ||
+            element['data-mce-bogus']) return true;
         //if (element.attr('class').indexOf("fb_tinymce_left_column") >= 0) return true;
         return false;
     }
@@ -1815,9 +1819,9 @@ jQuery(document).ready(function ($) {
                             polygon.setAttribute("fill", "green");
                         }
                         else {
-                            console.log("source html != derive html:");
-                            console.log(source_clean);
-                            console.log(comp_clean);
+                            //console.log("source html != derive html:");
+                            //console.log(source_clean);
+                            //console.log(comp_clean);
                             polygon.setAttribute("fill", "red");
                         }
                         polygon.setAttribute("class", "fb-svg-polygons");

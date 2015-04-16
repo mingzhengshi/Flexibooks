@@ -67,14 +67,12 @@ jQuery(document).ready(function ($) {
 
         editor.on('SetContent', function () {
             console.log('on set content');
-            update();
+            //update();
         });
 
         editor.on('change', function (e) {
             console.log('on change');
-            //setupDerivedElementID();
-
-            //update();
+            update();
         });
 
         editor.on('PostProcess', function (e) {
@@ -112,7 +110,6 @@ jQuery(document).ready(function ($) {
             }
                 // enter key
             else if (e.keyCode == 13) {
-                //onEnterKeyDown(e);
             }
                 // delete key
             else if (e.keyCode == 46) {
@@ -135,6 +132,10 @@ jQuery(document).ready(function ($) {
             if (e.keyCode == 8) {
                 //console.log('backspace key up');
                 //update();
+            }
+                // enter key
+            else if (e.keyCode == 13) {
+                //onEnterKeyUp(e);
             }
                 // delete key
             else if (e.keyCode == 46) {
@@ -370,11 +371,11 @@ jQuery(document).ready(function ($) {
             }
         }
 
-        function onEnterKeyDown(e) {
+        function onEnterKeyUp(e) {
             var content = editor.selection.getContent();
             var node = editor.selection.getNode();
+            //console.log(node);
 
-            if (content == null) return;
             if (!node) return;
 
             // only consider derive document; assume source document is not editable
@@ -412,8 +413,8 @@ jQuery(document).ready(function ($) {
             copied_content = editor.selection.getContent();
             copied_node = null;
 
-            console.log("COPY:");
-            console.log("copy from editor: " + copied_from_editor_id);
+            //console.log("COPY:");
+            //console.log("copy from editor: " + copied_from_editor_id);
             if (copied_content == null || copied_content.length == 0) return;
 
             var copied_node = editor.selection.getNode(); // returns the currently selected element or the common ancestor element for both start and end of the selection
@@ -423,9 +424,9 @@ jQuery(document).ready(function ($) {
                 editor.id.indexOf("fb-derived-mce") >= 0) {
                 // usually, multiple paragraphs or parts of multiple paragraphs have been selected
                 if (copied_node.tagName.toLowerCase() == 'body') {
-                    console.log("copied node:");
-                    console.log(copied_node);
-                    console.log("selected content:" + copied_content);
+                    //console.log("copied node:");
+                    //console.log(copied_node);
+                    //console.log("selected content:" + copied_content);
 
                     copied_mode = "multiple";
                     copied_node = null; // we don't need the node
@@ -446,18 +447,18 @@ jQuery(document).ready(function ($) {
                     $(node).html(copied_content);
                     copied_content = $(node).prop('outerHTML');
 
-                    console.log("copied node:");
-                    console.log(copied_node);
-                    console.log("selected content:" + copied_content);
+                    //console.log("copied node:");
+                    //console.log(copied_node);
+                    //console.log("selected content:" + copied_content);
                 }
             }
         }
 
         // this function only considers content copied from source or derived editors 
         function pastePreProcess(e) {
-            console.log("PASTE:");
-            console.log("e.content:" + e.content);
-            console.log("copied_content:" + copied_content);
+            //console.log("PASTE:");
+            //console.log("e.content:" + e.content);
+            //console.log("copied_content:" + copied_content);
             if (e.content == null || e.content.length <= 0) return;
 
             // COPY: (assume that) all content copies from source or derived editors are html elements; 
@@ -476,29 +477,20 @@ jQuery(document).ready(function ($) {
                         paste_text = $(e.content).html().trim();
                     }
 
-                    var copied_text = $(copied_content).html().trim();
+                    if (copied_content && copied_content.length > 0) {
+                        var copied_text = $(copied_content).html().trim();
 
-                    // it is possible that the paste content comes from other sources such as word or notepad, etc.
-                    if (paste_text == copied_text) {
-                        e.content = copied_content;
+                        // it is possible that the paste content comes from other sources such as word or notepad, etc.
+                        if (paste_text == copied_text) {
+                            e.content = copied_content;
+                        }
                     }
                 }
                 else if (copied_mode == "multiple") {
                     var paste_text = "";
 
-                    if (isHTML(e.content) == false) {
-                        paste_text = e.content.trim();
-                    }
-                    else {
-                        $(e.content).each(function (index) {
-                            paste_text += $(this).html().trim();
-                        });
-                    }
-
-                    var copied_text = "";
-                    $(copied_content).each(function (index) {
-                        copied_text += $(this).html().trim();
-                    });
+                    paste_text = e.content.trim();
+                    var copied_text = copied_content.trim();
 
                     // it is possible that the paste content comes from other sources such as word or notepad, etc.
                     if (paste_text == copied_text) {
@@ -559,7 +551,7 @@ jQuery(document).ready(function ($) {
                         $(clone).css('opacity', 0.5);
 
                         $(clone).insertAfter(item);
-                        console.log("mouse enter: " + item.attr('id'));
+                        //console.log("mouse enter: " + item.attr('id'));
                     }
                 });
             }
@@ -943,7 +935,7 @@ jQuery(document).ready(function ($) {
                     if (editor.id.indexOf("fb-derived-mce") >= 0) {
 
                     }
-                        // source document
+                    // source document
                     else {
                         if (!$(this).attr('id')) {
                             // new element created by the user
@@ -967,25 +959,38 @@ jQuery(document).ready(function ($) {
             if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
 
             $(editor.getBody()).children().each(function (index) {
-                if (!isAdminElementjQuery($(this))) {
-                    if (!$(this).attr('data-source-id')) {
-                        if (!$(this).attr('id')) {
+                var element = $(this);
+                if (!isAdminElementjQuery(element)) {
+                    // if a new paragraph is empty, we should not consider as if it is derived from the source
+                    /*
+                    if (element.html().trim() == '') {
+                        if (element.attr('data-source-id')) {
+                            element.removeAttr('data-source-id');
+                        }
+                        if (element.attr('data-source-post-id')) {
+                            element.removeAttr('data-source-post-id');
+                        }
+                    }
+                    */
+
+                    if (!element.attr('data-source-id')) {
+                        if (!element.attr('id')) {
                             // new element created by the user
-                            $(this).attr("data-source-id", "none");
-                            $(this).attr("id", generateUUID());
+                            element.attr("data-source-id", "none");
+                            element.attr("id", generateUUID());
                         }
                         else {
                             // element from source document
-                            var source_id = $(this).attr("id");
-                            $(this).attr("data-source-id", source_id);
-                            $(this).attr("id", generateUUID());
+                            var source_id = element.attr("id");
+                            element.attr("data-source-id", source_id);
+                            element.attr("id", generateUUID());
                         }
                     }
                     else {
-                        if (!$(this).attr('id')) {
+                        if (!element.attr('id')) {
                             // new element created by the user
-                            $(this).attr("data-source-id", "none");
-                            $(this).attr("id", generateUUID());
+                            element.attr("data-source-id", "none");
+                            element.attr("id", generateUUID());
                         }
                     }
                 }
@@ -1067,7 +1072,8 @@ jQuery(document).ready(function ($) {
                 element.hasClass("fb_tinymce_left_column_svg") == true ||
                 element.hasClass("fb_tinymce_left_column_page") == true ||
                 element.hasClass("toc-page") == true ||
-                element.hasClass("mce-resizehandle") == true) return true;
+                element.hasClass("mce-resizehandle") == true ||
+                element['data-mce-bogus']) return true;
             //if (element.tagName == 'svg') return true;
             //if (element.className.indexOf("fb_tinymce_left_column") >= 0) return true;
             return false;
