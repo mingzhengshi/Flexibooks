@@ -97,6 +97,7 @@ jQuery(document).ready(function ($) {
         var height = $(doc.body).find('.toc').eq(0).height();
         height = (1015 - height) / 2;
         $(doc.body).find('.toc').eq(0).prepend('<div style="height:' + height + 'px"></div>'); // prepend a dummy div
+        //$(doc.body).find('.toc').eq(0).css('margin-top', height);
     });
 
     flexibook.regDerivedElementMouseUpCallback(function (post_id, d_id) {
@@ -1121,6 +1122,7 @@ jQuery(document).ready(function ($) {
     var fb_add_derive_dialog = $("#fb-add-derive-dialog").dialog({
         autoOpen: false,
         modal: true,
+        //width: "20%",
         buttons: {
             Add: function () {
                 var title = document.getElementById("fb-derive-document-title").value;

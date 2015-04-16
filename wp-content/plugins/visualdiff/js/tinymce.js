@@ -251,7 +251,7 @@ jQuery(document).ready(function ($) {
             // firstly remove the toc if it already exists
             $(editor.getBody()).find('.toc-page').remove();
 
-            $(editor.getBody()).prepend('<div class="toc-page"><div id="' + FB_TOC_ID + '" class="toc"></div></div>');
+            $(editor.getBody()).prepend('<div id="table_of_content_page" class="toc-page"><div id="' + FB_TOC_ID + '" class="toc"></div></div>');
             toc = editor.getDoc().getElementById(FB_TOC_ID);
 
             var ul = null;
@@ -326,10 +326,17 @@ jQuery(document).ready(function ($) {
             var id = $(node).attr('id');
 
             while ((id === null) || (typeof id === 'undefined')) {
+                if (!$(node).parent()[0]) { break; }
                 node = $(node).parent()[0]; // only consider that case when one paragraph has been selected
                 id = $(node).attr('id');
             }
 
+            if (!id) return;
+            // a special case: toc
+            if (id === FB_TOC_ID) {
+                node = $(node).parent()[0]; 
+                id = $(node).attr('id');
+            }
             if (node.tagName.toLowerCase() === 'body') return; // if the node is the body again, then return
 
             // derived editor only 
