@@ -1260,7 +1260,6 @@ jQuery(document).ready(function ($) {
             //tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-top-derive");
             //tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-bottom-source");
             //tinymce.execCommand('mceRemoveEditor', false, "fb-merge-mce-bottom-derive");
-            //console.log("merge dialog close...");
         }
 
 
@@ -1623,10 +1622,10 @@ jQuery(document).ready(function ($) {
                     }
                 }
                 else {
-                    //console.log(comp.prop("tagName") + ": " + comp.prop('outerHTML'));
                     // bugs - this section generates bugs especially for <ol>, <ul> ... elements, disable these elements for now
                     if ((comp.prop("tagName").toLowerCase() != 'ol') &&
-                        (comp.prop("tagName").toLowerCase() != 'ul')) {
+                        (comp.prop("tagName").toLowerCase() != 'ul') &&
+                        (comp.prop("tagName").toLowerCase() != 'table')) {
                         var newHtml = unwrapDeleteInsertTagjQuery(comp);
                         var newHtml = "<span class='insert'>" + newHtml + "</span>";
                         comp.html(newHtml);
@@ -1638,10 +1637,10 @@ jQuery(document).ready(function ($) {
             }
             else {
                 if (id && id != 'none') {
-                    //console.log(comp.prop("tagName") + ": " + comp.prop('outerHTML'));
                     // bugs - this section generates bugs especially for <ol>, <ul> ... elements, disable these elements for now
                     if ((comp.prop("tagName").toLowerCase() != 'ol') &&
-                        (comp.prop("tagName").toLowerCase() != 'ul')) {
+                        (comp.prop("tagName").toLowerCase() != 'ul') &&
+                        (comp.prop("tagName").toLowerCase() != 'table')) {
                         var derive_bookmark;
                         // stores a bookmark of the current selection
                         if (comp_type == 'source_derive') derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true);
@@ -1689,6 +1688,15 @@ jQuery(document).ready(function ($) {
             updateSVGColumn(old_source_doc, derived_doc, 'source_derive', 'fb-svg-mid-column');
             */
         }
+
+        console.log('derive document:');
+        $(derived_doc.body).children().each(function (index) {
+            var right = $(this);
+            //if (right.hasClass("fb_tinymce_left_column") == false && right.hasClass("fb_tinymce_left_column_icon") == false) {
+            if (!isTinymceAdminElement(right)) {
+                console.log(right.html());
+            }
+        });
     }
 
     function isTinymceAdminElement(element) {
@@ -1697,7 +1705,8 @@ jQuery(document).ready(function ($) {
             element.hasClass("fb_tinymce_left_column_icon") == true ||
             element.hasClass("fb_tinymce_left_column_svg") == true ||
             element.hasClass("fb_tinymce_left_column_page") == true ||
-            element.hasClass("toc-page") == true) return true;
+            element.hasClass("toc-page") == true ||
+            element.hasClass("mce-resizehandle") == true) return true;
         //if (element.attr('class').indexOf("fb_tinymce_left_column") >= 0) return true;
         return false;
     }
@@ -1801,23 +1810,14 @@ jQuery(document).ready(function ($) {
                         var source_clean = unwrapDeleteInsertTag(s_clone);
                         var comp_clean = unwrapDeleteInsertTag(d_clone);
 
-                        //console.log(source_clean);
-                        //console.log(comp_clean);
-
-                        //$(s_clone).html(source_clean);
-                        //$(d_clone).html(comp_clean);
-
-                        //source_clean = cleanWhitespace(s_clone);
-                        //comp_clean = cleanWhitespace(d_clone);
-
-                        //console.log(source_clean);
-                        //console.log(comp_clean);
-
                         //if (left.innerHTML == comp.html()) {
                         if (source_clean == comp_clean) {
                             polygon.setAttribute("fill", "green");
                         }
                         else {
+                            console.log("source html != derive html:");
+                            console.log(source_clean);
+                            console.log(comp_clean);
                             polygon.setAttribute("fill", "red");
                         }
                         polygon.setAttribute("class", "fb-svg-polygons");
@@ -1982,6 +1982,8 @@ jQuery(document).ready(function ($) {
                                 }
                             }
                             else {
+                                update();
+                                /*
                                 // use negative margin
                                 if (column_number == 0) {
                                     var t = parseInt(source_tab_original_margin_top, 10) + y_top_right - y_top_left;
@@ -1989,6 +1991,7 @@ jQuery(document).ready(function ($) {
                                     $('#fb-tabs-sources').css('margin-top', source_tab_current_margin_top);
                                     $('#fb-tabs-sources').animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update});
                                 }
+                                */
                             }
                         }
                     }

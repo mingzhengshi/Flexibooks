@@ -74,7 +74,7 @@ jQuery(document).ready(function ($) {
             console.log('on change');
             //setupDerivedElementID();
 
-            update();
+            //update();
         });
 
         editor.on('PostProcess', function (e) {
@@ -260,7 +260,7 @@ jQuery(document).ready(function ($) {
                 if (isAdminElementjQuery(element)) return true; // continue
 
                 var page_number = -1;
-                if ((element.hasClass("main-heading-1") == true) || (element.hasClass("main-heading-2") == true)) {
+                if ((element.hasClass("main-heading-1") === true) || (element.hasClass("main-heading-2") === true)) {
                     $(editor.getBody()).find('.fb_tinymce_left_column_page').each(function (index) {
                         var id1 = element.attr('id');
                         var id2 = $(this).attr('id');
@@ -274,13 +274,13 @@ jQuery(document).ready(function ($) {
                 if (!page_number || page_number < 0) return;
                 page_number += 1; // page_number starts from 0;
 
-                if (element.hasClass("main-heading-1") == true) {
+                if (element.hasClass("main-heading-1") === true) {
                     $(toc).append('<p class="toc-main-heading-1"><span class="toc-heading-span">' + element.html() + '</span><span class="toc-page-number-span">' + page_number + '</span></p>');
                     ul = $('<ul class="toc-ul"></ul>');
                     $(toc).append(ul);
                 }
 
-                if (element.hasClass("main-heading-2") == true) {
+                if (element.hasClass("main-heading-2") === true) {
                     if (ul != null) {
                         ul.append('<li class="toc-main-heading-2"><span class="toc-heading-span">' + element.html() + '</span><span class="toc-page-number-span">' + page_number + '</span></li>');
                     }
@@ -319,17 +319,17 @@ jQuery(document).ready(function ($) {
             var node = editor.selection.getNode();
 
             if (!node) return;
-            if (node.tagName.toLowerCase() == 'body') return; // do not consider the case when multiple paragraphs have been selected
+            if (node.tagName.toLowerCase() === 'body') return; // do not consider the case when multiple paragraphs have been selected
             if (editor.id.indexOf("fb-source-mce") < 0 && editor.id.indexOf("fb-derived-mce") < 0) return;
 
             var id = $(node).attr('id');
 
-            while ((id == null) || (typeof id == 'undefined')) {
+            while ((id === null) || (typeof id === 'undefined')) {
                 node = $(node).parent()[0]; // only consider that case when one paragraph has been selected
                 id = $(node).attr('id');
             }
 
-            if (node.tagName.toLowerCase() == 'body') return; // if the node is the body again, then return
+            if (node.tagName.toLowerCase() === 'body') return; // if the node is the body again, then return
 
             // derived editor only 
             // change view of source document according to derive selections
@@ -368,55 +368,6 @@ jQuery(document).ready(function ($) {
                     }
                 }
             }
-
-            //-----------------------------------------------------------------------------------------------
-            // merge icons
-            /*
-            if ($(node).attr('data-merge-case') && $(node).attr('data-merge-case') > 0) {
-                var mcase = $(node).attr('data-merge-case');
-                // setup merge icon
-
-                var offset = $(node).offset(); // absolute position relative to the document
-                var height = $(node).height();
-                var top = offset.top - 22 + height / 2;
-                var width = $(editor.getBody()).width();
-
-                if (mcase == 1) {
-                    var yesIconID = 'myes-' + $(node).attr('id');
-                    var noIconID = 'mnon-' + $(node).attr('id');
-
-                    createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept the change in source document");
-                    createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore the change in source document");
-                }
-                else if (mcase == 3) {
-                    var moreIconID = 'more-' + $(node).attr('id');
-                    var mlesIconID = 'mles-' + $(node).attr('id');
-                    var noIconID = 'mnon-' + $(node).attr('id');
-
-                    if (flexibook.columns_of_editors == 2) {
-                        createMergeIcon(moreIconID, top, width - 50, 'III', mcase, "Show previous source (three-column view)");
-                    }
-                    else if (flexibook.columns_of_editors == 3) {
-                        createMergeIcon(mlesIconID, top, width - 50, 'II', mcase, "Hide previous source (two-column view)");
-                    }
-                    createMergeIcon(noIconID, top, width, '&#10007', mcase, "Ignore the change in source document");
-                }
-                else if (mcase == 5) {
-                    var yesIconID = 'myes-' + $(node).attr('id');
-                    var noIconID = 'mnon-' + $(node).attr('id');
-
-                    createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept this new paragraph");
-                    createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore this new paragraph");
-                }
-                else if (mcase == 6) {
-                    var yesIconID = 'myes-' + $(node).attr('id');
-                    var noIconID = 'mnon-' + $(node).attr('id');
-
-                    createMergeIcon(yesIconID, top, width + 50, '&#10003', mcase, "Accept the deletion in source document");
-                    createMergeIcon(noIconID, top, width + 100, '&#10007', mcase, "Ignore the deletion in source document");
-                }
-            }
-            */
         }
 
         function onEnterKeyDown(e) {
@@ -584,7 +535,8 @@ jQuery(document).ready(function ($) {
         }
 
         function update() {
-            setupDerivedElementID(); // ms
+            setupNewElements();
+            setupDerivedElementID(); 
 
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 var callback = flexibook.deriveUpdateCallback;
@@ -976,11 +928,46 @@ jQuery(document).ready(function ($) {
             return false;
         }
 
+
+        function setupNewElements() {
+            $(editor.getBody()).children().each(function (index) {
+                var element = $(this);
+                if (!isAdminElementjQuery(element)) {
+                    if (element.prop("tagName").toLowerCase() == 'table' && !$(this).attr('id')) {
+
+                    }
+
+
+
+                    // derive document
+                    if (editor.id.indexOf("fb-derived-mce") >= 0) {
+
+                    }
+                        // source document
+                    else {
+                        if (!$(this).attr('id')) {
+                            // new element created by the user
+                            $(this).attr("id", generateUUID());
+                        }
+
+                    }
+                }
+            });
+
+            $(editor.getBody()).find('table').each(function () {
+                var table = $(this);
+                if (table.hasClass("fb-table") == false) {
+                    table.addClass('fb-table');
+                }
+
+            });
+        }
+
         function setupDerivedElementID() {
             if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
 
             $(editor.getBody()).children().each(function (index) {
-                if ($(this).hasClass("fb_tinymce_left_column") == false && $(this).hasClass("fb_tinymce_left_column_icon") == false) {
+                if (!isAdminElementjQuery($(this))) {
                     if (!$(this).attr('data-source-id')) {
                         if (!$(this).attr('id')) {
                             // new element created by the user
@@ -1079,12 +1066,13 @@ jQuery(document).ready(function ($) {
                 element.hasClass("fb_tinymce_left_column_icon") == true ||
                 element.hasClass("fb_tinymce_left_column_svg") == true ||
                 element.hasClass("fb_tinymce_left_column_page") == true ||
-                element.hasClass("toc-page") == true) return true;
+                element.hasClass("toc-page") == true ||
+                element.hasClass("mce-resizehandle") == true) return true;
             //if (element.tagName == 'svg') return true;
             //if (element.className.indexOf("fb_tinymce_left_column") >= 0) return true;
             return false;
         }
-
+        
         function drawLinesMergeElements() {
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 $(editor.getBody()).children().each(function (index) {
