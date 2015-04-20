@@ -65,10 +65,12 @@ jQuery(document).ready(function ($) {
             update();
         });
 
+        /*
         editor.on('SetContent', function () {
             console.log('on set content');
             //update();
         });
+        */
 
         editor.on('change', function (e) {
             console.log('on change');
@@ -182,7 +184,7 @@ jQuery(document).ready(function ($) {
             icon: 'icon dashicons-media-spreadsheet',
             onclick: function () {
                 //console.log('Test button on click');
-                updatePageBoundary();
+                //updatePageBoundary();
                 updateTableOfContent();
             }
         });
@@ -253,6 +255,8 @@ jQuery(document).ready(function ($) {
 
             $(editor.getBody()).prepend('<div id="table_of_content_page" class="toc-page"><div id="' + FB_TOC_ID + '" class="toc"></div></div>');
             toc = editor.getDoc().getElementById(FB_TOC_ID);
+
+            updatePageBoundary();
 
             var ul = null;
 
