@@ -403,6 +403,26 @@ function fb_post_box_derived_document_callback() {
 
 <div id="fb-data-derive-mces" style="display:none;">
 <?php
+    $index_array = [];
+    foreach($custom as $k => $v) {
+        if(strpos($k, "_fb-derived-mce-tab-index") === 0) {
+            $index_array[$k] = $v;
+        }
+    }
+    
+    asort($index_array);
+    foreach ($index_array as $k => $v) {
+        $number = substr($k, -1);
+        $mce_key = "_fb-derived-mce-" . $number;
+        $title_key = "_fb-derived-mce-title-" . $number;
+        
+        $content = (!empty($custom[$mce_key][0])) ? $custom[$mce_key][0] : '';      
+        $title = (!empty($custom[$title_key][0])) ? $custom[$title_key][0] : '';
+        
+        echo "<div data-title='" . $title . "'>" . $content . "</div>";
+    }
+    
+    /*    
     foreach($custom as $k => $v) {
         if(strpos($k, "_fb-derived-mce-title") === 0) {
             $title = (!empty($v[0])) ? $v[0] : '';
@@ -413,8 +433,7 @@ function fb_post_box_derived_document_callback() {
             echo "<div data-title='" . $title . "'>" . $content . "</div>";
         }
     }
-
-  
+    */  
 ?> 
 </div>
 

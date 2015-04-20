@@ -33,13 +33,8 @@ jQuery(document).ready(function ($) {
             }
 
             if (editor.id.indexOf("fb-source-mce") >= 0) {
-                //$(editor.getBody()).css('margin-left', 50);
+                //$(editor.getBody()).css('margin-top', -50);
                 $(editor.getBody()).css('margin-right', 100);
-                /*
-                $(editor.getDoc()).find('.mce-toolbar-grp').each(function () {
-                    $(this).css('display', 'none');
-                })
-                */
             }
 
             if (editor.id.indexOf("fb-old-source-mce") >= 0) {
@@ -48,10 +43,6 @@ jQuery(document).ready(function ($) {
             }
 
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
-                // when the derived mce is inited; we can load the source mce
-                //var callback = flexibook.deriveMceInitCallback;
-                //if (callback) callback();
-
                 //$(editor.getBody()).css('margin-left', 50);
                 $(editor.getBody()).css('margin-right', 100);
             }
