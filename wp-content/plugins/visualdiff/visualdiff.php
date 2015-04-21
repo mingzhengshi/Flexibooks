@@ -3,7 +3,7 @@
 Plugin Name: Visual Diff 
 Description: Visual Display of Revision Differences
 */  
- 
+
 require_once( 'simple_html_dom.php' );
 
 add_action( 'admin_menu', 'fb_add_revision_compare_page' );
@@ -50,7 +50,11 @@ add_action( 'admin_enqueue_scripts', 'fb_custom_tinymce_dashicons' );
 // where most of the magic happens.
 
 function fb_custom_tinymce_dashicons() {
-	wp_enqueue_style( 'custom_tinymce_dashicons', plugins_url( 'css/custom-tinymce-dashicons.css', __FILE__ ) );
+    $id = get_current_screen()->id;
+
+    if (($id == 'derived') || ($id == 'source')) {      
+	    wp_enqueue_style( 'custom_tinymce_dashicons', plugins_url( 'css/custom-tinymce-dashicons.css', __FILE__ ) );
+    }
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -90,10 +94,10 @@ function fb_mce_editor_buttons_second_row( $buttons ) {
 }
 
 function fb_mce_editor_buttons_third_row( $buttons ) {
-    $type = get_current_screen()->post_type;
-    
+    //$type = get_current_screen()->post_type;
+    $id = get_current_screen()->id;
     // add custom buttons
-    if ($type == 'derived') {
+    if ($id == 'derived') {
         array_push( $buttons, 'fb_custom_button_table_of_content' );
         array_push( $buttons, 'fb_custom_button_page_boundary' );
         return $buttons;
@@ -181,14 +185,16 @@ function fb_mce_before_init( $settings ) {
 //-----------------------------------------------------------------------------------------------
 // for derived post type only
 function fb_derived_admin_head() {
-    $type = get_current_screen()->post_type;
+    $id = get_current_screen()->id;
+    //$type = get_current_screen()->post_type;
+    //$single = is_single();
     
-    if (($type == 'derived') || ($type == 'source')) {
+    if (($id == 'derived') || ($id == 'source')) {
         $fb_js_url = plugins_url( 'js/fb.js' , __FILE__ );
         echo '<script type="text/javascript" src="' . $fb_js_url . '" ></script>';
     }
     
-    if ($type == 'derived') {
+    if ($id == 'derived') {
         $htmldiff_js_url = plugins_url( 'js/htmldiff.js' , __FILE__ );
         $derived_js_url = plugins_url( 'js/derived.js' , __FILE__ );
         //$jstree_js_url = plugins_url( 'lib/jstree/jstree.min.js' , __FILE__ );
@@ -208,7 +214,7 @@ function fb_derived_admin_head() {
         //echo '<link rel="stylesheet" type="text/css" href="' . $editor_div_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $jquery_css_url . '" />';
     }   
-    else if ($type == 'source') {        
+    else if ($id == 'source') {        
         $source_js_url = plugins_url( 'js/source.js' , __FILE__ );
         
         echo '<script type="text/javascript" src="' . $source_js_url . '" ></script>';
@@ -216,8 +222,9 @@ function fb_derived_admin_head() {
 }
 
 function fb_derived_admin_footer() {
-    $type = get_current_screen()->post_type;
-    if ($type == 'derived') {
+    //$type = get_current_screen()->post_type;
+    $id = get_current_screen()->id;
+    if ($id == 'derived') {
 
         
 
@@ -225,13 +232,17 @@ function fb_derived_admin_footer() {
 }
 
 function fb_admin_print_scripts() {
-    wp_enqueue_script('jquery');
-    wp_enqueue_script('jquery-ui-core');
-    wp_enqueue_script('jquery-ui-tabs');
-    wp_enqueue_script('jquery-ui-dialog');
-    wp_enqueue_script('jquery-ui-selectable');
-    wp_enqueue_script('jquery-ui-button');
-    //wp_enqueue_script('jquery-ui-draggable'); 
+    $id = get_current_screen()->id;
+
+    if (($id == 'derived') || ($id == 'source')) {       
+        wp_enqueue_script('jquery');
+        wp_enqueue_script('jquery-ui-core');
+        wp_enqueue_script('jquery-ui-tabs');
+        wp_enqueue_script('jquery-ui-dialog');
+        wp_enqueue_script('jquery-ui-selectable');
+        wp_enqueue_script('jquery-ui-button');
+        //wp_enqueue_script('jquery-ui-draggable'); 
+    }
 }
 
 //-----------------------------------------------------------------------------------------------
@@ -348,7 +359,7 @@ function fb_add_meta_box_derived_document_callback() {
     // use js object and json encode for $derived_meta
     
         
-?>     
+?>
 <table id="fb-table-derived-meta" cellspacing="10">
     <input id="fb-input-derived-meta" style="display:none;" name="fb-derived-meta" value="<?php echo htmlentities($derived_meta); ?>" />  
     <tr>
@@ -381,7 +392,7 @@ function fb_post_box_derived_document_callback() {
     $source_posts_ids = (!empty($custom["_fb-opened-source-post-ids"][0])) ? $custom["_fb-opened-source-post-ids"][0] : '';
     //$content = (!empty($custom["_fb-derived-mce"][0])) ? $custom["_fb-derived-mce"][0] : '';
     
-?>               
+?>
 <div id="fb-source-selection-dialog" title="Source Documents">
     <ol id="fb-selectable-source-list">
 <?php
@@ -467,8 +478,7 @@ function fb_post_box_derived_document_callback() {
         </div>
     </td>
     <td id="fb-td-mid-column">
-        <svg id="fb-svg-mid-column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/>
-        </svg>
+        <svg id="fb-svg-mid-column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/></svg>
     </td>
     <td id="fb-td-derive-mces" style="vertical-align:top">
         <!--h3 style="margin-bottom:8px">Derived Document</h3-->
@@ -563,36 +573,29 @@ function fb_filter_post_data($data , $postarr) {
 // revisions
 
 function fb_add_revision_compare_page(){
-    //$path = ABSPATH;
-    $path = dirname(__FILE__);
+    $id = get_current_screen()->id;
+
+    if (($id == 'derived') || ($id == 'source')) {  
+        //$path = ABSPATH;
+        $path = dirname(__FILE__);
     
-    $func_content = "include_once('$path/revisionsdiff.php');";
-    $func = create_function('', $func_content );	
+        $func_content = "include_once('$path/revisionsdiff.php');";
+        $func = create_function('', $func_content );	
     
-    // set $parent_slug=NULL or set to 'options.php' if you want to create a page that doesn't appear in any menu 
-    //add_submenu_page('none', 'Revisions test', 'Revisions test','visualdiff/revisioncompare.php');
-    add_submenu_page('none', 'Revisions test', 'Revisions test', 'read', 'fb-revisions', $func);
+        // set $parent_slug=NULL or set to 'options.php' if you want to create a page that doesn't appear in any menu 
+        //add_submenu_page('none', 'Revisions test', 'Revisions test','visualdiff/revisioncompare.php');
+        add_submenu_page('none', 'Revisions test', 'Revisions test', 'read', 'fb-revisions', $func);
+    }
 }
 
 function fb_admin_footer() {
+    //$screen = get_current_screen();
+    
     // Only load js on revision screen
     if (get_current_screen()->id == 'post') {
 	    wp_enqueue_script('visualdiff', plugins_url( 'js/visualdiff.js' , __FILE__ ), array( 'jquery' ));
     }    
 }
-
-/*
-add_action( 'post_submitbox_misc_actions', 'add_revision_diff_button' );
- * 
-function add_revision_diff_button()
-{
-?>
-    <div class="misc-pub-section my-options" align="right">
-        <input type="submit" value="Compare Revisions" class="button-secondary" id="button-compare-revisions-test">
-    </div>
-<?php
-}
-*/
 
 function fb_add_meta_box_revision() {
     global $post;
@@ -601,14 +604,7 @@ function fb_add_meta_box_revision() {
     }
 }
 
-function fb_meta_box_post_revision_callback() {
-    $post_id = get_the_ID();
-    $redirect = "admin.php?page=fb-revisions&amp;postid={$post_id}";
-?>
-    <div align="right">
-        <input id="button-compare-revisions" type="button" class="button" value="Compare Revisions" style="margin-top: 5px;" onclick="window.location=<?php echo "'" . $redirect . "'"; ?>;">
-    </div>
-<?php    
+function fb_meta_box_post_revision_callback() { 
 }
 
 
@@ -635,7 +631,7 @@ function fb_create_post_type() {
         //'label' => 'Sources',
         //'singular_label' => 'Source',
         //'menu_position' => 2,
-        'taxonomies' => array('post_tag'),
+        'taxonomies' => array('category', 'post_tag'),
         'menu_icon' => 'dashicons-admin-page',
         'public' => true,
         'has_archive' => true,
@@ -678,7 +674,7 @@ function fb_create_post_type() {
             //'label' => 'Derived',
             //'singular_label' => 'Derived',
             //'menu_position' => 2,
-            'taxonomies' => array('post_tag'),
+            'taxonomies' => array('category', 'post_tag'),
             'menu_icon' => 'dashicons-admin-page',
             'public' => true,
             'has_archive' => true,
@@ -733,231 +729,4 @@ function fb_allow_all_tinymce_elements_attributes( $init ) {
     return $init;
 }
 
-
-//-----------------------------------------------------------------------------------------------
-// source meta boxes
-
-function fb_add_meta_box_source_list() {
-    global $post;
-    if ($post) {        
-        if ($post->post_type == 'derived'){
-            add_meta_box('meta_box_source_list', 'Source Documents', 'fb_meta_box_source_list_callback', null, 'side', 'core' );
-        }
-    }
-}
-
-function fb_meta_box_source_list_callback() {
-    global $post;
-    $args = array( 'post_type' => 'source' );
-    $source_posts = get_posts( $args );
-    
-    $tree_root = array();
-    $tree_root['title'] = 'root';
-    $tree_root['children'] = array();
-    
-    foreach( $source_posts as $post ) {       
-        setup_postdata($post); 
-        $post_content = $post->post_content;
-        $html_parser = str_get_html($post_content);  
-        
-        //$tree_post = array();
-        //$tree_post['id'] = 'tree-' . $post->ID;
-        //$tree_post['title'] = the_title();
-        //$tree_post['children'] = array();     
-        //array_push($tree_root['children'], $tree_post);
-        
-        $tree_nodes = array();
-        
-        // root node
-        $count = 0;
-        $tree_nodes[$count] = array();
-        $tree_nodes[$count]['id'] = 'tree-' . $post->ID;
-        $tree_nodes[$count]['post_id_and_tag_id'] = $post->ID;
-        $tree_nodes[$count]['title'] = $post->post_title;
-        //$tree_nodes[$count]['children'] = array();  
-        
-        $tree_nodes[$count]['parentID'] = 0;
-        
-        $current_parents = array($tree_nodes[$count]['id'], null, null, null); // corresponding to four levels of the tree
-        
-        
-        foreach ($html_parser->nodes as $node) {
-            // consider the top level tags first
-            if ($node->parent()->tag == 'root'){
-                // check white space
-                if ($node->tag == 'text'){
-                    $inner_text = $node->innertext.trim();
-                    if (ctype_space($inner_text)){
-                        continue;
-                    }
-                } 
-                
-                $count++;
-                $tree_nodes[$count] = array();
-                $tree_nodes[$count]['id'] = 'tree-' . $node->attr['id'];
-                $tree_nodes[$count]['post_id_and_tag_id'] = $post->ID. ";" .$node->attr['id'];
-                
-                if (($node->tag == 'h1') ||
-                    ($node->tag == 'h2') ||
-                    ($node->tag == 'h3') ||
-                    ($node->tag == 'p')) {
-                    if (strlen($node->innertext) > 80) {
-                        $tree_nodes[$count]['title'] = substr($node->innertext, 0, 80) . "...";                   
-                    }
-                    else {
-                        $tree_nodes[$count]['title'] = $node->innertext;
-                    }
-                }
-                else if (($node->tag == 'ol') ||
-                    ($node->tag == 'ul')){
-                    $tree_nodes[$count]['title'] = 'list...';
-                }
-                else if ($node->tag == 'div'){
-                    $tree_nodes[$count]['title'] = 'section...';
-                }
-                else if ($node->tag == 'table'){
-                    $tree_nodes[$count]['title'] = 'table...';
-                }
-                else if ($node->tag == 'a'){
-                    $tree_nodes[$count]['title'] = 'image or link...';
-                }
-                
-                if (($node->tag == 'h1') ||
-                    ($node->tag == 'h2') ||
-                    ($node->tag == 'h3')){
-                    $this_level = (int)(substr($node->tag, 1, 1));
-                    //$current_parents[$this_level] = &$tree_nodes[$count];
-                    
-                    // set all the parents that are higher than this level to null
-                    for ($i = ($this_level+1); $i <= 3; $i++) {
-                        $current_parents[$i] = null;
-                    } 
-                    
-                    // append this node to its parent
-                    for ($i = ($this_level-1); $i >= 0; $i--) {
-                        if ($current_parents[$i] != null){
-                            $tree_nodes[$count]['parentID'] = $current_parents[$i];                          
-                            //array_push($current_parents[$i]['children'], $tree_nodes[$count]);
-                            $current_parents[$this_level] = $tree_nodes[$count]['id'];
-                            break;
-                        }
-                    }                   
-                }
-                else {
-                    for ($i = 3; $i >= 0; $i--) {
-                        if ($current_parents[$i] != null){
-                            $tree_nodes[$count]['parentID'] = $current_parents[$i];
-                            //array_push($current_parents[$i]['children'], $tree_nodes[$count]);
-                            break;
-                        }
-                    }  
-                }
-            }
-        }
-        
-        $parent_list = array();
-        foreach ($tree_nodes as $n){
-            $parent_list[$n['parentID']][] = $n;
-        }
-        $tree_post = fb_create_tree_from_list($parent_list, array($tree_nodes[0]));
-        array_push($tree_root['children'], $tree_post[0]);
-    }
 ?>
-    <table>
-      <tr>
-        <td>
-            <div id="fb-div-jstree">
-                <?php 
-    fb_array_to_ul($tree_root['children']);
-                ?>
-            </div>
-            <input style="margin-top:10px" type="button" value="Add Source Item" class="button-secondary" />
-        </td>
-        <td>
-            <div id="fb-div-show-jstree-selection" contenteditable="true">
-                <?php 
-    //$editor_args = array("media_buttons" => false, "teeny" => true, "quicktags" => false);
-    //wp_editor("Hello", "fb_editor_jstree_selection", $editor_args);
-                ?>
-            </div>
-        </td>		
-      </tr>
-    </table>
-
-<?php    
-}
-
-function fb_array_to_ul($arr) {
-    echo "<ul>";
-    foreach ($arr as $val) {
-        if (!empty($val['children'])) {
-            echo "<li id='". $val['post_id_and_tag_id'] ."'>" . $val['title'];
-            fb_array_to_ul($val['children']);
-            echo "</li>";
-        } else {
-            echo "<li id='". $val['post_id_and_tag_id'] ."'>" . $val['title'] . "</li>";
-        }
-    }
-    echo "</ul>";
-}
-
-function fb_setup_tag_ids(){
-    global $post;
-    $args = array( 'post_type' => 'source' );
-    $source_posts = get_posts( $args );
-    foreach( $source_posts as $post ){  
-        setup_postdata($post); 
-        $post_content = $post->post_content;
-        $html_parser = str_get_html($post_content);     
-        
-        //$tags = $html_parser->find('h1, h2, h3, p, ul, ol, table');
-
-        // this section of code should move into the 'save' button in the source document edit page
-        
-        foreach ($html_parser->nodes as $node){       
-            // consider the top level tags first
-            if ($node->parent()->tag == 'root'){
-                if ($node->tag == 'text'){
-                    $inner_text = $node->innertext.trim();
-                    if (!ctype_space($inner_text)){
-                        $node->outertext = "<p>" . $node->innertext . "</p>";
-                    }
-                }                  
-            }
-        }
-        
-        $result_str = $html_parser->save();
-        $html_parser = str_get_html($result_str); 
-        
-        foreach ($html_parser->nodes as $node){       
-            // consider the top level tags first
-            if ($node->parent()->tag == 'root'){                    
-                if(!isset($node->attr['id'])){
-                    $uid = uniqid(rand(), true);                        
-                    $node->{'id'} = $uid;
-                    
-                }                   
-            }
-        }
-        
-        // Dumps the internal DOM tree back into string 
-        $str = $html_parser->save();
-    }      
-}
-
-function fb_create_tree_from_list(&$parent_list, $parent){
-    $tree = array();
-    foreach ($parent as $key=>$child){
-        // if this child is in the parent list, continue to build the tree hierarchy; otherwise skip this step and add this child as a leaf of the tree
-        if(isset($parent_list[$child['id']])){
-            $child['children'] = fb_create_tree_from_list($parent_list, $parent_list[$child['id']]);
-        }
-        
-        $tree[] = $child;
-    } 
-    return $tree;
-}
-
-?>
-
-
