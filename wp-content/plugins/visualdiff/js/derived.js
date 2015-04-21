@@ -105,27 +105,6 @@ jQuery(document).ready(function ($) {
         if (index >= 0) {
             $('#fb-tabs-sources').tabs("option", "active", index);
         }
-
-        // test
-        /*
-        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
-        if (!tab_id) return;
-        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
-        var source_mce = tinymce.get(source_mce_id);
-        //console.log(source_mce.getBody());
-        //console.log(flexibook.active_derive_mce.getBody());
-        //tinymce.execInstanceCommand(source_mce_id, "mceFocus");
-        //source_mce.getBody().scrollTop = 300;
-        //$(source_mce.getBody()).scrollTop(500);
-        //$(source_mce.getBody()).find('.activity').get(0).scrollIntoView();
-
-        //$(source_mce.getBody()).animate({ scrollTop: 300 }, { duration: 'medium', easing: 'swing' });
-        //$(flexibook.active_derive_mce.getBody()).find('#' + d_id).get(0).scrollIntoView();
-        //$(flexibook.active_derive_mce.getBody()).animate({ scrollTop: 300 }, { duration: 'medium', easing: 'swing' });
-        //$(flexibook.active_derive_mce.getBody()).scrollTop(500);
-        */
-        // test end
-
         
         if (floating_sources) {
             updateSourcePosition(d_id);
@@ -389,6 +368,14 @@ jQuery(document).ready(function ($) {
     });
 
     //$("#fb-select-teacher-student-version").selectmenu();
+
+    $("#publish").click(function () {
+        $('#fb-tabs-derives .ui-tabs-nav a').each(function (index) {
+            var tab_id = $(this).attr('href');
+            var mce_tab_index = tab_id.replace("fb-tabs-derive", "fb-derived-mce-tab-index");
+            $(mce_tab_index).val(index);
+        });
+    });
 
     $("#fb-button-floating-source").button().click(function () {
         var this_button = $("#fb-button-floating-source");
@@ -1197,7 +1184,12 @@ jQuery(document).ready(function ($) {
 
         source_tabs.tabs("refresh");
         source_tabs.tabs("option", "active", $('#' + li_id).index());
-
+        source_tabs.find(".ui-tabs-nav").sortable({
+            axis: "x",
+            stop: function () {
+                source_tabs.tabs("refresh");
+            }
+        });
         meta_source_tabs_post_ids[tab_id] = post_id; // add property for quick index
         meta_source_tabs_post_ids.push(post_id);
         updateSourceTabsInput();
@@ -1209,6 +1201,7 @@ jQuery(document).ready(function ($) {
         var tab_id = "fb-tabs-derive-" + tab_counter_derive;
         var mce_id = 'fb-derived-mce-' + tab_counter_derive;
         var mce_title = 'fb-derived-mce-title-' + tab_counter_derive;
+        var mce_tab_index = 'fb-derived-mce-tab-index-' + tab_counter_derive;
         var li_id = tab_id + "-selector";
         var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id).replace(/#\{label\}/g, title).replace(/#\{id\}/g, li_id));
 
@@ -1218,6 +1211,7 @@ jQuery(document).ready(function ($) {
         //$("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
         $("#" + tab_id).append("<textarea id='" + mce_id + "' name='" + mce_id + "' style='height:600px'></textarea>"); // save to database
         $("#" + tab_id).append("<input id='" + mce_title + "' name='" + mce_title + "' value='" + title + "' style='display:none'/>"); // save to database
+        $("#" + tab_id).append("<input id='" + mce_tab_index + "' name='" + mce_tab_index + "' style='display:none'/>"); // save to database; the value will be set when save button is clicked
         //tinymce.init();
         tinymce.execCommand('mceAddEditor', false, mce_id);
 
@@ -1234,7 +1228,12 @@ jQuery(document).ready(function ($) {
 
         derive_tabs.tabs("refresh");
         derive_tabs.tabs("option", "active", $('#' + li_id).index());
-
+        derive_tabs.find(".ui-tabs-nav").sortable({
+            axis: "x",
+            stop: function () {
+                derive_tabs.tabs("refresh");
+            }
+        });
         tab_counter_derive++;
     }
 
