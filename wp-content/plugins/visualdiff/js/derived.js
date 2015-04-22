@@ -1177,7 +1177,9 @@ jQuery(document).ready(function ($) {
         source_mce["post_id"] = post_id;
         source_mce["post_modified"] = post_modified;
         source_mce["post_name"] = title;
-
+        source_mce["original_margin_top"] = parseInt($(source_mce.getBody()).css('margin-top'), 10);
+        source_mce["current_margin_top"] = source_mce["original_margin_top"];
+        
         if (tab_counter_source == 0) {
             source_tabs.removeClass('fb-tabs-sources-display-none');
         }
@@ -1319,8 +1321,10 @@ jQuery(document).ready(function ($) {
         highlightSource(source_doc, pid);
 
         if (flexibook.columns_of_editors == 3) {
+            /*
             var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
             highlightSource(old_source_doc, pid);
+            */
         }
     }
 
@@ -1875,6 +1879,7 @@ jQuery(document).ready(function ($) {
         if (!flexibook.active_derive_mce) return;
         var derived_doc = flexibook.active_derive_mce.getDoc();
 
+        /*
         source_tab_current_margin_top = parseInt($('#fb-tabs-sources').css('margin-top'), 10);
 
         if (source_tab_original_margin_top < 0) {
@@ -1883,9 +1888,10 @@ jQuery(document).ready(function ($) {
         else {
             $('#fb-tabs-sources').css('margin-top', source_tab_original_margin_top); // reset to its original position          
         }
+        */
 
         if (flexibook.columns_of_editors == 3) {
-            $("#fb-div-old-source-mce").css('margin-top', 0);
+            //$("#fb-div-old-source-mce").css('margin-top', 0);
         }
 
         // get active tab id
@@ -1895,18 +1901,23 @@ jQuery(document).ready(function ($) {
         var source_mce = tinymce.get(source_mce_id);
         var source_doc = source_mce.getDoc();
 
+        source_mce.current_margin_top = parseInt($(source_mce.getBody()).css('margin-top'), 10);
+        $(source_mce.getBody()).css('margin-top', source_mce.original_margin_top); // reset to its original position for calculation
+
         if (flexibook.columns_of_editors == 2) {
-            updateSourcePositionColumn(source_doc, derived_doc, d_id, 0);
+            updateSourcePositionColumn(source_doc, derived_doc, d_id, source_mce);
         }
         else if (flexibook.columns_of_editors == 3) {
+            /*
             var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
 
             updateSourcePositionColumn(source_doc, derived_doc, d_id, 0);
             updateSourcePositionColumn(old_source_doc, derived_doc, d_id, 1);
+            */
         }
     }
 
-    function updateSourcePositionColumn(source_doc, derive_doc, d_id, column_number) {
+    function updateSourcePositionColumn(source_doc, derive_doc, d_id, source_mce) {
         var source_iframe_container_top = getiFrameOffsetTop(source_doc);
         var derived_iframe_container_top = getiFrameOffsetTop(derive_doc);
 
@@ -1974,30 +1985,34 @@ jQuery(document).ready(function ($) {
                         }
 
                         if (y_bottom_right >= 0 && y_top_right >= 0 && y_top_left >= 0 && y_bottom_left >= 0) {
+                            var t = parseInt(source_mce.original_margin_top, 10) + y_top_right - y_top_left;
+                            var height_diff = t - source_mce.current_margin_top;
+                            source_mce.theme.resizeBy(0, height_diff);
+                            $(source_mce.getBody()).css('margin-top', source_mce.current_margin_top);
+                            $(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
+
+                            /*
                             if (y_top_right > y_top_left) {
-                                if (column_number == 0) {
-                                    var t = parseInt(source_tab_original_margin_top, 10) + y_top_right - y_top_left;
-                                    //$('#fb-tabs-sources').css('margin-top', t); // static
-                                    $('#fb-tabs-sources').css('margin-top', source_tab_current_margin_top);
-                                    $('#fb-tabs-sources').animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
-                                }
-                                else if (column_number == 1) {
-                                    var t = y_top_right - y_top_left;
-                                    $("#fb-div-old-source-mce").css('margin-top', t);
-                                }
+                                var t = parseInt(source_tab_original_margin_top, 10) + y_top_right - y_top_left;
+                                //$('#fb-tabs-sources').css('margin-top', t); // static
+                                //$('#fb-tabs-sources').css('margin-top', source_tab_current_margin_top);
+                                //$('#fb-tabs-sources').animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
+
+                                //$('#fb-tabs-sources').css({ 'height': '850px' });
+                                $(source_mce.getBody()).css('margin-top', source_mce.current_margin_top);
+                                $(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
                             }
                             else {
                                 update();
-                                /*
-                                // use negative margin
-                                if (column_number == 0) {
-                                    var t = parseInt(source_tab_original_margin_top, 10) + y_top_right - y_top_left;
-                                    //$('#fb-tabs-sources').css('margin-top', t); // static
-                                    $('#fb-tabs-sources').css('margin-top', source_tab_current_margin_top);
-                                    $('#fb-tabs-sources').animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update});
-                                }
-                                */
+
+                                // apply negative margin on editor.body
+                                var t = parseInt(source_tab_original_margin_top, 10) + y_top_right - y_top_left;
+                                //$(source_doc.body).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
+
+                                $(source_mce.getBody()).css('margin-top', source_mce.current_margin_top);
+                                $(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
                             }
+                            */
                         }
                     }
                 }
