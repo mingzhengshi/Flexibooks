@@ -375,6 +375,16 @@ jQuery(document).ready(function ($) {
             var mce_tab_index = tab_id.replace("fb-tabs-derive", "fb-derived-mce-tab-index");
             $(mce_tab_index).val(index);
         });
+
+        // make sure save the tinymce content  
+        tinymce.triggerSave();
+        /*
+        for (var e = 0; e < tinymce.editors.length; e++) {
+            if (tinymce.editors[e].id.indexOf("fb-derived-mce") >= 0) {
+                tinymce.editors[e].save();
+            }
+        }
+        */
     });
 
     $("#fb-button-floating-source").button().click(function () {
@@ -383,12 +393,17 @@ jQuery(document).ready(function ($) {
             this_button.attr('value', 'Turn On Floating');
             floating_sources = false;
 
+            /*
             if (source_tab_original_margin_top >= 0) {
                 $('#fb-tabs-sources').css('margin-top', source_tab_original_margin_top);
             }
+            */
 
-            if (flexibook.columns_of_editors == 3) {
-                $("#fb-div-old-source-mce").css('margin-top', 0);
+            for (var e = 0; e < tinymce.editors.length; e++) {
+                if (tinymce.editors[e].id.indexOf("fb-source-mce") >= 0) {
+                    var mce = tinymce.editors[e];
+                    $(mce.getBody()).css('margin-top', mce.original_margin_top);
+                }
             }
 
             update();
