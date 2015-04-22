@@ -376,6 +376,7 @@ jQuery(document).ready(function ($) {
             $(mce_tab_index).val(index);
         });
 
+        // sometimes tinymce can submit empty content when 'save' button is clicked, especially for a new derived tab with very few edits
         // make sure save the tinymce content  
         tinymce.triggerSave();
         /*
@@ -655,9 +656,15 @@ jQuery(document).ready(function ($) {
                             }
                         });
 
+                        old_element = old_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // remove &nbsp;
+                        if (old_element.trim() === '') {
+                            return false; // break 
+                        }
+
                         // if the id exist in the old source 
                         if (exist_old_source) {
                             var new_element = unwrapDeleteInsertTagjQuery(n_this);
+                            new_element = new_element.replace(/<br>/g, ''); // ms - remove <br> tag; assume no <br> tag is used in the document.
 
                             if (new_element.trim() != old_element.trim()) {
                                 // derive element                                  
@@ -666,9 +673,14 @@ jQuery(document).ready(function ($) {
                                         exist_derive = true;
 
                                         var derive_element = unwrapDeleteInsertTagjQuery($(this));
+                                        derive_element = derive_element.replace(/<br>/g, '');
 
                                         // merge case 1:
                                         if (derive_element.trim() == old_element.trim()) {
+                                            console.log("new_element: " + new_element);
+                                            console.log("old_element: " + old_element);
+                                            console.log("derive_element: " + derive_element);
+
                                             $(this).attr('data-merge-case', 1);
                                             $(this).css('border-style', 'dotted');
                                             $(this).css('border-width', '1px');
@@ -2002,7 +2014,7 @@ jQuery(document).ready(function ($) {
                         if (y_bottom_right >= 0 && y_top_right >= 0 && y_top_left >= 0 && y_bottom_left >= 0) {
                             var t = parseInt(source_mce.original_margin_top, 10) + y_top_right - y_top_left;
                             var height_diff = t - source_mce.current_margin_top;
-                            source_mce.theme.resizeBy(0, height_diff);
+                            source_mce.theme.resizeBy(0, height_diff); // when using this method, tinymce cannot autoresize when window is resized for example.
                             $(source_mce.getBody()).css('margin-top', source_mce.current_margin_top);
                             $(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
 
@@ -2056,7 +2068,9 @@ jQuery(document).ready(function ($) {
     function unwrapDeleteInsertTagjQuery(element) {
         var clean = element.find('span.delete').contents().unwrap().end().end(); // remove all delete tags
         clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
-        return clean.html();
+        var html = clean.html();
+        html = html.replace(/&nbsp;/ig, ' ') // remove &nbsp; (non breaking space)
+        return html;
     }
 
     function getParentOffsetBottom(target_id, body) {
