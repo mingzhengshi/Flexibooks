@@ -664,7 +664,41 @@ jQuery(document).ready(function ($) {
                         // if the id exist in the old source 
                         if (exist_old_source) {
                             var new_element = unwrapDeleteInsertTagjQuery(n_this);
-                            new_element = new_element.replace(/<br>/g, ''); // ms - remove <br> tag; assume no <br> tag is used in the document.
+                            new_element = new_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // ms - remove <br> tag; 
+
+                            /*
+                            if ((new_element.indexOf("</table>") >= 0) && (old_element.indexOf("</table>") >= 0)) {
+                                var n = $(new_element);
+                                var o = $(old_element);
+                                //var n_inner_text = n.text();
+                                //var o_inner_text = o.text();
+
+                                // get text not nested in child tags
+                                var o_text = o.clone()    //clone the element
+                                              .children() //select all the children
+                                              .remove()   //remove all the children
+                                              .end()     //again go back to selected element
+                                              .text();
+                                o_text = o_text.trim();
+                                var n_text = n.clone()    //clone the element
+                                              .children() //select all the children
+                                              .remove()   //remove all the children
+                                              .end()     //again go back to selected element
+                                              .text();
+                                n_text = n_text.trim();
+
+                                var n_children_html = '';
+                                var o_children_html = '';
+                                n.children().each(function () {
+                                    n_children_html += $(this).html();
+                                });
+                                o.children().each(function () {
+                                    o_children_html += $(this).html();
+                                });
+
+                                if (n_children_html === o_children_html && o_text === n_text) return false; // ms - may be not able to detect some changes in rare case 
+                            }
+                            */
 
                             if (new_element.trim() != old_element.trim()) {
                                 // derive element                                  
@@ -673,7 +707,7 @@ jQuery(document).ready(function ($) {
                                         exist_derive = true;
 
                                         var derive_element = unwrapDeleteInsertTagjQuery($(this));
-                                        derive_element = derive_element.replace(/<br>/g, '');
+                                        derive_element = derive_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, '');
 
                                         // merge case 1:
                                         if (derive_element.trim() == old_element.trim()) {
@@ -2069,7 +2103,6 @@ jQuery(document).ready(function ($) {
         var clean = element.find('span.delete').contents().unwrap().end().end(); // remove all delete tags
         clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
         var html = clean.html();
-        html = html.replace(/&nbsp;/ig, ' ') // remove &nbsp; (non breaking space)
         return html;
     }
 
