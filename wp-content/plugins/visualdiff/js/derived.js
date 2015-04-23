@@ -656,7 +656,9 @@ jQuery(document).ready(function ($) {
                             }
                         });
 
-                        old_element = old_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // remove &nbsp;
+                        //old_element = old_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // remove &nbsp; and <br> tag
+                        old_element = old_element.replace(/&nbsp;/ig, ' ');
+
                         if (old_element.trim() === '') {
                             return false; // break 
                         }
@@ -664,10 +666,15 @@ jQuery(document).ready(function ($) {
                         // if the id exist in the old source 
                         if (exist_old_source) {
                             var new_element = unwrapDeleteInsertTagjQuery(n_this);
-                            new_element = new_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // ms - remove <br> tag; 
+                            //new_element = new_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // ms - remove &nbsp; and <br> tag
+                            new_element = new_element.replace(/&nbsp;/ig, ' ');
 
                             /*
                             if ((new_element.indexOf("</table>") >= 0) && (old_element.indexOf("</table>") >= 0)) {
+                                console.log("new_element: " + new_element);
+                                console.log("old_element: " + old_element);
+                                //console.log("derive_element: " + derive_element);
+
                                 var n = $(new_element);
                                 var o = $(old_element);
                                 //var n_inner_text = n.text();
@@ -711,10 +718,6 @@ jQuery(document).ready(function ($) {
 
                                         // merge case 1:
                                         if (derive_element.trim() == old_element.trim()) {
-                                            console.log("new_element: " + new_element);
-                                            console.log("old_element: " + old_element);
-                                            console.log("derive_element: " + derive_element);
-
                                             $(this).attr('data-merge-case', 1);
                                             $(this).css('border-style', 'dotted');
                                             $(this).css('border-width', '1px');
@@ -877,6 +880,11 @@ jQuery(document).ready(function ($) {
                     var o_this = $(this);
                     //if (o_this.hasClass("fb_tinymce_left_column") == false && o_this.hasClass("fb_tinymce_left_column_icon") == false) {
                     if (isTinymceAdminElement(o_this)) return true; // continue
+
+                    if (o_html.trim() === '') {
+                        return true; // continue 
+                    }
+
                     var id = o_this.attr('id');
                     if (id && id != 'none') {
                         var exist_new_source = false;
@@ -893,6 +901,11 @@ jQuery(document).ready(function ($) {
                         if (!exist_new_source) {
                             $(derived_doc.body).find("[id]").each(function () {
                                 if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == id) {
+                                    var d_html = unwrapDeleteInsertTagjQuery($(this));
+                                    if (d_html.trim() === '') {
+                                        return false; // break 
+                                    }
+
                                     // case 6: exist in derived document
                                     exist_derive = true;
                                     addDeleteItemToSource(o_this, new_doc, old_doc, post_id);
