@@ -881,6 +881,8 @@ jQuery(document).ready(function ($) {
                     //if (o_this.hasClass("fb_tinymce_left_column") == false && o_this.hasClass("fb_tinymce_left_column_icon") == false) {
                     if (isTinymceAdminElement(o_this)) return true; // continue
 
+                    var o_html = unwrapDeleteInsertTagjQuery(o_this);
+                    o_html = o_html.replace(/&nbsp;/ig, ' ').replace(/<br>/g, '');
                     if (o_html.trim() === '') {
                         return true; // continue 
                     }
@@ -902,6 +904,7 @@ jQuery(document).ready(function ($) {
                             $(derived_doc.body).find("[id]").each(function () {
                                 if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == id) {
                                     var d_html = unwrapDeleteInsertTagjQuery($(this));
+                                    d_html = d_html.replace(/&nbsp;/ig, ' ').replace(/<br>/g, '');
                                     if (d_html.trim() === '') {
                                         return false; // break 
                                     }
