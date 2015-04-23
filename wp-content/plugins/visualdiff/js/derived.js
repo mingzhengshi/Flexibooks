@@ -656,8 +656,8 @@ jQuery(document).ready(function ($) {
                             }
                         });
 
-                        //old_element = old_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // remove &nbsp; and <br> tag
-                        old_element = old_element.replace(/&nbsp;/ig, ' ');
+                        old_element = old_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // remove &nbsp; and <br> tag
+                        //old_element = old_element.replace(/&nbsp;/ig, ' ');
 
                         if (old_element.trim() === '') {
                             return false; // break 
@@ -666,15 +666,12 @@ jQuery(document).ready(function ($) {
                         // if the id exist in the old source 
                         if (exist_old_source) {
                             var new_element = unwrapDeleteInsertTagjQuery(n_this);
-                            //new_element = new_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // ms - remove &nbsp; and <br> tag
-                            new_element = new_element.replace(/&nbsp;/ig, ' ');
+                            new_element = new_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // ms - remove &nbsp; and <br> tag
+                            //new_element = new_element.replace(/&nbsp;/ig, ' ');
 
+                            // compare the children elements instead of the parent element
                             /*
                             if ((new_element.indexOf("</table>") >= 0) && (old_element.indexOf("</table>") >= 0)) {
-                                console.log("new_element: " + new_element);
-                                console.log("old_element: " + old_element);
-                                //console.log("derive_element: " + derive_element);
-
                                 var n = $(new_element);
                                 var o = $(old_element);
                                 //var n_inner_text = n.text();
@@ -750,6 +747,10 @@ jQuery(document).ready(function ($) {
                                         }
                                         // merge case 3:
                                         else {
+                                            console.log("new_element: " + new_element);
+                                            console.log("old_element: " + old_element);
+                                            console.log("derive_element: " + derive_element);
+
                                             $(this).attr('data-merge-case', 3);
                                             $(this).css('border-style', 'dotted');
                                             $(this).css('border-width', '1px');
@@ -1537,6 +1538,7 @@ jQuery(document).ready(function ($) {
         }
     }
 
+    // this function will also set the corresponding derive tabs that require merge to a different color as well
     function updateMetaBoxSourceVersions() {
         var table = document.getElementById("fb-table-derived-meta");
 
@@ -1546,6 +1548,11 @@ jQuery(document).ready(function ($) {
                 table.deleteRow(i);
             }
         }
+
+        // reset all derived tabs' title
+        $('#fb-tabs-derives .ui-tabs-nav a').each(function () {
+            $(this).css('color', 'black');
+        });
 
         if (!flexibook.active_derive_mce) return;
 
@@ -1568,6 +1575,18 @@ jQuery(document).ready(function ($) {
                 var cells = table.rows[i].cells;
                 if (cells[2].innerHTML.trim() != cells[3].innerHTML.trim()) {
                     table.rows[i].style.backgroundColor = "lightpink";
+
+                    // set the corresponding derive tabs as well
+                    $('#fb-tabs-derives .ui-tabs-nav a').each(function () {
+                        var a = $(this);
+                        // if the derive_post_name is matched
+                        if (a.html() === cells[0].innerHTML.trim()) {
+                            if (a.css('color') != 'lightpink') {
+                                a.css('color', 'lightpink');
+                            }
+                            return false;
+                        }
+                    });
                 }
             }
 
