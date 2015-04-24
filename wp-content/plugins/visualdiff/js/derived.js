@@ -1,11 +1,15 @@
 jQuery(document).ready(function ($) {
     var derived_mce_init_done = false;
     var derived_mce_init_called = false;
-    var source_mce_init_count = 0;
+    var fb_source_mce_init_count = 0;
 
     var meta_source_tabs_post_ids = [];
     var meta_source_versions = []; // list of objects
-    var previous_source_revisions = []; // list of previous source revisions for merge
+
+    var fb_previous_source_revisions = []; // list of previous source revisions for merge
+    var fb_original_derive_units = []; // list of derive units before any editions
+    var fb_original_source_units = []; // list of source units before any editions
+    var fb_previous_source_count = 0;
 
     var floating_sources = true;
     var highlighting_source = false;
@@ -136,13 +140,18 @@ jQuery(document).ready(function ($) {
 
         // meta: derive tabs
         $("#fb-data-derive-mces").children().each(function (index) {
-            var title = $(this).attr('data-title');
-            var content = $(this).html();
+            var d_title = $(this).attr('data-title');
+            var d_content = $(this).html();
 
-            addDeriveTab(title, content);
-        });
-        // keep the original derive content
-        //$("#fb-data-derive-mces").remove(); 
+            // keep the original derive content
+            fb_original_derive_units.push({
+                title: d_title,
+                content: d_content
+            });
+
+            addDeriveTab(d_title, d_content);
+        });  
+        $("#fb-data-derive-mces").remove(); 
 
         // meta: opened source tabs 
         var opened_source_tabs_ids = $("#fb-input-source-tabs").val();
@@ -471,26 +480,22 @@ jQuery(document).ready(function ($) {
                 if (editor.id.indexOf("fb-derived-mce") >= 0) {
                     editor.setContent('');
 
-                    $("#fb-data-derive-mces").children().each(function (index) {
-                        var title = $(this).attr('data-title');
-                        var content = $(this).html();
-
-                        if (title === editor.post_name) {
-                            editor.setContent(content);
+                    for (var j = 0; j < fb_original_derive_units.length; j++) {
+                        if (fb_original_derive_units[j].title === editor.post_name) {
+                            editor.setContent(fb_original_derive_units[j].content);
+                            break;
                         }
-                    });
+                    }
                 }
                 else if (editor.id.indexOf("fb-source-mce") >= 0) {
                     editor.setContent('');
 
-                    $("#fb-data-source-mces").children().each(function (index) {
-                        var title = $(this).attr('data-title');
-                        var content = $(this).html();
-
-                        if (title === editor.post_name) {
-                            editor.setContent(content);
+                    for (var j = 0; j < fb_original_source_units.length; j++) {
+                        if (fb_original_source_units[j].title === editor.post_name) {
+                            editor.setContent(fb_original_source_units[j].content);
+                            break;
                         }
-                    });
+                    }
                 }
             }
         }
@@ -591,8 +596,8 @@ jQuery(document).ready(function ($) {
                     var obj = JSON.parse(data);
                     addSourceTab(obj.title, obj.content, obj.modified, post_id);
 
-                    source_mce_init_count++;
-                    if (source_mce_init_count == total) {
+                    fb_source_mce_init_count++;
+                    if (fb_source_mce_init_count == total) {
                         // hide source document toolbars
                         $('#fb-td-source-mces').find('.mce-toolbar-grp').each(function () {
                             $(this).css('display', 'none');
@@ -605,6 +610,7 @@ jQuery(document).ready(function ($) {
                 else {
                 }
             });
+
     }
 
     function getPreviousSourceVersions() {
@@ -631,37 +637,46 @@ jQuery(document).ready(function ($) {
             }
         }
 
-        /*
-        if (!isMergeMode()) {
-            update();
+        fb_previous_source_count = 0; // reset to zero
+
+        for (var i = 0; i < previous_sources.length; i++) {
+            var p = previous_sources[i];
+            getSourcePostRevision(p.source_post_id, p.source_post_modified, previous_sources.length);
+
         }
-        */
     }
 
-    function getSourcePostRevision(post_id, post_modified, derive_post_name) {
-        $.post(ajaxurl,
-            {
-                'action': 'fb_source_revision_query',
-                'id': post_id,
-                'post_modified': post_modified
-            },
-            function (data, status) {
-                if (status.toLowerCase() == "success") {
-                    var obj = JSON.parse(data);
-                    createSourceRevisionObject(post_id, post_modified, obj.content);
-                    // compareSourceRevisions(post_id, obj.content, derive_post_name); // should not compare here
+    function getSourcePostRevision(post_id, post_modified, total) {
+        // ms - before use ajax, check if the post already exists in the memory
+        var exist = false;
 
-                    //update();
-                }
-                else {
-                }
-            });
+        if (!exist) {
+            $.post(ajaxurl,
+                {
+                    'action': 'fb_source_revision_query',
+                    'id': post_id,
+                    'post_modified': post_modified
+                },
+                function (data, status) {
+                    if (status.toLowerCase() == "success") {
+                        var obj = JSON.parse(data);
+                        createSourceRevisionObject(post_id, post_modified, obj.content);
+
+                        fb_previous_source_count++;
+                        if (fb_previous_source_count == total) {
+                            generateMergeCasesAll();
+                        }
+                    }
+                    else {
+                    }
+                });
+        }
     }
 
     function createSourceRevisionObject(post_id, post_modified, post_content) {
         // avoid duplicate objects
-        for (var i = 0; i < previous_source_revisions.length; i++) {
-            if (previous_source_revisions[i].post_id == post_id) {
+        for (var i = 0; i < fb_previous_source_revisions.length; i++) {
+            if (fb_previous_source_revisions[i].post_id == post_id) {
                 return;
             }
         }
@@ -672,30 +687,42 @@ jQuery(document).ready(function ($) {
         obj['post_modified'] = post_modified;
         obj['post_content'] = post_content;
 
-        previous_source_revisions.push(obj);
+        fb_previous_source_revisions.push(obj);
     }
 
     function getSourceRevisionContent(post_id) {
-        for (var i = 0; i < previous_source_revisions.length; i++) {
-            if (previous_source_revisions[i].post_id == post_id) {
-                return previous_source_revisions[i].post_content;
+        for (var i = 0; i < fb_previous_source_revisions.length; i++) {
+            if (fb_previous_source_revisions[i].post_id == post_id) {
+                return fb_previous_source_revisions[i].post_content;
             }
         }
         return null;
     }
 
     function getSourceRevisionDate(post_id) {
-        for (var i = 0; i < previous_source_revisions.length; i++) {
-            if (previous_source_revisions[i].post_id == post_id) {
-                return previous_source_revisions[i].post_modified;
+        for (var i = 0; i < fb_previous_source_revisions.length; i++) {
+            if (fb_previous_source_revisions[i].post_id == post_id) {
+                return fb_previous_source_revisions[i].post_modified;
             }
         }
         return null;
     }
 
-    function compareSourceRevisions(post_id, old_content, derive_post_name) {
+    function generateMergeCasesAll() {
+        for (var i = 0; i < meta_source_versions.length; i++) {
+            if (meta_source_versions[i].source_post_previous_version != meta_source_versions[i].source_post_current_version) {
+                var source_post_id = meta_source_versions[i].source_post_id;
+                var old_source_content = getSourceRevisionContent(source_post_id);
+                var derive_post_name = meta_source_versions[i].derive_post_name;
+
+                generateMergeCaseDeriveUnit(source_post_id, old_source_content, derive_post_name);
+            }
+        }
+    }
+
+    function generateMergeCaseDeriveUnit(source_post_id, old_content, derive_post_name) {
         for (var i = 0; i < tinymce.editors.length; i++) {
-            if (tinymce.editors[i].post_id == post_id) {
+            if (tinymce.editors[i].id.indexOf("fb-source-mce") >= 0 && tinymce.editors[i].post_id == source_post_id) {
                 var new_doc = tinymce.editors[i].getDoc();
 
                 var derived_doc = null;
@@ -734,7 +761,7 @@ jQuery(document).ready(function ($) {
                         //old_element = old_element.replace(/&nbsp;/ig, ' ');
 
                         if (old_element.trim() === '') {
-                            return false; // break 
+                            return true; // continue
                         }
 
                         // if the id exist in the old source 
@@ -793,7 +820,7 @@ jQuery(document).ready(function ($) {
                                             $(this).css('border-style', 'dotted');
                                             $(this).css('border-width', '1px');
                                             $(this).css('border-color', 'orange');
-                                            setNumberOfMergeRequests(post_id, 1);
+                                            setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
 
                                             // base element
                                             var diff = html_diff_compact(derive_element, new_element);
@@ -831,7 +858,7 @@ jQuery(document).ready(function ($) {
                                             $(this).css('border-color', 'orange');
 
                                             //$(this).css('margin-left', '50px');
-                                            setNumberOfMergeRequests(post_id, 1);
+                                            setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
                                             
                                             var d_diff = html_diff_compact(old_element, derive_element);
                                             $(this).html(d_diff);
@@ -899,7 +926,7 @@ jQuery(document).ready(function ($) {
                                         if (p_exist) {
                                             n_this.attr('data-merge-case', 5);
                                             n_this.css('background-color', 'lightgreen');
-                                            setNumberOfMergeRequests(post_id, 1);
+                                            setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
                                         }
                                     }
                                     */
@@ -932,8 +959,8 @@ jQuery(document).ready(function ($) {
                                     var html = "<span class='insert insert-merge'>" + html + "</span>";
                                     n_this.html(html);
                                     n_this.attr('data-merge-case', 5); // this modification is in memory only, will not be saved to database
-                                    addNewItemToDerive(n_this, new_doc, derived_doc, post_id);
-                                    setNumberOfMergeRequests(post_id, 1);
+                                    addNewItemToDerive(n_this, new_doc, derived_doc, source_post_id);
+                                    setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
                                 }
                             }
 
@@ -943,8 +970,8 @@ jQuery(document).ready(function ($) {
                             var html = "<span class='insert insert-merge'>" + html + "</span>";
                             n_this.html(html);
                             n_this.attr('data-merge-case', 5); // this modification is in memory only, will not be saved to database
-                            addNewItemToDerive(n_this, new_doc, derived_doc, post_id);
-                            setNumberOfMergeRequests(post_id, 1);
+                            addNewItemToDerive(n_this, new_doc, derived_doc, source_post_id);
+                            setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
                             */
                         }
                     }
@@ -986,7 +1013,7 @@ jQuery(document).ready(function ($) {
 
                                     // case 6: exist in derived document
                                     exist_derive = true;
-                                    addDeleteItemToSource(o_this, new_doc, old_doc, post_id);
+                                    addDeleteItemToSource(o_this, new_doc, old_doc, source_post_id);
                                     $(this).attr('data-merge-case', 6);
                                     $(this).css('border-style', 'dotted');
                                     $(this).css('border-width', '1px');
@@ -996,7 +1023,7 @@ jQuery(document).ready(function ($) {
                                     var html = "<span class='delete delete-merge'>" + html + "</span>";
                                     $(this).html(html);
                                     //$(this).css('background-color', 'lightpink');
-                                    setNumberOfMergeRequests(post_id, 1);
+                                    setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
                                     return false; // break each function
                                 }
                             });
@@ -1127,11 +1154,11 @@ jQuery(document).ready(function ($) {
         }
     }
 
-    function setNumberOfMergeRequests(post_id, value) {
+    function setNumberOfMergeRequests(derive_post_name, source_post_id, value) {
         if (!meta_source_versions || meta_source_versions.length <= 0) return;
 
         for (var j = 0; j < meta_source_versions.length; j++) {
-            if (post_id === meta_source_versions[j].source_post_id) {
+            if (source_post_id === meta_source_versions[j].source_post_id && derive_post_name === meta_source_versions[j].derive_post_name) {
                 meta_source_versions[j]['number_of_merges'] += value;
                 if (value === -1 && meta_source_versions[j]['number_of_merges'] === 0) {
                     meta_source_versions[j]['source_post_previous_version'] = meta_source_versions[j]['source_post_current_version']
@@ -1322,7 +1349,11 @@ jQuery(document).ready(function ($) {
         */
 
         // keep the original source content
-        $("#fb-data-source-mces").append("<div data-title='" + title + "'>'" + content + "'</div>");
+        //$("#fb-data-source-mces").append("<div data-title='" + title + "'>'" + content + "'</div>");
+        fb_original_source_units.push({
+            'title': title,
+            'content': content
+        });
 
         var source_mce = tinymce.get(mce_id);
         source_mce.setContent(content); // note: the get method does not work when tinymce.js has not been loaded;

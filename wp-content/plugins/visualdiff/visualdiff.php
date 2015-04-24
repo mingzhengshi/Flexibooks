@@ -412,8 +412,6 @@ function fb_post_box_derived_document_callback() {
     Title: <input id="fb-derive-document-title" type="text"/> 
 </div>
 
-<div id="fb-data-source-mces" style="display:none;">
-</div>
 <div id="fb-data-derive-mces" style="display:none;">
 <?php
     $index_array = [];
