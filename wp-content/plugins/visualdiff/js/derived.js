@@ -464,6 +464,8 @@ jQuery(document).ready(function ($) {
 
         }
         else {
+            $("#publish").prop('disabled', true);
+
             for (var i = 0; i < tinymce.editors.length; i++) {
                 var editor = tinymce.editors[i];
                 if (editor.id.indexOf("fb-derived-mce") >= 0) {
@@ -607,10 +609,24 @@ jQuery(document).ready(function ($) {
 
     function getPreviousSourceVersions() {
         if (!meta_source_versions || meta_source_versions.length <= 0) return;
-
+        var previous_sources = [];
         for (var i = 0; i < meta_source_versions.length; i++) {
             if (meta_source_versions[i].source_post_previous_version != meta_source_versions[i].source_post_current_version) {
-                getSourcePostRevision(meta_source_versions[i].source_post_id, meta_source_versions[i].source_post_previous_version, meta_source_versions[i].derive_post_name);
+                var exist = false;
+                for (var j = 0; j < previous_sources.length; j++) {
+                    if (previous_sources[j].source_post_id == meta_source_versions[i].source_post_id) {
+                        exist = true;
+                        break;
+                    }
+                }
+
+                if (!exist) {
+                    previous_sources.push({
+                        source_post_id: meta_source_versions[i].source_post_id,
+                        source_post_modified: meta_source_versions[i].source_post_previous_version
+                    });
+                }
+                //getSourcePostRevision(meta_source_versions[i].source_post_id, meta_source_versions[i].source_post_previous_version, meta_source_versions[i].derive_post_name);
                 //$("#fb-button-show-previous-source").prop('disabled', false);
             }
         }
@@ -633,9 +649,9 @@ jQuery(document).ready(function ($) {
                 if (status.toLowerCase() == "success") {
                     var obj = JSON.parse(data);
                     createSourceRevisionObject(post_id, post_modified, obj.content);
-                    compareSourceRevisions(post_id, obj.content, derive_post_name);
+                    // compareSourceRevisions(post_id, obj.content, derive_post_name); // should not compare here
 
-                    update();
+                    //update();
                 }
                 else {
                 }
@@ -1115,9 +1131,9 @@ jQuery(document).ready(function ($) {
         if (!meta_source_versions || meta_source_versions.length <= 0) return;
 
         for (var j = 0; j < meta_source_versions.length; j++) {
-            if (post_id == meta_source_versions[j].source_post_id) {
+            if (post_id === meta_source_versions[j].source_post_id) {
                 meta_source_versions[j]['number_of_merges'] += value;
-                if (value == -1 && meta_source_versions[j]['number_of_merges'] == 0) {
+                if (value === -1 && meta_source_versions[j]['number_of_merges'] === 0) {
                     meta_source_versions[j]['source_post_previous_version'] = meta_source_versions[j]['source_post_current_version']
                 }
                 break;
@@ -1443,6 +1459,7 @@ jQuery(document).ready(function ($) {
         if (flexibook.postpone_update == true) return;
 
         updateMetaSourceVersions();
+        updatePublishButton();
         updateSourceHighlight();
         updateHTMLDiff();
         updateSVG();
@@ -1526,25 +1543,28 @@ jQuery(document).ready(function ($) {
             var derive_doc = getDeriveDocByName(derive_post_name);
             
             if (derive_doc != null) {
-                var post_ids = getUniqueSourcePostIDs(derive_doc);
-                updateMetaSourceVersionsForDeriveSection(derive_post_name, post_ids)
+                var source_post_ids = getUniqueSourcePostIDs(derive_doc);
+                updateMetaSourceVersionsForDeriveUnit(derive_post_name, source_post_ids)
             }
         });
 
         var meta_source_versions_string = JSON.stringify(meta_source_versions);
         $("#fb-input-derived-meta").val(meta_source_versions_string);
 
-        // update Publish button
+        updateMetaBoxSourceVersions();
+    }
+
+    function updatePublishButton() {
         $("#publish").attr('value', 'Save');
         $("#publish").prop('disabled', false);
-        for (var i = 0; i < meta_source_versions.length; i++) {
-            if (meta_source_versions[i].number_of_merges > 0) {
-                $("#publish").prop('disabled', true);
-                break;
+        if (fb_merge_mode) {
+            for (var i = 0; i < meta_source_versions.length; i++) {
+                if (meta_source_versions[i].number_of_merges > 0) {
+                    $("#publish").prop('disabled', true);
+                    break;
+                }
             }
         }
-
-        updateMetaBoxSourceVersions();
     }
 
     function getDeriveDocByName(derive_post_name) {
@@ -1558,29 +1578,29 @@ jQuery(document).ready(function ($) {
         return null;
     }
 
-    function updateMetaSourceVersionsForDeriveSection(derive_post_name, post_ids) {
+    function updateMetaSourceVersionsForDeriveUnit(derive_post_name, source_post_ids) {
         if (meta_source_versions.length == 0) {
-            for (var i = 0; i < post_ids.length; i++) {
-                createNewDeriveMetaObject(derive_post_name, post_ids[i]);
+            for (var i = 0; i < source_post_ids.length; i++) {
+                createNewDeriveMetaObject(derive_post_name, source_post_ids[i]);
             }
         }
         else {
             // firstly, remove objects from meta_source_versions if they are not longer in a derived document 
             for (var i = meta_source_versions.length - 1; i >= 0; i--) {
                 if (derive_post_name == meta_source_versions[i].derive_post_name) {
-                    if (post_ids.indexOf(meta_source_versions[i].source_post_id) == -1) {
+                    if (source_post_ids.indexOf(meta_source_versions[i].source_post_id) == -1) {
                         meta_source_versions.splice(i, 1);
                     }
                 }
             }
 
-            for (var i = 0; i < post_ids.length; i++) {
+            for (var i = 0; i < source_post_ids.length; i++) {
                 var post_ids_exist = false;
                 for (var j = 0; j < meta_source_versions.length; j++) {
-                    if (derive_post_name == meta_source_versions[j].derive_post_name && post_ids[i] == meta_source_versions[j].source_post_id) {
+                    if (derive_post_name == meta_source_versions[j].derive_post_name && source_post_ids[i] == meta_source_versions[j].source_post_id) {
                         // ms - not yet consider the source editors have been closed 
                         for (var t = 0; t < tinymce.editors.length; t++) {
-                            if (tinymce.editors[t].post_id == post_ids[i]) {
+                            if (tinymce.editors[t].post_id == source_post_ids[i]) {
                                 meta_source_versions[j]['source_post_current_version'] = tinymce.editors[t].post_modified;
                                 meta_source_versions[j]['source_post_name'] = tinymce.editors[t].post_name;
                                 break;
@@ -1593,7 +1613,7 @@ jQuery(document).ready(function ($) {
                 }
 
                 if (post_ids_exist == false) {
-                    createNewDeriveMetaObject(derive_post_name, post_ids[i]);
+                    createNewDeriveMetaObject(derive_post_name, source_post_ids[i]);
                 }
             }
         }
@@ -1667,7 +1687,7 @@ jQuery(document).ready(function ($) {
 
         // ms - not yet consider the source editors have been closed 
         for (var j = 0; j < tinymce.editors.length; j++) {
-            if (tinymce.editors[j].post_id == post_id) {
+            if ((tinymce.editors[j].id.indexOf("fb-source-mce") >= 0) && (tinymce.editors[j].post_id == post_id)) {
                 obj['derive_post_name'] = derive_post_name;
                 obj['source_post_previous_version'] = tinymce.editors[j].post_modified;
                 obj['source_post_current_version'] = tinymce.editors[j].post_modified;
@@ -1684,13 +1704,8 @@ jQuery(document).ready(function ($) {
 
         $(derived_doc.body).find("[data-source-post-id]").each(function (index) {
             var post_id = $(this).attr('data-source-post-id').trim();
-            if (ids.length == 0) {
+            if (ids.indexOf(post_id) == -1) {
                 ids.push(post_id);
-            }
-            else {
-                if (ids.indexOf(post_id) == -1) {
-                    ids.push(post_id);
-                }
             }
         });
 
