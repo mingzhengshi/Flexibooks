@@ -56,7 +56,9 @@ jQuery(document).ready(function ($) {
         //var tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
         //var selected = $("#fb-tabs-sources ul>li a").eq(tabIndex).attr('href');
 
-        setupOldSourceMce();
+        //setupOldSourceMce();
+
+        //generateMergeCases();
         update();
     });
 
@@ -470,11 +472,9 @@ jQuery(document).ready(function ($) {
 
     function toggleMergeMode() {
         if (fb_merge_mode) {
-
+            generateMergeCases();
         }
         else {
-            $("#publish").prop('disabled', true);
-
             for (var i = 0; i < tinymce.editors.length; i++) {
                 var editor = tinymce.editors[i];
                 if (editor.id.indexOf("fb-derived-mce") >= 0) {
@@ -559,6 +559,7 @@ jQuery(document).ready(function ($) {
 
     function setupOldSourceMce() {
         if (flexibook.columns_of_editors == 3) {
+            /*
             var old_mce = tinymce.get('fb-old-source-mce');
 
             // get active tab id
@@ -581,6 +582,7 @@ jQuery(document).ready(function ($) {
                 var content = source_mce.getContent();
                 old_mce.setContent(content);
             }
+            */
         }
     }
 
@@ -664,7 +666,7 @@ jQuery(document).ready(function ($) {
 
                         fb_previous_source_count++;
                         if (fb_previous_source_count == total) {
-                            generateMergeCasesAll();
+                            generateMergeCases();
                         }
                     }
                     else {
@@ -708,14 +710,22 @@ jQuery(document).ready(function ($) {
         return null;
     }
 
-    function generateMergeCasesAll() {
+    // ms - do not consider the case where one source unit is contained by multiple derive units 
+    function generateMergeCases() {
+        if (!meta_source_versions) return;
+
         for (var i = 0; i < meta_source_versions.length; i++) {
             if (meta_source_versions[i].source_post_previous_version != meta_source_versions[i].source_post_current_version) {
-                var source_post_id = meta_source_versions[i].source_post_id;
-                var old_source_content = getSourceRevisionContent(source_post_id);
-                var derive_post_name = meta_source_versions[i].derive_post_name;
+                // only generate merge cases for active derive unit; 
+                // because derive units to a source unit is multiple to one relation
+                //if (meta_source_versions[i].derive_post_name === flexibook.active_derive_mce.post_name) {
+                    var source_post_id = meta_source_versions[i].source_post_id;
+                    var old_source_content = getSourceRevisionContent(source_post_id);
+                    if (!old_source_content) continue;
+                    var derive_post_name = meta_source_versions[i].derive_post_name;
 
-                generateMergeCaseDeriveUnit(source_post_id, old_source_content, derive_post_name);
+                    generateMergeCaseDeriveUnit(source_post_id, old_source_content, derive_post_name);
+                //}
             }
         }
     }
@@ -766,6 +776,11 @@ jQuery(document).ready(function ($) {
 
                         // if the id exist in the old source 
                         if (exist_old_source) {
+                            /*
+                            n_this.find('span.delete').each(function () {
+                                $(this).remove();
+                            });
+                            */
                             var new_element = unwrapDeleteInsertTagjQuery(n_this);
                             new_element = new_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // ms - remove &nbsp; and <br> tag
                             //new_element = new_element.replace(/&nbsp;/ig, ' ');
