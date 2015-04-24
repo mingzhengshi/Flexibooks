@@ -8,9 +8,11 @@ jQuery(document).ready(function ($) {
     var previous_source_revisions = []; // list of previous source revisions for merge
 
     var floating_sources = true;
-    var highlighting_source = false;  
-    var source_tab_original_margin_top = -1;
-    var source_tab_current_margin_top = -1;
+    var highlighting_source = false;
+    var fb_merge_mode = true;
+
+    //var source_tab_original_margin_top = -1;
+    //var source_tab_current_margin_top = -1;
 
     // source tabs
     var selected_sources = [];
@@ -139,7 +141,8 @@ jQuery(document).ready(function ($) {
 
             addDeriveTab(title, content);
         });
-        $("#fb-data-derive-mces").remove();
+        // keep the original derive content
+        //$("#fb-data-derive-mces").remove(); 
 
         // meta: opened source tabs 
         var opened_source_tabs_ids = $("#fb-input-source-tabs").val();
@@ -367,6 +370,24 @@ jQuery(document).ready(function ($) {
         }
     });
 
+    //---------------------------------------------------------------------------------------------------------------
+    // setup buttons
+
+    $('#fb-buttonset-toggle-merge').buttonset();
+    $('#fb-buttonset-toggle-merge-on').click(function () {
+        if (fb_merge_mode) return; // if already on, then return.
+
+        fb_merge_mode = true;
+        toggleMergeMode();
+    });
+
+    $('#fb-buttonset-toggle-merge-off').click(function () {
+        if (!fb_merge_mode) return; // if already off, then return.
+
+        fb_merge_mode = false;
+        toggleMergeMode();
+    });
+
     //$("#fb-select-teacher-student-version").selectmenu();
 
     $("#publish").click(function () {
@@ -437,6 +458,43 @@ jQuery(document).ready(function ($) {
     flexibook.regShowPreviousSourceIconClickCallback(function () {
         togglePreviousSource();
     });
+
+    function toggleMergeMode() {
+        if (fb_merge_mode) {
+
+        }
+        else {
+            for (var i = 0; i < tinymce.editors.length; i++) {
+                var editor = tinymce.editors[i];
+                if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                    editor.setContent('');
+
+                    $("#fb-data-derive-mces").children().each(function (index) {
+                        var title = $(this).attr('data-title');
+                        var content = $(this).html();
+
+                        if (title === editor.post_name) {
+                            editor.setContent(content);
+                        }
+                    });
+                }
+                else if (editor.id.indexOf("fb-source-mce") >= 0) {
+                    editor.setContent('');
+
+                    $("#fb-data-source-mces").children().each(function (index) {
+                        var title = $(this).attr('data-title');
+                        var content = $(this).html();
+
+                        if (title === editor.post_name) {
+                            editor.setContent(content);
+                        }
+                    });
+                }
+            }
+        }
+
+        update();
+    }
 
     function togglePreviousSource() {
         var this_button = $("#fb-button-show-previous-source");
@@ -1246,6 +1304,9 @@ jQuery(document).ready(function ($) {
             var content = tinymce.editors[i].getContent(); // get the content
         }
         */
+
+        // keep the original source content
+        $("#fb-data-source-mces").append("<div data-title='" + title + "'>'" + content + "'</div>");
 
         var source_mce = tinymce.get(mce_id);
         source_mce.setContent(content); // note: the get method does not work when tinymce.js has not been loaded;

@@ -412,6 +412,8 @@ function fb_post_box_derived_document_callback() {
     Title: <input id="fb-derive-document-title" type="text"/> 
 </div>
 
+<div id="fb-data-source-mces" style="display:none;">
+</div>
 <div id="fb-data-derive-mces" style="display:none;">
 <?php
     $index_array = [];
@@ -484,6 +486,10 @@ function fb_post_box_derived_document_callback() {
         <!--h3 style="margin-bottom:8px">Derived Document</h3-->
         <div> 
             <input id="fb-button-add-derive-document" type="button" value="Add Derive Section" class="button-secondary" style="margin-right:10px"/>    
+            <span id="fb-buttonset-toggle-merge">
+                <input type="radio" id="fb-buttonset-toggle-merge-on" name="fb-buttonset-toggle-merge" checked="checked"><label for="fb-buttonset-toggle-merge-on">Merge On</label>
+                <input type="radio" id="fb-buttonset-toggle-merge-off" name="fb-buttonset-toggle-merge"><label for="fb-buttonset-toggle-merge-off">Off</label>
+            </span>
             <select id="fb-select-teacher-student-version">
               <option>Teacher Version</option>
               <option>Student Version</option>
