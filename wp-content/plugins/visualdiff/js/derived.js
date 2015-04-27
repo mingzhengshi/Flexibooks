@@ -48,6 +48,7 @@ jQuery(document).ready(function ($) {
         delete meta_source_tabs_post_ids[panelId]; // also remove the property
 
         updateSourceTabsInput();
+        updateVisibleMces();
     });
 
     source_tabs.on("tabsactivate", function (event, ui) {
@@ -59,6 +60,7 @@ jQuery(document).ready(function ($) {
         //setupOldSourceMce();
 
         //generateMergeCases();
+        updateVisibleMces();
         update();
     });
 
@@ -71,14 +73,15 @@ jQuery(document).ready(function ($) {
         $("#" + panelId).remove();
         derive_tabs.tabs("refresh");
 
-        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
+        var tab_id = $("#fb-tabs-derives .ui-tabs-panel:visible").attr("id");
         if (!tab_id) return;
 
         var derive_mce_id = panelId.replace("fb-tabs-derive", "fb-derived-mce");
         tinymce.execCommand('mceRemoveEditor', false, derive_mce_id); // error
 
-        flexibook.active_derive_mce = getActiveDeriveMce();
+        flexibook.active_derive_mce = getVisibleDeriveMce();
 
+        updateVisibleMces();
         update();
     });
 
@@ -88,9 +91,9 @@ jQuery(document).ready(function ($) {
         //var tabIndex = $('#fb-tabs-derives').tabs('option', 'active');
         //var selected = $("#fb-tabs-derives ul>li a").eq(tabIndex).attr('href');
 
-        flexibook.active_derive_mce = getActiveDeriveMce();
-        //flexibook.active_derive_mce.plugins.fb_folding_editor.updatePublic(false);
-
+        flexibook.active_derive_mce = getVisibleDeriveMce();
+ 
+        updateVisibleMces();
         update();
     });
 
@@ -127,7 +130,7 @@ jQuery(document).ready(function ($) {
     });
 
     flexibook.regOnDragEndCallback(function () {
-        var derived_doc = getActiveDeriveMce().getDoc();
+        var derived_doc = getVisibleDeriveMce().getDoc();
         var dragged_item = derived_doc.getElementById(flexibook.dragged_item_id);
         $(dragged_item).removeClass('fb_tinymce_dragging');
         $(dragged_item).css('opacity', 1);
@@ -194,8 +197,8 @@ jQuery(document).ready(function ($) {
         old_mce.setContent(old_content);
         var old_doc = old_mce.getDoc();
 
-        var derived_doc = getActiveDeriveMce().getDoc();
-        var derived_mce = getActiveDeriveMce();
+        var derived_doc = getVisibleDeriveMce().getDoc();
+        var derived_mce = getVisibleDeriveMce();
 
         switch (mcase) {
             // case 1:
@@ -643,10 +646,15 @@ jQuery(document).ready(function ($) {
 
         fb_previous_source_count = 0; // reset to zero
 
-        for (var i = 0; i < previous_sources.length; i++) {
-            var p = previous_sources[i];
-            getSourcePostRevision(p.source_post_id, p.source_post_modified, previous_sources.length);
+        if (previous_sources.length === 0) {
+            //updateVisibleMces(); // this update is too early; not all mce contents have been loaded
+        }
+        else {
+            for (var i = 0; i < previous_sources.length; i++) {
+                var p = previous_sources[i];
+                getSourcePostRevision(p.source_post_id, p.source_post_modified, previous_sources.length);
 
+            }
         }
     }
 
@@ -669,6 +677,7 @@ jQuery(document).ready(function ($) {
                         fb_previous_source_count++;
                         if (fb_previous_source_count == total) {
                             generateMergeCases();
+                            updateVisibleMces();
                         }
                     }
                     else {
@@ -1443,7 +1452,7 @@ jQuery(document).ready(function ($) {
         tab_counter_derive++;
     }
 
-    function getActiveDeriveMce() {
+    function getVisibleDeriveMce() {
         // get active tab id
         var tab_id = $("#fb-tabs-derives .ui-tabs-panel:visible").attr("id");
         if (!tab_id) return null;
@@ -1451,6 +1460,16 @@ jQuery(document).ready(function ($) {
         var derive_mce = tinymce.get(derive_mce_id);
 
         return derive_mce;
+    }
+
+    function getVisibleSourceMce() {
+        // get active tab id
+        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
+        if (!tab_id) return;
+        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
+        var source_mce = tinymce.get(source_mce_id);
+
+        return source_mce;
     }
 
     //----------------------------------------------------------------------------------------
@@ -1514,6 +1533,27 @@ jQuery(document).ready(function ($) {
         updateSVG();
     }
 
+    function updateAllMces() {
+        for (var i = 0; i < tinymce.editors.length; i++) {
+            var editor = tinymce.editors[i];
+            if ((editor.id.indexOf("fb-source-mce") >= 0) || (editor.id.indexOf("fb-derived-mce") >= 0)) {
+                updateMce(editor);
+            }
+        }
+    }
+
+    function updateVisibleMces() {
+        var derive_mce = getVisibleDeriveMce();
+        if (derive_mce) {
+            updateMce(derive_mce);
+        }
+
+        var source_mce = getVisibleSourceMce();
+        if (source_mce) {
+            updateMce(source_mce);
+        }
+    }
+
     function updateMce(mce) {
         if (!mce) return;
         mce.plugins.fb_folding_editor.updatePublic(false);
@@ -1521,10 +1561,8 @@ jQuery(document).ready(function ($) {
 
     function updateSourceHighlight() {
         // get active tab id
-        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
-        if (!tab_id) return;
-        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
-        var source_mce = tinymce.get(source_mce_id);
+        var source_mce = getVisibleSourceMce();
+        if (!source_mce) return;
         var source_doc = source_mce.getDoc();
         var pid = source_mce.post_id;
 
@@ -1771,10 +1809,9 @@ jQuery(document).ready(function ($) {
         var derived_doc = flexibook.active_derive_mce.getDoc();
 
         // get active tab id
-        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
-        if (!tab_id) return;
-        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
-        var source_doc = tinymce.get(source_mce_id).getDoc();
+        var source_mce = getVisibleSourceMce();
+        if (!source_mce) return;
+        var source_doc = source_mce.getDoc();
 
         if (flexibook.columns_of_editors == 2) {
             updateHTMLDiffColumn(source_doc, derived_doc, 'source_derive', true);
@@ -1898,10 +1935,8 @@ jQuery(document).ready(function ($) {
         var derived_doc = flexibook.active_derive_mce.getDoc();
 
         // get active tab id
-        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
-        if (!tab_id) return;
-        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
-        var source_mce = tinymce.get(source_mce_id);
+        var source_mce = getVisibleSourceMce();
+        if (!source_mce) return;
         var source_doc = source_mce.getDoc();
 
         if (flexibook.columns_of_editors == 2) {
@@ -1957,12 +1992,14 @@ jQuery(document).ready(function ($) {
         var x_left = 0;
         var x_right = $('#' + svg_column_id).width();
 
+        var previous_y_bottom_left = null;
+        var previous_y_bottom_right = null;
+
         // remove all polygons
         $('#' + svg_column_id).find('.fb-svg-polygons').remove();
 
         $(right_doc.body).children().each(function (index) {
             var right = $(this);
-            //if (right.hasClass("fb_tinymce_left_column") == false && right.hasClass("fb_tinymce_left_column_icon") == false) {
             if (isTinymceAdminElement(right)) return true; // continue
             var source_id = null;
             if (comp_type == 'source_derive') {
@@ -1990,13 +2027,13 @@ jQuery(document).ready(function ($) {
                         }
                     }
                     else {
-                        var derived_height = right.height();
+                        //var derived_height = right.height();
                         var derived_outer_height = right.outerHeight(true);
                         var derived_top = right.position().top;
                         var derived_padding_top = parseInt(right.css('padding-top'), 10);
                         var derived_margin_top = parseInt(right.css('margin-top'), 10);
                         derived_top += (derived_iframe_container_top - svg_container_top);
-                        derived_top -= (derived_padding_top + derived_margin_top);
+                        //derived_top -= (derived_padding_top + derived_margin_top);
 
                         y_bottom_right = derived_top + derived_outer_height;
                         y_top_right = derived_top;
@@ -2012,13 +2049,13 @@ jQuery(document).ready(function ($) {
                         }
                     }
                     else {
-                        var source_height = $(left).height();
+                        //var source_height = $(left).height();
                         var source_outer_height = $(left).outerHeight(true);
                         var source_top = $(left).position().top;
                         var source_padding_top = parseInt($(left).css('padding-top'), 10);
                         var source_margin_top = parseInt($(left).css('margin-top'), 10);
                         source_top += (source_iframe_container_top - svg_container_top);
-                        source_top -= (source_padding_top + source_margin_top);
+                        //source_top -= (source_padding_top + source_margin_top);
                         //console.log($(source_element).attr('id') + ": " + source_outer_height);
 
                         y_top_left = source_top;
@@ -2121,10 +2158,8 @@ jQuery(document).ready(function ($) {
         }
 
         // get active tab id
-        var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
-        if (!tab_id) return;
-        var source_mce_id = tab_id.replace("fb-tabs-source", "fb-source-mce");
-        var source_mce = tinymce.get(source_mce_id);
+        var source_mce = getVisibleSourceMce();
+        if (!source_mce) return;
         var source_doc = source_mce.getDoc();
 
         source_mce.current_margin_top = parseInt($(source_mce.getBody()).css('margin-top'), 10);
@@ -2176,7 +2211,7 @@ jQuery(document).ready(function ($) {
                             }
                         }
                         else {
-                            var derived_height = derive.height();
+                            //var derived_height = derive.height();
                             var derived_outer_height = derive.outerHeight(true);
                             var derived_top = derive.position().top;
                             var derived_padding_top = parseInt(derive.css('padding-top'), 10);
@@ -2198,7 +2233,7 @@ jQuery(document).ready(function ($) {
                             }
                         }
                         else {
-                            var source_height = $(source).height();
+                            //var source_height = $(source).height();
                             var source_outer_height = $(source).outerHeight(true);
                             var source_top = $(source).position().top;
                             var source_padding_top = parseInt($(source).css('padding-top'), 10);
@@ -2286,12 +2321,14 @@ jQuery(document).ready(function ($) {
                     $(this).prop("tagName").toLowerCase() == 'h3') {
                     if (($(this).attr('class') && $(this).attr('class').indexOf("fb-display-none") < 0) ||
                         (!$(this).attr('class'))) {
-                        var height = $(this).height();
+                        //var height = $(this).height();
+                        var outer_height = $(this).outerHeight(true);
                         var top = $(this).position().top;
                         var padding_bottom = parseInt($(this).css('padding-bottom'), 10);
                         var margin_bottom = parseInt($(this).css('margin-bottom'), 10);
 
-                        bottom = top + height + padding_bottom + margin_bottom;
+                        //bottom = top + height + padding_bottom + margin_bottom;
+                        bottom = top + outer_height;
                         return false; // break 
                     }
                 }
