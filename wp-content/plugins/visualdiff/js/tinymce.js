@@ -16,6 +16,8 @@ jQuery(document).ready(function ($) {
     var fb_screen_dpi = -1;
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
+        this.updatePublic = updatePublic; // public member of the fb_folding_editor object
+
         var page_boundary_on = false;
         var page_boundary_on_body_background_color = '#ebebeb';
 
@@ -529,12 +531,18 @@ jQuery(document).ready(function ($) {
         }
 
         function update() {
+            updatePublic(true);
+        }
+
+        function updatePublic(derived_callback) {
             setupNewElements();
             setupDerivedElementID(); 
 
-            if (editor.id.indexOf("fb-derived-mce") >= 0) {
-                var callback = flexibook.deriveUpdateCallback;
-                if (callback) callback();
+            if (derived_callback) {
+                if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                    var callback = flexibook.deriveUpdateCallback;
+                    if (callback) callback();
+                }
             }
 
             // setup drag event for derive elements

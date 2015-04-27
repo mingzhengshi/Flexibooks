@@ -89,6 +89,7 @@ jQuery(document).ready(function ($) {
         //var selected = $("#fb-tabs-derives ul>li a").eq(tabIndex).attr('href');
 
         flexibook.active_derive_mce = getActiveDeriveMce();
+        //flexibook.active_derive_mce.plugins.fb_folding_editor.updatePublic(false);
 
         update();
     });
@@ -1511,6 +1512,11 @@ jQuery(document).ready(function ($) {
         updateSourceHighlight();
         updateHTMLDiff();
         updateSVG();
+    }
+
+    function updateMce(mce) {
+        if (!mce) return;
+        mce.plugins.fb_folding_editor.updatePublic(false);
     }
 
     function updateSourceHighlight() {

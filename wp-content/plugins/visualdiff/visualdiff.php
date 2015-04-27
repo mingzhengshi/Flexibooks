@@ -616,6 +616,7 @@ function fb_meta_box_post_revision_callback() {
 // add custom post types
 
 function fb_create_post_type() {
+
     $args = array(
         'labels' => array(
             'name' => 'Sources',
@@ -701,7 +702,6 @@ function fb_create_post_type() {
     );
     
     register_post_type('derived', $args2);
-
 }
 
 //-----------------------------------------------------------------------------------------------
