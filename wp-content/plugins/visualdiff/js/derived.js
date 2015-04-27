@@ -194,6 +194,7 @@ jQuery(document).ready(function ($) {
         var old_doc = old_mce.getDoc();
 
         var derived_doc = getActiveDeriveMce().getDoc();
+        var derived_mce = getActiveDeriveMce();
 
         switch (mcase) {
             // case 1:
@@ -213,7 +214,7 @@ jQuery(document).ready(function ($) {
                     if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
                     if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
 
-                    setNumberOfMergeRequests(post_id, -1);
+                    setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
                 // ignore the changes in the new source document
                 else if (icon == '10007') {
@@ -233,7 +234,7 @@ jQuery(document).ready(function ($) {
                     if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
                     if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
 
-                    setNumberOfMergeRequests(post_id, -1);
+                    setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
 
                 update();
@@ -313,7 +314,7 @@ jQuery(document).ready(function ($) {
                         $(derive_op2).remove();
                     }
 
-                    setNumberOfMergeRequests(post_id, -1);
+                    setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
 
                 update();
@@ -334,7 +335,7 @@ jQuery(document).ready(function ($) {
                     if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
                     if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
 
-                    setNumberOfMergeRequests(post_id, -1);
+                    setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
                 // ignore the changes in the new source document
                 else if (icon == '10007') {
@@ -347,7 +348,7 @@ jQuery(document).ready(function ($) {
 
                     if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
 
-                    setNumberOfMergeRequests(post_id, -1);
+                    setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
 
                 update();
@@ -359,7 +360,7 @@ jQuery(document).ready(function ($) {
 
                     $(source).remove();
                     $(derive).remove();
-                    setNumberOfMergeRequests(post_id, -1);
+                    setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
                 // ignore the changes in the new source document
                 else if (icon == '10007') {
@@ -373,7 +374,7 @@ jQuery(document).ready(function ($) {
                     $(derive).html(clean);
                     $(derive).css('border-style', 'none');
                     if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
-                    setNumberOfMergeRequests(post_id, -1);
+                    setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
 
                 update();
@@ -715,6 +716,7 @@ jQuery(document).ready(function ($) {
         if (!meta_source_versions) return;
 
         for (var i = 0; i < meta_source_versions.length; i++) {
+            meta_source_versions[i].number_of_merges = 0; // ms
             if (meta_source_versions[i].source_post_previous_version != meta_source_versions[i].source_post_current_version) {
                 // only generate merge cases for active derive unit; 
                 // because derive units to a source unit is multiple to one relation
