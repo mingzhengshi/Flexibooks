@@ -119,7 +119,7 @@ jQuery(document).ready(function ($) {
         }
         
         if (floating_sources) {
-            updateSourcePosition(d_id);
+            //updateSourcePosition(d_id);
         }
 
         //update();        
@@ -2090,10 +2090,12 @@ jQuery(document).ready(function ($) {
                         var comp_clean = unwrapDeleteInsertTag(d_clone);
                         var text_comp = (source_clean === comp_clean);
 
+                        var source_post_id = right.attr('data-source-post-id');
+                        var derive_element_id = right.attr('id');
+
                         //-----------------------------
                         // left polygon 
                         var left_polygon_width = 12;
-
                         var pts = [];
                         pts[0] = 0;
                         pts[1] = y_top_left;
@@ -2104,7 +2106,10 @@ jQuery(document).ready(function ($) {
                         pts[6] = left_polygon_width;
                         pts[7] = y_top_left;
                         var id = $(left).attr('id');
-                        addSVGPolygon(pts, id, text_comp, svg_column_id, 0.3);
+                        var polygon = createSVGPolygon(pts, id, text_comp, svg_column_id, 0.24);
+                        if (polygon !== null) {
+                            document.getElementById(svg_column_id).appendChild(polygon);
+                        }
 
                         //-----------------------------
                         // right polygon 
@@ -2118,7 +2123,20 @@ jQuery(document).ready(function ($) {
                         pts[6] = x_right;
                         pts[7] = y_top_right;
                         var id = right.attr('id');
-                        addSVGPolygon(pts, id, text_comp, svg_column_id, 0.3);
+                        var polygon = createSVGPolygon(pts, id, text_comp, svg_column_id, 0.24);
+                        if (polygon !== null) {
+                            $(polygon).click(function () {
+                                var index = meta_source_tabs_post_ids.indexOf(source_post_id);
+                                if (index >= 0) {
+                                    $('#fb-tabs-sources').tabs("option", "active", index);
+                                }
+
+                                if (floating_sources) {
+                                    updateSourcePosition(derive_element_id);
+                                }
+                            });
+                            document.getElementById(svg_column_id).appendChild(polygon);
+                        }
 
                         //-----------------------------
                         // mid polygon 
@@ -2132,7 +2150,10 @@ jQuery(document).ready(function ($) {
                         pts[6] = x_right - left_polygon_width;
                         pts[7] = y_top_right;
                         //var id = right.attr('id');
-                        addSVGPolygon(pts, id, text_comp, svg_column_id, 0.2);
+                        var polygon = createSVGPolygon(pts, id, text_comp, svg_column_id, 0.2);
+                        if (polygon !== null) {
+                            document.getElementById(svg_column_id).appendChild(polygon);
+                        }
                     }
                 }
             }
@@ -2140,8 +2161,8 @@ jQuery(document).ready(function ($) {
         });
     }
 
-    function addSVGPolygon(pts, id, text_comp, svg_column_id, opacity) {
-        if (!pts || pts.length != 8) return;
+    function createSVGPolygon(pts, id, text_comp, svg_column_id, opacity) {
+        if (!pts || pts.length != 8) return null;
 
         var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
         var points = pts[0] + "," + pts[1] + " ";
@@ -2166,7 +2187,7 @@ jQuery(document).ready(function ($) {
         }, function () {
             $(polygon).css("opacity", opacity);
         });
-        document.getElementById(svg_column_id).appendChild(polygon);
+        return polygon;
     }
 
     function cleanWhitespace(element) {
