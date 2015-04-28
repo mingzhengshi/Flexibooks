@@ -44,6 +44,23 @@ add_action('admin_print_scripts', 'fb_admin_print_scripts');
 // include wordpress dashicons
 add_action( 'admin_enqueue_scripts', 'fb_custom_tinymce_dashicons' );
 
+/*
+// edit.php page
+add_action('admin_head-edit.php', 'fb_create_new_derive');
+
+
+function fb_create_new_derive() {
+    $id = get_current_screen()->id;
+
+    if ($id == 'edit-source') {
+?>
+    <a>create new derive</a>
+<?php
+    
+    }
+}
+*/
+
 //-----------------------------------------------------------------------------------------------
 // Called on the admin_enqueue_scripts action, enqueues CSS to 
 // make all WordPress Dashicons available to TinyMCE. This is

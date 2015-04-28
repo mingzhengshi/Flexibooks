@@ -48,7 +48,7 @@ jQuery(document).ready(function ($) {
         delete meta_source_tabs_post_ids[panelId]; // also remove the property
 
         updateSourceTabsInput();
-        updateVisibleMces();
+        updateVisibleMces(true, true);
     });
 
     source_tabs.on("tabsactivate", function (event, ui) {
@@ -60,7 +60,7 @@ jQuery(document).ready(function ($) {
         //setupOldSourceMce();
 
         //generateMergeCases();
-        updateVisibleMces();
+        updateVisibleMces(true, true);
         update();
     });
 
@@ -81,7 +81,7 @@ jQuery(document).ready(function ($) {
 
         flexibook.active_derive_mce = getVisibleDeriveMce();
 
-        updateVisibleMces();
+        updateVisibleMces(true, true);
         update();
     });
 
@@ -93,7 +93,7 @@ jQuery(document).ready(function ($) {
 
         flexibook.active_derive_mce = getVisibleDeriveMce();
  
-        updateVisibleMces();
+        updateVisibleMces(true, true);
         update();
     });
 
@@ -579,7 +579,7 @@ jQuery(document).ready(function ($) {
             $('#fb-old-source-heading').html('Old Source (' + revision_date + ')');
 
             var old_content = getSourceRevisionContent(post_id);
-            old_mce["post_id"] = post_id; // ms
+            old_mce["post_id"] = post_id; 
             if (old_content != null) {
                 old_mce.setContent(old_content);
             }
@@ -659,7 +659,7 @@ jQuery(document).ready(function ($) {
     }
 
     function getSourcePostRevision(post_id, post_modified, total) {
-        // ms - before use ajax, check if the post already exists in the memory
+        // before use ajax, check if the post already exists in the memory
         var exist = false;
 
         if (!exist) {
@@ -677,7 +677,7 @@ jQuery(document).ready(function ($) {
                         fb_previous_source_count++;
                         if (fb_previous_source_count == total) {
                             generateMergeCases();
-                            updateVisibleMces();
+                            updateVisibleMces(true, true);
                         }
                     }
                     else {
@@ -1542,15 +1542,19 @@ jQuery(document).ready(function ($) {
         }
     }
 
-    function updateVisibleMces() {
-        var derive_mce = getVisibleDeriveMce();
-        if (derive_mce) {
-            updateMce(derive_mce);
+    function updateVisibleMces(update_source, update_derive) {
+        if (update_source) {
+            var source_mce = getVisibleSourceMce();
+            if (source_mce) {
+                updateMce(source_mce);
+            }
         }
 
-        var source_mce = getVisibleSourceMce();
-        if (source_mce) {
-            updateMce(source_mce);
+        if (update_derive) {
+            var derive_mce = getVisibleDeriveMce();
+            if (derive_mce) {
+                updateMce(derive_mce);
+            }
         }
     }
 
@@ -1993,6 +1997,7 @@ jQuery(document).ready(function ($) {
         var x_right = $('#' + svg_column_id).width();
 
         var previous_y_bottom_left = null;
+        var previous_y_top_left = null;
         var previous_y_bottom_right = null;
 
         // remove all polygons
@@ -2064,12 +2069,22 @@ jQuery(document).ready(function ($) {
 
                     // update SVG 
                     if (y_bottom_right !== null && y_top_right !== null && y_top_left !== null && y_bottom_left !== null) {
-                        if (previous_y_bottom_left !== null) {
+                        // paragraphs in source may change order in derive
+                        if (previous_y_bottom_left !== null && previous_y_top_left !== null) {
+                            /*
                             if (previous_y_bottom_left > y_top_left) {
                                 //console.log('previous_y_bottom_left: ' + previous_y_bottom_left + '; y_top_left: ' + y_top_left);
                                 y_top_left = previous_y_bottom_left;
                             }
+                            */
+                            if ((y_top_left < previous_y_bottom_left) && (y_top_left > previous_y_top_left)) {
+                                y_top_left = previous_y_bottom_left;
+                            }
+                            else if ((y_bottom_left < previous_y_bottom_left) && (y_bottom_left > previous_y_top_left)) {
+                                y_bottom_left = previous_y_top_left;
+                            }
                         }
+                        previous_y_top_left = y_top_left;
                         previous_y_bottom_left = y_bottom_left;
 
                         if (previous_y_bottom_right !== null) {
@@ -2308,32 +2323,10 @@ jQuery(document).ready(function ($) {
                         if (y_bottom_right >= 0 && y_top_right >= 0 && y_top_left >= 0 && y_bottom_left >= 0) {
                             var t = parseInt(source_mce.original_margin_top, 10) + y_top_right - y_top_left;
                             var height_diff = t - source_mce.current_margin_top;
-                            source_mce.theme.resizeBy(0, height_diff); // when using this method, tinymce cannot autoresize when window is resized for example.
+                            source_mce.theme.resizeBy(0, height_diff); // ms - when using this method, tinymce cannot autoresize when window is resized for example.
                             $(source_mce.getBody()).css('margin-top', source_mce.current_margin_top);
-                            $(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
-
-                            /*
-                            if (y_top_right > y_top_left) {
-                                var t = parseInt(source_tab_original_margin_top, 10) + y_top_right - y_top_left;
-                                //$('#fb-tabs-sources').css('margin-top', t); // static
-                                //$('#fb-tabs-sources').css('margin-top', source_tab_current_margin_top);
-                                //$('#fb-tabs-sources').animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
-
-                                //$('#fb-tabs-sources').css({ 'height': '850px' });
-                                $(source_mce.getBody()).css('margin-top', source_mce.current_margin_top);
-                                $(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
-                            }
-                            else {
-                                update();
-
-                                // apply negative margin on editor.body
-                                var t = parseInt(source_tab_original_margin_top, 10) + y_top_right - y_top_left;
-                                //$(source_doc.body).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
-
-                                $(source_mce.getBody()).css('margin-top', source_mce.current_margin_top);
-                                $(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
-                            }
-                            */
+                            //$(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
+                            $(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: function () { updateVisibleMces(true, false); update(); } });
                         }
                     }
                 }
