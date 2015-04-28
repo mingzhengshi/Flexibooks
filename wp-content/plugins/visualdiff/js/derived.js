@@ -2012,10 +2012,10 @@ jQuery(document).ready(function ($) {
             if (source_id && source_id != 'none') {
                 var left = left_doc.getElementById(source_id);
                 if (left) {
-                    var y_bottom_right = -1;
-                    var y_top_right = -1;
-                    var y_top_left = -1;
-                    var y_bottom_left = -1;
+                    var y_bottom_right = null;
+                    var y_top_right = null;
+                    var y_top_left = null;
+                    var y_bottom_left = null;
 
                     // calculate y_bottom_right and y_top_right
                     if (right.attr('class') && right.attr('class').indexOf("fb-display-none") >= 0) {
@@ -2063,16 +2063,23 @@ jQuery(document).ready(function ($) {
                     }
 
                     // update SVG 
-                    if (y_bottom_right >= 0 && y_top_right >= 0 && y_top_left >= 0 && y_bottom_left >= 0) {
-                        var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-                        var points = "0," + y_top_left + " ";
-                        points += "0," + y_bottom_left + " ";
-                        points += x_right + "," + y_bottom_right + " ";
-                        points += x_right + "," + y_top_right + " ";
-                        polygon.setAttribute("points", points);
-                        polygon.setAttribute("id", right.attr('id'));
-                        //polygon.setAttribute("source_mce_id", source_mce_id);
+                    if (y_bottom_right !== null && y_top_right !== null && y_top_left !== null && y_bottom_left !== null) {
+                        if (previous_y_bottom_left !== null) {
+                            if (previous_y_bottom_left > y_top_left) {
+                                //console.log('previous_y_bottom_left: ' + previous_y_bottom_left + '; y_top_left: ' + y_top_left);
+                                y_top_left = previous_y_bottom_left;
+                            }
+                        }
+                        previous_y_bottom_left = y_bottom_left;
 
+                        if (previous_y_bottom_right !== null) {
+                            if (previous_y_bottom_right > y_top_right) {
+                                y_top_right = previous_y_bottom_right;
+                            }
+                        }
+                        previous_y_bottom_right = y_bottom_right;
+
+                        //-----------------------------
                         var s_clone = $(left).clone();
                         var d_clone = right.clone();
 
@@ -2081,53 +2088,85 @@ jQuery(document).ready(function ($) {
 
                         var source_clean = unwrapDeleteInsertTag(s_clone);
                         var comp_clean = unwrapDeleteInsertTag(d_clone);
+                        var text_comp = (source_clean === comp_clean);
 
-                        //if (left.innerHTML == comp.html()) {
-                        if (source_clean == comp_clean) {
-                            polygon.setAttribute("fill", "green");
-                        }
-                        else {
-                            //console.log("source html != derive html:");
-                            //console.log(source_clean);
-                            //console.log(comp_clean);
-                            polygon.setAttribute("fill", "red");
-                        }
-                        polygon.setAttribute("class", "fb-svg-polygons");
-                        polygon.setAttribute("opacity", 0.2);
-                        //$(polygon).click(function () { svgOnClick($(this).attr('id'), $(this).attr('source_mce_id')); });
-                        $(polygon).hover(function () {
-                            $(polygon).css("cursor", "pointer");
-                            $(polygon).css("opacity", 1);
+                        //-----------------------------
+                        // left polygon 
+                        var left_polygon_width = 12;
 
-                            /*
-                            if (comp_type == 'source_derive') {
-                                $(left).find('span.delete-sd').each(function () { $(this).addClass('delete-highlight-sd'); });
+                        var pts = [];
+                        pts[0] = 0;
+                        pts[1] = y_top_left;
+                        pts[2] = 0;
+                        pts[3] = y_bottom_left;
+                        pts[4] = left_polygon_width;
+                        pts[5] = y_bottom_left;
+                        pts[6] = left_polygon_width;
+                        pts[7] = y_top_left;
+                        var id = $(left).attr('id');
+                        addSVGPolygon(pts, id, text_comp, svg_column_id, 0.3);
 
-                                right.find('span.insert').each(function () { $(this).addClass('insert-highlight-sd'); });
-                            }
-                            else if (comp_type == 'source_source') {
-                                $(left).find('span.insert').each(function () { $(this).addClass('insert-highlight-ss'); });
+                        //-----------------------------
+                        // right polygon 
+                        var pts = [];
+                        pts[0] = x_right - left_polygon_width;
+                        pts[1] = y_top_right;
+                        pts[2] = x_right - left_polygon_width;
+                        pts[3] = y_bottom_right;
+                        pts[4] = x_right;
+                        pts[5] = y_bottom_right;
+                        pts[6] = x_right;
+                        pts[7] = y_top_right;
+                        var id = right.attr('id');
+                        addSVGPolygon(pts, id, text_comp, svg_column_id, 0.3);
 
-                                right.find('span.delete-ss').each(function () { $(this).addClass('delete-highlight-ss'); });
-                            }
-                            */
-                        }, function () {
-                            $(polygon).css("opacity", 0.2);
-
-                            /*
-                            $(left).find('span.insert').each(function () { $(this).removeClass('insert-highlight-ss insert-highlight-sd'); });
-                            $(left).find('span.delete').each(function () { $(this).removeClass('delete-highlight-ss delete-highlight-sd'); });
-
-                            right.find('span.insert').each(function () { $(this).removeClass('insert-highlight-ss insert-highlight-sd'); });
-                            right.find('span.delete').each(function () { $(this).removeClass('delete-highlight-ss delete-highlight-sd'); });
-                            */
-                        });
-                        document.getElementById(svg_column_id).appendChild(polygon);
+                        //-----------------------------
+                        // mid polygon 
+                        var pts = [];
+                        pts[0] = left_polygon_width;
+                        pts[1] = y_top_left;
+                        pts[2] = left_polygon_width;
+                        pts[3] = y_bottom_left;
+                        pts[4] = x_right - left_polygon_width;
+                        pts[5] = y_bottom_right;
+                        pts[6] = x_right - left_polygon_width;
+                        pts[7] = y_top_right;
+                        //var id = right.attr('id');
+                        addSVGPolygon(pts, id, text_comp, svg_column_id, 0.2);
                     }
                 }
             }
 
         });
+    }
+
+    function addSVGPolygon(pts, id, text_comp, svg_column_id, opacity) {
+        if (!pts || pts.length != 8) return;
+
+        var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        var points = pts[0] + "," + pts[1] + " ";
+        points += pts[2] + "," + pts[3] + " ";
+        points += pts[4] + "," + pts[5] + " ";
+        points += pts[6] + "," + pts[7] + " ";
+
+        polygon.setAttribute("points", points);
+        polygon.setAttribute("id", id);
+
+        if (text_comp) {
+            polygon.setAttribute("fill", "green");
+        }
+        else {
+            polygon.setAttribute("fill", "red");
+        }
+        polygon.setAttribute("class", "fb-svg-polygons");
+        polygon.setAttribute("opacity", opacity);
+        $(polygon).hover(function () {
+            $(polygon).css("cursor", "pointer");
+            $(polygon).css("opacity", 1);
+        }, function () {
+            $(polygon).css("opacity", opacity);
+        });
+        document.getElementById(svg_column_id).appendChild(polygon);
     }
 
     function cleanWhitespace(element) {
