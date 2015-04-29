@@ -14,6 +14,7 @@ jQuery(document).ready(function ($) {
     var fb_floating_sources = true;
     var highlighting_source = false;
     var fb_merge_mode = true;
+    var fb_teacher_student_version = 'teacher';
 
     //var source_tab_original_margin_top = -1;
     //var source_tab_current_margin_top = -1;
@@ -407,12 +408,43 @@ jQuery(document).ready(function ($) {
 
     $('#fb-buttonset-teacher-student').buttonset();
     $('#fb-buttonset-teacher-student-t').click(function () {
+        if (fb_teacher_student_version === 'teacher') return;
 
+        fb_teacher_student_version = 'teacher';
+        toggleStudentTeacherVersion();
     });
 
     $('#fb-buttonset-teacher-student-s').click(function () {
+        if (fb_teacher_student_version === 'student') return;
 
+        fb_teacher_student_version = 'student';
+        toggleStudentTeacherVersion();
     });
+
+    function toggleStudentTeacherVersion() {
+        if (fb_teacher_student_version === 'student') {
+            for (var e = 0; e < tinymce.editors.length; e++) {
+                if (tinymce.editors[e].id.indexOf("fb-derived-mce") >= 0) {
+                    var mce = tinymce.editors[e];
+                    $(mce.getBody()).find('.fb-teacher').each(function () {
+                        $(this).addClass('fb-student');
+                        $(this).removeClass('fb-teacher');
+                    });
+                }
+            }
+        }
+        else if (fb_teacher_student_version === 'teacher') {
+            for (var e = 0; e < tinymce.editors.length; e++) {
+                if (tinymce.editors[e].id.indexOf("fb-derived-mce") >= 0) {
+                    var mce = tinymce.editors[e];
+                    $(mce.getBody()).find('.fb-student').each(function () {
+                        $(this).addClass('fb-teacher');
+                        $(this).removeClass('fb-student');
+                    });
+                }
+            }
+        }
+    }
 
     $("#publish").click(function () {
         $('#fb-tabs-derives .ui-tabs-nav a').each(function (index) {
@@ -454,29 +486,6 @@ jQuery(document).ready(function ($) {
 
         update();
     });
-
-    /*
-    $("#fb-button-floating-source").button().click(function () {
-        var this_button = $("#fb-button-floating-source");
-        if (this_button.attr('value') == "Turn Off Floating") {
-            this_button.attr('value', 'Turn On Floating');
-            fb_floating_sources = false;
-
-            for (var e = 0; e < tinymce.editors.length; e++) {
-                if (tinymce.editors[e].id.indexOf("fb-source-mce") >= 0) {
-                    var mce = tinymce.editors[e];
-                    $(mce.getBody()).css('margin-top', mce.original_margin_top);
-                }
-            }
-
-            update();
-        }
-        else if (this_button.attr('value') == "Turn On Floating") {
-            this_button.attr('value', 'Turn Off Floating');
-            fb_floating_sources = true;
-        }
-    });
-    */
 
     $("#fb-button-highlight-source").button().click(function () {
         var this_button = $("#fb-button-highlight-source");
