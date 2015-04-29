@@ -6,7 +6,7 @@ Description: Visual Display of Revision Differences
 
 require_once( 'simple_html_dom.php' );
 
-add_action( 'admin_menu', 'fb_add_revision_compare_page' );
+//add_action( 'admin_menu', 'fb_add_revision_compare_page' );
 add_action( 'admin_head', 'fb_derived_admin_head' );
 add_action( 'admin_footer', 'fb_derived_admin_footer' );
 add_action( 'admin_footer', 'fb_admin_footer' );
@@ -14,7 +14,7 @@ add_action( 'init', 'fb_create_post_type' );
 
 //add_action( 'add_meta_boxes', 'fb_add_meta_box_source_list' );
 add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
-add_action( 'add_meta_boxes', 'fb_add_meta_box_revision' );
+//add_action( 'add_meta_boxes', 'fb_add_meta_box_revision' );
 
 add_action( 'edit_page_form', 'fb_add_post_box_derived_document' );
 add_action( 'edit_form_advanced', 'fb_add_post_box_derived_document' );
@@ -44,19 +44,21 @@ add_action('admin_print_scripts', 'fb_admin_print_scripts');
 // include wordpress dashicons
 add_action( 'admin_enqueue_scripts', 'fb_custom_tinymce_dashicons' );
 
-/*
 // edit.php page
+/*
 add_action('admin_head-edit.php', 'fb_create_new_derive');
-
 
 function fb_create_new_derive() {
     $id = get_current_screen()->id;
 
     if ($id == 'edit-source') {
 ?>
-    <a>create new derive</a>
-<?php
-    
+    <script type="text/javascript">
+        jQuery(document).ready(function ($) {
+            $('.wrap h2').append('<a href="" class="add-new-h2">Create Derive</a>');
+        });
+    </script>
+    <?php 
     }
 }
 */
@@ -477,7 +479,11 @@ function fb_post_box_derived_document_callback() {
         <div> 
             <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" style="margin-right:10px"/>      
             <!--input id="fb-button-show-previous-source" type="button" value="Show Previous Source" class="button-secondary" style="margin-right:10px"/-->   
-            <input id="fb-button-floating-source" type="button" value="Turn Off Floating" class="button-secondary" style="margin-right:10px">
+            <!--input id="fb-button-floating-source" type="button" value="Turn Off Floating" class="button-secondary" style="margin-right:10px"-->
+            <span id="fb-buttonset-floating-source" style="margin-right:10px">
+                <input type="radio" id="fb-buttonset-floating-source-on" name="fb-buttonset-floating-source" checked="checked"><label for="fb-buttonset-floating-source-on">Floating On</label>
+                <input type="radio" id="fb-buttonset-floating-source-off" name="fb-buttonset-floating-source"><label for="fb-buttonset-floating-source-off">Off</label>
+            </span>
             <input id="fb-button-highlight-source" type="button" value="Turn On Source Highlight" class="button-secondary">
             <!--textarea id="fb-invisible-editor" style="display:none;"></textarea-->
             <div style="display:none;">
@@ -501,14 +507,14 @@ function fb_post_box_derived_document_callback() {
         <!--h3 style="margin-bottom:8px">Derived Document</h3-->
         <div> 
             <input id="fb-button-add-derive-document" type="button" value="Add Derive Section" class="button-secondary" style="margin-right:10px"/>    
-            <span id="fb-buttonset-toggle-merge">
+            <span id="fb-buttonset-toggle-merge" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-toggle-merge-on" name="fb-buttonset-toggle-merge" checked="checked"><label for="fb-buttonset-toggle-merge-on">Merge On</label>
                 <input type="radio" id="fb-buttonset-toggle-merge-off" name="fb-buttonset-toggle-merge"><label for="fb-buttonset-toggle-merge-off">Off</label>
             </span>
-            <select id="fb-select-teacher-student-version">
-              <option>Teacher Version</option>
-              <option>Student Version</option>
-            </select>  
+            <span id="fb-buttonset-teacher-student" style="margin-right:10px">
+                <input type="radio" id="fb-buttonset-teacher-student-t" name="fb-buttonset-teacher-student" checked="checked"><label for="fb-buttonset-teacher-student-t">Teacher</label>
+                <input type="radio" id="fb-buttonset-teacher-student-s" name="fb-buttonset-teacher-student"><label for="fb-buttonset-teacher-student-s">Student</label>
+            </span>
         </div>
         <div id="fb-tabs-derives" style="margin-top:14px;" class="fb-tabs-sources-display-none">
             <ul id="fb-ul-derive-tabs">

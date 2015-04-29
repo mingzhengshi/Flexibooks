@@ -338,14 +338,14 @@ jQuery(document).ready(function ($) {
 
             // derived editor only 
             // change view of source document according to derive selections - move to derived.js
-            
+            /*
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 var post_id = $(node).attr('data-source-post-id');
 
                 var callback = flexibook.derivedElementMouseUpCallback;
                 if (callback) callback(post_id, id);
             }
-            
+            */
 
             //-----------------------------------------------------------------------------------------------
             // edit icons
