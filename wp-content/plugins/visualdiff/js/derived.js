@@ -2070,7 +2070,8 @@ jQuery(document).ready(function ($) {
                 // check if left element is visible
                 var left = left_doc.getElementById(source_id);
                 if (!left) {
-                    var right_html = unwrapDeleteInsertTagjQuery(right);
+                    var right_clone = right.clone();
+                    var right_html = unwrapDeleteInsertTagjQuery(right_clone);
                     right_html = right_html.replace(/&nbsp;/ig, ' ').replace(/<br>/g, '');
                     if (right_html.trim() !== '') {
                         // update SVG 
