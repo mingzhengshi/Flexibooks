@@ -413,7 +413,7 @@ function fb_post_box_derived_document_callback() {
     
 ?>
 <div id="fb-source-selection-dialog" title="Source Documents">
-    <ol id="fb-selectable-source-list">
+    <ol id="fb-selectable-source-list" style="margin-bottom:15px">
 <?php
         $args = array( 'post_type' => 'source' );
         $source_posts = get_posts( $args );
@@ -425,6 +425,7 @@ function fb_post_box_derived_document_callback() {
         }    
 ?> 
     </ol>
+    <input type="checkbox" id="fb-checkbox-add-all-selected-sources" style="margin-left:5px"/>Add all selected sources to derive
 </div>
 
 <div id="fb-add-derive-dialog" title="Add Derive Documents">

@@ -421,31 +421,6 @@ jQuery(document).ready(function ($) {
         toggleStudentTeacherVersion();
     });
 
-    function toggleStudentTeacherVersion() {
-        if (fb_teacher_student_version === 'student') {
-            for (var e = 0; e < tinymce.editors.length; e++) {
-                if (tinymce.editors[e].id.indexOf("fb-derived-mce") >= 0) {
-                    var mce = tinymce.editors[e];
-                    $(mce.getBody()).find('.fb-teacher').each(function () {
-                        $(this).addClass('fb-student');
-                        $(this).removeClass('fb-teacher');
-                    });
-                }
-            }
-        }
-        else if (fb_teacher_student_version === 'teacher') {
-            for (var e = 0; e < tinymce.editors.length; e++) {
-                if (tinymce.editors[e].id.indexOf("fb-derived-mce") >= 0) {
-                    var mce = tinymce.editors[e];
-                    $(mce.getBody()).find('.fb-student').each(function () {
-                        $(this).addClass('fb-teacher');
-                        $(this).removeClass('fb-student');
-                    });
-                }
-            }
-        }
-    }
-
     $("#publish").click(function () {
         $('#fb-tabs-derives .ui-tabs-nav a').each(function (index) {
             var tab_id = $(this).attr('href');
@@ -509,6 +484,31 @@ jQuery(document).ready(function ($) {
     flexibook.regShowPreviousSourceIconClickCallback(function () {
         togglePreviousSource();
     });
+
+    function toggleStudentTeacherVersion() {
+        if (fb_teacher_student_version === 'student') {
+            for (var e = 0; e < tinymce.editors.length; e++) {
+                if (tinymce.editors[e].id.indexOf("fb-derived-mce") >= 0) {
+                    var mce = tinymce.editors[e];
+                    $(mce.getBody()).find('.fb-teacher').each(function () {
+                        $(this).addClass('fb-student');
+                        $(this).removeClass('fb-teacher');
+                    });
+                }
+            }
+        }
+        else if (fb_teacher_student_version === 'teacher') {
+            for (var e = 0; e < tinymce.editors.length; e++) {
+                if (tinymce.editors[e].id.indexOf("fb-derived-mce") >= 0) {
+                    var mce = tinymce.editors[e];
+                    $(mce.getBody()).find('.fb-student').each(function () {
+                        $(this).addClass('fb-teacher');
+                        $(this).removeClass('fb-student');
+                    });
+                }
+            }
+        }
+    }
 
     function toggleMergeMode() {
         if (fb_merge_mode) {
@@ -1310,10 +1310,12 @@ jQuery(document).ready(function ($) {
         width: "25%",
         buttons: {
             Open: function () {
+                var checked = document.getElementById("fb-checkbox-add-all-selected-sources").checked;
+
                 //addTab();
                 for (var i = 0; i < selected_sources.length; i++) {
                     var post_id = selected_sources[i];
-                    getSourcePost(post_id);
+                    getSourcePost(post_id, checked);
                 }
                 $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
                 $(this).dialog("close");
@@ -1371,7 +1373,7 @@ jQuery(document).ready(function ($) {
         fb_add_derive_dialog.dialog("open");
     });
 
-    function getSourcePost(post_id) {
+    function getSourcePost(post_id, add_to_derive) {
         $.post(ajaxurl,
             {
                 'action': 'fb_source_query',
@@ -1382,6 +1384,14 @@ jQuery(document).ready(function ($) {
                     //var outer_text = data.htmltext;
                     var obj = JSON.parse(data);
                     addSourceTab(obj.title, obj.content, obj.modified, post_id);
+                    if (add_to_derive) {
+                        var derive_mce = addDeriveTab(obj.title, obj.content);
+                        if (derive_mce) {
+                            $(derive_mce.getBody()).children().each(function () {
+                                $(this).attr("data-source-post-id", post_id);
+                            });
+                        }
+                    }
                 }
                 else {
                 }
@@ -1485,6 +1495,8 @@ jQuery(document).ready(function ($) {
             }
         });
         tab_counter_derive++;
+
+        return derive_mce;
     }
 
     function getVisibleDeriveMce() {
