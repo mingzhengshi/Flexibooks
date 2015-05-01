@@ -490,7 +490,7 @@ function fb_post_box_derived_document_callback() {
             <div style="display:none;">
 <?php 
                 //$derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
-                $derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
+                $derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => true, 'wp_autoresize_on' => false, 'height' => 800)); // test
                 wp_editor('', 'fb-invisible-editor', $derived_editor_args);      
 ?>  
             </div>

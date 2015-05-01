@@ -1329,12 +1329,14 @@ jQuery(document).ready(function ($) {
             Cancel: function () {
                 selected_sources.splice(0);
                 $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
+                document.getElementById("fb-checkbox-add-all-selected-sources").checked = false;
                 $(this).dialog("close");
             },
         },
         close: function () {
             selected_sources.splice(0);
             $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
+            document.getElementById("fb-checkbox-add-all-selected-sources").checked = false;
         }
     });
 

@@ -23,6 +23,11 @@ jQuery(document).ready(function ($) {
 
         // events
         editor.on('init', function () {
+
+            editor.settings.wp_autoresize_on = false; // ms - test
+            editor.execCommand('wpAutoResizeOff'); // ms 
+            editor.settings.resize = true; // ms 
+
             // test dpi
             $(editor.getBody()).append('<div id="div_dpi" class="dpi_test" style="width:1in;visible:hidden;padding:0px"></div>');
             fb_screen_dpi = editor.getDoc().getElementById('div_dpi').offsetWidth;
