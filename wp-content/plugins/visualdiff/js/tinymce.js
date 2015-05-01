@@ -24,9 +24,24 @@ jQuery(document).ready(function ($) {
         // events
         editor.on('init', function () {
 
-            editor.settings.wp_autoresize_on = false; // ms - test
-            editor.execCommand('wpAutoResizeOff'); // ms 
-            editor.settings.resize = true; // ms 
+            //editor.settings.wp_autoresize_on = false; // ms - test
+            //editor.execCommand('wpAutoResizeOff'); // ms 
+            //editor.settings.resize = true; // ms 
+
+            // The Element.scrollTop property gets or sets the number of pixels that the content of an element is scrolled upward
+            $(editor.getBody()).on('mousewheel', function (e) {
+                var w = $(this).get(0);
+                var delta = e.originalEvent.wheelDelta;
+                console.log("w.get(0).scrollHeight: " + w.scrollHeight);
+                console.log("scrollTop: " + w.scrollTop);
+                if (delta > 0 && w.scrollTop === 0) {
+                    e.preventDefault();
+                }
+                else if (delta < 0 && w.scrollHeight - w.scrollTop === w.clientHeight) { // need to fix
+                    e.preventDefault();
+                }
+                update()
+            });
 
             // test dpi
             $(editor.getBody()).append('<div id="div_dpi" class="dpi_test" style="width:1in;visible:hidden;padding:0px"></div>');
@@ -600,8 +615,28 @@ jQuery(document).ready(function ($) {
             // add svg element
             $(editor.getBody()).find('.fb_tinymce_left_column_svg').remove();
             var id = editor.id + '-svg';
-            //$(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column_svg" style="position:absolute; top:0px; left:0px; height: 100%; width: 50px; z-index: -1;" xmlns="http://www.w3.org/2000/svg"/></svg>');
-            $(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column_svg" style="position:absolute; top:0px; left:0px; height: 100%; width: 100%; z-index: -1;" xmlns="http://www.w3.org/2000/svg"/></svg>'); // ms - test
+            var body_height = editor.getBody().offsetHeight; // the actual html body height
+            var editor_height = 1;
+            var body = editor.getBody();
+            var percent = body_height * 100 / editor_height;
+            if (percent < 100) percent = 100;
+            percent = percent + '%';
+
+
+
+
+
+
+
+
+
+
+
+            //...
+            percent = '100%';
+
+            //$(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column_svg" style="position:absolute; top:0px; left:0px; height: 100%; width: 100%; z-index: -1;" xmlns="http://www.w3.org/2000/svg"/></svg>'); // ms - test
+            $(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column_svg" style="position:absolute; top:0px; left:0px; height:"' + percent + '"; width:100%; z-index: -1;" xmlns="http://www.w3.org/2000/svg"/></svg>'); // ms - test
 
             // reset icons
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').remove(); // clear all existing icons
@@ -945,8 +980,6 @@ jQuery(document).ready(function ($) {
                     if (element.prop("tagName").toLowerCase() == 'table' && !$(this).attr('id')) {
 
                     }
-
-
 
                     // derive document
                     if (editor.id.indexOf("fb-derived-mce") >= 0) {

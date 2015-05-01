@@ -37,6 +37,7 @@ add_filter( 'mce_external_plugins', 'fb_tinymce_plugin' );
 add_filter( 'mce_buttons_2', 'fb_mce_editor_buttons_second_row' );
 add_filter( 'mce_buttons_3', 'fb_mce_editor_buttons_third_row' );
 add_filter( 'tiny_mce_before_init', 'fb_mce_before_init' );
+add_filter( 'tiny_mce_before_init', 'fb_mce_settings' );
 
 // add js
 add_action('admin_print_scripts', 'fb_admin_print_scripts');
@@ -121,6 +122,11 @@ function fb_mce_editor_buttons_third_row( $buttons ) {
         array_push( $buttons, 'fb_custom_button_page_boundary' );
         return $buttons;
     }
+}
+
+function fb_mce_settings( $init ) {
+	//unset( $init['wp_autoresize_on'] );
+	return $init;
 }
 
 function fb_mce_before_init( $settings ) {
