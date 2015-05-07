@@ -2050,6 +2050,9 @@ jQuery(document).ready(function ($) {
         var previous_y_top_left = null;
         var previous_y_bottom_right = null;
 
+        var left_scrollTop = left_doc.body.scrollTop;
+        var right_scrollTop = right_doc.body.scrollTop;
+
         // remove all polygons
         $('#' + svg_column_id).find('.fb-svg-polygons').remove();
 
@@ -2109,6 +2112,9 @@ jQuery(document).ready(function ($) {
                             var source_post_id = right.attr('data-source-post-id');
                             var derive_element_id = right.attr('id');
 
+                            y_top_right -= right_scrollTop;
+                            y_bottom_right -= right_scrollTop;
+
                             //-----------------------------
                             // right polygon 
                             var pts = [];
@@ -2167,6 +2173,11 @@ jQuery(document).ready(function ($) {
 
                     // update SVG 
                     if (y_bottom_right !== null && y_top_right !== null && y_top_left !== null && y_bottom_left !== null) {
+                        y_top_right -= right_scrollTop;
+                        y_bottom_right -= right_scrollTop;
+                        y_top_left -= left_scrollTop;
+                        y_bottom_left -= left_scrollTop;
+
                         // paragraphs in source may change order in derive
                         if (previous_y_bottom_left !== null && previous_y_top_left !== null) {
                             /*
