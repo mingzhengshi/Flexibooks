@@ -440,7 +440,7 @@ function fb_post_box_derived_document_callback() {
 
 <div id="fb-data-derive-mces" style="display:none;">
 <?php
-    $index_array = [];
+    $index_array = array();
     foreach($custom as $k => $v) {
         if(strpos($k, "_fb-derived-mce-tab-index") === 0) {
             $index_array[$k] = $v;
@@ -581,7 +581,7 @@ function fb_save_document($postid, $post){
 function fb_filter_post_data($data , $postarr) {
     if ($data['post_type'] == 'source') {
         $post_content = $data['post_content'];
-        if (!isset($post_content) || strlen($post_content) <= 0) return;
+        if (!isset($post_content) || strlen($post_content) <= 0) return $data;
         
         $html_parser = str_get_html($post_content);            
         
