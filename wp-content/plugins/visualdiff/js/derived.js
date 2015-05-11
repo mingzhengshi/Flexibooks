@@ -2366,6 +2366,9 @@ jQuery(document).ready(function ($) {
 
         var svg_container_top = $('#fb-td-mid-column').offset().top;
 
+        var left_scrollTop = source_doc.body.scrollTop;
+        var right_scrollTop = derive_doc.body.scrollTop;
+
         $(derive_doc.body).children().each(function (index) {
             var derive = $(this);
             if (derive.attr('id') == d_id) {
@@ -2376,10 +2379,10 @@ jQuery(document).ready(function ($) {
                 if (source_id && source_id != 'none') {
                     var source = source_doc.getElementById(source_id);
                     if (source) {
-                        var y_bottom_right = -1;
-                        var y_top_right = -1;
-                        var y_top_left = -1;
-                        var y_bottom_left = -1;
+                        var y_bottom_right = null;
+                        var y_top_right = null;
+                        var y_top_left = null;
+                        var y_bottom_left = null;
 
                         // calculate y_bottom_right and y_top_right
                         if (derive.attr('class') && derive.attr('class').indexOf("fb-display-none") >= 0) {
@@ -2425,13 +2428,20 @@ jQuery(document).ready(function ($) {
                             y_bottom_left = source_top + source_outer_height;
                         }
 
-                        if (y_bottom_right >= 0 && y_top_right >= 0 && y_top_left >= 0 && y_bottom_left >= 0) {
-                            var t = parseInt(source_mce.original_margin_top, 10) + y_top_right - y_top_left;
-                            var height_diff = t - source_mce.current_margin_top;
-                            source_mce.theme.resizeBy(0, height_diff); // ms - when using this method, tinymce cannot autoresize when window is resized for example.
-                            $(source_mce.getBody()).css('margin-top', source_mce.current_margin_top);
-                            //$(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: update });
-                            $(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: function () { updateVisibleMces(true, false); update(); } });
+                        if (y_bottom_right !== null && y_top_right !== null && y_top_left !== null && y_bottom_left !== null) {
+                            y_top_right -= right_scrollTop;
+                            y_top_left -= left_scrollTop;
+
+                            var t = left_scrollTop - (y_top_right - y_top_left);
+                            if (t < 0) t = 0;
+
+                            $(source_mce.getBody()).animate({ 'scrollTop': t }, { duration: 'medium', easing: 'swing', complete: function () { updateVisibleMces(true, false); update(); } });
+
+                            // use margin top
+                            //var height_diff = t - source_mce.current_margin_top;
+                            //source_mce.theme.resizeBy(0, height_diff); // ms - when using this method, tinymce cannot autoresize when window is resized for example.
+                            //$(source_mce.getBody()).css('margin-top', source_mce.current_margin_top);
+                            //$(source_mce.getBody()).animate({ 'margin-top': t }, { duration: 'medium', easing: 'swing', complete: function () { updateVisibleMces(true, false); update(); } });
                         }
                     }
                 }
