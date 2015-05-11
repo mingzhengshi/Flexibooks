@@ -20,6 +20,8 @@ jQuery(document).ready(function ($) {
 
         var page_boundary_on = false;
         var page_boundary_on_body_background_color = '#ebebeb';
+        var on_mouse_up = false;
+        var mouse_wheel_timer = null;
 
         // events
         editor.on('init', function () {
@@ -28,21 +30,32 @@ jQuery(document).ready(function ($) {
             //editor.execCommand('wpAutoResizeOff'); // ms 
             //editor.settings.resize = true; // ms 
 
-            // The Element.scrollTop property gets or sets the number of pixels that the content of an element is scrolled upward
-            $(editor.getBody()).on('mousewheel', function (e) {
-                var w = $(this).get(0);
-                var delta = e.originalEvent.wheelDelta;
-                var editor_height = editor.getContentAreaContainer().offsetHeight;
-                console.log("w.get(0).scrollHeight: " + w.scrollHeight);
-                console.log("scrollTop: " + w.scrollTop);
-                if (delta > 0 && w.scrollTop === 0) {
-                    e.preventDefault();
-                }
-                else if (delta < 0 && w.scrollHeight - w.scrollTop === editor_height) { 
-                    e.preventDefault();
-                }
-                //update(); // called before page scroll
-            });
+            if ((editor.id.indexOf("fb-derived-mce") >= 0) || (editor.id.indexOf("fb-source-mce") >= 0)) {
+                // The Element.scrollTop property gets or sets the number of pixels that the content of an element is scrolled upward
+                $(editor.getBody()).on('mousewheel', function (e) {
+                    var w = $(this).get(0);
+                    var delta = e.originalEvent.wheelDelta;
+                    var editor_height = editor.getContentAreaContainer().offsetHeight;
+                    //console.log("mousewheel: w.get(0).scrollHeight: " + w.scrollHeight);
+                    //console.log("mousewheel: scrollTop: " + w.scrollTop);
+                    if (delta > 0 && w.scrollTop === 0) {
+                        e.preventDefault();
+                    }
+                    else if (delta < 0 && w.scrollHeight - w.scrollTop === editor_height) {
+                        e.preventDefault();
+                    }
+
+                    //update(); // called before page scroll
+                    if (mouse_wheel_timer !== null) {
+                        clearTimeout(mouse_wheel_timer);
+                    }
+                    mouse_wheel_timer = setTimeout(onMouseWheelEnd, 250);
+                });
+
+                $(editor.getDoc()).on("scrollstop", function () {
+                    console.log("scrollstop: ");
+                });
+            }
 
             // test dpi
             //$(editor.getBody()).append('<div id="div_dpi" class="dpi_test" style="width:1in;visible:hidden;padding:0px"></div>');
@@ -184,12 +197,15 @@ jQuery(document).ready(function ($) {
 
         editor.on('mouseup', function (e) {
             if (on_icon_hover) return;
-            //update(); // use update function will setup icon events twice
+            on_mouse_up = true;
+            update(); 
+            /*
             resetIcons();
-            onMouseUp(e);
+            onMouseUp();
             setupIconEvents();
             drawLines();
             drawLinesMergeElements();
+            */
         });
 
         // add custom buttons
@@ -211,6 +227,10 @@ jQuery(document).ready(function ($) {
                 togglePageBoundary();
             }
         });
+
+        function onMouseWheelEnd() {
+            update();
+        }
 
         function togglePageBoundary() {
             page_boundary_on = !page_boundary_on;
@@ -331,7 +351,7 @@ jQuery(document).ready(function ($) {
             return overlap;
         }
 
-        function onMouseUp(e) {
+        function onMouseUp() {
             console.log("tinymce mouse up event");
 
             // the selected node can be an insert or delete tags or other inline tags
@@ -562,7 +582,7 @@ jQuery(document).ready(function ($) {
             setupDerivedElementID(); 
 
             if (derived_callback) {
-                if (editor.id.indexOf("fb-derived-mce") >= 0) {
+                if ((editor.id.indexOf("fb-derived-mce") >= 0) || (editor.id.indexOf("fb-source-mce") >= 0)) {
                     var callback = flexibook.deriveUpdateCallback;
                     if (callback) callback();
                 }
@@ -584,12 +604,15 @@ jQuery(document).ready(function ($) {
                         $(clone).css('opacity', 0.5);
 
                         $(clone).insertAfter(item);
-                        //console.log("mouse enter: " + item.attr('id'));
                     }
                 });
             }
 
             resetIcons();
+            if (on_mouse_up) {
+                onMouseUp();
+                on_mouse_up = false;
+            }
             setupIconEvents();
             drawLines();
             drawLinesMergeElements();

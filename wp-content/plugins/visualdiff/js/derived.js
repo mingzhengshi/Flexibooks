@@ -1471,7 +1471,7 @@ jQuery(document).ready(function ($) {
         derive_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
 
         //$("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
-        $("#" + tab_id).append("<textarea id='" + mce_id + "' name='" + mce_id + "' style='height:600px'></textarea>"); // save to database
+        $("#" + tab_id).append("<textarea id='" + mce_id + "' name='" + mce_id + "' style='height:800px'></textarea>"); // save to database
         $("#" + tab_id).append("<input id='" + mce_title + "' name='" + mce_title + "' value='" + title + "' style='display:none'/>"); // save to database
         $("#" + tab_id).append("<input id='" + mce_tab_index + "' name='" + mce_tab_index + "' style='display:none'/>"); // save to database; the value will be set when save button is clicked
         //tinymce.init();
