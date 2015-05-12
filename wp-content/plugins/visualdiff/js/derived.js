@@ -2111,6 +2111,7 @@ jQuery(document).ready(function ($) {
 
                             var source_post_id = right.attr('data-source-post-id');
                             var derive_element_id = right.attr('id');
+                            var classes = right.attr('id');
 
                             y_top_right -= right_scrollTop;
                             y_bottom_right -= right_scrollTop;
@@ -2127,7 +2128,7 @@ jQuery(document).ready(function ($) {
                             pts[6] = x_right;
                             pts[7] = y_top_right;
                             var id = right.attr('id');
-                            var polygon = createSVGPolygon(pts, id, 'grey', svg_column_id, 0.24);
+                            var polygon = createSVGPolygon(pts, id, classes, 'grey', svg_column_id, 0.24);
                             if (polygon !== null) {
                                 $(polygon).click(function () {
                                     var index = meta_source_tabs_post_ids.indexOf(source_post_id);
@@ -2219,6 +2220,7 @@ jQuery(document).ready(function ($) {
 
                         var source_post_id = right.attr('data-source-post-id');
                         var derive_element_id = right.attr('id');
+                        var classes = right.attr('id') + ' ' + $(left).attr('id');
 
                         //-----------------------------
                         // left polygon 
@@ -2232,7 +2234,7 @@ jQuery(document).ready(function ($) {
                         pts[6] = left_polygon_width;
                         pts[7] = y_top_left;
                         var id = $(left).attr('id');
-                        var polygon = createSVGPolygon(pts, id, fill, svg_column_id, 0.24);
+                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.24);
                         if (polygon !== null) {
                             document.getElementById(svg_column_id).appendChild(polygon);
                         }
@@ -2249,7 +2251,7 @@ jQuery(document).ready(function ($) {
                         pts[6] = x_right;
                         pts[7] = y_top_right;
                         var id = right.attr('id');
-                        var polygon = createSVGPolygon(pts, id, fill, svg_column_id, 0.24);
+                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.24);
                         if (polygon !== null) {
                             $(polygon).click(function () {
                                 var index = meta_source_tabs_post_ids.indexOf(source_post_id);
@@ -2276,7 +2278,7 @@ jQuery(document).ready(function ($) {
                         pts[6] = x_right - left_polygon_width;
                         pts[7] = y_top_right;
                         //var id = right.attr('id');
-                        var polygon = createSVGPolygon(pts, id, fill, svg_column_id, 0.2);
+                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.2);
                         if (polygon !== null) {
                             document.getElementById(svg_column_id).appendChild(polygon);
                         }
@@ -2287,7 +2289,7 @@ jQuery(document).ready(function ($) {
         });
     }
 
-    function createSVGPolygon(pts, id, fill, svg_column_id, opacity) {
+    function createSVGPolygon(pts, id, classes, fill, svg_column_id, opacity) {
         if (!pts || pts.length != 8) return null;
 
         var polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
@@ -2299,13 +2301,27 @@ jQuery(document).ready(function ($) {
         polygon.setAttribute("points", points);
         polygon.setAttribute("id", id);
         polygon.setAttribute("fill", fill);
-        polygon.setAttribute("class", "fb-svg-polygons");
+        polygon.setAttribute("class", "fb-svg-polygons " + classes);
         polygon.setAttribute("opacity", opacity);
+        /*
         $(polygon).hover(function () {
             $(polygon).css("cursor", "pointer");
             $(polygon).css("opacity", 1);
         }, function () {
             $(polygon).css("opacity", opacity);
+        });
+        */
+        $(polygon).hover(function () {
+            $(polygon).css("cursor", "pointer");
+            $('.' + id).each(function () {
+                var opacity = $(this).css("opacity");
+                $(this).css("opacity", opacity * 2);
+            });
+        }, function () {
+            $('.' + id).each(function () {
+                var opacity = $(this).css("opacity");
+                $(this).css("opacity", opacity / 2);
+            });
         });
         return polygon;
     }
