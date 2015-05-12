@@ -2236,6 +2236,9 @@ jQuery(document).ready(function ($) {
                         var id = $(left).attr('id');
                         var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.24);
                         if (polygon !== null) {
+                            $(polygon).click(function () {
+                                updateDerivePosition(derive_element_id);
+                            });
                             document.getElementById(svg_column_id).appendChild(polygon);
                         }
 
@@ -2301,6 +2304,7 @@ jQuery(document).ready(function ($) {
         polygon.setAttribute("points", points);
         polygon.setAttribute("id", id);
         polygon.setAttribute("fill", fill);
+        classes = classes.replace(/[-.]/g, "");
         polygon.setAttribute("class", "fb-svg-polygons " + classes);
         polygon.setAttribute("opacity", opacity);
         /*
@@ -2313,12 +2317,14 @@ jQuery(document).ready(function ($) {
         */
         $(polygon).hover(function () {
             $(polygon).css("cursor", "pointer");
-            $('.' + id).each(function () {
+            var c = id.replace(/[-.]/g, "");
+            $('.' + c).each(function () {
                 var opacity = $(this).css("opacity");
                 $(this).css("opacity", opacity * 2);
             });
         }, function () {
-            $('.' + id).each(function () {
+            var c = id.replace(/[-.]/g, "");
+            $('.' + c).each(function () {
                 var opacity = $(this).css("opacity");
                 $(this).css("opacity", opacity / 2);
             });
@@ -2338,21 +2344,6 @@ jQuery(document).ready(function ($) {
         if (!flexibook.active_derive_mce) return;
         var derived_doc = flexibook.active_derive_mce.getDoc();
 
-        /*
-        source_tab_current_margin_top = parseInt($('#fb-tabs-sources').css('margin-top'), 10);
-
-        if (source_tab_original_margin_top < 0) {
-            source_tab_original_margin_top = parseInt($('#fb-tabs-sources').css('margin-top'), 10);
-        }
-        else {
-            $('#fb-tabs-sources').css('margin-top', source_tab_original_margin_top); // reset to its original position          
-        }
-        */
-
-        if (flexibook.columns_of_editors == 3) {
-            //$("#fb-div-old-source-mce").css('margin-top', 0);
-        }
-
         // get active tab id
         var source_mce = getVisibleSourceMce();
         if (!source_mce) return;
@@ -2361,26 +2352,29 @@ jQuery(document).ready(function ($) {
         source_mce.current_margin_top = parseInt($(source_mce.getBody()).css('margin-top'), 10);
         $(source_mce.getBody()).css('margin-top', source_mce.original_margin_top); // reset to its original position for calculation
 
-        if (flexibook.columns_of_editors == 2) {
-            updateSourcePositionColumn(source_doc, derived_doc, d_id, source_mce);
-        }
-        else if (flexibook.columns_of_editors == 3) {
-            /*
-            var old_source_doc = tinymce.get('fb-old-source-mce').getDoc();
-
-            updateSourcePositionColumn(source_doc, derived_doc, d_id, 0);
-            updateSourcePositionColumn(old_source_doc, derived_doc, d_id, 1);
-            */
-        }
+        updateScroll(source_doc, derived_doc, d_id, source_mce);
     }
 
-    function updateSourcePositionColumn(source_doc, derive_doc, d_id, source_mce) {
+    function updateDerivePosition(d_id) {
+        if (!flexibook.active_derive_mce) return;
+        var derived_doc = flexibook.active_derive_mce.getDoc();
+
+        // get active tab id
+        var source_mce = getVisibleSourceMce();
+        if (!source_mce) return;
+        var source_doc = source_mce.getDoc();
+
+        updateScroll(source_doc, derived_doc, d_id, flexibook.active_derive_mce);
+    }
+
+    function updateScroll(source_doc, derive_doc, d_id, target_mce) {
         var source_iframe_container_top = getiFrameOffsetTop(source_doc);
         var derived_iframe_container_top = getiFrameOffsetTop(derive_doc);
 
         if (!source_iframe_container_top || !derived_iframe_container_top) return;
 
         var svg_container_top = $('#fb-td-mid-column').offset().top;
+        //var svg_container_top = $('#fb-svg-mid-column').offset().top;
 
         var left_scrollTop = source_doc.body.scrollTop;
         var right_scrollTop = derive_doc.body.scrollTop;
@@ -2448,11 +2442,18 @@ jQuery(document).ready(function ($) {
                             y_top_right -= right_scrollTop;
                             y_top_left -= left_scrollTop;
 
-                            var t = left_scrollTop - (y_top_right - y_top_left);
-                            if (t < 0) t = 0;
+                            if (target_mce.id.indexOf("fb-source-mce") >= 0) {
+                                var t = left_scrollTop - (y_top_right - y_top_left);
+                                if (t < 0) t = 0;
 
-                            $(source_mce.getBody()).animate({ 'scrollTop': t }, { duration: 'medium', easing: 'swing', complete: function () { updateVisibleMces(true, false); update(); } });
+                                $(target_mce.getBody()).animate({ 'scrollTop': t }, { duration: 'medium', easing: 'swing', complete: function () { updateVisibleMces(true, false); update(); } });
+                            }
+                            else if (target_mce.id.indexOf("fb-derived-mce") >= 0) {
+                                var t = right_scrollTop - (y_top_left - y_top_right);
+                                if (t < 0) t = 0;
 
+                                $(target_mce.getBody()).animate({ 'scrollTop': t }, { duration: 'medium', easing: 'swing', complete: function () { updateVisibleMces(true, false); update(); } });
+                            }
                             // use margin top
                             //var height_diff = t - source_mce.current_margin_top;
                             //source_mce.theme.resizeBy(0, height_diff); // ms - when using this method, tinymce cannot autoresize when window is resized for example.
