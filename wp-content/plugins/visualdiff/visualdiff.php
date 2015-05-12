@@ -507,8 +507,8 @@ function fb_post_box_derived_document_callback() {
             </ul>
         </div>
     </td>
-    <td id="fb-td-mid-column">
-        <svg id="fb-svg-mid-column" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg"/></svg>
+    <td id="fb-td-mid-column" style="overflow-y:hidden;">
+        <svg id="fb-svg-mid-column" style="position:relative;top:100px;height:100%;width:100%;" xmlns="http://www.w3.org/2000/svg"/></svg>
     </td>
     <td id="fb-td-derive-mces" style="vertical-align:top">
         <!--h3 style="margin-bottom:8px">Derived Document</h3-->
@@ -517,6 +517,10 @@ function fb_post_box_derived_document_callback() {
             <span id="fb-buttonset-toggle-merge" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-toggle-merge-on" name="fb-buttonset-toggle-merge" checked="checked"><label for="fb-buttonset-toggle-merge-on">Merge On</label>
                 <input type="radio" id="fb-buttonset-toggle-merge-off" name="fb-buttonset-toggle-merge"><label for="fb-buttonset-toggle-merge-off">Off</label>
+            </span>
+            <span id="fb-buttonset-toggle-sources" style="margin-right:10px">
+                <input type="radio" id="fb-buttonset-toggle-sources-on" name="fb-buttonset-toggle-sources" checked="checked"><label for="fb-buttonset-toggle-sources-on">Sources Show</label>
+                <input type="radio" id="fb-buttonset-toggle-sources-off" name="fb-buttonset-toggle-sources"><label for="fb-buttonset-toggle-sources-off">Hide</label>
             </span>
             <span id="fb-buttonset-teacher-student" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-teacher-student-t" name="fb-buttonset-teacher-student" checked="checked"><label for="fb-buttonset-teacher-student-t">Teacher</label>

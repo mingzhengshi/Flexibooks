@@ -14,6 +14,7 @@ jQuery(document).ready(function ($) {
     var fb_floating_sources = true;
     var highlighting_source = false;
     var fb_merge_mode = true;
+    var fb_show_source_column = true;
     var fb_teacher_student_version = 'teacher';
 
     //var source_tab_original_margin_top = -1;
@@ -391,6 +392,21 @@ jQuery(document).ready(function ($) {
     //---------------------------------------------------------------------------------------------------------------
     // setup buttons
 
+    $('#fb-buttonset-toggle-sources').buttonset();
+    $('#fb-buttonset-toggle-sources-on').click(function () {
+        if (fb_show_source_column) return; // if already on, then return.
+
+        fb_show_source_column = true;
+        toggleSourceColumn();
+    });
+
+    $('#fb-buttonset-toggle-sources-off').click(function () {
+        if (!fb_show_source_column) return; // if already on, then return.
+
+        fb_show_source_column = false;
+        toggleSourceColumn();
+    });
+
     $('#fb-buttonset-toggle-merge').buttonset();
     $('#fb-buttonset-toggle-merge-on').click(function () {
         if (fb_merge_mode) return; // if already on, then return.
@@ -508,6 +524,19 @@ jQuery(document).ready(function ($) {
                 }
             }
         }
+    }
+
+    function toggleSourceColumn() {
+        if (fb_show_source_column) {
+            $('#fb-td-source-mces').css('display', '');
+            $('#fb-td-mid-column').css('display', '');
+        }
+        else {
+            $('#fb-td-source-mces').css('display', 'none');
+            $('#fb-td-mid-column').css('display', 'none');
+        }
+
+        update();
     }
 
     function toggleMergeMode() {
@@ -2041,6 +2070,7 @@ jQuery(document).ready(function ($) {
         if (!source_iframe_container_top || !derived_iframe_container_top) return;
 
         var svg_container_top = $('#fb-td-mid-column').offset().top;
+        svg_container_top += parseInt($('#fb-svg-mid-column').css('top'), 10);
 
         var x_left = 0;
         var x_right = $('#' + svg_column_id).width();
@@ -2374,7 +2404,7 @@ jQuery(document).ready(function ($) {
         if (!source_iframe_container_top || !derived_iframe_container_top) return;
 
         var svg_container_top = $('#fb-td-mid-column').offset().top;
-        //var svg_container_top = $('#fb-svg-mid-column').offset().top;
+        svg_container_top += parseInt($('#fb-svg-mid-column').css('top'), 10);
 
         var left_scrollTop = source_doc.body.scrollTop;
         var right_scrollTop = derive_doc.body.scrollTop;
