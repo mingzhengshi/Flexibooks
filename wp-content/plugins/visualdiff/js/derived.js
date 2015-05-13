@@ -33,7 +33,7 @@ jQuery(document).ready(function ($) {
     });
     var tab_counter_derive = 0;
 
-    var tab_template = "<li id='#{id}'><a href='#{href}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
+    var tab_template = "<li id='#{id}'><a href='#{href}' data-post-id='#{postid}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
     //----------------------------------------------------------------------------------------
     // source tabs
@@ -1404,6 +1404,10 @@ jQuery(document).ready(function ($) {
         fb_add_derive_dialog.dialog("open");
     });
 
+    $("#fb-button-table-of-content").button().click(function () {
+        
+    });
+
     function getSourcePost(post_id, add_to_derive) {
         $.post(ajaxurl,
             {
@@ -1433,7 +1437,10 @@ jQuery(document).ready(function ($) {
         var tab_id = "fb-tabs-source-" + tab_counter_source;
         var mce_id = 'fb-source-mce-' + tab_counter_source;
         var li_id = tab_id + "-selector";
-        var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id).replace(/#\{label\}/g, title).replace(/#\{id\}/g, li_id));
+        var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id)
+                               .replace(/#\{label\}/g, title)
+                               .replace(/#\{id\}/g, li_id)
+                               .replace(/#\{postid\}/g, post_id));
 
         $("#fb-ul-source-tabs").append(li);
         source_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
@@ -1494,7 +1501,10 @@ jQuery(document).ready(function ($) {
         var mce_title = 'fb-derived-mce-title-' + tab_counter_derive;
         var mce_tab_index = 'fb-derived-mce-tab-index-' + tab_counter_derive;
         var li_id = tab_id + "-selector";
-        var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id).replace(/#\{label\}/g, title).replace(/#\{id\}/g, li_id));
+        var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id)
+                               .replace(/#\{label\}/g, title)
+                               .replace(/#\{id\}/g, li_id)
+                               .replace(/#\{postid\}/g, '-1'));
 
         $("#fb-ul-derive-tabs").append(li);
         derive_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
@@ -2161,10 +2171,25 @@ jQuery(document).ready(function ($) {
                             var polygon = createSVGPolygon(pts, id, classes, 'grey', svg_column_id, 0.24);
                             if (polygon !== null) {
                                 $(polygon).click(function () {
+                                    var tab_index = -1;
+                                    $('#fb-tabs-sources .ui-tabs-nav a').each(function (index) {
+                                        var a = $(this);
+                                        if (a.attr('data-post-id') == source_post_id) {
+                                            tab_index = index;
+                                            return false;
+                                        }
+                                    });
+
+                                    if (tab_index >= 0) {
+                                        $('#fb-tabs-sources').tabs("option", "active", tab_index);
+                                    }
+
+                                    /*
                                     var index = meta_source_tabs_post_ids.indexOf(source_post_id);
                                     if (index >= 0) {
                                         $('#fb-tabs-sources').tabs("option", "active", index);
                                     }
+                                    */
 
                                     if (fb_floating_sources) {
                                         updateSourcePosition(derive_element_id);
@@ -2287,10 +2312,25 @@ jQuery(document).ready(function ($) {
                         var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.24);
                         if (polygon !== null) {
                             $(polygon).click(function () {
+                                var tab_index = -1;
+                                $('#fb-tabs-sources .ui-tabs-nav a').each(function (index) {
+                                    var a = $(this);
+                                    if (a.attr('data-post-id') == source_post_id) {
+                                        tab_index = index;
+                                        return false;
+                                    }
+                                });
+
+                                if (tab_index >= 0) {
+                                    $('#fb-tabs-sources').tabs("option", "active", tab_index);
+                                }
+
+                                /*
                                 var index = meta_source_tabs_post_ids.indexOf(source_post_id);
                                 if (index >= 0) {
                                     $('#fb-tabs-sources').tabs("option", "active", index);
                                 }
+                                */
 
                                 if (fb_floating_sources) {
                                     updateSourcePosition(derive_element_id);

@@ -58,9 +58,9 @@ jQuery(document).ready(function ($) {
             }
 
             // test dpi
-            //$(editor.getBody()).append('<div id="div_dpi" class="dpi_test" style="width:1in;visible:hidden;padding:0px"></div>');
-            //fb_screen_dpi = editor.getDoc().getElementById('div_dpi').offsetWidth;
-            //$(editor.getDoc()).find('.dpi_test').remove();
+            $(editor.getBody()).append('<div id="div_dpi" class="dpi_test" style="width:1in;visible:hidden;padding:0px"></div>');
+            fb_screen_dpi = editor.getDoc().getElementById('div_dpi').offsetWidth;
+            $(editor.getDoc()).find('.dpi_test').remove();
 
             $(editor.getDoc()).css('overflow-y', 'scroll');
             $(editor.getBody()).css('margin-left', 50); // for all editors
