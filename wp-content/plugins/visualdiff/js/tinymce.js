@@ -17,6 +17,7 @@ jQuery(document).ready(function ($) {
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
         this.updatePublic = updatePublic; // public member of the fb_folding_editor object
+        this.updateMasterTOC = updateMasterTableOfContent; // public member
 
         var page_boundary_on = false;
         var page_boundary_on_body_background_color = '#ebebeb';
@@ -279,6 +280,28 @@ jQuery(document).ready(function ($) {
             else {
                 $(editor.getBody()).css('background-color', '#ffffff');
                 $(editor.getBody()).find('.fb_tinymce_left_column_page').css('visibility', 'hidden');
+            }
+        }
+
+        function updateMasterTableOfContent(title, post_names) {
+            // firstly remove the toc if it already exists
+            $(editor.getBody()).find('.toc-page').remove();
+
+            $(editor.getBody()).prepend('<div id="table_of_content_page" class="toc-page"><div id="' + FB_TOC_ID + '" class="toc"></div></div>');
+            toc = editor.getDoc().getElementById(FB_TOC_ID);
+
+            //$(toc).prepend('<div class="toc-title">' + title + '</div>');
+            $(toc).prepend('<div class="master-toc-title">Contents</div>');
+
+            /*
+            var height = $(toc).height();
+            height = (1015 - height) / 2;
+            $(toc).prepend('<div style="height:' + height + 'px"></div>'); // prepend a dummy div
+            */
+
+            if (!post_names) return;
+            for (var i = 0; i < post_names.length; i++) {
+                $(toc).append('<p class="master-toc-main-heading">' + post_names[i] + '</p>');
             }
         }
 

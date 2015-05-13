@@ -207,6 +207,20 @@ p.title {
     /*vertical-align: middle;*/ /*not for div*/
 }
 
+.master-toc-title {
+    font-size: 45pt;
+    color: #1f6ca5;
+    font-weight: bold;
+    margin-top: 40pt;
+    margin-bottom: 40pt;
+}
+
+.master-toc-main-heading {
+    font-size: 24pt;
+    margin-bottom: 18pt;
+    margin-left: 20pt;
+}
+
 .toc-title {
     font-size: 45pt;
     color: #1f6ca5;

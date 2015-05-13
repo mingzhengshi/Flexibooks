@@ -158,7 +158,7 @@ jQuery(document).ready(function ($) {
                 content: d_content
             });
 
-            addDeriveTab(d_title, d_content);
+            addDeriveTab(d_title, d_content, -1);
         });  
         $("#fb-data-derive-mces").remove(); 
 
@@ -1387,7 +1387,7 @@ jQuery(document).ready(function ($) {
         buttons: {
             Add: function () {
                 var title = document.getElementById("fb-derive-document-title").value;
-                addDeriveTab(title, '');
+                addDeriveTab(title, '', -1);
 
                 $(this).dialog("close");
             },
@@ -1405,7 +1405,35 @@ jQuery(document).ready(function ($) {
     });
 
     $("#fb-button-table-of-content").button().click(function () {
-        
+        var tab_index = -1;
+        $('#fb-tabs-derives .ui-tabs-nav a').each(function (index) {
+            var a = $(this);
+            if (a.html() == "Table of Content") {
+                tab_index = index;
+                return false;
+            }
+        });
+
+        if (tab_index >= 0) {
+            $('#fb-tabs-derives').tabs("option", "active", tab_index);
+        }
+        else {
+            addDeriveTab('Table of Content', '', 'toc');
+        }
+
+        var post_names = [];
+        $('#fb-tabs-derives .ui-tabs-nav a').each(function (index) {
+            var a = $(this);
+            if (a.html() != "Table of Content") {
+                post_names.push(a.html());
+            }
+        });
+
+        var toc_mce = getVisibleDeriveMce();
+        if (toc_mce) {
+            var title = $('#title').val();
+            toc_mce.plugins.fb_folding_editor.updateMasterTOC(title, post_names);
+        }
     });
 
     function getSourcePost(post_id, add_to_derive) {
@@ -1420,7 +1448,7 @@ jQuery(document).ready(function ($) {
                     var obj = JSON.parse(data);
                     addSourceTab(obj.title, obj.content, obj.modified, post_id);
                     if (add_to_derive) {
-                        var derive_mce = addDeriveTab(obj.title, obj.content);
+                        var derive_mce = addDeriveTab(obj.title, obj.content, -1);
                         if (derive_mce) {
                             $(derive_mce.getBody()).children().each(function () {
                                 $(this).attr("data-source-post-id", post_id);
@@ -1495,7 +1523,7 @@ jQuery(document).ready(function ($) {
         tab_counter_source++;
     }
 
-    function addDeriveTab(title, content) {
+    function addDeriveTab(title, content, postid) {
         var tab_id = "fb-tabs-derive-" + tab_counter_derive;
         var mce_id = 'fb-derived-mce-' + tab_counter_derive;
         var mce_title = 'fb-derived-mce-title-' + tab_counter_derive;
@@ -1504,7 +1532,7 @@ jQuery(document).ready(function ($) {
         var li = $(tab_template.replace(/#\{href\}/g, "#" + tab_id)
                                .replace(/#\{label\}/g, title)
                                .replace(/#\{id\}/g, li_id)
-                               .replace(/#\{postid\}/g, '-1'));
+                               .replace(/#\{postid\}/g, postid));
 
         $("#fb-ul-derive-tabs").append(li);
         derive_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
