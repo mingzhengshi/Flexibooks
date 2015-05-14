@@ -1,6 +1,6 @@
 jQuery(document).ready(function ($) {
-    var derived_mce_init_done = false;
-    var derived_mce_init_called = false;
+    var fb_derived_mce_init_done = false;
+    var fb_derived_mce_init_called = false;
     var fb_source_mce_init_count = 0;
 
     var meta_source_tabs_post_ids = [];
@@ -16,6 +16,10 @@ jQuery(document).ready(function ($) {
     var fb_merge_mode = true;
     var fb_show_source_column = true;
     var fb_teacher_student_version = 'teacher';
+
+    var FB_DATA_MERGE_CASE = 'data-merge-case';
+    var FB_DATA_SOURCE_POST_ID = 'data-source-post-id';
+    var FB_DATA_SOURCE_ID = 'data-source-id';
 
     //var source_tab_original_margin_top = -1;
     //var source_tab_current_margin_top = -1;
@@ -113,16 +117,6 @@ jQuery(document).ready(function ($) {
     });
 
     flexibook.regDerivedElementMouseUpCallback(function (post_id, d_id) {
-        /*
-        var index = meta_source_tabs_post_ids.indexOf(post_id);
-        if (index >= 0) {
-            $('#fb-tabs-sources').tabs("option", "active", index);
-        }
-        
-        if (fb_floating_sources) {
-            //updateSourcePosition(d_id);
-        }
-        */
         //update();        
     });
 
@@ -140,8 +134,8 @@ jQuery(document).ready(function ($) {
     });
 
     flexibook.regDeriveMceInitCallback(function () {
-        if (derived_mce_init_called == true) return;
-        derived_mce_init_called = true;
+        if (fb_derived_mce_init_called == true) return;
+        fb_derived_mce_init_called = true;
 
         $("#fb-button-open-source-document").prop('disabled', false);
 
@@ -177,7 +171,7 @@ jQuery(document).ready(function ($) {
             meta_source_versions = JSON.parse(derived_meta_string);
         }
 
-        derived_mce_init_done = true;
+        fb_derived_mce_init_done = true;
     });
 
     flexibook.regMergeIconClickCallback(function (icon, post_id, s_id, d_id, mcase) {
@@ -216,8 +210,8 @@ jQuery(document).ready(function ($) {
                     $(derive).html(clean);
                     $(derive).css('border-style', 'none');
 
-                    if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
-                    if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
+                    if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
+                    if ($(derive).attr(FB_DATA_MERGE_CASE)) $(derive).removeAttr(FB_DATA_MERGE_CASE);
 
                     setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
@@ -236,8 +230,8 @@ jQuery(document).ready(function ($) {
                     $(derive).html(old_clean);
                     $(derive).css('border-style', 'none');
 
-                    if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
-                    if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
+                    if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
+                    if ($(derive).attr(FB_DATA_MERGE_CASE)) $(derive).removeAttr(FB_DATA_MERGE_CASE);
 
                     setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
@@ -292,8 +286,8 @@ jQuery(document).ready(function ($) {
                         $(derive_op1).css('border-style', 'none');
                         //$(derive_op1).css('margin-left', '0px');
 
-                        if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
-                        if ($(derive_op1).attr('data-merge-case')) $(derive_op1).removeAttr('data-merge-case');
+                        if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
+                        if ($(derive_op1).attr(FB_DATA_MERGE_CASE)) $(derive_op1).removeAttr(FB_DATA_MERGE_CASE);
 
                         $(derive_op2).remove();
                     }
@@ -312,8 +306,8 @@ jQuery(document).ready(function ($) {
                         $(derive).css('border-style', 'none');
                         //$(derive).css('margin-left', '0px');
 
-                        if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
-                        if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
+                        if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
+                        if ($(derive).attr(FB_DATA_MERGE_CASE)) $(derive).removeAttr(FB_DATA_MERGE_CASE);
 
                         var derive_op2 = derived_doc.getElementById(d_id + '-option2');
                         $(derive_op2).remove();
@@ -337,8 +331,8 @@ jQuery(document).ready(function ($) {
                     $(derive).html(clean);
                     $(derive).css('border-style', 'none');
 
-                    if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
-                    if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
+                    if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
+                    if ($(derive).attr(FB_DATA_MERGE_CASE)) $(derive).removeAttr(FB_DATA_MERGE_CASE);
 
                     setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
@@ -351,7 +345,7 @@ jQuery(document).ready(function ($) {
                     $(source).html(clean);
                     $(derive).remove();
 
-                    if ($(source).attr('data-merge-case')) $(source).removeAttr('data-merge-case');
+                    if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
 
                     setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
@@ -378,7 +372,7 @@ jQuery(document).ready(function ($) {
                     $(source).remove();                   
                     $(derive).html(clean);
                     $(derive).css('border-style', 'none');
-                    if ($(derive).attr('data-merge-case')) $(derive).removeAttr('data-merge-case');
+                    if ($(derive).attr(FB_DATA_MERGE_CASE)) $(derive).removeAttr(FB_DATA_MERGE_CASE);
                     setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
 
@@ -805,7 +799,7 @@ jQuery(document).ready(function ($) {
                             if (new_element.trim() != old_element.trim()) {
                                 // derive element                                  
                                 $(derived_doc.body).find("[id]").each(function () {
-                                    if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == id) {
+                                    if ($(this).attr(FB_DATA_SOURCE_ID) && $(this).attr(FB_DATA_SOURCE_ID).trim() == id) {
                                         exist_derive = true;
 
                                         var derive_element = unwrapDeleteInsertTagjQuery($(this));
@@ -813,7 +807,7 @@ jQuery(document).ready(function ($) {
 
                                         // merge case 1:
                                         if (derive_element.trim() == old_element.trim()) {
-                                            $(this).attr('data-merge-case', 1);
+                                            $(this).attr(FB_DATA_MERGE_CASE, 1);
                                             $(this).css('border-style', 'dotted');
                                             $(this).css('border-width', '1px');
                                             $(this).css('border-color', 'orange');
@@ -841,7 +835,7 @@ jQuery(document).ready(function ($) {
                                                 $(this).addClass('delete-merge');
                                             });
 
-                                            n_this.attr('data-merge-case', 1); 
+                                            n_this.attr(FB_DATA_MERGE_CASE, 1); 
                                         }
                                         // merge case 3:
                                         else {
@@ -849,7 +843,7 @@ jQuery(document).ready(function ($) {
                                             console.log("old_element: " + old_element);
                                             console.log("derive_element: " + derive_element);
 
-                                            $(this).attr('data-merge-case', 3);
+                                            $(this).attr(FB_DATA_MERGE_CASE, 3);
                                             $(this).css('border-style', 'dotted');
                                             $(this).css('border-width', '1px');
                                             $(this).css('border-color', 'orange');
@@ -879,7 +873,7 @@ jQuery(document).ready(function ($) {
                                                 $(this).addClass('delete-merge');
                                             });
 
-                                            n_this.attr('data-merge-case', 3);
+                                            n_this.attr(FB_DATA_MERGE_CASE, 3);
                                             
                                             var op2 = $(this).clone();
                                             $(op2).css('margin-bottom', '3px');
@@ -903,30 +897,7 @@ jQuery(document).ready(function ($) {
 
                                 if (exist_derive == false) {
                                     // merge case 2: delete in derive, no changes or modified in source
-                                    /*
-                                    // source document
-                                    if (n_this.prop("tagName").toLowerCase() != 'h1' &&
-                                        n_this.prop("tagName").toLowerCase() != 'h2' &&
-                                        n_this.prop("tagName").toLowerCase() != 'h3') {
-                                        var p_exist = false;
-                                        var pid = getParentID(new_doc.body, n_this.attr('id'));
-                                        if (pid != null) {
-                                            $(derived_doc.body).find("[id]").each(function () {
-                                                if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == pid) {
-                                                    p_exist = true;
-                                                    return false;
-                                                }
-                                            });
-                                        }
 
-                                        // use merge case 5:
-                                        if (p_exist) {
-                                            n_this.attr('data-merge-case', 5);
-                                            n_this.css('background-color', 'lightgreen');
-                                            setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
-                                        }
-                                    }
-                                    */
                                 }
                                 else {
                                     // source document
@@ -943,7 +914,7 @@ jQuery(document).ready(function ($) {
                                 var pid = getParentID(new_doc.body, n_this.attr('id'));
                                 if (pid != null) {
                                     $(derived_doc.body).find("[id]").each(function () {
-                                        if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == pid) {
+                                        if ($(this).attr(FB_DATA_SOURCE_ID) && $(this).attr(FB_DATA_SOURCE_ID).trim() == pid) {
                                             p_exist = true;
                                             return false;
                                         }
@@ -955,7 +926,7 @@ jQuery(document).ready(function ($) {
                                     var html = n_this.html();
                                     var html = "<span class='insert insert-merge'>" + html + "</span>";
                                     n_this.html(html);
-                                    n_this.attr('data-merge-case', 5); // this modification is in memory only, will not be saved to database
+                                    n_this.attr(FB_DATA_MERGE_CASE, 5); // this modification is in memory only, will not be saved to database
                                     addNewItemToDerive(n_this, new_doc, derived_doc, source_post_id);
                                     setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
                                 }
@@ -966,7 +937,7 @@ jQuery(document).ready(function ($) {
                             var html = n_this.html();
                             var html = "<span class='insert insert-merge'>" + html + "</span>";
                             n_this.html(html);
-                            n_this.attr('data-merge-case', 5); // this modification is in memory only, will not be saved to database
+                            n_this.attr(FB_DATA_MERGE_CASE, 5); // this modification is in memory only, will not be saved to database
                             addNewItemToDerive(n_this, new_doc, derived_doc, source_post_id);
                             setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
                             */
@@ -1001,7 +972,7 @@ jQuery(document).ready(function ($) {
                         // cases 6, 7, 8: deleted in new source document
                         if (!exist_new_source) {
                             $(derived_doc.body).find("[id]").each(function () {
-                                if ($(this).attr('data-source-id') && $(this).attr('data-source-id').trim() == id) {
+                                if ($(this).attr(FB_DATA_SOURCE_ID) && $(this).attr(FB_DATA_SOURCE_ID).trim() == id) {
                                     var d_html = unwrapDeleteInsertTagjQuery($(this));
                                     d_html = d_html.replace(/&nbsp;/ig, ' ').replace(/<br>/g, '');
                                     if (d_html.trim() === '') {
@@ -1011,7 +982,7 @@ jQuery(document).ready(function ($) {
                                     // case 6: exist in derived document
                                     exist_derive = true;
                                     addDeleteItemToSource(o_this, new_doc, old_doc, source_post_id);
-                                    $(this).attr('data-merge-case', 6);
+                                    $(this).attr(FB_DATA_MERGE_CASE, 6);
                                     $(this).css('border-style', 'dotted');
                                     $(this).css('border-width', '1px');
                                     $(this).css('border-color', 'orange');
@@ -1053,7 +1024,7 @@ jQuery(document).ready(function ($) {
         if (parent_id != null && prev_id != null) {
             $($(new_doc.body).children().get().reverse()).each(function () {
                 if ($(this).attr("id") && $(this).attr("id") == prev_id) {
-                    $(clone).attr('data-merge-case', 6);
+                    $(clone).attr(FB_DATA_MERGE_CASE, 6);
 
                     var html = unwrapDeleteInsertTag(clone);
                     //var html = $(clone).html();
@@ -1072,7 +1043,7 @@ jQuery(document).ready(function ($) {
             if (parent_id != null && next_id != null) {
                 $($(new_doc.body).children().get().reverse()).each(function () {
                     if ($(this).attr("id") && $(this).attr("id") == next_id) {
-                        $(clone).attr('data-merge-case', 6);
+                        $(clone).attr(FB_DATA_MERGE_CASE, 6);
 
                         var html = unwrapDeleteInsertTag(clone);
                         var html = "<span class='delete delete-merge'>" + html + "</span>";
@@ -1102,9 +1073,9 @@ jQuery(document).ready(function ($) {
         var found = false;
         if (parent_id != null && prev_id != null) {
             $($(derived_doc.body).children().get().reverse()).each(function () {
-                if ($(this).attr("data-source-id") && $(this).attr("data-source-id") == prev_id) {
-                    $(clone).attr('data-merge-case', 5);
-                    $(clone).attr("data-source-post-id", post_id);
+                if ($(this).attr(FB_DATA_SOURCE_ID) && $(this).attr(FB_DATA_SOURCE_ID) == prev_id) {
+                    $(clone).attr(FB_DATA_MERGE_CASE, 5);
+                    $(clone).attr(FB_DATA_SOURCE_POST_ID, post_id);
                     $(clone).css('border-style', 'dotted');
                     $(clone).css('border-width', '1px');
                     $(clone).css('border-color', 'orange');
@@ -1128,9 +1099,9 @@ jQuery(document).ready(function ($) {
         if (found == false) {
             if (parent_id != null && next_id != null) {
                 $($(derived_doc.body).children().get().reverse()).each(function () {
-                    if ($(this).attr("data-source-id") && $(this).attr("data-source-id") == next_id) {
-                        $(clone).attr('data-merge-case', 5);
-                        $(clone).attr("data-source-post-id", post_id);
+                    if ($(this).attr(FB_DATA_SOURCE_ID) && $(this).attr(FB_DATA_SOURCE_ID) == next_id) {
+                        $(clone).attr(FB_DATA_MERGE_CASE, 5);
+                        $(clone).attr(FB_DATA_SOURCE_POST_ID, post_id);
                         $(clone).css('border-style', 'dotted');
                         $(clone).css('border-width', '1px');
                         $(clone).css('border-color', 'orange');
@@ -1357,7 +1328,7 @@ jQuery(document).ready(function ($) {
                         var derive_mce = addDeriveTab(obj.title, obj.content, -1);
                         if (derive_mce) {
                             $(derive_mce.getBody()).children().each(function () {
-                                $(this).attr("data-source-post-id", post_id);
+                                $(this).attr(FB_DATA_SOURCE_POST_ID, post_id);
                             });
                         }
                     }
@@ -1594,8 +1565,8 @@ jQuery(document).ready(function ($) {
             $(derived_doc.body).children().each(function (index) {
                 var derive = $(this);
                 if (isTinymceAdminElement(derive)) return true; // continue
-                var source_id = derive.attr('data-source-id');
-                var source_post_id = derive.attr('data-source-post-id');
+                var source_id = derive.attr(FB_DATA_SOURCE_ID);
+                var source_post_id = derive.attr(FB_DATA_SOURCE_POST_ID);
 
                 if (source_post_id && source_post_id == pid && source_id && source_id != 'none') {
                     var source = source_doc.getElementById(source_id);
@@ -1608,7 +1579,7 @@ jQuery(document).ready(function ($) {
     }
 
     function updateMetaSourceVersions() {
-        if (derived_mce_init_done == false) return;
+        if (fb_derived_mce_init_done == false) return;
 
         // remove objects from meta_source_versions if they are not longer in derived tabs 
         var names = [];
@@ -1796,7 +1767,7 @@ jQuery(document).ready(function ($) {
         var ids = [];
 
         $(derived_doc.body).find("[data-source-post-id]").each(function (index) {
-            var post_id = $(this).attr('data-source-post-id').trim();
+            var post_id = $(this).attr(FB_DATA_SOURCE_POST_ID).trim();
             if (ids.indexOf(post_id) == -1) {
                 ids.push(post_id);
             }
@@ -1814,16 +1785,16 @@ jQuery(document).ready(function ($) {
         if (!source_mce) return;
         var source_doc = source_mce.getDoc();
 
-        updateHTMLDiffColumn(source_doc, derived_doc, 'source_derive', true);
+        updateHTMLDiffColumn(source_doc, derived_doc, true);
     }
 
-    function updateHTMLDiffColumn(base_doc, comp_doc, comp_type, clean_base) {
+    function updateHTMLDiffColumn(base_doc, comp_doc, clean_base) {
         // firstly clean base document
         if (clean_base) {
             $(base_doc.body).children().each(function (index) {
                 var base = $(this);
                 if (isTinymceAdminElement(base)) return true; // continue
-                if (base.attr('data-merge-case')) return true; // continue; ms - skip the elements that require merge actions
+                if (base.attr(FB_DATA_MERGE_CASE)) return true; // continue; ms - skip the elements that require merge actions
                 var id = base.attr('id');
 
                 if (id && id != 'none') {
@@ -1839,22 +1810,15 @@ jQuery(document).ready(function ($) {
 
             //if (comp.hasClass("fb_tinymce_left_column") == false && comp.hasClass("fb_tinymce_left_column_icon") == false) {
             if (isTinymceAdminElement(comp)) return true; // continue
-            if (comp.attr('data-merge-case')) return true; // continue; ms - skip the elements that require merge actions
-            //var source_id = comp.attr('data-source-id');
-            var source_id = null;
-            if (comp_type == 'source_derive') {
-                source_id = comp.attr('data-source-id');
-            }
-            else if (comp_type == 'source_source') {
-                source_id = comp.attr('id');
-            }
+            if (comp.attr(FB_DATA_MERGE_CASE)) return true; // continue; ms - skip the elements that require merge actions
+            var source_id = comp.attr(FB_DATA_SOURCE_ID);
 
             var id = comp.attr('id');
 
             if (source_id && source_id != 'none') {
                 // stores a bookmark of the current selection
                 var derive_bookmark;
-                if (comp_type == 'source_derive') derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
+                derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
 
                 var base = base_doc.getElementById(source_id);
                 if (base) {
@@ -1891,7 +1855,7 @@ jQuery(document).ready(function ($) {
                 }
 
                 // restore the selection bookmark
-                if (comp_type == 'source_derive') flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
+                flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
             }
             else {
                 if (id && id != 'none') {
@@ -1901,14 +1865,14 @@ jQuery(document).ready(function ($) {
                         (comp.prop("tagName").toLowerCase() != 'table')) {
                         var derive_bookmark;
                         // stores a bookmark of the current selection
-                        if (comp_type == 'source_derive') derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true);
+                        derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true);
 
                         var newHtml = unwrapDeleteInsertTagjQuery(comp);
                         var newHtml = "<span class='insert'>" + newHtml + "</span>";
                         comp.html(newHtml);
 
                         // restore the selection bookmark
-                        if (comp_type == 'source_derive') flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
+                        flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
                     }
                 }
             }
@@ -1971,7 +1935,7 @@ jQuery(document).ready(function ($) {
             var right = $(this);
             if (isTinymceAdminElement(right)) return true; // continue
             var source_id = null;
-            source_id = right.attr('data-source-id');
+            source_id = right.attr(FB_DATA_SOURCE_ID);
 
             if (source_id && source_id != 'none') {
                 // calculate y_bottom_right and y_top_right
@@ -2015,7 +1979,7 @@ jQuery(document).ready(function ($) {
                             }
                             previous_y_bottom_right = y_bottom_right;
 
-                            var source_post_id = right.attr('data-source-post-id');
+                            var source_post_id = right.attr(FB_DATA_SOURCE_POST_ID);
                             var derive_element_id = right.attr('id');
                             var classes = right.attr('id');
 
@@ -2049,13 +2013,6 @@ jQuery(document).ready(function ($) {
                                     if (tab_index >= 0) {
                                         $('#fb-tabs-sources').tabs("option", "active", tab_index);
                                     }
-
-                                    /*
-                                    var index = meta_source_tabs_post_ids.indexOf(source_post_id);
-                                    if (index >= 0) {
-                                        $('#fb-tabs-sources').tabs("option", "active", index);
-                                    }
-                                    */
 
                                     if (fb_floating_sources) {
                                         updateSourcePosition(derive_element_id);
@@ -2139,7 +2096,7 @@ jQuery(document).ready(function ($) {
                             fill = 'red';
                         }
 
-                        var source_post_id = right.attr('data-source-post-id');
+                        var source_post_id = right.attr(FB_DATA_SOURCE_POST_ID);
                         var derive_element_id = right.attr('id');
                         var classes = right.attr('id') + ' ' + $(left).attr('id');
 
@@ -2190,13 +2147,6 @@ jQuery(document).ready(function ($) {
                                 if (tab_index >= 0) {
                                     $('#fb-tabs-sources').tabs("option", "active", tab_index);
                                 }
-
-                                /*
-                                var index = meta_source_tabs_post_ids.indexOf(source_post_id);
-                                if (index >= 0) {
-                                    $('#fb-tabs-sources').tabs("option", "active", index);
-                                }
-                                */
 
                                 if (fb_floating_sources) {
                                     updateSourcePosition(derive_element_id);
@@ -2320,7 +2270,7 @@ jQuery(document).ready(function ($) {
             if (derive.attr('id') == d_id) {
                 //if (derive.hasClass("fb_tinymce_left_column") == false && derive.hasClass("fb_tinymce_left_column_icon") == false) {
                 if (isTinymceAdminElement(derive)) return true; // continue
-                var source_id = derive.attr('data-source-id');
+                var source_id = derive.attr(FB_DATA_SOURCE_ID);
 
                 if (source_id && source_id != 'none') {
                     var source = source_doc.getElementById(source_id);

@@ -12,6 +12,9 @@ jQuery(document).ready(function ($) {
     var fb_dragged_item_copy = null;
 
     var FB_TOC_ID = "table_of_content";
+    var FB_DATA_MERGE_CASE = 'data-merge-case';
+    var FB_DATA_SOURCE_POST_ID = 'data-source-post-id';
+    var FB_DATA_SOURCE_ID = 'data-source-id';
 
     var fb_screen_dpi = -1;
 
@@ -400,17 +403,6 @@ jQuery(document).ready(function ($) {
             }
             if (node.tagName.toLowerCase() === 'body') return; // if the node is the body again, then return
 
-            // derived editor only 
-            // change view of source document according to derive selections - move to derived.js
-            /*
-            if (editor.id.indexOf("fb-derived-mce") >= 0) {
-                var post_id = $(node).attr('data-source-post-id');
-
-                var callback = flexibook.derivedElementMouseUpCallback;
-                if (callback) callback(post_id, id);
-            }
-            */
-
             //-----------------------------------------------------------------------------------------------
             // edit icons
             // 1. quick delete paragraph - derived editor only 
@@ -418,7 +410,7 @@ jQuery(document).ready(function ($) {
 
             if (editor.id.indexOf("fb-derived-mce") >= 0 ||
                 editor.id.indexOf("fb-source-mce") >= 0) {
-                if (!$(node).attr('data-merge-case')) {
+                if (!$(node).attr(FB_DATA_MERGE_CASE)) {
                     var offset = $(node).offset(); // absolute position relative to the document
                     var height = $(node).height();
                     var top = offset.top - 22 + height / 2;
@@ -453,7 +445,7 @@ jQuery(document).ready(function ($) {
                 // if no content has been selected
                 if (isEmptyContent(content) == true) {
                     // only consider the paragraph that derives from the source document
-                    if (!$(node).attr('data-source-id')) {
+                    if (!$(node).attr(FB_DATA_SOURCE_ID)) {
 
                     }
                     // check if the cursor is at the start or the end of the paragraph
@@ -504,7 +496,7 @@ jQuery(document).ready(function ($) {
                     var cont = "";
                     $(copied_content).each(function (index) {
                         var node = $(this).clone();
-                        $(node).attr("data-source-post-id", post_id);
+                        $(node).attr(FB_DATA_SOURCE_POST_ID, post_id);
                         cont += $(node).prop('outerHTML');
                     });
                     copied_content = cont;
@@ -513,7 +505,7 @@ jQuery(document).ready(function ($) {
                 else {
                     copied_mode = "single";
                     var node = $(copied_node).clone();
-                    $(node).attr("data-source-post-id", post_id);
+                    $(node).attr(FB_DATA_SOURCE_POST_ID, post_id);
                     $(node).html(copied_content);
                     copied_content = $(node).prop('outerHTML');
 
@@ -728,8 +720,8 @@ jQuery(document).ready(function ($) {
                     var classes = node.attr('class');
                     if (classes && classes.indexOf("fb-display-none") >= 0) return true; // continue
 
-                    if (node.attr('data-merge-case') && node.attr('data-merge-case') > 0) {
-                        var mcase = node.attr('data-merge-case');
+                    if (node.attr(FB_DATA_MERGE_CASE) && node.attr(FB_DATA_MERGE_CASE) > 0) {
+                        var mcase = node.attr(FB_DATA_MERGE_CASE);
                         // setup merge icon
 
                         var offset = node.offset(); // absolute position relative to the document
@@ -875,8 +867,8 @@ jQuery(document).ready(function ($) {
                             var derive_item_id = targetID;
 
                             $(editor.getBody()).find('#' + targetID).each(function () {
-                                post_id = $(this).attr('data-source-post-id');
-                                source_item_id = $(this).attr('data-source-id');
+                                post_id = $(this).attr(FB_DATA_SOURCE_POST_ID);
+                                source_item_id = $(this).attr(FB_DATA_SOURCE_ID);
                             });
 
                             var callback = flexibook.mergeIconClickCallback;
@@ -939,7 +931,7 @@ jQuery(document).ready(function ($) {
                 }
                 else if (editor.id.indexOf("fb-source-mce") >= 0) {
                     var post_id = editor.post_id;
-                    $(fb_dragged_item_copy).attr("data-source-post-id", post_id);
+                    $(fb_dragged_item_copy).attr(FB_DATA_SOURCE_POST_ID, post_id);
                 }
                 //console.log('dragstart');
             });
@@ -1027,32 +1019,32 @@ jQuery(document).ready(function ($) {
                     // if a new paragraph is empty, we should not consider as if it is derived from the source
                     /*
                     if (element.html().trim() == '') {
-                        if (element.attr('data-source-id')) {
-                            element.removeAttr('data-source-id');
+                        if (element.attr(FB_DATA_SOURCE_ID)) {
+                            element.removeAttr(FB_DATA_SOURCE_ID);
                         }
-                        if (element.attr('data-source-post-id')) {
-                            element.removeAttr('data-source-post-id');
+                        if (element.attr(FB_DATA_SOURCE_POST_ID)) {
+                            element.removeAttr(FB_DATA_SOURCE_POST_ID);
                         }
                     }
                     */
 
-                    if (!element.attr('data-source-id')) {
+                    if (!element.attr(FB_DATA_SOURCE_ID)) {
                         if (!element.attr('id')) {
                             // new element created by the user
-                            element.attr("data-source-id", "none");
+                            element.attr(FB_DATA_SOURCE_ID, "none");
                             element.attr("id", generateUUID());
                         }
                         else {
                             // element from source document
                             var source_id = element.attr("id");
-                            element.attr("data-source-id", source_id);
+                            element.attr(FB_DATA_SOURCE_ID, source_id);
                             element.attr("id", generateUUID());
                         }
                     }
                     else {
                         if (!element.attr('id')) {
                             // new element created by the user
-                            element.attr("data-source-id", "none");
+                            element.attr(FB_DATA_SOURCE_ID, "none");
                             element.attr("id", generateUUID());
                         }
                     }
@@ -1090,7 +1082,7 @@ jQuery(document).ready(function ($) {
                             targetLevel = parseInt(element.tagName.substr(1));
 
                             var element_copy = $(element).clone();
-                            $(element_copy).attr("data-source-post-id", post_id);
+                            $(element_copy).attr(FB_DATA_SOURCE_POST_ID, post_id);
                             content += $(element_copy).prop('outerHTML');
                         }
                     }
@@ -1102,13 +1094,13 @@ jQuery(document).ready(function ($) {
                             }
                             else {
                                 var element_copy = $(element).clone();
-                                $(element_copy).attr("data-source-post-id", post_id);
+                                $(element_copy).attr(FB_DATA_SOURCE_POST_ID, post_id);
                                 content += $(element_copy).prop('outerHTML');
                             }
                         }
                         else {
                             var element_copy = $(element).clone();
-                            $(element_copy).attr("data-source-post-id", post_id);
+                            $(element_copy).attr(FB_DATA_SOURCE_POST_ID, post_id);
                             content += $(element_copy).prop('outerHTML');
                         }
                     }
@@ -1150,8 +1142,8 @@ jQuery(document).ready(function ($) {
                     var classes = node.attr('class');
                     if (classes && classes.indexOf("fb-display-none") >= 0) return true; // continue
 
-                    if (node.attr('data-merge-case') && node.attr('data-merge-case') > 0) {
-                        var mcase = node.attr('data-merge-case');
+                    if (node.attr(FB_DATA_MERGE_CASE) && node.attr(FB_DATA_MERGE_CASE) > 0) {
+                        var mcase = node.attr(FB_DATA_MERGE_CASE);
 
                         var offset = node.offset(); // absolute position relative to the document
                         var height = node.height();
