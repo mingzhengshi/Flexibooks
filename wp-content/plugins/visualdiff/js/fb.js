@@ -8,7 +8,6 @@
 
         // derived callbacks
         this.deriveMceInitCallback = {};
-        this.showPreviousSourceIconClickCallback = {};
         this.mergeIconClickCallback = {};
         this.deriveUpdateCallback = {};
         this.derivedElementMouseUpCallback = {};
@@ -22,10 +21,6 @@
     // derived callbacks
     Flexibook.prototype.regDeriveMceInitCallback = function (callback) {
         this.deriveMceInitCallback = callback;
-    };
-
-    Flexibook.prototype.regShowPreviousSourceIconClickCallback = function (callback) {
-        this.showPreviousSourceIconClickCallback = callback;
     };
 
     Flexibook.prototype.regMergeIconClickCallback = function (callback) {

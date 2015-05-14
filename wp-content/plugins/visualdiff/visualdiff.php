@@ -485,7 +485,6 @@ function fb_post_box_derived_document_callback() {
     <td id="fb-td-source-mces" style="vertical-align:top">
         <div> 
             <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" style="margin-right:10px"/>      
-            <!--input id="fb-button-show-previous-source" type="button" value="Show Previous Source" class="button-secondary" style="margin-right:10px"/-->   
             <!--input id="fb-button-floating-source" type="button" value="Turn Off Floating" class="button-secondary" style="margin-right:10px"-->
             <span id="fb-buttonset-floating-source" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-floating-source-on" name="fb-buttonset-floating-source" checked="checked"><label for="fb-buttonset-floating-source-on">Floating On</label>

@@ -749,14 +749,6 @@ jQuery(document).ready(function ($) {
                             var mlesIconID = 'mles-' + node.attr('id');
                             var yesIconID = 'myes-' + node.attr('id');
                             var textID = 'mtxt-' + node.attr('id');
-                            /*
-                            if (flexibook.columns_of_editors == 2) {
-                                createMergeIcon(moreIconID, top, width + 60, 'III', mcase, "Show previous source (three-column view)");
-                            }
-                            else if (flexibook.columns_of_editors == 3) {
-                                createMergeIcon(mlesIconID, top, width + 60, 'II', mcase, "Hide previous source (two-column view)");
-                            }
-                            */
 
                             createMergeIcon(yesIconID, top, width + 60, '&#10003', mcase, "Accept this option");
                             //createMergeText(textID, offset.top, 'OPTION', mcase);
@@ -870,16 +862,6 @@ jQuery(document).ready(function ($) {
                     var targetElement = editor.getDoc().getElementById(targetID);
                     $(targetElement).remove();
                 }
-                    // click the show previous source button
-                else if (this_icon.html() == 'III') {
-                    var callback = flexibook.showPreviousSourceIconClickCallback;
-                    if (callback) callback();
-                }
-                    // click the show previous source button
-                else if (this_icon.html() == 'II') {
-                    var callback = flexibook.showPreviousSourceIconClickCallback;
-                    if (callback) callback();
-                }
                     // click the merge button
                 else if (isMergeIcons(this_icon)) {
                     var mcase = this_icon.prop('data-mcase');
@@ -989,8 +971,6 @@ jQuery(document).ready(function ($) {
         function isMergeIcons(this_icon) {
             if ((this_icon.html().charCodeAt() == '10003') ||
                 (this_icon.html().charCodeAt() == '10007') ||
-                (this_icon.html() == 'III') ||
-                (this_icon.html() == 'II') ||
                 (this_icon.html().charCodeAt() == '8680')) {
                 return true;
             }
