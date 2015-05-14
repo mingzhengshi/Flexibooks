@@ -208,6 +208,7 @@ p.title {
 }
 
 .master-toc-title {
+    font-family: Arial;
     font-size: 45pt;
     color: #1f6ca5;
     font-weight: bold;

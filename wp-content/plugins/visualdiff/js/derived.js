@@ -1534,8 +1534,14 @@ jQuery(document).ready(function ($) {
                                .replace(/#\{id\}/g, li_id)
                                .replace(/#\{postid\}/g, postid));
 
-        $("#fb-ul-derive-tabs").append(li);
-        derive_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
+        if (postid === 'toc') {
+            $("#fb-ul-derive-tabs").prepend(li);
+            derive_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
+        }
+        else {
+            $("#fb-ul-derive-tabs").append(li);
+            derive_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
+        }
 
         //$("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
         $("#" + tab_id).append("<textarea id='" + mce_id + "' name='" + mce_id + "' style='height:800px'></textarea>"); // save to database
