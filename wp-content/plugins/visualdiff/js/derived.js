@@ -1928,7 +1928,7 @@ jQuery(document).ready(function ($) {
         if (!source_mce) return;
         var source_doc = source_mce.getDoc();
 
-        updateSVGColumn(source_doc, derived_doc, 'source_derive', 'fb-svg-mid-column');
+        updateSVGColumn(source_doc, derived_doc, 'fb-svg-mid-column');
     }
 
     function isTinymceAdminElement(element) {
@@ -1944,7 +1944,7 @@ jQuery(document).ready(function ($) {
         return false;
     }
 
-    function updateSVGColumn(left_doc, right_doc, comp_type, svg_column_id) {
+    function updateSVGColumn(left_doc, right_doc, svg_column_id) {
         var source_iframe_container_top = getiFrameOffsetTop(left_doc);
         var derived_iframe_container_top = getiFrameOffsetTop(right_doc);
 
@@ -1971,12 +1971,7 @@ jQuery(document).ready(function ($) {
             var right = $(this);
             if (isTinymceAdminElement(right)) return true; // continue
             var source_id = null;
-            if (comp_type == 'source_derive') {
-                source_id = right.attr('data-source-id');
-            }
-            else if (comp_type == 'source_source') {
-                source_id = right.attr('id');
-            }
+            source_id = right.attr('data-source-id');
 
             if (source_id && source_id != 'none') {
                 // calculate y_bottom_right and y_top_right
