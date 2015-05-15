@@ -12,9 +12,9 @@ jQuery(document).ready(function ($) {
     var fb_dragged_item_copy = null;
 
     var FB_TOC_ID = "table_of_content";
-    var FB_DATA_MERGE_CASE = 'data-merge-case';
+    var FB_DATA_MERGE_CASE = 'data-source-merge-case';
     var FB_DATA_SOURCE_POST_ID = 'data-source-post-id';
-    var FB_DATA_SOURCE_ID = 'data-source-id';
+    var FB_DATA_SOURCE_ID = 'data-source-element-id';
 
     var fb_screen_dpi = -1;
 

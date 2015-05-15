@@ -1,4 +1,12 @@
 jQuery(document).ready(function ($) {
+    var FB_POST_TYPE_SOURCE = 'FB_SOURCE';
+    var FB_POST_TYPE_DERIVE = 'FB_DERIVE';
+    var fb_post_type = null;
+
+    var FB_DATA_MERGE_CASE = 'data-source-merge-case';
+    var FB_DATA_SOURCE_POST_ID = 'data-source-post-id';
+    var FB_DATA_SOURCE_ID = 'data-source-element-id';
+
     var fb_derived_mce_init_done = false;
     var fb_derived_mce_init_called = false;
     var fb_source_mce_init_count = 0;
@@ -12,14 +20,10 @@ jQuery(document).ready(function ($) {
     var fb_previous_source_count = 0;
 
     var fb_floating_sources = true;
-    var highlighting_source = false;
+    var fb_highlighting_source = false;
     var fb_merge_mode = true;
     var fb_show_source_column = true;
     var fb_teacher_student_version = 'teacher';
-
-    var FB_DATA_MERGE_CASE = 'data-merge-case';
-    var FB_DATA_SOURCE_POST_ID = 'data-source-post-id';
-    var FB_DATA_SOURCE_ID = 'data-source-id';
 
     //var source_tab_original_margin_top = -1;
     //var source_tab_current_margin_top = -1;
@@ -474,11 +478,11 @@ jQuery(document).ready(function ($) {
         var this_button = $("#fb-button-highlight-source");
         if (this_button.attr('value') == "Turn Off Source Highlight") {
             this_button.attr('value', 'Turn On Source Highlight');
-            highlighting_source = false;
+            fb_highlighting_source = false;
         }
         else if (this_button.attr('value') == "Turn On Source Highlight") {
             this_button.attr('value', 'Turn Off Source Highlight');
-            highlighting_source = true;
+            fb_highlighting_source = true;
         }
 
         update();
@@ -1549,7 +1553,7 @@ jQuery(document).ready(function ($) {
     }
 
     function highlightSource(source_doc, pid) {
-        if (highlighting_source == false) {
+        if (fb_highlighting_source == false) {
             $(source_doc.body).children().each(function (index) {
                 $(this).css("opacity", 1);
             });

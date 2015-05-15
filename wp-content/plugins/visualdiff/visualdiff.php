@@ -45,15 +45,24 @@ add_action('admin_print_scripts', 'fb_admin_print_scripts');
 // include wordpress dashicons
 add_action( 'admin_enqueue_scripts', 'fb_custom_tinymce_dashicons' );
 
+// global variable
+$FB_LEVEL_1_POST = 'source';
+$FB_LEVEL_2_POST = 'master';
+$FB_LEVEL_3_POST = 'derived';
+
 //-----------------------------------------------------------------------------------------------
 // Called on the admin_enqueue_scripts action, enqueues CSS to 
 // make all WordPress Dashicons available to TinyMCE. This is
 // where most of the magic happens.
 
 function fb_custom_tinymce_dashicons() {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
+    
     $id = get_current_screen()->id;
 
-    if (($id == 'derived') || ($id == 'source') || ($id == 'master')) {      
+    if (($id == $FB_LEVEL_3_POST) || ($id == $FB_LEVEL_2_POST) || ($id == $FB_LEVEL_1_POST)) {      
 	    wp_enqueue_style( 'custom_tinymce_dashicons', plugins_url( 'css/custom-tinymce-dashicons.css', __FILE__ ) );
     }
 }
@@ -95,11 +104,14 @@ function fb_mce_editor_buttons_second_row( $buttons ) {
 }
 
 function fb_mce_editor_buttons_third_row( $buttons ) {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
     //$type = get_current_screen()->post_type;
     $id = get_current_screen()->id;
     // add custom buttons
-    //if (($id == 'derived') || ($id == 'source')) { // no table of content buttons for source documents
-    if ($id == 'derived') {
+    //if (($id == $FB_LEVEL_3_POST) || ($id == $FB_LEVEL_2_POST)) { // no table of content buttons for source documents
+    if ($id == $FB_LEVEL_3_POST) {
         array_push( $buttons, 'fb_custom_button_table_of_content' );
         array_push( $buttons, 'fb_custom_button_page_boundary' );
         return $buttons;
@@ -192,16 +204,20 @@ function fb_mce_before_init( $settings ) {
 //-----------------------------------------------------------------------------------------------
 // for derived post type only
 function fb_derived_admin_head() {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
+    
     $id = get_current_screen()->id;
     //$type = get_current_screen()->post_type;
     //$single = is_single();
     
-    if (($id == 'derived') || ($id == 'source') || ($id == 'master')) {
+    if (($id == $FB_LEVEL_3_POST) || ($id == $FB_LEVEL_2_POST) || ($id == $FB_LEVEL_1_POST)) {
         $fb_js_url = plugins_url( 'js/fb.js' , __FILE__ );
         echo '<script type="text/javascript" src="' . $fb_js_url . '" ></script>';
     }
     
-    if (($id == 'source') || ($id == 'derived')) {
+    if (($id == $FB_LEVEL_2_POST) || ($id == $FB_LEVEL_3_POST)) {
         $htmldiff_js_url = plugins_url( 'js/htmldiff.js' , __FILE__ );
         $derived_js_url = plugins_url( 'js/derived.js' , __FILE__ );
         
@@ -222,9 +238,13 @@ function fb_derived_admin_footer() {
 }
 
 function fb_admin_print_scripts() {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
+    
     $id = get_current_screen()->id;
 
-    if (($id == 'derived') || ($id == 'source') || ($id == 'master')) {       
+    if (($id == $FB_LEVEL_3_POST) || ($id == $FB_LEVEL_2_POST) || ($id == $FB_LEVEL_1_POST)) {       
         wp_enqueue_script('jquery');
         wp_enqueue_script('jquery-ui-core');
         wp_enqueue_script('jquery-ui-tabs');
@@ -333,9 +353,12 @@ function fb_source_element_revision_query() {
 // derived meta boxes
 
 function fb_add_meta_box_derived_document() {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
     global $post;
     if ($post) {        
-        if (($post->post_type == 'derived') || ($post->post_type == 'source')){
+        if (($post->post_type == $FB_LEVEL_3_POST) || ($post->post_type == $FB_LEVEL_2_POST)){
             add_meta_box('meta_box_source_list', 'Source Versions', 'fb_add_meta_box_derived_document_callback', null, 'side', 'core' );
         }
     }
@@ -368,15 +391,21 @@ function fb_add_meta_box_derived_document_callback() {
 // derived post boxes
 
 function fb_add_post_box_derived_document() {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
     global $post;
     if ($post) {        
-        if (($post->post_type == 'derived') || ($post->post_type == 'source')){
+        if (($post->post_type == $FB_LEVEL_3_POST) || ($post->post_type == $FB_LEVEL_2_POST)){
             fb_post_box_derived_document_callback($post->post_type);
         }
     }
 }
 
 function fb_post_box_derived_document_callback($post_type) {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
     global $post;
     $custom = get_post_custom($post->ID);
     $source_posts_ids = (!empty($custom["_fb-opened-source-post-ids"][0])) ? $custom["_fb-opened-source-post-ids"][0] : '';
@@ -386,7 +415,7 @@ function fb_post_box_derived_document_callback($post_type) {
 <div id="fb-source-selection-dialog" title="Source Documents">
     <ol id="fb-selectable-source-list" style="margin-bottom:15px">
 <?php
-        $args = array( 'post_type' => 'master' );
+        $args = array( 'post_type' => $FB_LEVEL_1_POST );
         $source_posts = get_posts( $args );
     
         foreach( $source_posts as $source ) {       
@@ -403,6 +432,7 @@ function fb_post_box_derived_document_callback($post_type) {
     Title: <input id="fb-derive-document-title" type="text"/> 
 </div>
 
+<div id="fb-data-post-type" style="display:none;"><?php echo $post_type; ?></div>
 <div id="fb-data-derive-mces" style="display:none;">
 <?php
     $index_array = array();
@@ -478,7 +508,7 @@ function fb_post_box_derived_document_callback($post_type) {
         <!--h3 style="margin-bottom:8px">Derived Document</h3-->
         <div> 
             <input id="fb-button-add-derive-document" type="button" value="Add Derive Section" class="button-secondary" style="margin-right:10px"/>  
-<?php if ($post_type == 'derived') { ?>
+<?php if ($post_type == $FB_LEVEL_3_POST) { ?>
             <input id="fb-button-table-of-content" type="button" value="Table of Content" class="button-secondary" style="margin-right:10px"/>   
 <?php } ?>           
             <span id="fb-buttonset-toggle-merge" style="margin-right:10px">
@@ -489,10 +519,12 @@ function fb_post_box_derived_document_callback($post_type) {
                 <input type="radio" id="fb-buttonset-toggle-sources-on" name="fb-buttonset-toggle-sources" checked="checked"><label for="fb-buttonset-toggle-sources-on">Sources On</label>
                 <input type="radio" id="fb-buttonset-toggle-sources-off" name="fb-buttonset-toggle-sources"><label for="fb-buttonset-toggle-sources-off">Off</label>
             </span>
+<?php if ($post_type == $FB_LEVEL_3_POST) { ?>
             <span id="fb-buttonset-teacher-student" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-teacher-student-t" name="fb-buttonset-teacher-student" checked="checked"><label for="fb-buttonset-teacher-student-t">Teacher</label>
                 <input type="radio" id="fb-buttonset-teacher-student-s" name="fb-buttonset-teacher-student"><label for="fb-buttonset-teacher-student-s">Student</label>
             </span>
+<?php } ?> 
         </div>
         <div id="fb-tabs-derives" style="margin-top:14px;" class="fb-tabs-sources-display-none">
             <ul id="fb-ul-derive-tabs">
@@ -509,6 +541,9 @@ function fb_post_box_derived_document_callback($post_type) {
 }
 
 function fb_save_document($postid, $post){
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
     global $_POST;
     global $wpdb;
     // set the ID to the parent post, not the revision
@@ -516,7 +551,7 @@ function fb_save_document($postid, $post){
 
     $mce_substring = "_fb-derived-mce";
     
-    if (($post->post_type == 'derived') || ($post->post_type == 'source')) {
+    if (($post->post_type == $FB_LEVEL_3_POST) || ($post->post_type == $FB_LEVEL_2_POST)) {
         $wpdb->query( 
 	        $wpdb->prepare( 
 		        "
@@ -546,7 +581,11 @@ function fb_save_document($postid, $post){
 }
 
 function fb_filter_post_data($data , $postarr) {
-    if ($data['post_type'] == 'master') {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
+    
+    if ($data['post_type'] == $FB_LEVEL_1_POST) {
         $post_content = $data['post_content'];
         if (!isset($post_content) || strlen($post_content) <= 0) return $data;
         
@@ -597,12 +636,16 @@ function fb_meta_box_post_revision_callback() {
 // add custom post types
 
 function fb_create_post_type() {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
+    
     $args = array(
         'labels' => array(
-            'name' => 'Masters',
-            'singular_name' => 'Master',
+            'name' => 'Sources',
+            'singular_name' => 'Source',
             'add_new' => 'Add New',
-            'add_new_item' => 'Add New Master Document',
+            'add_new_item' => 'Add New Source Document',
             //'edit' => __( 'Edit' ),
             //'edit_item' => __( 'Edit Source Document' ),
             //'new_item' => __( 'New Source Document' ),
@@ -638,14 +681,14 @@ function fb_create_post_type() {
             )
     );
     
-    register_post_type('master', $args);
+    register_post_type($FB_LEVEL_1_POST, $args);
     
     $args2 = array(
         'labels' => array(
-            'name' => 'Sources',
-            'singular_name' => 'Source',
+            'name' => 'Masters',
+            'singular_name' => 'Master',
             'add_new' => 'Add New',
-            'add_new_item' => 'Add New Source Document',
+            'add_new_item' => 'Add New Master Document',
             //'edit' => __( 'Edit' ),
             //'edit_item' => __( 'Edit Source Document' ),
             //'new_item' => __( 'New Source Document' ),
@@ -681,7 +724,7 @@ function fb_create_post_type() {
             )
     );
     
-    register_post_type('source', $args2);
+    register_post_type($FB_LEVEL_2_POST, $args2);
     
     $args3 = array(
             'labels' => array(
@@ -724,7 +767,7 @@ function fb_create_post_type() {
                 )
     );
     
-    register_post_type('derived', $args3);
+    register_post_type($FB_LEVEL_3_POST, $args3);
 }
 
 //-----------------------------------------------------------------------------------------------
