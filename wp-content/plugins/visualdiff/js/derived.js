@@ -1,11 +1,20 @@
 jQuery(document).ready(function ($) {
-    var FB_POST_TYPE_SOURCE = 'FB_SOURCE';
-    var FB_POST_TYPE_DERIVE = 'FB_DERIVE';
+    var FB_LEVEL_1_POST = 'source';
+    var FB_LEVEL_2_POST = 'master';
+    var FB_LEVEL_3_POST = 'derived';
     var fb_post_type = null;
 
-    var FB_DATA_MERGE_CASE = 'data-source-merge-case';
-    var FB_DATA_SOURCE_POST_ID = 'data-source-post-id';
-    var FB_DATA_SOURCE_ID = 'data-source-element-id';
+    var FB_DATA_LEVEL1_MERGE_CASE = 'data-source-merge-case';
+    var FB_DATA_LEVEL2_MERGE_CASE = 'data-master-merge-case';
+    var fb_data_merge_case = null;
+
+    var FB_DATA_LEVEL1_POST_ID = 'data-source-post-id';
+    var FB_DATA_LEVEL2_POST_ID = 'data-master-post-id';
+    var fb_data_post_id = null;
+
+    var FB_DATA_LEVEL1_ELEMENT_ID = 'data-source-element-id';
+    var FB_DATA_LEVEL2_ELEMENT_ID = 'data-master-element-id';
+    var fb_data_element_id = null;
 
     var fb_derived_mce_init_done = false;
     var fb_derived_mce_init_called = false;
@@ -25,20 +34,13 @@ jQuery(document).ready(function ($) {
     var fb_show_source_column = true;
     var fb_teacher_student_version = 'teacher';
 
-    //var source_tab_original_margin_top = -1;
-    //var source_tab_current_margin_top = -1;
-
     // source tabs
     var selected_sources = [];
-    var source_tabs = $('#fb-tabs-sources').tabs().css({
-        'min-height': '850px'
-    });
+    var source_tabs = $('#fb-tabs-sources').tabs().css({'min-height': '850px'});
     var tab_counter_source = 0;
 
     // derive tabs
-    var derive_tabs = $('#fb-tabs-derives').tabs().css({
-        'min-height': '850px'
-    });
+    var derive_tabs = $('#fb-tabs-derives').tabs().css({'min-height': '850px'});
     var tab_counter_derive = 0;
 
     var tab_template = "<li id='#{id}'><a href='#{href}' data-post-id='#{postid}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
@@ -143,6 +145,19 @@ jQuery(document).ready(function ($) {
 
         $("#fb-button-open-source-document").prop('disabled', false);
 
+        // post type
+        fb_post_type = $("#fb-data-post-type").html();
+        if (fb_post_type == FB_LEVEL_2_POST) {
+            fb_data_merge_case = FB_DATA_LEVEL1_MERGE_CASE;
+            fb_data_post_id = FB_DATA_LEVEL1_POST_ID;
+            fb_data_element_id = FB_DATA_LEVEL1_ELEMENT_ID;
+        }
+        else if (fb_post_type == FB_LEVEL_3_POST) {
+            fb_data_merge_case = FB_DATA_LEVEL2_MERGE_CASE;
+            fb_data_post_id = FB_DATA_LEVEL2_POST_ID;
+            fb_data_element_id = FB_DATA_LEVEL2_ELEMENT_ID;
+        }
+
         // meta: derive tabs
         $("#fb-data-derive-mces").children().each(function (index) {
             var d_title = $(this).attr('data-title');
@@ -214,8 +229,8 @@ jQuery(document).ready(function ($) {
                     $(derive).html(clean);
                     $(derive).css('border-style', 'none');
 
-                    if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
-                    if ($(derive).attr(FB_DATA_MERGE_CASE)) $(derive).removeAttr(FB_DATA_MERGE_CASE);
+                    if ($(source).attr(fb_data_merge_case)) $(source).removeAttr(fb_data_merge_case);
+                    if ($(derive).attr(fb_data_merge_case)) $(derive).removeAttr(fb_data_merge_case);
 
                     setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
@@ -234,8 +249,8 @@ jQuery(document).ready(function ($) {
                     $(derive).html(old_clean);
                     $(derive).css('border-style', 'none');
 
-                    if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
-                    if ($(derive).attr(FB_DATA_MERGE_CASE)) $(derive).removeAttr(FB_DATA_MERGE_CASE);
+                    if ($(source).attr(fb_data_merge_case)) $(source).removeAttr(fb_data_merge_case);
+                    if ($(derive).attr(fb_data_merge_case)) $(derive).removeAttr(fb_data_merge_case);
 
                     setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
@@ -290,8 +305,8 @@ jQuery(document).ready(function ($) {
                         $(derive_op1).css('border-style', 'none');
                         //$(derive_op1).css('margin-left', '0px');
 
-                        if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
-                        if ($(derive_op1).attr(FB_DATA_MERGE_CASE)) $(derive_op1).removeAttr(FB_DATA_MERGE_CASE);
+                        if ($(source).attr(fb_data_merge_case)) $(source).removeAttr(fb_data_merge_case);
+                        if ($(derive_op1).attr(fb_data_merge_case)) $(derive_op1).removeAttr(fb_data_merge_case);
 
                         $(derive_op2).remove();
                     }
@@ -310,8 +325,8 @@ jQuery(document).ready(function ($) {
                         $(derive).css('border-style', 'none');
                         //$(derive).css('margin-left', '0px');
 
-                        if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
-                        if ($(derive).attr(FB_DATA_MERGE_CASE)) $(derive).removeAttr(FB_DATA_MERGE_CASE);
+                        if ($(source).attr(fb_data_merge_case)) $(source).removeAttr(fb_data_merge_case);
+                        if ($(derive).attr(fb_data_merge_case)) $(derive).removeAttr(fb_data_merge_case);
 
                         var derive_op2 = derived_doc.getElementById(d_id + '-option2');
                         $(derive_op2).remove();
@@ -335,8 +350,8 @@ jQuery(document).ready(function ($) {
                     $(derive).html(clean);
                     $(derive).css('border-style', 'none');
 
-                    if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
-                    if ($(derive).attr(FB_DATA_MERGE_CASE)) $(derive).removeAttr(FB_DATA_MERGE_CASE);
+                    if ($(source).attr(fb_data_merge_case)) $(source).removeAttr(fb_data_merge_case);
+                    if ($(derive).attr(fb_data_merge_case)) $(derive).removeAttr(fb_data_merge_case);
 
                     setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
@@ -349,7 +364,7 @@ jQuery(document).ready(function ($) {
                     $(source).html(clean);
                     $(derive).remove();
 
-                    if ($(source).attr(FB_DATA_MERGE_CASE)) $(source).removeAttr(FB_DATA_MERGE_CASE);
+                    if ($(source).attr(fb_data_merge_case)) $(source).removeAttr(fb_data_merge_case);
 
                     setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
@@ -376,7 +391,7 @@ jQuery(document).ready(function ($) {
                     $(source).remove();                   
                     $(derive).html(clean);
                     $(derive).css('border-style', 'none');
-                    if ($(derive).attr(FB_DATA_MERGE_CASE)) $(derive).removeAttr(FB_DATA_MERGE_CASE);
+                    if ($(derive).attr(fb_data_merge_case)) $(derive).removeAttr(fb_data_merge_case);
                     setNumberOfMergeRequests(derived_mce.post_name, post_id, -1);
                 }
 
@@ -803,7 +818,7 @@ jQuery(document).ready(function ($) {
                             if (new_element.trim() != old_element.trim()) {
                                 // derive element                                  
                                 $(derived_doc.body).find("[id]").each(function () {
-                                    if ($(this).attr(FB_DATA_SOURCE_ID) && $(this).attr(FB_DATA_SOURCE_ID).trim() == id) {
+                                    if ($(this).attr(fb_data_element_id) && $(this).attr(fb_data_element_id).trim() == id) {
                                         exist_derive = true;
 
                                         var derive_element = unwrapDeleteInsertTagjQuery($(this));
@@ -811,7 +826,7 @@ jQuery(document).ready(function ($) {
 
                                         // merge case 1:
                                         if (derive_element.trim() == old_element.trim()) {
-                                            $(this).attr(FB_DATA_MERGE_CASE, 1);
+                                            $(this).attr(fb_data_merge_case, 1);
                                             $(this).css('border-style', 'dotted');
                                             $(this).css('border-width', '1px');
                                             $(this).css('border-color', 'orange');
@@ -839,7 +854,7 @@ jQuery(document).ready(function ($) {
                                                 $(this).addClass('delete-merge');
                                             });
 
-                                            n_this.attr(FB_DATA_MERGE_CASE, 1); 
+                                            n_this.attr(fb_data_merge_case, 1); 
                                         }
                                         // merge case 3:
                                         else {
@@ -847,7 +862,7 @@ jQuery(document).ready(function ($) {
                                             console.log("old_element: " + old_element);
                                             console.log("derive_element: " + derive_element);
 
-                                            $(this).attr(FB_DATA_MERGE_CASE, 3);
+                                            $(this).attr(fb_data_merge_case, 3);
                                             $(this).css('border-style', 'dotted');
                                             $(this).css('border-width', '1px');
                                             $(this).css('border-color', 'orange');
@@ -877,7 +892,7 @@ jQuery(document).ready(function ($) {
                                                 $(this).addClass('delete-merge');
                                             });
 
-                                            n_this.attr(FB_DATA_MERGE_CASE, 3);
+                                            n_this.attr(fb_data_merge_case, 3);
                                             
                                             var op2 = $(this).clone();
                                             $(op2).css('margin-bottom', '3px');
@@ -918,7 +933,7 @@ jQuery(document).ready(function ($) {
                                 var pid = getParentID(new_doc.body, n_this.attr('id'));
                                 if (pid != null) {
                                     $(derived_doc.body).find("[id]").each(function () {
-                                        if ($(this).attr(FB_DATA_SOURCE_ID) && $(this).attr(FB_DATA_SOURCE_ID).trim() == pid) {
+                                        if ($(this).attr(fb_data_element_id) && $(this).attr(fb_data_element_id).trim() == pid) {
                                             p_exist = true;
                                             return false;
                                         }
@@ -930,7 +945,7 @@ jQuery(document).ready(function ($) {
                                     var html = n_this.html();
                                     var html = "<span class='insert insert-merge'>" + html + "</span>";
                                     n_this.html(html);
-                                    n_this.attr(FB_DATA_MERGE_CASE, 5); // this modification is in memory only, will not be saved to database
+                                    n_this.attr(fb_data_merge_case, 5); // this modification is in memory only, will not be saved to database
                                     addNewItemToDerive(n_this, new_doc, derived_doc, source_post_id);
                                     setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
                                 }
@@ -941,7 +956,7 @@ jQuery(document).ready(function ($) {
                             var html = n_this.html();
                             var html = "<span class='insert insert-merge'>" + html + "</span>";
                             n_this.html(html);
-                            n_this.attr(FB_DATA_MERGE_CASE, 5); // this modification is in memory only, will not be saved to database
+                            n_this.attr(fb_data_merge_case, 5); // this modification is in memory only, will not be saved to database
                             addNewItemToDerive(n_this, new_doc, derived_doc, source_post_id);
                             setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
                             */
@@ -976,7 +991,7 @@ jQuery(document).ready(function ($) {
                         // cases 6, 7, 8: deleted in new source document
                         if (!exist_new_source) {
                             $(derived_doc.body).find("[id]").each(function () {
-                                if ($(this).attr(FB_DATA_SOURCE_ID) && $(this).attr(FB_DATA_SOURCE_ID).trim() == id) {
+                                if ($(this).attr(fb_data_element_id) && $(this).attr(fb_data_element_id).trim() == id) {
                                     var d_html = unwrapDeleteInsertTagjQuery($(this));
                                     d_html = d_html.replace(/&nbsp;/ig, ' ').replace(/<br>/g, '');
                                     if (d_html.trim() === '') {
@@ -986,7 +1001,7 @@ jQuery(document).ready(function ($) {
                                     // case 6: exist in derived document
                                     exist_derive = true;
                                     addDeleteItemToSource(o_this, new_doc, old_doc, source_post_id);
-                                    $(this).attr(FB_DATA_MERGE_CASE, 6);
+                                    $(this).attr(fb_data_merge_case, 6);
                                     $(this).css('border-style', 'dotted');
                                     $(this).css('border-width', '1px');
                                     $(this).css('border-color', 'orange');
@@ -1028,7 +1043,7 @@ jQuery(document).ready(function ($) {
         if (parent_id != null && prev_id != null) {
             $($(new_doc.body).children().get().reverse()).each(function () {
                 if ($(this).attr("id") && $(this).attr("id") == prev_id) {
-                    $(clone).attr(FB_DATA_MERGE_CASE, 6);
+                    $(clone).attr(fb_data_merge_case, 6);
 
                     var html = unwrapDeleteInsertTag(clone);
                     //var html = $(clone).html();
@@ -1047,7 +1062,7 @@ jQuery(document).ready(function ($) {
             if (parent_id != null && next_id != null) {
                 $($(new_doc.body).children().get().reverse()).each(function () {
                     if ($(this).attr("id") && $(this).attr("id") == next_id) {
-                        $(clone).attr(FB_DATA_MERGE_CASE, 6);
+                        $(clone).attr(fb_data_merge_case, 6);
 
                         var html = unwrapDeleteInsertTag(clone);
                         var html = "<span class='delete delete-merge'>" + html + "</span>";
@@ -1077,9 +1092,9 @@ jQuery(document).ready(function ($) {
         var found = false;
         if (parent_id != null && prev_id != null) {
             $($(derived_doc.body).children().get().reverse()).each(function () {
-                if ($(this).attr(FB_DATA_SOURCE_ID) && $(this).attr(FB_DATA_SOURCE_ID) == prev_id) {
-                    $(clone).attr(FB_DATA_MERGE_CASE, 5);
-                    $(clone).attr(FB_DATA_SOURCE_POST_ID, post_id);
+                if ($(this).attr(fb_data_element_id) && $(this).attr(fb_data_element_id) == prev_id) {
+                    $(clone).attr(fb_data_merge_case, 5);
+                    $(clone).attr(fb_data_post_id, post_id);
                     $(clone).css('border-style', 'dotted');
                     $(clone).css('border-width', '1px');
                     $(clone).css('border-color', 'orange');
@@ -1103,9 +1118,9 @@ jQuery(document).ready(function ($) {
         if (found == false) {
             if (parent_id != null && next_id != null) {
                 $($(derived_doc.body).children().get().reverse()).each(function () {
-                    if ($(this).attr(FB_DATA_SOURCE_ID) && $(this).attr(FB_DATA_SOURCE_ID) == next_id) {
-                        $(clone).attr(FB_DATA_MERGE_CASE, 5);
-                        $(clone).attr(FB_DATA_SOURCE_POST_ID, post_id);
+                    if ($(this).attr(fb_data_element_id) && $(this).attr(fb_data_element_id) == next_id) {
+                        $(clone).attr(fb_data_merge_case, 5);
+                        $(clone).attr(fb_data_post_id, post_id);
                         $(clone).css('border-style', 'dotted');
                         $(clone).css('border-width', '1px');
                         $(clone).css('border-color', 'orange');
@@ -1332,7 +1347,7 @@ jQuery(document).ready(function ($) {
                         var derive_mce = addDeriveTab(obj.title, obj.content, -1);
                         if (derive_mce) {
                             $(derive_mce.getBody()).children().each(function () {
-                                $(this).attr(FB_DATA_SOURCE_POST_ID, post_id);
+                                $(this).attr(fb_data_post_id, post_id);
                             });
                         }
                     }
@@ -1375,6 +1390,8 @@ jQuery(document).ready(function ($) {
         });
 
         var source_mce = tinymce.get(mce_id);
+        source_mce.plugins.fb_folding_editor.setupPostType(fb_post_type);
+
         source_mce.setContent(content); // note: the get method does not work when tinymce.js has not been loaded;
         source_mce.on('change', function (e) {
             update();
@@ -1384,7 +1401,7 @@ jQuery(document).ready(function ($) {
         source_mce["post_name"] = title;
         source_mce["original_margin_top"] = parseInt($(source_mce.getBody()).css('margin-top'), 10);
         source_mce["current_margin_top"] = source_mce["original_margin_top"];
-        
+
         if (tab_counter_source == 0) {
             source_tabs.removeClass('fb-tabs-sources-display-none');
         }
@@ -1432,6 +1449,8 @@ jQuery(document).ready(function ($) {
         tinymce.execCommand('mceAddEditor', false, mce_id);
 
         var derive_mce = tinymce.get(mce_id);
+        derive_mce.plugins.fb_folding_editor.setupPostType(fb_post_type);
+
         derive_mce.setContent(content); // note: the get method does not work when tinymce.js has not been loaded;
         derive_mce.on('change', function (e) {
             update();
@@ -1504,6 +1523,7 @@ jQuery(document).ready(function ($) {
 
     function update() {
         if (flexibook.postpone_update == true) return;
+        if (fb_derived_mce_init_done == false) return;
 
         updateMetaSourceVersions();
         updatePublishButton();
@@ -1569,8 +1589,8 @@ jQuery(document).ready(function ($) {
             $(derived_doc.body).children().each(function (index) {
                 var derive = $(this);
                 if (isTinymceAdminElement(derive)) return true; // continue
-                var source_id = derive.attr(FB_DATA_SOURCE_ID);
-                var source_post_id = derive.attr(FB_DATA_SOURCE_POST_ID);
+                var source_id = derive.attr(fb_data_element_id);
+                var source_post_id = derive.attr(fb_data_post_id);
 
                 if (source_post_id && source_post_id == pid && source_id && source_id != 'none') {
                     var source = source_doc.getElementById(source_id);
@@ -1770,8 +1790,8 @@ jQuery(document).ready(function ($) {
     function getUniqueSourcePostIDs(derived_doc) {
         var ids = [];
 
-        $(derived_doc.body).find("[" + FB_DATA_SOURCE_POST_ID + "]").each(function (index) {
-            var post_id = $(this).attr(FB_DATA_SOURCE_POST_ID).trim();
+        $(derived_doc.body).find("[" + fb_data_post_id + "]").each(function (index) {
+            var post_id = $(this).attr(fb_data_post_id).trim();
             if (ids.indexOf(post_id) == -1) {
                 ids.push(post_id);
             }
@@ -1798,7 +1818,7 @@ jQuery(document).ready(function ($) {
             $(base_doc.body).children().each(function (index) {
                 var base = $(this);
                 if (isTinymceAdminElement(base)) return true; // continue
-                if (base.attr(FB_DATA_MERGE_CASE)) return true; // continue; ms - skip the elements that require merge actions
+                if (base.attr(fb_data_merge_case)) return true; // continue; ms - skip the elements that require merge actions
                 var id = base.attr('id');
 
                 if (id && id != 'none') {
@@ -1814,8 +1834,8 @@ jQuery(document).ready(function ($) {
 
             //if (comp.hasClass("fb_tinymce_left_column") == false && comp.hasClass("fb_tinymce_left_column_icon") == false) {
             if (isTinymceAdminElement(comp)) return true; // continue
-            if (comp.attr(FB_DATA_MERGE_CASE)) return true; // continue; ms - skip the elements that require merge actions
-            var source_id = comp.attr(FB_DATA_SOURCE_ID);
+            if (comp.attr(fb_data_merge_case)) return true; // continue; ms - skip the elements that require merge actions
+            var source_id = comp.attr(fb_data_element_id);
 
             var id = comp.attr('id');
 
@@ -1939,7 +1959,7 @@ jQuery(document).ready(function ($) {
             var right = $(this);
             if (isTinymceAdminElement(right)) return true; // continue
             var source_id = null;
-            source_id = right.attr(FB_DATA_SOURCE_ID);
+            source_id = right.attr(fb_data_element_id);
 
             if (source_id && source_id != 'none') {
                 // calculate y_bottom_right and y_top_right
@@ -1983,7 +2003,7 @@ jQuery(document).ready(function ($) {
                             }
                             previous_y_bottom_right = y_bottom_right;
 
-                            var source_post_id = right.attr(FB_DATA_SOURCE_POST_ID);
+                            var source_post_id = right.attr(fb_data_post_id);
                             var derive_element_id = right.attr('id');
                             var classes = right.attr('id');
 
@@ -2100,7 +2120,7 @@ jQuery(document).ready(function ($) {
                             fill = 'red';
                         }
 
-                        var source_post_id = right.attr(FB_DATA_SOURCE_POST_ID);
+                        var source_post_id = right.attr(fb_data_post_id);
                         var derive_element_id = right.attr('id');
                         var classes = right.attr('id') + ' ' + $(left).attr('id');
 
@@ -2274,7 +2294,7 @@ jQuery(document).ready(function ($) {
             if (derive.attr('id') == d_id) {
                 //if (derive.hasClass("fb_tinymce_left_column") == false && derive.hasClass("fb_tinymce_left_column_icon") == false) {
                 if (isTinymceAdminElement(derive)) return true; // continue
-                var source_id = derive.attr(FB_DATA_SOURCE_ID);
+                var source_id = derive.attr(fb_data_element_id);
 
                 if (source_id && source_id != 'none') {
                     var source = source_doc.getElementById(source_id);

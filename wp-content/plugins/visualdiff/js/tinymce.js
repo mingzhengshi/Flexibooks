@@ -1,5 +1,22 @@
 jQuery(document).ready(function ($) {
     // global variables
+    var FB_LEVEL_1_POST = 'source';
+    var FB_LEVEL_2_POST = 'master';
+    var FB_LEVEL_3_POST = 'derived';
+    var fb_post_type = null;
+
+    var FB_DATA_LEVEL1_MERGE_CASE = 'data-source-merge-case';
+    var FB_DATA_LEVEL2_MERGE_CASE = 'data-master-merge-case';
+    var fb_data_merge_case = null;
+
+    var FB_DATA_LEVEL1_POST_ID = 'data-source-post-id';
+    var FB_DATA_LEVEL2_POST_ID = 'data-master-post-id';
+    var fb_data_post_id = null;
+
+    var FB_DATA_LEVEL1_ELEMENT_ID = 'data-source-element-id';
+    var FB_DATA_LEVEL2_ELEMENT_ID = 'data-master-element-id';
+    var fb_data_element_id = null;
+
     // record the latest copy event
     var copied_from_editor_id = "";
     var copied_content = "";
@@ -12,15 +29,13 @@ jQuery(document).ready(function ($) {
     var fb_dragged_item_copy = null;
 
     var FB_TOC_ID = "table_of_content";
-    var FB_DATA_MERGE_CASE = 'data-source-merge-case';
-    var FB_DATA_SOURCE_POST_ID = 'data-source-post-id';
-    var FB_DATA_SOURCE_ID = 'data-source-element-id';
 
     var fb_screen_dpi = -1;
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
         this.updatePublic = updatePublic; // public member of the fb_folding_editor object
         this.updateMasterTOC = updateMasterTableOfContent; // public member
+        this.setupPostType = setupPostType; // public member
 
         var page_boundary_on = false;
         var page_boundary_on_body_background_color = '#ebebeb';
@@ -286,6 +301,20 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        function setupPostType(post_type) {
+            fb_post_type = post_type;
+            if (fb_post_type == FB_LEVEL_2_POST) {
+                fb_data_merge_case = FB_DATA_LEVEL1_MERGE_CASE;
+                fb_data_post_id = FB_DATA_LEVEL1_POST_ID;
+                fb_data_element_id = FB_DATA_LEVEL1_ELEMENT_ID;
+            }
+            else if (fb_post_type == FB_LEVEL_3_POST) {
+                fb_data_merge_case = FB_DATA_LEVEL2_MERGE_CASE;
+                fb_data_post_id = FB_DATA_LEVEL2_POST_ID;
+                fb_data_element_id = FB_DATA_LEVEL2_ELEMENT_ID;
+            }
+        }
+
         function updateMasterTableOfContent(title, post_names) {
             // firstly remove the toc if it already exists
             $(editor.getBody()).find('.toc-page').remove();
@@ -410,7 +439,7 @@ jQuery(document).ready(function ($) {
 
             if (editor.id.indexOf("fb-derived-mce") >= 0 ||
                 editor.id.indexOf("fb-source-mce") >= 0) {
-                if (!$(node).attr(FB_DATA_MERGE_CASE)) {
+                if (!$(node).attr(fb_data_merge_case)) {
                     var offset = $(node).offset(); // absolute position relative to the document
                     var height = $(node).height();
                     var top = offset.top - 22 + height / 2;
@@ -445,7 +474,7 @@ jQuery(document).ready(function ($) {
                 // if no content has been selected
                 if (isEmptyContent(content) == true) {
                     // only consider the paragraph that derives from the source document
-                    if (!$(node).attr(FB_DATA_SOURCE_ID)) {
+                    if (!$(node).attr(fb_data_element_id)) {
 
                     }
                     // check if the cursor is at the start or the end of the paragraph
@@ -496,7 +525,7 @@ jQuery(document).ready(function ($) {
                     var cont = "";
                     $(copied_content).each(function (index) {
                         var node = $(this).clone();
-                        $(node).attr(FB_DATA_SOURCE_POST_ID, post_id);
+                        $(node).attr(fb_data_post_id, post_id);
                         cont += $(node).prop('outerHTML');
                     });
                     copied_content = cont;
@@ -505,7 +534,7 @@ jQuery(document).ready(function ($) {
                 else {
                     copied_mode = "single";
                     var node = $(copied_node).clone();
-                    $(node).attr(FB_DATA_SOURCE_POST_ID, post_id);
+                    $(node).attr(fb_data_post_id, post_id);
                     $(node).html(copied_content);
                     copied_content = $(node).prop('outerHTML');
 
@@ -589,6 +618,8 @@ jQuery(document).ready(function ($) {
         }
 
         function update() {
+            if (fb_post_type == null) return;
+
             updatePublic(true);
         }
 
@@ -720,8 +751,8 @@ jQuery(document).ready(function ($) {
                     var classes = node.attr('class');
                     if (classes && classes.indexOf("fb-display-none") >= 0) return true; // continue
 
-                    if (node.attr(FB_DATA_MERGE_CASE) && node.attr(FB_DATA_MERGE_CASE) > 0) {
-                        var mcase = node.attr(FB_DATA_MERGE_CASE);
+                    if (node.attr(fb_data_merge_case) && node.attr(fb_data_merge_case) > 0) {
+                        var mcase = node.attr(fb_data_merge_case);
                         // setup merge icon
 
                         var offset = node.offset(); // absolute position relative to the document
@@ -867,8 +898,8 @@ jQuery(document).ready(function ($) {
                             var derive_item_id = targetID;
 
                             $(editor.getBody()).find('#' + targetID).each(function () {
-                                post_id = $(this).attr(FB_DATA_SOURCE_POST_ID);
-                                source_item_id = $(this).attr(FB_DATA_SOURCE_ID);
+                                post_id = $(this).attr(fb_data_post_id);
+                                source_item_id = $(this).attr(fb_data_element_id);
                             });
 
                             var callback = flexibook.mergeIconClickCallback;
@@ -931,7 +962,7 @@ jQuery(document).ready(function ($) {
                 }
                 else if (editor.id.indexOf("fb-source-mce") >= 0) {
                     var post_id = editor.post_id;
-                    $(fb_dragged_item_copy).attr(FB_DATA_SOURCE_POST_ID, post_id);
+                    $(fb_dragged_item_copy).attr(fb_data_post_id, post_id);
                 }
                 //console.log('dragstart');
             });
@@ -1019,32 +1050,32 @@ jQuery(document).ready(function ($) {
                     // if a new paragraph is empty, we should not consider as if it is derived from the source
                     /*
                     if (element.html().trim() == '') {
-                        if (element.attr(FB_DATA_SOURCE_ID)) {
-                            element.removeAttr(FB_DATA_SOURCE_ID);
+                        if (element.attr(fb_data_element_id)) {
+                            element.removeAttr(fb_data_element_id);
                         }
-                        if (element.attr(FB_DATA_SOURCE_POST_ID)) {
-                            element.removeAttr(FB_DATA_SOURCE_POST_ID);
+                        if (element.attr(fb_data_post_id)) {
+                            element.removeAttr(fb_data_post_id);
                         }
                     }
                     */
 
-                    if (!element.attr(FB_DATA_SOURCE_ID)) {
+                    if (!element.attr(fb_data_element_id)) {
                         if (!element.attr('id')) {
                             // new element created by the user
-                            element.attr(FB_DATA_SOURCE_ID, "none");
+                            element.attr(fb_data_element_id, "none");
                             element.attr("id", generateUUID());
                         }
                         else {
                             // element from source document
                             var source_id = element.attr("id");
-                            element.attr(FB_DATA_SOURCE_ID, source_id);
+                            element.attr(fb_data_element_id, source_id);
                             element.attr("id", generateUUID());
                         }
                     }
                     else {
                         if (!element.attr('id')) {
                             // new element created by the user
-                            element.attr(FB_DATA_SOURCE_ID, "none");
+                            element.attr(fb_data_element_id, "none");
                             element.attr("id", generateUUID());
                         }
                     }
@@ -1082,7 +1113,7 @@ jQuery(document).ready(function ($) {
                             targetLevel = parseInt(element.tagName.substr(1));
 
                             var element_copy = $(element).clone();
-                            $(element_copy).attr(FB_DATA_SOURCE_POST_ID, post_id);
+                            $(element_copy).attr(fb_data_post_id, post_id);
                             content += $(element_copy).prop('outerHTML');
                         }
                     }
@@ -1094,13 +1125,13 @@ jQuery(document).ready(function ($) {
                             }
                             else {
                                 var element_copy = $(element).clone();
-                                $(element_copy).attr(FB_DATA_SOURCE_POST_ID, post_id);
+                                $(element_copy).attr(fb_data_post_id, post_id);
                                 content += $(element_copy).prop('outerHTML');
                             }
                         }
                         else {
                             var element_copy = $(element).clone();
-                            $(element_copy).attr(FB_DATA_SOURCE_POST_ID, post_id);
+                            $(element_copy).attr(fb_data_post_id, post_id);
                             content += $(element_copy).prop('outerHTML');
                         }
                     }
@@ -1142,8 +1173,8 @@ jQuery(document).ready(function ($) {
                     var classes = node.attr('class');
                     if (classes && classes.indexOf("fb-display-none") >= 0) return true; // continue
 
-                    if (node.attr(FB_DATA_MERGE_CASE) && node.attr(FB_DATA_MERGE_CASE) > 0) {
-                        var mcase = node.attr(FB_DATA_MERGE_CASE);
+                    if (node.attr(fb_data_merge_case) && node.attr(fb_data_merge_case) > 0) {
+                        var mcase = node.attr(fb_data_merge_case);
 
                         var offset = node.offset(); // absolute position relative to the document
                         var height = node.height();

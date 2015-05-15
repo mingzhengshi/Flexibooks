@@ -224,7 +224,6 @@ function fb_derived_admin_head() {
         $derived_css_url = plugins_url( 'css/derived.css' , __FILE__ );
         $jquery_css_url = plugins_url( 'css/jquery-ui-themes-1.11.2/themes/smoothness/jquery-ui.css' , __FILE__ );
     
-
         echo '<script type="text/javascript" src="' . $htmldiff_js_url . '" ></script>'; // need to come first; to be used in other js files;
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
         
@@ -415,14 +414,21 @@ function fb_post_box_derived_document_callback($post_type) {
 <div id="fb-source-selection-dialog" title="Source Documents">
     <ol id="fb-selectable-source-list" style="margin-bottom:15px">
 <?php
+    $args = null;
+    if ($post_type == $FB_LEVEL_2_POST) {
         $args = array( 'post_type' => $FB_LEVEL_1_POST );
-        $source_posts = get_posts( $args );
-    
-        foreach( $source_posts as $source ) {       
-            $source_id = $source->ID;
-            $source_title = $source->post_title;
-            echo "<li class='ui-widget-content' source-post-id='" . $source_id . "'>" . $source_title . "</li>";
-        }    
+    }
+    else if ($post_type == $FB_LEVEL_3_POST) {
+        $args = array( 'post_type' => $FB_LEVEL_2_POST );
+    }
+    $source_posts = get_posts( $args );
+        
+    foreach( $source_posts as $source ) {       
+        $source_id = $source->ID;
+        $source_title = $source->post_title;
+        echo "<li class='ui-widget-content' source-post-id='" . $source_id . "'>" . $source_title . "</li>";
+    }
+     
 ?> 
     </ol>
     <input type="checkbox" id="fb-checkbox-add-all-selected-sources" style="margin-left:5px"/>Add all selected sources to derive
