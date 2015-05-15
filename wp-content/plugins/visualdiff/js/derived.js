@@ -1766,7 +1766,7 @@ jQuery(document).ready(function ($) {
     function getUniqueSourcePostIDs(derived_doc) {
         var ids = [];
 
-        $(derived_doc.body).find("[data-source-post-id]").each(function (index) {
+        $(derived_doc.body).find("[" + FB_DATA_SOURCE_POST_ID + "]").each(function (index) {
             var post_id = $(this).attr(FB_DATA_SOURCE_POST_ID).trim();
             if (ids.indexOf(post_id) == -1) {
                 ids.push(post_id);

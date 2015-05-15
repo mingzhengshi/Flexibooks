@@ -13,9 +13,6 @@
         this.derivedElementMouseUpCallback = {};
         this.onDragEndCallback = {};
         this.tableOfContentCallback = {};
-
-        // source callbacks
-        this.sourceTableOfContentCallback = {};
     }
 
     // derived callbacks
@@ -41,11 +38,6 @@
 
     Flexibook.prototype.regTableOfContentCallback = function (callback) {
         this.tableOfContentCallback = callback;
-    };
-
-    // source callbacks
-    Flexibook.prototype.regSourceTableOfContentCallback = function (callback) {
-        this.sourceTableOfContentCallback = callback;
     };
 
     // others
