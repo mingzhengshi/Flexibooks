@@ -45,25 +45,6 @@ add_action('admin_print_scripts', 'fb_admin_print_scripts');
 // include wordpress dashicons
 add_action( 'admin_enqueue_scripts', 'fb_custom_tinymce_dashicons' );
 
-// edit.php page
-/*
-add_action('admin_head-edit.php', 'fb_create_new_derive');
-
-function fb_create_new_derive() {
-    $id = get_current_screen()->id;
-
-    if ($id == 'edit-source') {
-?>
-    <script type="text/javascript">
-        jQuery(document).ready(function ($) {
-            $('.wrap h2').append('<a href="" class="add-new-h2">Create Derive</a>');
-        });
-    </script>
-    <?php 
-    }
-}
-*/
-
 //-----------------------------------------------------------------------------------------------
 // Called on the admin_enqueue_scripts action, enqueues CSS to 
 // make all WordPress Dashicons available to TinyMCE. This is
@@ -72,7 +53,7 @@ function fb_create_new_derive() {
 function fb_custom_tinymce_dashicons() {
     $id = get_current_screen()->id;
 
-    if (($id == 'derived') || ($id == 'source')) {      
+    if (($id == 'derived') || ($id == 'source') || ($id == 'master')) {      
 	    wp_enqueue_style( 'custom_tinymce_dashicons', plugins_url( 'css/custom-tinymce-dashicons.css', __FILE__ ) );
     }
 }
@@ -117,6 +98,7 @@ function fb_mce_editor_buttons_third_row( $buttons ) {
     //$type = get_current_screen()->post_type;
     $id = get_current_screen()->id;
     // add custom buttons
+    //if (($id == 'derived') || ($id == 'source')) { // no table of content buttons for source documents
     if ($id == 'derived') {
         array_push( $buttons, 'fb_custom_button_table_of_content' );
         array_push( $buttons, 'fb_custom_button_page_boundary' );
@@ -214,12 +196,12 @@ function fb_derived_admin_head() {
     //$type = get_current_screen()->post_type;
     //$single = is_single();
     
-    if (($id == 'derived') || ($id == 'source')) {
+    if (($id == 'derived') || ($id == 'source') || ($id == 'master')) {
         $fb_js_url = plugins_url( 'js/fb.js' , __FILE__ );
         echo '<script type="text/javascript" src="' . $fb_js_url . '" ></script>';
     }
     
-    if ($id == 'derived') {
+    if (($id == 'source') || ($id == 'derived')) {
         $htmldiff_js_url = plugins_url( 'js/htmldiff.js' , __FILE__ );
         $derived_js_url = plugins_url( 'js/derived.js' , __FILE__ );
         
@@ -233,27 +215,16 @@ function fb_derived_admin_head() {
         echo '<link rel="stylesheet" type="text/css" href="' . $derived_css_url . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $jquery_css_url . '" />';
     }   
-    else if ($id == 'source') {        
-        $source_js_url = plugins_url( 'js/source.js' , __FILE__ );
-        
-        echo '<script type="text/javascript" src="' . $source_js_url . '" ></script>';
-    }
 }
 
 function fb_derived_admin_footer() {
-    //$type = get_current_screen()->post_type;
-    $id = get_current_screen()->id;
-    if ($id == 'derived') {
 
-        
-
-    }
 }
 
 function fb_admin_print_scripts() {
     $id = get_current_screen()->id;
 
-    if (($id == 'derived') || ($id == 'source')) {       
+    if (($id == 'derived') || ($id == 'source') || ($id == 'master')) {       
         wp_enqueue_script('jquery');
         wp_enqueue_script('jquery-ui-core');
         wp_enqueue_script('jquery-ui-tabs');
@@ -364,7 +335,7 @@ function fb_source_element_revision_query() {
 function fb_add_meta_box_derived_document() {
     global $post;
     if ($post) {        
-        if ($post->post_type == 'derived'){
+        if (($post->post_type == 'derived') || ($post->post_type == 'source')){
             add_meta_box('meta_box_source_list', 'Source Versions', 'fb_add_meta_box_derived_document_callback', null, 'side', 'core' );
         }
     }
@@ -399,13 +370,13 @@ function fb_add_meta_box_derived_document_callback() {
 function fb_add_post_box_derived_document() {
     global $post;
     if ($post) {        
-        if ($post->post_type == 'derived'){
-            fb_post_box_derived_document_callback();
+        if (($post->post_type == 'derived') || ($post->post_type == 'source')){
+            fb_post_box_derived_document_callback($post->post_type);
         }
     }
 }
 
-function fb_post_box_derived_document_callback() {
+function fb_post_box_derived_document_callback($post_type) {
     global $post;
     $custom = get_post_custom($post->ID);
     $source_posts_ids = (!empty($custom["_fb-opened-source-post-ids"][0])) ? $custom["_fb-opened-source-post-ids"][0] : '';
@@ -415,7 +386,7 @@ function fb_post_box_derived_document_callback() {
 <div id="fb-source-selection-dialog" title="Source Documents">
     <ol id="fb-selectable-source-list" style="margin-bottom:15px">
 <?php
-        $args = array( 'post_type' => 'source' );
+        $args = array( 'post_type' => 'master' );
         $source_posts = get_posts( $args );
     
         foreach( $source_posts as $source ) {       
@@ -507,7 +478,9 @@ function fb_post_box_derived_document_callback() {
         <!--h3 style="margin-bottom:8px">Derived Document</h3-->
         <div> 
             <input id="fb-button-add-derive-document" type="button" value="Add Derive Section" class="button-secondary" style="margin-right:10px"/>  
+<?php if ($post_type == 'derived') { ?>
             <input id="fb-button-table-of-content" type="button" value="Table of Content" class="button-secondary" style="margin-right:10px"/>   
+<?php } ?>           
             <span id="fb-buttonset-toggle-merge" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-toggle-merge-on" name="fb-buttonset-toggle-merge" checked="checked"><label for="fb-buttonset-toggle-merge-on">Merge On</label>
                 <input type="radio" id="fb-buttonset-toggle-merge-off" name="fb-buttonset-toggle-merge"><label for="fb-buttonset-toggle-merge-off">Off</label>
@@ -524,13 +497,9 @@ function fb_post_box_derived_document_callback() {
         <div id="fb-tabs-derives" style="margin-top:14px;" class="fb-tabs-sources-display-none">
             <ul id="fb-ul-derive-tabs">
             </ul>
-<?php 
-    /*
-    //$derived_editor_args = array("media_buttons" => false, "quicktags" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800));
-    $derived_editor_args = array("media_buttons" => false, 'tinymce' => array('resize' => false, 'wp_autoresize_on' => true, 'height' => 800)); // test
-    wp_editor($content, 'fb-derived-mce', $derived_editor_args);      
-    */
-?>   
+
+
+ 
         </div>
     </td>		
   </tr>
@@ -547,7 +516,7 @@ function fb_save_document($postid, $post){
 
     $mce_substring = "_fb-derived-mce";
     
-    if ($post->post_type == 'derived') {
+    if (($post->post_type == 'derived') || ($post->post_type == 'source')) {
         $wpdb->query( 
 	        $wpdb->prepare( 
 		        "
@@ -577,7 +546,7 @@ function fb_save_document($postid, $post){
 }
 
 function fb_filter_post_data($data , $postarr) {
-    if ($data['post_type'] == 'source') {
+    if ($data['post_type'] == 'master') {
         $post_content = $data['post_content'];
         if (!isset($post_content) || strlen($post_content) <= 0) return $data;
         
@@ -604,22 +573,6 @@ function fb_filter_post_data($data , $postarr) {
 //-----------------------------------------------------------------------------------------------
 // revisions
 
-function fb_add_revision_compare_page(){
-    $id = get_current_screen()->id;
-
-    if (($id == 'derived') || ($id == 'source')) {  
-        //$path = ABSPATH;
-        $path = dirname(__FILE__);
-    
-        $func_content = "include_once('$path/revisionsdiff.php');";
-        $func = create_function('', $func_content );	
-    
-        // set $parent_slug=NULL or set to 'options.php' if you want to create a page that doesn't appear in any menu 
-        //add_submenu_page('none', 'Revisions test', 'Revisions test','visualdiff/revisioncompare.php');
-        add_submenu_page('none', 'Revisions test', 'Revisions test', 'read', 'fb-revisions', $func);
-    }
-}
-
 function fb_admin_footer() {
     //$screen = get_current_screen();
     
@@ -644,13 +597,12 @@ function fb_meta_box_post_revision_callback() {
 // add custom post types
 
 function fb_create_post_type() {
-
     $args = array(
         'labels' => array(
-            'name' => 'Sources',
-            'singular_name' => 'Source',
+            'name' => 'Masters',
+            'singular_name' => 'Master',
             'add_new' => 'Add New',
-            'add_new_item' => 'Add New Source Document',
+            'add_new_item' => 'Add New Master Document',
             //'edit' => __( 'Edit' ),
             //'edit_item' => __( 'Edit Source Document' ),
             //'new_item' => __( 'New Source Document' ),
@@ -686,9 +638,52 @@ function fb_create_post_type() {
             )
     );
     
-    register_post_type('source', $args);
+    register_post_type('master', $args);
     
     $args2 = array(
+        'labels' => array(
+            'name' => 'Sources',
+            'singular_name' => 'Source',
+            'add_new' => 'Add New',
+            'add_new_item' => 'Add New Source Document',
+            //'edit' => __( 'Edit' ),
+            //'edit_item' => __( 'Edit Source Document' ),
+            //'new_item' => __( 'New Source Document' ),
+            //'view' => __( 'View Source Document' ),
+            //'view_item' => __( 'View Source Document' ),
+            //'search_items' => __( 'Search Source Document' ),
+            //'not_found' => __( 'No Source Document found' ),
+            //'not_found_in_trash' => __( 'No Events found in Trash' ),
+            //'parent' => __( 'Parent Source Document' ),
+        ),
+        //'label' => 'Sources',
+        //'singular_label' => 'Source',
+        //'menu_position' => 2,
+        'taxonomies' => array('category', 'post_tag'),
+        'menu_icon' => 'dashicons-admin-page',
+        'public' => true,
+        'has_archive' => true,
+        'show_ui' => true,
+        'hierarchical' => false,
+        'rewrite' => true,
+        'supports' => array(
+            'title',
+            //'editor',
+            //'excerpt',
+            //'trackbacks',
+            //'custom-fields',
+            //'comments',
+            'revisions',
+            //'thumbnail',
+            //'author',
+            //'page-attributes',
+            //'post-formats'
+            )
+    );
+    
+    register_post_type('source', $args2);
+    
+    $args3 = array(
             'labels' => array(
                 'name' => 'Derived',
                 'singular_name' => 'Derived',
@@ -729,7 +724,7 @@ function fb_create_post_type() {
                 )
     );
     
-    register_post_type('derived', $args2);
+    register_post_type('derived', $args3);
 }
 
 //-----------------------------------------------------------------------------------------------
