@@ -259,17 +259,10 @@ function fb_admin_print_scripts() {
 // ajax action
 
 function fb_source_query_level_1() {   
-    // add a new tab
-    
-    
     // query the post content
-    $post_content = "";
-    
+    $post_content = ""; 
     $post_id = $_POST['id'];
-
     $post = get_post( $post_id );
-    //$post_content = $post->post_content;
-    //echo $post_content;
     
     $data = array(
         'content' => $post->post_content,
@@ -283,21 +276,25 @@ function fb_source_query_level_1() {
 
 function fb_source_query_level_2() {   
     // query the post content
-    $post_content = "";
-    
+    $post_content = "";   
     $post_id = $_POST['id'];
-
     $post = get_post( $post_id );
-    //$post_content = $post->post_content;
-    //echo $post_content;
 
     $custom = get_post_custom($post_id);
     // assume level 2 document has only one tab
-    $mce_key = "_fb-derived-mce-0";
-    $title_key = "_fb-derived-mce-title-0";
-    
-    $content = (!empty($custom[$mce_key][0])) ? $custom[$mce_key][0] : '';      
-    $title = (!empty($custom[$title_key][0])) ? $custom[$title_key][0] : '';
+    $content = '';
+    $title = '';
+    foreach($custom as $k => $v) {
+        if(strpos($k, "_fb-derived-mce") === 0) {
+            $mce_key = $k;
+            $number = substr($k, -1);
+            $title_key = "_fb-derived-mce-title-" . $number;
+            
+            $content = (!empty($custom[$mce_key][0])) ? $custom[$mce_key][0] : '';      
+            $title = (!empty($custom[$title_key][0])) ? $custom[$title_key][0] : '';
+            break;
+        }
+    }
     
     $data = array(
         'content' => $content,
@@ -620,6 +617,7 @@ function fb_filter_post_data($data , $postarr) {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
     global $FB_LEVEL_3_POST;
+    global $_POST;
     global $post;
     
     if ($data['post_type'] == $FB_LEVEL_1_POST) {
@@ -642,15 +640,34 @@ function fb_filter_post_data($data , $postarr) {
         $str = $html_parser->save();     
         $data['post_content'] = $str;
     }
-    else if ($data['post_type'] == $FB_LEVEL_2_POST) {       
-        $custom = get_post_custom($post->ID);
+    else if ($data['post_type'] == $FB_LEVEL_2_POST) {   
         // assume level 2 document has only one tab
-        $mce_key = "_fb-derived-mce-0";
-        $title_key = "_fb-derived-mce-title-0";
+        foreach($_POST as $k => $v) {
+            if(strpos($k, "fb-derived-mce") === 0) {
+                $data['post_content'] = $v;
+                break;
+            }
+        }
         
-        $content = (!empty($custom[$mce_key][0])) ? $custom[$mce_key][0] : '';      
+        /*
+        $custom = get_post_custom($post->ID);
+        $content = null;
+        // assume level 2 document has only one tab
+        foreach($custom as $k => $v) {
+            if(strpos($k, "_fb-derived-mce") === 0) {
+                $content = (!empty($custom[$k][0])) ? $custom[$k][0] : '';      
+                break;
+            }
+        }
+        
+        //$mce_key = "_fb-derived-mce-0";
+        //$title_key = "_fb-derived-mce-title-0";
+        //$content = (!empty($custom[$mce_key][0])) ? $custom[$mce_key][0] : '';      
 
-        $data['post_content'] = $content;
+        if (($custom !== false) && ($content !== null)) {
+            $data['post_content'] = $content;
+        }
+        */
     }
     
     return $data;
