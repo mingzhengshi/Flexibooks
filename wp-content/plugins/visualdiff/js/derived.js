@@ -575,9 +575,19 @@ jQuery(document).ready(function ($) {
     }
 
     function getSourcePostInit(post_id, total) {
+        var action = null;
+        if (fb_post_type == FB_LEVEL_2_POST) {
+            action = 'fb_source_query_level_1';
+        }
+        else if (fb_post_type == FB_LEVEL_3_POST) {
+            action = 'fb_source_query_level_2';
+        }
+
+        if (action === null) return;
+
         $.post(ajaxurl,
             {
-                'action': 'fb_source_query',
+                'action': action,
                 'id': post_id
             },
             function (data, status) {
@@ -1333,9 +1343,19 @@ jQuery(document).ready(function ($) {
     });
 
     function getSourcePost(post_id, add_to_derive) {
+        var action = null;
+        if (fb_post_type == FB_LEVEL_2_POST) {
+            action = 'fb_source_query_level_1';
+        }
+        else if (fb_post_type == FB_LEVEL_3_POST) {
+            action = 'fb_source_query_level_2';
+        }
+
+        if (action === null) return;
+
         $.post(ajaxurl,
             {
-                'action': 'fb_source_query',
+                'action': action,
                 'id': post_id
             },
             function (data, status) {

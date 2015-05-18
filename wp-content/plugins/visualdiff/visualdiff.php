@@ -22,7 +22,8 @@ add_action( 'save_post', 'fb_save_document', 1, 2);
 add_filter( 'wp_insert_post_data' , 'fb_filter_post_data' , '99', 2 );
 
 // ajax action
-add_action( 'wp_ajax_fb_source_query', 'fb_source_query' );
+add_action( 'wp_ajax_fb_source_query_level_1', 'fb_source_query_level_1' );
+add_action( 'wp_ajax_fb_source_query_level_2', 'fb_source_query_level_2' );
 add_action( 'wp_ajax_fb_source_revision_query', 'fb_source_revision_query' );
 add_action( 'wp_ajax_fb_source_element_revision_query', 'fb_source_element_revision_query' );
 
@@ -257,7 +258,7 @@ function fb_admin_print_scripts() {
 //-----------------------------------------------------------------------------------------------
 // ajax action
 
-function fb_source_query() {   
+function fb_source_query_level_1() {   
     // add a new tab
     
     
@@ -273,6 +274,35 @@ function fb_source_query() {
     $data = array(
         'content' => $post->post_content,
         'title' => $post->post_title,
+        'modified' => $post->post_modified
+    );
+
+    echo json_encode($data);
+	die(); // this is required to terminate immediately and return a proper response
+}
+
+function fb_source_query_level_2() {   
+    // query the post content
+    $post_content = "";
+    
+    $post_id = $_POST['id'];
+
+    $post = get_post( $post_id );
+    //$post_content = $post->post_content;
+    //echo $post_content;
+
+    $custom = get_post_custom($post_id);
+    // assume level 2 document has only one tab
+    $mce_key = "_fb-derived-mce-0";
+    $title_key = "_fb-derived-mce-title-0";
+    
+    $content = (!empty($custom[$mce_key][0])) ? $custom[$mce_key][0] : '';      
+    $title = (!empty($custom[$title_key][0])) ? $custom[$title_key][0] : '';
+    
+    $data = array(
+        'content' => $content,
+        //'title' => $post->post_title,
+        'title' => $title,
         'modified' => $post->post_modified
     );
 
@@ -590,6 +620,7 @@ function fb_filter_post_data($data , $postarr) {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
     global $FB_LEVEL_3_POST;
+    global $post;
     
     if ($data['post_type'] == $FB_LEVEL_1_POST) {
         $post_content = $data['post_content'];
@@ -610,6 +641,16 @@ function fb_filter_post_data($data , $postarr) {
         // Dumps the internal DOM tree back into string 
         $str = $html_parser->save();     
         $data['post_content'] = $str;
+    }
+    else if ($data['post_type'] == $FB_LEVEL_2_POST) {       
+        $custom = get_post_custom($post->ID);
+        // assume level 2 document has only one tab
+        $mce_key = "_fb-derived-mce-0";
+        $title_key = "_fb-derived-mce-title-0";
+        
+        $content = (!empty($custom[$mce_key][0])) ? $custom[$mce_key][0] : '';      
+
+        $data['post_content'] = $content;
     }
     
     return $data;
