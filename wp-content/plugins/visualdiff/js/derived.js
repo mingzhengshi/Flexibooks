@@ -61,6 +61,13 @@ jQuery(document).ready(function ($) {
 
         updateSourceTabsInput();
         updateVisibleMces(true, true);
+
+        if (fb_post_type == FB_LEVEL_2_POST) {
+            var n = $('#fb-tabs-sources .ui-tabs-nav a').length;
+            if (n === 0) {
+                $("#fb-button-open-source-document").prop('disabled', false);
+            }
+        }
     });
 
     source_tabs.on("tabsactivate", function (event, ui) {
@@ -1245,6 +1252,14 @@ jQuery(document).ready(function ($) {
         width: "25%",
         buttons: {
             Open: function () {
+                if (fb_post_type == FB_LEVEL_2_POST) {
+                    if (selected_sources.length > 1) {
+                        alert("You cannot open more than one " + FB_LEVEL_1_POST + " document.");
+                        $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
+                        return;
+                    }
+                }
+
                 var checked = document.getElementById("fb-checkbox-add-all-selected-sources").checked;
 
                 //addTab();
@@ -1437,6 +1452,13 @@ jQuery(document).ready(function ($) {
         meta_source_tabs_post_ids[tab_id] = post_id; // add property for quick index
         meta_source_tabs_post_ids.push(post_id);
         updateSourceTabsInput();
+
+        if (fb_post_type == FB_LEVEL_2_POST) {
+            var n = $('#fb-tabs-sources .ui-tabs-nav a').length;
+            if (n === 1) {
+                $("#fb-button-open-source-document").prop('disabled', true);
+            }
+        }
 
         tab_counter_source++;
     }

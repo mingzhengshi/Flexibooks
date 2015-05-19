@@ -51,6 +51,10 @@ $FB_LEVEL_1_POST = 'source';
 $FB_LEVEL_2_POST = 'master';
 $FB_LEVEL_3_POST = 'derived';
 
+$FB_LEVEL_1_LABEL = 'Source';
+$FB_LEVEL_2_LABEL = 'Master';
+$FB_LEVEL_3_LABEL = 'Derived';
+
 //-----------------------------------------------------------------------------------------------
 // Called on the admin_enqueue_scripts action, enqueues CSS to 
 // make all WordPress Dashicons available to TinyMCE. This is
@@ -382,15 +386,31 @@ function fb_add_meta_box_derived_document() {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
     global $FB_LEVEL_3_POST;
+    global $FB_LEVEL_1_LABEL;
+    global $FB_LEVEL_2_LABEL;
+    global $FB_LEVEL_3_LABEL;
     global $post;
+    $meta_box_title = null;
+    if ($post->post_type == $FB_LEVEL_2_POST) {
+        $meta_box_title = $FB_LEVEL_1_LABEL . ' Versions';
+    }
+    else if ($post->post_type == $FB_LEVEL_3_POST) {
+        $meta_box_title = $FB_LEVEL_2_LABEL . ' Versions';
+    }
     if ($post) {        
         if (($post->post_type == $FB_LEVEL_3_POST) || ($post->post_type == $FB_LEVEL_2_POST)){
-            add_meta_box('meta_box_source_list', 'Source Versions', 'fb_add_meta_box_derived_document_callback', null, 'side', 'core' );
+            add_meta_box('meta_box_source_list', $meta_box_title, 'fb_add_meta_box_derived_document_callback', null, 'side', 'core' );
         }
     }
 }
 
 function fb_add_meta_box_derived_document_callback() {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
+    global $FB_LEVEL_1_LABEL;
+    global $FB_LEVEL_2_LABEL;
+    global $FB_LEVEL_3_LABEL;
     global $post;
     $custom = get_post_custom($post->ID);
     $derived_meta = (!empty($custom["_fb-derived-meta"][0])) ? $custom["_fb-derived-meta"][0] : '';
@@ -401,13 +421,27 @@ function fb_add_meta_box_derived_document_callback() {
 ?>
 <table id="fb-table-derived-meta" cellspacing="10">
     <input id="fb-input-derived-meta" style="display:none;" name="fb-derived-meta" value="<?php echo htmlentities($derived_meta); ?>" />  
+<?php if ($post->post_type == $FB_LEVEL_2_POST) { ?>
     <tr>
-        <td>Derive Unit</td>
-        <td>Source Unit</td>
+        <td><?php echo $FB_LEVEL_2_LABEL; ?> Unit</td>
+        <td><?php echo $FB_LEVEL_1_LABEL; ?> Unit</td>
         <td>Dependent Version</td>
         <td>Current Version</td>
         <td>Merge Requests</td>
     </tr>
+<?php } ?>  
+<?php if ($post->post_type == $FB_LEVEL_3_POST) { ?>
+    <tr>
+        <td><?php echo $FB_LEVEL_3_LABEL; ?> Unit</td>
+        <td><?php echo $FB_LEVEL_2_LABEL; ?> Unit</td>
+        <td>Dependent Version</td>
+        <td>Current Version</td>
+        <td>Merge Requests</td>
+    </tr>
+<?php } ?> 
+
+
+
 </table>
 <?php    
 
@@ -432,13 +466,27 @@ function fb_post_box_derived_document_callback($post_type) {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
     global $FB_LEVEL_3_POST;
+    global $FB_LEVEL_1_LABEL;
+    global $FB_LEVEL_2_LABEL;
+    global $FB_LEVEL_3_LABEL;
     global $post;
+    $p_label = null;
+    $c_label = null;
+    if ($post_type == $FB_LEVEL_2_POST) {
+        $p_label = $FB_LEVEL_1_LABEL;
+        $c_label = $FB_LEVEL_2_LABEL;
+    }
+    else if ($post_type == $FB_LEVEL_3_POST) {
+        $p_label = $FB_LEVEL_2_LABEL;
+        $c_label = $FB_LEVEL_3_LABEL;
+    }
+    
     $custom = get_post_custom($post->ID);
     $source_posts_ids = (!empty($custom["_fb-opened-source-post-ids"][0])) ? $custom["_fb-opened-source-post-ids"][0] : '';
     //$content = (!empty($custom["_fb-derived-mce"][0])) ? $custom["_fb-derived-mce"][0] : '';
     
 ?>
-<div id="fb-source-selection-dialog" title="Source Documents">
+<div id="fb-source-selection-dialog" title="<?php echo $p_label; ?> Documents">
     <ol id="fb-selectable-source-list" style="margin-bottom:15px">
 <?php
     $args = null;
@@ -458,10 +506,10 @@ function fb_post_box_derived_document_callback($post_type) {
      
 ?> 
     </ol>
-    <input type="checkbox" id="fb-checkbox-add-all-selected-sources" style="margin-left:5px"/>Add all selected sources to derive
+    <input type="checkbox" id="fb-checkbox-add-all-selected-sources" style="margin-left:5px"/>Add all selected <?php echo strtolower($p_label); ?> to <?php echo strtolower($c_label); ?>
 </div>
 
-<div id="fb-add-derive-dialog" title="Add Derive Documents">
+<div id="fb-add-derive-dialog" title="Add <?php echo $c_label; ?> Documents">
     Title: <input id="fb-derive-document-title" type="text"/> 
 </div>
 
@@ -512,13 +560,13 @@ function fb_post_box_derived_document_callback($post_type) {
   <tr id="fb-tr-derive-document-editors">
     <td id="fb-td-source-mces" style="vertical-align:top">
         <div> 
-            <input id="fb-button-open-source-document" type="button" value="Open Source Document" class="button-secondary" style="margin-right:10px"/>      
+            <input id="fb-button-open-source-document" type="button" value="Open <?php echo $p_label; ?> Document" class="button-secondary" style="margin-right:10px"/>      
             <!--input id="fb-button-floating-source" type="button" value="Turn Off Floating" class="button-secondary" style="margin-right:10px"-->
             <span id="fb-buttonset-floating-source" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-floating-source-on" name="fb-buttonset-floating-source" checked="checked"><label for="fb-buttonset-floating-source-on">Floating On</label>
                 <input type="radio" id="fb-buttonset-floating-source-off" name="fb-buttonset-floating-source"><label for="fb-buttonset-floating-source-off">Off</label>
             </span>
-            <input id="fb-button-highlight-source" type="button" value="Turn On Source Highlight" class="button-secondary">
+            <input id="fb-button-highlight-source" type="button" value="Turn On <?php echo $p_label; ?> Highlight" class="button-secondary">
             <!--textarea id="fb-invisible-editor" style="display:none;"></textarea-->
             <div style="display:none;">
 <?php 
@@ -540,7 +588,7 @@ function fb_post_box_derived_document_callback($post_type) {
     <td id="fb-td-derive-mces" style="vertical-align:top">
         <!--h3 style="margin-bottom:8px">Derived Document</h3-->
         <div> 
-            <input id="fb-button-add-derive-document" type="button" value="Add Derive Section" class="button-secondary" style="margin-right:10px"/>  
+            <input id="fb-button-add-derive-document" type="button" value="Add <?php echo $c_label; ?> Section" class="button-secondary" style="margin-right:10px"/>  
 <?php if ($post_type == $FB_LEVEL_3_POST) { ?>
             <input id="fb-button-table-of-content" type="button" value="Table of Content" class="button-secondary" style="margin-right:10px"/>   
 <?php } ?>           
@@ -549,7 +597,7 @@ function fb_post_box_derived_document_callback($post_type) {
                 <input type="radio" id="fb-buttonset-toggle-merge-off" name="fb-buttonset-toggle-merge"><label for="fb-buttonset-toggle-merge-off">Off</label>
             </span>
             <span id="fb-buttonset-toggle-sources" style="margin-right:10px">
-                <input type="radio" id="fb-buttonset-toggle-sources-on" name="fb-buttonset-toggle-sources" checked="checked"><label for="fb-buttonset-toggle-sources-on">Sources On</label>
+                <input type="radio" id="fb-buttonset-toggle-sources-on" name="fb-buttonset-toggle-sources" checked="checked"><label for="fb-buttonset-toggle-sources-on"><?php echo $p_label; ?> On</label>
                 <input type="radio" id="fb-buttonset-toggle-sources-off" name="fb-buttonset-toggle-sources"><label for="fb-buttonset-toggle-sources-off">Off</label>
             </span>
 <?php if ($post_type == $FB_LEVEL_3_POST) { ?>
