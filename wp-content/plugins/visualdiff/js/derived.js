@@ -474,6 +474,7 @@ jQuery(document).ready(function ($) {
         */
     });
 
+    /*
     $('#fb-buttonset-floating-source').buttonset();
     $('#fb-buttonset-floating-source-on').click(function () {
         if (fb_floating_sources) return; // if already on, then return.
@@ -495,6 +496,7 @@ jQuery(document).ready(function ($) {
 
         update();
     });
+    */
 
     $("#fb-button-highlight-source").button().click(function () {
         var this_button = $("#fb-button-highlight-source");

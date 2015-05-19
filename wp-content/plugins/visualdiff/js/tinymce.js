@@ -44,11 +44,6 @@ jQuery(document).ready(function ($) {
 
         // events
         editor.on('init', function () {
-
-            //editor.settings.wp_autoresize_on = false; // ms - test
-            //editor.execCommand('wpAutoResizeOff'); // ms 
-            //editor.settings.resize = true; // ms 
-
             if ((editor.id.indexOf("fb-derived-mce") >= 0) || (editor.id.indexOf("fb-source-mce") >= 0)) {
                 // The Element.scrollTop property gets or sets the number of pixels that the content of an element is scrolled upward
                 $(editor.getBody()).on('mousewheel', function (e) {
@@ -83,29 +78,20 @@ jQuery(document).ready(function ($) {
 
             $(editor.getDoc()).css('overflow-y', 'scroll');
             $(editor.getBody()).css('margin-left', 50); // for all editors
-
-            if (editor.id.indexOf("fb-merge-mce") >= 0) {
-            }
-
-            if (editor.id.indexOf("fb-source-mce") >= 0) {
-                //$(editor.getBody()).css('margin-top', -50);
-                $(editor.getBody()).css('margin-right', 100);
-            }
-
-            if (editor.id.indexOf("fb-old-source-mce") >= 0) {
-                //$(editor.getBody()).css('margin-left', 50);
-                $(editor.getBody()).css('margin-right', 100);
-            }
-
-            if (editor.id.indexOf("fb-derived-mce") >= 0) {
-                //$(editor.getBody()).css('margin-left', 50);
-                $(editor.getBody()).css('margin-right', 100);
-            }
+            $(editor.getBody()).css('margin-right', 100); // for all editors
 
             if (editor.id.indexOf("fb-invisible-editor") >= 0) {
                 // when the derived mce is inited; we can load the source mce
                 var callback = flexibook.deriveMceInitCallback;
                 if (callback) callback();
+            }
+
+            if (editor.id === 'content') {
+                // level 1 document editor
+                fb_post_type = FB_LEVEL_1_POST;
+                fb_data_merge_case = 'data-temp-merge-case';
+                fb_data_post_id = 'data-temp-post-id';
+                fb_data_element_id = 'data-temp-element-id';
             }
 
             update();
@@ -218,13 +204,6 @@ jQuery(document).ready(function ($) {
             if (on_icon_hover) return;
             on_mouse_up = true;
             update(); 
-            /*
-            resetIcons();
-            onMouseUp();
-            setupIconEvents();
-            drawLines();
-            drawLinesMergeElements();
-            */
         });
 
         // add custom buttons
@@ -233,7 +212,6 @@ jQuery(document).ready(function ($) {
             icon: 'icon dashicons-media-spreadsheet',
             onclick: function () {
                 //console.log('Test button on click');
-                //updatePageBoundary();
                 updateTableOfContent();
             }
         });
@@ -242,13 +220,24 @@ jQuery(document).ready(function ($) {
             title: 'Toggle Page Boundary',
             icon: 'icon dashicons-tablet',
             onclick: function () {
-                //console.log('Test button on click');
                 togglePageBoundary();
+            }
+        });
+
+        editor.addButton('fb_custom_button_comment_bubble', {
+            title: 'New Comment',
+            icon: 'icon dashicons-testimonial',
+            onclick: function () {
+                addComment();
             }
         });
 
         function onMouseWheelEnd() {
             update();
+        }
+
+        function addComment() {
+
         }
 
         function togglePageBoundary() {
@@ -618,7 +607,7 @@ jQuery(document).ready(function ($) {
         }
 
         function update() {
-            if (fb_post_type == null) return;
+            if (fb_post_type === null) return;
 
             updatePublic(true);
         }

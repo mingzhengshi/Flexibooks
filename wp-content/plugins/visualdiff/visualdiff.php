@@ -99,11 +99,9 @@ function fb_mce_editor_buttons_second_row( $buttons ) {
     // add 'styleselect' to the buttons
     array_unshift( $buttons, 'styleselect' );
     
-    
     //---------------------------------------------------------------------
     // add custom buttons
-    
-    //array_push( $buttons, 'fb_custom_button_1' );
+    array_push( $buttons, 'fb_custom_button_comment_bubble' );
     
     return $buttons;
 }
@@ -114,13 +112,13 @@ function fb_mce_editor_buttons_third_row( $buttons ) {
     global $FB_LEVEL_3_POST;
     //$type = get_current_screen()->post_type;
     $id = get_current_screen()->id;
-    // add custom buttons
-    //if (($id == $FB_LEVEL_3_POST) || ($id == $FB_LEVEL_2_POST)) { // no table of content buttons for source documents
+    // add custom buttons    
     if ($id == $FB_LEVEL_3_POST) {
         array_push( $buttons, 'fb_custom_button_table_of_content' );
         array_push( $buttons, 'fb_custom_button_page_boundary' );
-        return $buttons;
     }
+    
+    return $buttons;
 }
 
 function fb_mce_settings( $init ) {
@@ -560,13 +558,13 @@ function fb_post_box_derived_document_callback($post_type) {
   <tr id="fb-tr-derive-document-editors">
     <td id="fb-td-source-mces" style="vertical-align:top">
         <div> 
-            <input id="fb-button-open-source-document" type="button" value="Open <?php echo $p_label; ?> Document" class="button-secondary" style="margin-right:10px"/>      
+            <input id="fb-button-open-source-document" type="button" value="Open <?php echo $p_label; ?>" class="button-secondary" style="margin-right:10px"/>      
             <!--input id="fb-button-floating-source" type="button" value="Turn Off Floating" class="button-secondary" style="margin-right:10px"-->
-            <span id="fb-buttonset-floating-source" style="margin-right:10px">
+            <!--span id="fb-buttonset-floating-source" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-floating-source-on" name="fb-buttonset-floating-source" checked="checked"><label for="fb-buttonset-floating-source-on">Floating On</label>
                 <input type="radio" id="fb-buttonset-floating-source-off" name="fb-buttonset-floating-source"><label for="fb-buttonset-floating-source-off">Off</label>
-            </span>
-            <input id="fb-button-highlight-source" type="button" value="Turn On <?php echo $p_label; ?> Highlight" class="button-secondary">
+            </span-->
+            <!--input id="fb-button-highlight-source" type="button" value="Turn On <?php echo $p_label; ?> Highlight" class="button-secondary"-->
             <!--textarea id="fb-invisible-editor" style="display:none;"></textarea-->
             <div style="display:none;">
 <?php 
@@ -696,26 +694,6 @@ function fb_filter_post_data($data , $postarr) {
                 break;
             }
         }
-        
-        /*
-        $custom = get_post_custom($post->ID);
-        $content = null;
-        // assume level 2 document has only one tab
-        foreach($custom as $k => $v) {
-            if(strpos($k, "_fb-derived-mce") === 0) {
-                $content = (!empty($custom[$k][0])) ? $custom[$k][0] : '';      
-                break;
-            }
-        }
-        
-        //$mce_key = "_fb-derived-mce-0";
-        //$title_key = "_fb-derived-mce-title-0";
-        //$content = (!empty($custom[$mce_key][0])) ? $custom[$mce_key][0] : '';      
-
-        if (($custom !== false) && ($content !== null)) {
-            $data['post_content'] = $content;
-        }
-        */
     }
     
     return $data;
