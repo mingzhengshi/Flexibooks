@@ -252,33 +252,28 @@ jQuery(document).ready(function ($) {
                 return;
             }
 
+            var body_width = $(editor.getBody()).width();
+            var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
+            var bubble_left = body_width + body_margin_left + 10;
             var id = generateUUID();
-            editor.selection.setContent("<span class='fb-comments' data-comment-id='" + id + "'>" + content + "</span>");
+            editor.selection.setContent("<span class='fb-comment fb-comment-content' data-comment-id='" + id + "'>" + content + "</span>");
             
-            $(editor.getBody()).find("[data-comment-id]").each(function (index) {
-                if ($(this).attr('data-comment-id') === id) {
+            $(editor.getBody()).find('.fb-comment-content').each(function (index) {
+                var selected_content = $(this);
+                if (selected_content.attr('data-comment-id') === id) {
                     //$(this).addClass('fb-comments-selected');
-                    var offset = $(this).offset(); // absolute position relative to the document
+                    var offset = selected_content.offset(); // absolute position relative to the document
                     var top = offset.top;
-
-                    var svg_id = editor.id + '-svg';
-                    var svg = editor.getDoc().getElementById(svg_id);
-
-                    // line for visualization
-                    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-                    line.setAttribute('x1', 0);
-                    line.setAttribute('y1', top);
-                    line.setAttribute('x2', 500);
-                    line.setAttribute('y2', top);
-                    line.setAttribute('stroke', 'black');
-                    line.setAttribute('stroke-width', 1);
-                    //line.style.zIndex = 1;
-                    if (svg) svg.appendChild(line);
+                    var left = offset.left;
+                    
+                    var date = new Date();
+                    var y = date.getFullYear().toString();
+                    var m = (date.getMonth() + 1).toString(); // getMonth() is zero-based
+                    var d = date.getDate().toString();
+                    var date_string = d + '/' + m + '/' + y + ':';
+                    createCommentBubble(id, top, bubble_left, date_string);
                 }
             });
-
-
-
         }
 
         function togglePageBoundary() {
@@ -656,6 +651,7 @@ jQuery(document).ready(function ($) {
         function updatePublic(derived_callback) {
             setupNewElements();
             setupDerivedElementID(); 
+            updateComments();
 
             if (derived_callback) {
                 if ((editor.id.indexOf("fb-derived-mce") >= 0) || (editor.id.indexOf("fb-source-mce") >= 0)) {
@@ -692,6 +688,64 @@ jQuery(document).ready(function ($) {
             setupIconEvents();
             drawLines();
             drawLinesMergeElements();
+        }
+
+        function updateComments() {
+            $(editor.getBody()).find('.fb-comment-content').each(function (index) {
+                $(this).removeClass('fb-comment-content-selected');
+            });
+
+            $(editor.getBody()).find('.fb-comment-bubble').each(function (index) {
+                $(this).removeClass('fb-comment-bubble-selected');
+            });
+            
+            $(editor.getBody()).find('.fb-comment-bubble').off(); // The .off() method removes event handlers that were attached with .on().
+            $(editor.getBody()).find('.fb-comment-bubble').on('click', function () {
+                onCommentBubbleClick($(this));
+            });
+            /*
+            $(editor.getBody()).find('.fb-comment-bubble').on('hover', function () {
+                //onCommentBubbleClick($(this));
+            });
+            */
+        }
+
+        function onCommentBubbleClick(bubble) {
+            var bubble_id = bubble.attr('id');
+
+            bubble.addClass('fb-comment-bubble-selected');
+            $(editor.getBody()).find('.fb-comment-content').each(function (index) {
+                var selected_content = $(this);
+
+                var body_width = $(editor.getBody()).width();
+                var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
+                var bubble_left = body_width + body_margin_left + 10;
+
+                if (selected_content.attr('data-comment-id') === bubble_id) {
+                    var offset = selected_content.offset(); // absolute position relative to the document
+                    var top = offset.top;
+                    var left = offset.left;
+
+                    selected_content.addClass('fb-comment-content-selected');
+                    drawCommentLine(left, top, bubble_left, top);
+                }
+            });
+        }
+
+        function drawCommentLine(x1, y1, x2, y2) {
+            var svg_id = editor.id + '-svg';
+            var svg = editor.getDoc().getElementById(svg_id);
+
+            // line for visualization
+            var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1);
+            line.setAttribute('y1', y1);
+            line.setAttribute('x2', x2);
+            line.setAttribute('y2', y2);
+            line.setAttribute('stroke', '#f49965');
+            line.setAttribute('stroke-width', 1);
+            //line.style.zIndex = 1;
+            if (svg) svg.appendChild(line);
         }
 
         function resetIcons() {
@@ -1187,6 +1241,7 @@ jQuery(document).ready(function ($) {
                 element.hasClass("fb_tinymce_left_column_icon") == true ||
                 element.hasClass("fb_tinymce_left_column_svg") == true ||
                 element.hasClass("fb_tinymce_left_column_page") == true ||
+                element.hasClass("fb-comment") == true ||
                 element.hasClass("toc-page") == true ||
                 element.hasClass("mce-resizehandle") == true ||
                 element['data-mce-bogus']) return true;
@@ -1537,6 +1592,30 @@ jQuery(document).ready(function ($) {
             icon.style.opacity = 0.3;
 
             editor.getBody().appendChild(icon);
+        }
+
+        function createCommentBubble(id, top, left, text) {
+            var bubble_height = 60;
+            var bubble_top = top - bubble_height / 2;
+
+            var bubble = document.createElement('div');
+            bubble.className = 'fb-comment fb-comment-bubble';
+            bubble.id = id;
+            bubble.innerHTML = text;
+            bubble.style.position = 'absolute';
+            bubble.style.top = bubble_top + 'px';
+            bubble.style.left = left + 'px';
+            //bubble.style.fontSize = '150%';
+
+            //bubble.style.border = 'solid';
+            //bubble.style.borderWidth = '1px';
+            //bubble.style.borderColor = 'grey';
+
+            bubble.style.width = '100px';
+            bubble.style.minHeight = bubble_height + 'px';
+            //bubble.style.opacity = 0.3;
+
+            editor.getBody().appendChild(bubble);
         }
 
         function createMergeText(id, top, text, mcase) {

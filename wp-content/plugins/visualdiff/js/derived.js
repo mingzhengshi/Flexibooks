@@ -1969,6 +1969,7 @@ jQuery(document).ready(function ($) {
             element.hasClass("fb_tinymce_left_column_icon") == true ||
             element.hasClass("fb_tinymce_left_column_svg") == true ||
             element.hasClass("fb_tinymce_left_column_page") == true ||
+            element.hasClass("fb-comment") == true ||
             element.hasClass("toc-page") == true ||
             element.hasClass("mce-resizehandle") == true ||
             element['data-mce-bogus']) return true;

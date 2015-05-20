@@ -298,8 +298,14 @@ p.title {
 }
 
 /* comments */
-span.fb-comments-selected {
-    background-color: #f8c69b;
+span.fb-comment-content-selected {
+    background-color: #f6d0b0;
+}
+
+div.fb-comment-bubble-selected {
+    border: solid;
+    border-width: 1px;
+    border-color: #f6d0b0;
 }
 
 /* html diff */
