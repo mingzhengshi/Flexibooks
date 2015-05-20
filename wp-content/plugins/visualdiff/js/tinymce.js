@@ -59,7 +59,6 @@ jQuery(document).ready(function ($) {
                         e.preventDefault();
                     }
 
-                    //update(); // called before page scroll
                     if (mouse_wheel_timer !== null) {
                         clearTimeout(mouse_wheel_timer);
                     }
@@ -237,6 +236,48 @@ jQuery(document).ready(function ($) {
         }
 
         function addComment() {
+            // add the comment bubbles without considering overlapping.
+            // resolve overlapping after all comment bubbles have been added.
+
+            var node = editor.selection.getNode();
+            if (!node) return;
+            if (node.tagName.toLowerCase() === 'body') { // do not consider the case when multiple paragraphs have been selected
+                alert('Please select content within a paragraph.');
+                return;
+            }
+
+            var content = editor.selection.getContent();
+            if ((!content) || (content.trim().length === 0)) {
+                alert('Please select some content.');
+                return;
+            }
+
+            var id = generateUUID();
+            editor.selection.setContent("<span class='fb-comments' data-comment-id='" + id + "'>" + content + "</span>");
+            
+            $(editor.getBody()).find("[data-comment-id]").each(function (index) {
+                if ($(this).attr('data-comment-id') === id) {
+                    //$(this).addClass('fb-comments-selected');
+                    var offset = $(this).offset(); // absolute position relative to the document
+                    var top = offset.top;
+
+                    var svg_id = editor.id + '-svg';
+                    var svg = editor.getDoc().getElementById(svg_id);
+
+                    // line for visualization
+                    var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', 0);
+                    line.setAttribute('y1', top);
+                    line.setAttribute('x2', 500);
+                    line.setAttribute('y2', top);
+                    line.setAttribute('stroke', 'black');
+                    line.setAttribute('stroke-width', 1);
+                    //line.style.zIndex = 1;
+                    if (svg) svg.appendChild(line);
+                }
+            });
+
+
 
         }
 

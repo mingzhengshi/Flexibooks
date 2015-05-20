@@ -29,7 +29,7 @@ jQuery(document).ready(function ($) {
     var fb_previous_source_count = 0;
 
     var fb_floating_sources = true;
-    var fb_highlighting_source = false;
+    var fb_highlighting_source = true;
     var fb_merge_mode = true;
     var fb_show_source_column = true;
     var fb_teacher_student_version = 'teacher';

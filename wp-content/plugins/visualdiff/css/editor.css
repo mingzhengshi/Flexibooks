@@ -297,11 +297,16 @@ p.title {
     background-color: #f0f0f0;
 }
 
+/* comments */
+span.fb-comments-selected {
+    background-color: #f8c69b;
+}
+
 /* html diff */
 span.insert {
     border-style: dotted;
     border-width: 1px;
-    border-color: lightgray;
+    border-color: darkgray;
 }
 
 span.delete {
@@ -316,6 +321,8 @@ span.delete-merge {
     text-decoration: line-through;
     opacity: 0.5;
 }
+
+
 
 /*
 span.insert-ss {
