@@ -726,6 +726,8 @@ jQuery(document).ready(function ($) {
                     var top = offset.top;
                     var left = offset.left;
 
+                    // left is not correct for multiple lines selection content; 
+                    // in that case, we need to wrap, e.g., the first char, as an element, find the left of the char, and then unwrap the element;
                     selected_content.addClass('fb-comment-content-selected');
                     drawCommentLine(left, top, bubble_left, top);
                 }
@@ -733,8 +735,18 @@ jQuery(document).ready(function ($) {
         }
 
         function drawCommentLine(x1, y1, x2, y2) {
-            var svg_id = editor.id + '-svg';
-            var svg = editor.getDoc().getElementById(svg_id);
+            /*
+            var id = editor.id + '-svg-comment-lines';
+            var height = 2;
+            if (Math.abs(y1 - y2) > 2) height = Math.abs(y1 - y2);
+            var width = 2;
+            if (Math.abs(x1 - x2) > 2) width = Math.abs(x1 - x2);
+
+            $(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column_svg" style="position:absolute; top:' + y1 + 'px; left:' + x1 + 'px; height:' + height + 'px; width:' +  + 'px; z-index: 1;" xmlns="http://www.w3.org/2000/svg"/></svg>'); // ms - test
+            */
+
+            var id = editor.id + '-svg';
+            var svg = editor.getDoc().getElementById(id);
 
             // line for visualization
             var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -744,7 +756,7 @@ jQuery(document).ready(function ($) {
             line.setAttribute('y2', y2);
             line.setAttribute('stroke', '#f49965');
             line.setAttribute('stroke-width', 1);
-            //line.style.zIndex = 1;
+            line.style.zIndex = 100;
             if (svg) svg.appendChild(line);
         }
 
@@ -775,9 +787,8 @@ jQuery(document).ready(function ($) {
             if (percent < 100) percent = 100;
             percent = percent + '%';
 
-            //$(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column_svg" style="position:absolute; top:0px; left:0px; height: 100%; width: 100%; z-index: -1;" xmlns="http://www.w3.org/2000/svg"/></svg>'); // ms - test
             $(editor.getBody()).append('<svg id="' + id + '" class="fb_tinymce_left_column_svg" style="position:absolute; top:0px; left:0px; height:' + percent + '; width:100%; z-index: -1;" xmlns="http://www.w3.org/2000/svg"/></svg>'); // ms - test
-
+ 
             // reset icons
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').remove(); // clear all existing icons
             $(editor.getBody()).find('h1, h2, h3').each(function (index) {

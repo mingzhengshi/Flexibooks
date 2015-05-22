@@ -7,7 +7,7 @@ Description: Visual Display of Revision Differences
 require_once( 'simple_html_dom.php' );
 
 //add_action( 'admin_menu', 'fb_add_revision_compare_page' );
-add_action( 'admin_head', 'fb_derived_admin_head' );
+add_action( 'admin_head', 'fb_admin_head' );
 add_action( 'admin_footer', 'fb_derived_admin_footer' );
 add_action( 'admin_footer', 'fb_admin_footer' );
 add_action( 'init', 'fb_create_post_type' );
@@ -84,6 +84,9 @@ function fb_tinymce_plugin( $tinymce_vb ) {
 // tinymce custom buttons
 
 function fb_mce_editor_buttons_second_row( $buttons ) {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
     //---------------------------------------------------------------------
     // I think this section is not required for tinymce advanced (plugin)
     
@@ -100,8 +103,12 @@ function fb_mce_editor_buttons_second_row( $buttons ) {
     array_unshift( $buttons, 'styleselect' );
     
     //---------------------------------------------------------------------
-    // add custom buttons
-    array_push( $buttons, 'fb_custom_button_comment_bubble' );
+    // add custom buttons  
+    $id = get_current_screen()->id;
+    // add custom buttons    
+    if ($id == $FB_LEVEL_1_POST) {
+        array_push( $buttons, 'fb_custom_button_comment_bubble' );
+    }
     
     return $buttons;
 }
@@ -205,8 +212,8 @@ function fb_mce_before_init( $settings ) {
 }
 
 //-----------------------------------------------------------------------------------------------
-// for derived post type only
-function fb_derived_admin_head() {
+
+function fb_admin_head() {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
     global $FB_LEVEL_3_POST;
@@ -218,6 +225,11 @@ function fb_derived_admin_head() {
     if (($id == $FB_LEVEL_3_POST) || ($id == $FB_LEVEL_2_POST) || ($id == $FB_LEVEL_1_POST)) {
         $fb_js_url = plugins_url( 'js/fb.js' , __FILE__ );
         echo '<script type="text/javascript" src="' . $fb_js_url . '" ></script>';
+    }
+    
+    if ($id == $FB_LEVEL_1_POST) {
+        $source_js_url = plugins_url( 'js/source.js' , __FILE__ );
+        echo '<script type="text/javascript" src="' . $source_js_url . '" ></script>';
     }
     
     if (($id == $FB_LEVEL_2_POST) || ($id == $FB_LEVEL_3_POST)) {
