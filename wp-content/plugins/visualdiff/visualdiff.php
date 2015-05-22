@@ -519,8 +519,12 @@ function fb_post_box_derived_document_callback($post_type) {
     <input type="checkbox" id="fb-checkbox-add-all-selected-sources" style="margin-left:5px"/>Add all selected <?php echo strtolower($p_label); ?> to <?php echo strtolower($c_label); ?>
 </div>
 
-<div id="fb-add-derive-dialog" title="Add <?php echo $c_label; ?> Documents">
+<div id="fb-add-derive-dialog" title="Add <?php echo $c_label; ?> Document">
     Title: <input id="fb-derive-document-title" type="text"/> 
+</div>
+
+<div id="fb-rename-derive-tab-dialog" title="Rename <?php echo $c_label; ?> Document">
+    Title: <input id="fb-input-rename-derive-tab" type="text" style="width:88%;"/> 
 </div>
 
 <div id="fb-data-post-type" style="display:none;"><?php echo $post_type; ?></div>
@@ -601,11 +605,13 @@ function fb_post_box_derived_document_callback($post_type) {
             <input id="fb-button-add-derive-document" type="button" value="Add <?php echo $c_label; ?> Section" class="button-secondary" style="margin-right:10px"/>  
 <?php if ($post_type == $FB_LEVEL_3_POST) { ?>
             <input id="fb-button-table-of-content" type="button" value="Table of Content" class="button-secondary" style="margin-right:10px"/>   
+            <input id="fb-button-rename-derive-tab" type="button" value="Rename" class="button-secondary" style="margin-right:10px"/>  
 <?php } ?>           
             <span id="fb-buttonset-toggle-merge" style="margin-right:10px">
-                <input type="radio" id="fb-buttonset-toggle-merge-on" name="fb-buttonset-toggle-merge" checked="checked"><label for="fb-buttonset-toggle-merge-on">Merge On</label>
+                <input type="radio" id="fb-buttonset-toggle-merge-on" name="fb-buttonset-toggle-merge" checked="checked"><label for="fb-buttonset-toggle-merge-on">Update On</label>
                 <input type="radio" id="fb-buttonset-toggle-merge-off" name="fb-buttonset-toggle-merge"><label for="fb-buttonset-toggle-merge-off">Off</label>
             </span>
+            <!--input type="checkbox" id="fb-checkbox-toggle-merge" style="margin-right:10px"><label for="fb-checkbox-toggle-merge">Approve Updates</label-->
             <span id="fb-buttonset-toggle-sources" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-toggle-sources-on" name="fb-buttonset-toggle-sources" checked="checked"><label for="fb-buttonset-toggle-sources-on"><?php echo $p_label; ?> On</label>
                 <input type="radio" id="fb-buttonset-toggle-sources-off" name="fb-buttonset-toggle-sources"><label for="fb-buttonset-toggle-sources-off">Off</label>

@@ -460,6 +460,9 @@ jQuery(document).ready(function ($) {
             var tab_id = $(this).attr('href');
             var mce_tab_index = tab_id.replace("fb-tabs-derive", "fb-derived-mce-tab-index");
             $(mce_tab_index).val(index);
+
+            var mce_tab_name = tab_id.replace("fb-tabs-derive", "fb-derived-mce-title");
+            $(mce_tab_name).val($(this).html());
         });
 
         // sometimes tinymce can submit empty content when 'save' button is clicked, especially for a new derived tab with very few edits
@@ -473,30 +476,6 @@ jQuery(document).ready(function ($) {
         }
         */
     });
-
-    /*
-    $('#fb-buttonset-floating-source').buttonset();
-    $('#fb-buttonset-floating-source-on').click(function () {
-        if (fb_floating_sources) return; // if already on, then return.
-
-        fb_floating_sources = true;
-    });
-
-    $('#fb-buttonset-floating-source-off').click(function () {
-        if (!fb_floating_sources) return; // if already off, then return.
-
-        fb_floating_sources = false;
-
-        for (var e = 0; e < tinymce.editors.length; e++) {
-            if (tinymce.editors[e].id.indexOf("fb-source-mce") >= 0) {
-                var mce = tinymce.editors[e];
-                $(mce.getBody()).css('margin-top', mce.original_margin_top);
-            }
-        }
-
-        update();
-    });
-    */
 
     $("#fb-button-highlight-source").button().click(function () {
         var this_button = $("#fb-button-highlight-source");
@@ -1325,6 +1304,54 @@ jQuery(document).ready(function ($) {
 
     $("#fb-button-add-derive-document").button().click(function () {
         fb_add_derive_dialog.dialog("open");
+    });
+
+    //----------------------------------------------------------------------------------------
+    // rename derive tab dialog
+    var fb_rename_derive_dialog = $("#fb-rename-derive-tab-dialog").dialog({
+        autoOpen: false,
+        modal: true,
+        width: "20%",
+        buttons: {
+            Ok: function () {
+                var title = $('#fb-input-rename-derive-tab').val();
+
+                if (!title || title.trim().length <= 0) {
+                    alert('Please enter a valid document name.');
+                    return;
+                }
+
+                var tab_id = $("#fb-tabs-derives .ui-tabs-panel:visible").attr("id");
+
+                $('#fb-tabs-derives .ui-tabs-nav a').each(function (index) {
+                    if ('#' + tab_id === $(this).attr('href')) {
+                        $(this).html(title);
+                        return false;
+                    }
+                });
+
+                $(this).dialog("close");
+            },
+            Cancel: function () {
+                $(this).dialog("close");
+            },
+        },
+        close: function () {
+            $('#fb-input-rename-derive-tab').val('');
+        }
+    });
+
+    $("#fb-button-rename-derive-tab").button().click(function () {
+        var tab_id = $("#fb-tabs-derives .ui-tabs-panel:visible").attr("id");
+
+        $('#fb-tabs-derives .ui-tabs-nav a').each(function (index) {
+            if ('#' + tab_id === $(this).attr('href')) {
+                $('#fb-input-rename-derive-tab').val($(this).html());
+                return false;
+            }
+        });
+
+        fb_rename_derive_dialog.dialog("open");
     });
 
     $("#fb-button-table-of-content").button().click(function () {
