@@ -297,6 +297,11 @@ p.title {
     background-color: #f0f0f0;
 }
 
+/* source highlight */
+.fb-source-highlight {
+    opacity: 0.3;
+}
+
 /* comments */
 span.fb-comment-content-selected {
     background-color: #f6d0b0;

@@ -228,6 +228,13 @@ function fb_admin_head() {
     //$type = get_current_screen()->post_type;
     //$single = is_single();
     
+    // Remove "Add New" button in the post edit page
+    if (($id == $FB_LEVEL_3_POST) || ($id == $FB_LEVEL_2_POST) || ($id == $FB_LEVEL_1_POST)) {
+        echo '<style type="text/css">
+            .add-new-h2 { display:none; }
+        </style>';            
+    }
+        
     if (($id == $FB_LEVEL_3_POST) || ($id == $FB_LEVEL_2_POST) || ($id == $FB_LEVEL_1_POST)) {
         $fb_js_url = plugins_url( 'js/fb.js' , __FILE__ );
         echo '<script type="text/javascript" src="' . $fb_js_url . '" ></script>';

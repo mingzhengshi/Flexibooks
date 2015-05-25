@@ -1666,17 +1666,29 @@ jQuery(document).ready(function ($) {
     function highlightSource(source_doc, pid) {
         if (fb_highlighting_source == false) {
             $(source_doc.body).children().each(function (index) {
-                $(this).css("opacity", 1);
+                //$(this).css("opacity", 1);
+                if ($(this).hasClass('fb-source-highlight')) {
+                    $(this).removeClass('fb-source-highlight');
+                }
             });
         }
         else {
             $(source_doc.body).children().each(function (index) {
-                $(this).css("opacity", 0.3);
+                //$(this).css("opacity", 0.3);
+                if (!$(this).hasClass('fb-source-highlight')) {
+                    $(this).addClass('fb-source-highlight');
+                }
             });
 
             if (!flexibook.active_derive_mce) return;
 
             var derived_doc = flexibook.active_derive_mce.getDoc();
+            $(derived_doc.body).children().each(function (index) {
+                if ($(this).hasClass('fb-source-highlight')) {
+                    $(this).removeClass('fb-source-highlight');
+                }
+            });
+
             $(derived_doc.body).children().each(function (index) {
                 var derive = $(this);
                 if (isTinymceAdminElement(derive)) return true; // continue
@@ -1686,7 +1698,10 @@ jQuery(document).ready(function ($) {
                 if (source_post_id && source_post_id == pid && source_id && source_id != 'none') {
                     var source = source_doc.getElementById(source_id);
                     if (source) {
-                        $(source).css("opacity", 1);
+                        //$(source).css("opacity", 1);
+                        if ($(source).hasClass('fb-source-highlight')) {
+                            $(source).removeClass('fb-source-highlight');
+                        }
                     }
                 }
             });
