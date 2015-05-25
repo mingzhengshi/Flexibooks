@@ -1230,7 +1230,7 @@ jQuery(document).ready(function ($) {
     var fb_source_selection_dialog = $("#fb-source-selection-dialog").dialog({
         autoOpen: false,
         modal: true,
-        width: "25%",
+        width: "50%",
         buttons: {
             Open: function () {
                 if (fb_post_type == FB_LEVEL_2_POST) {
@@ -1277,8 +1277,28 @@ jQuery(document).ready(function ($) {
         fb_source_selection_dialog.dialog("open");
     });
     $("#fb-button-open-source-document").prop('disabled', true);
-    //$("#fb-button-open-source-document").addClass('merge-green');
 
+    $("#fb-button-search-source-list").click(function () {
+        $(".fb-li-source-list").each(function () {
+            var li = $(this);
+            if (li.hasClass('fb-li-source-list-hide')) {
+                li.removeClass('fb-li-source-list-hide');
+            }
+        });
+
+        var t = $('#fb-input-search-source-list').val().trim();
+        if (!t || t.length <= 0) return;
+        t = t.toLowerCase();
+
+        //var words = t.split('');
+
+        $(".fb-li-source-list").each(function () {
+            var li = $(this);
+            if (li.html().toLowerCase().indexOf(t) < 0) {
+                li.addClass('fb-li-source-list-hide');
+            }
+        });
+    });
 
     //----------------------------------------------------------------------------------------
     // add derive dialog

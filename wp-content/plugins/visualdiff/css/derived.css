@@ -66,15 +66,26 @@
      height: 18px; 
 }
 
+/* source list dialog*/
+.fb-li-source-list {
+
+}
+
+.fb-li-source-list-hide {
+    display: none;
+}
+
 /* svg polygons*/
 .fb-svg-polygons {
    
 }
 
 /* merge dialog*/
+/*
 .ui-button.merge-red {
     background-color: #fa9292;
 }
 .ui-button.merge-green {
     background-color: #a9f8ab;
 }
+*/

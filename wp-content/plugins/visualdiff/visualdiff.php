@@ -497,24 +497,28 @@ function fb_post_box_derived_document_callback($post_type) {
     
 ?>
 <div id="fb-source-selection-dialog" title="<?php echo $p_label; ?> Documents">
-    <ol id="fb-selectable-source-list" style="margin-bottom:15px">
+    <div style="position:absolute;right:20px;">
+        <input id="fb-input-search-source-list" type="text"/>
+        <input id="fb-button-search-source-list" type="button" value="Search"/> 
+    </div>
+    <ol id="fb-selectable-source-list" style="margin-top:40px; margin-bottom:15px">
 <?php
     $args = null;
     if ($post_type == $FB_LEVEL_2_POST) {
-        $args = array( 'post_type' => $FB_LEVEL_1_POST );
+        $args = array( 'posts_per_page' => -1, 'post_type' => $FB_LEVEL_1_POST );
     }
     else if ($post_type == $FB_LEVEL_3_POST) {
-        $args = array( 'post_type' => $FB_LEVEL_2_POST );
+        $args = array( 'posts_per_page' => -1, 'post_type' => $FB_LEVEL_2_POST );
     }
     $source_posts = get_posts( $args );
         
     foreach( $source_posts as $source ) {       
         $source_id = $source->ID;
         $source_title = $source->post_title;
-        echo "<li class='ui-widget-content' source-post-id='" . $source_id . "'>" . $source_title . "</li>";
+        echo "<li class='ui-widget-content fb-li-source-list' source-post-id='" . $source_id . "'>" . $source_title . "</li>";
     }
      
-?> 
+?>
     </ol>
     <input type="checkbox" id="fb-checkbox-add-all-selected-sources" style="margin-left:5px"/>Add all selected <?php echo strtolower($p_label); ?> to <?php echo strtolower($c_label); ?>
 </div>
@@ -605,8 +609,8 @@ function fb_post_box_derived_document_callback($post_type) {
             <input id="fb-button-add-derive-document" type="button" value="Add <?php echo $c_label; ?> Section" class="button-secondary" style="margin-right:10px"/>  
 <?php if ($post_type == $FB_LEVEL_3_POST) { ?>
             <input id="fb-button-table-of-content" type="button" value="Table of Content" class="button-secondary" style="margin-right:10px"/>   
-            <input id="fb-button-rename-derive-tab" type="button" value="Rename" class="button-secondary" style="margin-right:10px"/>  
 <?php } ?>           
+            <input id="fb-button-rename-derive-tab" type="button" value="Rename" class="button-secondary" style="margin-right:10px"/>  
             <span id="fb-buttonset-toggle-merge" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-toggle-merge-on" name="fb-buttonset-toggle-merge" checked="checked"><label for="fb-buttonset-toggle-merge-on">Update On</label>
                 <input type="radio" id="fb-buttonset-toggle-merge-off" name="fb-buttonset-toggle-merge"><label for="fb-buttonset-toggle-merge-off">Off</label>
