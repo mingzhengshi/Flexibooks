@@ -446,6 +446,9 @@
     <Compile Include="wp-content\plugins\duplicate-post\duplicate-post-common.php" />
     <Compile Include="wp-content\plugins\duplicate-post\duplicate-post-options.php" />
     <Compile Include="wp-content\plugins\duplicate-post\duplicate-post.php" />
+    <Compile Include="wp-content\plugins\duplicate-title-checker\duplicate-title-checker.php" />
+    <Compile Include="wp-content\plugins\duplicate-title-validate\duplicate-title-validate.php" />
+    <Compile Include="wp-content\plugins\duplicate-title-validate\index.php" />
     <Compile Include="wp-content\plugins\tinymce-advanced\css\tadv-styles.css" />
     <Compile Include="wp-content\plugins\tinymce-advanced\js\tadv.js" />
     <Compile Include="wp-content\plugins\tinymce-advanced\langs\tinymce-advanced.pot" />
@@ -1291,6 +1294,11 @@
     <Folder Include="wp-admin" />
     <Folder Include="wp-content\plugins\duplicate-post\" />
     <Folder Include="wp-content\plugins\duplicate-post\languages\" />
+    <Folder Include="wp-content\plugins\duplicate-title-checker\" />
+    <Folder Include="wp-content\plugins\duplicate-title-checker\js\" />
+    <Folder Include="wp-content\plugins\duplicate-title-validate\" />
+    <Folder Include="wp-content\plugins\duplicate-title-validate\js\" />
+    <Folder Include="wp-content\plugins\duplicate-title-validate\langs\" />
     <Folder Include="wp-content\plugins\tinymce-advanced\css" />
     <Folder Include="wp-content\plugins\tinymce-advanced\js" />
     <Folder Include="wp-content\plugins\tinymce-advanced\langs" />
@@ -1453,6 +1461,15 @@
     <Content Include="wp-content\plugins\duplicate-post\screenshot-3.jpg" />
     <Content Include="wp-content\plugins\duplicate-post\screenshot-4.jpg" />
     <Content Include="wp-content\plugins\duplicate-post\screenshot-5.jpg" />
+    <Content Include="wp-content\plugins\duplicate-title-checker\js\duptitles.js" />
+    <Content Include="wp-content\plugins\duplicate-title-checker\readme.txt" />
+    <Content Include="wp-content\plugins\duplicate-title-checker\screenshot-1.png" />
+    <Content Include="wp-content\plugins\duplicate-title-checker\screenshot-2.png" />
+    <Content Include="wp-content\plugins\duplicate-title-validate\js\duptitles.js" />
+    <Content Include="wp-content\plugins\duplicate-title-validate\langs\dublicate-title-validate-fa_IR.mo" />
+    <Content Include="wp-content\plugins\duplicate-title-validate\langs\dublicate-title-validate-fa_IR.po" />
+    <Content Include="wp-content\plugins\duplicate-title-validate\readme.txt" />
+    <Content Include="wp-content\plugins\duplicate-title-validate\screenshot-1.png" />
     <Content Include="wp-content\plugins\visualdiff\css\custom-tinymce-dashicons.css" />
     <Content Include="wp-content\plugins\visualdiff\css\derived.css" />
     <Content Include="wp-content\plugins\visualdiff\css\editor.css" />

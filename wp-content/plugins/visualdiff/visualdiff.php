@@ -18,6 +18,7 @@ add_action( 'add_meta_boxes', 'fb_add_meta_box_derived_document' );
 
 add_action( 'edit_page_form', 'fb_add_post_box_derived_document' );
 add_action( 'edit_form_advanced', 'fb_add_post_box_derived_document' );
+add_action( 'admin_notices', 'fb_error_notice' );    
 add_action( 'save_post', 'fb_save_document', 1, 2);
 add_filter( 'wp_insert_post_data' , 'fb_filter_post_data' , '99', 2 );
 
@@ -50,6 +51,11 @@ add_action( 'admin_enqueue_scripts', 'fb_custom_tinymce_dashicons' );
 $FB_LEVEL_1_POST = 'source';
 $FB_LEVEL_2_POST = 'master';
 $FB_LEVEL_3_POST = 'derived';
+
+//add_action( 'publish_source', 'fb_publish_post', 10, 2);
+add_action( 'publish_' . $FB_LEVEL_1_POST, 'fb_publish_post', 10, 2);
+add_action( 'publish_' . $FB_LEVEL_2_POST, 'fb_publish_post', 10, 2);
+add_action( 'publish_' . $FB_LEVEL_3_POST, 'fb_publish_post', 10, 2);
 
 $FB_LEVEL_1_LABEL = 'Source';
 $FB_LEVEL_2_LABEL = 'Master';
@@ -641,7 +647,52 @@ function fb_post_box_derived_document_callback($post_type) {
 <?php    
 }
 
-function fb_save_document($postid, $post){
+function fb_error_notice() {
+    if(isset($_GET['fb-error']) &&  1 == isset($_GET['fb-error'])){
+    ?>
+        <div class="error">
+            <p>The title is a duplicate. Please modify the title.</p>
+        </div>
+    <?php
+    }
+}
+
+function checkDuplicateTitle($postid, $post) {
+    global $_POST;
+    global $wpdb;
+
+    // firstly, check duplicate post title
+    $post_title = $_POST['post_title'];
+    $post_type = $_POST['post_type'];
+    $q = "SELECT ID FROM $wpdb->posts 
+          WHERE post_status = 'publish' 
+              AND post_type = '{$post_type}' 
+			  AND post_title = '{$post_title}'
+              AND ID != {$postid}
+         ";
+    
+	$ids = $wpdb->get_results( $q ) ;
+    
+    if ($ids && count($ids) > 0) {
+        // the post type can be 'revision'; in that case, check if its parent id, i.e. $_POST[ID], is equal to the query result above. If yes, then return.
+        if (count($ids) == 1 && $ids[0]->ID == $_POST[ID]) {
+            return;
+        }           
+        //$p_id = $wpdb->get_results( "SELECT * FROM $wpdb->posts WHERE ID == {$postid}" ) ;      
+        
+        $wpdb->update( $wpdb->posts, array( 'post_status' => 'draft' ), array( 'ID' => $postid ) );      
+        $args = array( 'fb-error' => '1' );      
+		$loc = add_query_arg( $args , get_edit_post_link( $post->id , 'url' ) );
+		wp_redirect( $loc ) ; 
+        exit;
+    }
+}
+
+function fb_publish_post($postid, $post) {
+    checkDuplicateTitle($postid, $post);
+}
+
+function fb_save_document($postid, $post) {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
     global $FB_LEVEL_3_POST;
@@ -650,6 +701,10 @@ function fb_save_document($postid, $post){
     // set the ID to the parent post, not the revision
     //$postid = (wp_is_post_revision( $postid )) ? wp_is_post_revision( $post ) : $postid;
 
+    // firstly, check duplicate post title
+    checkDuplicateTitle($postid, $post);
+       
+    // update post meta
     $mce_substring = "_fb-derived-mce";
     
     if (($post->post_type == $FB_LEVEL_3_POST) || ($post->post_type == $FB_LEVEL_2_POST)) {
