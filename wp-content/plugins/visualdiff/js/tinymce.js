@@ -1354,6 +1354,7 @@ jQuery(document).ready(function ($) {
                     for (var i = 0; i < children.length; i++) {
                         var element = children[i];
                         if (isAdminElement(element)) continue;
+                        if (element.className.indexOf('fb-display-none-h') >= 0) continue;
 
                         if (start == false) {
                             if (element.id == targetID) {
@@ -1507,7 +1508,7 @@ jQuery(document).ready(function ($) {
                 var id = targetID.replace(/[-.]/g, "");
                 $($(editor.getBody()).find('.fb-collapse-' + id).get().reverse()).each(function (index) {
                     $(this).removeClass('fb-collapse-' + id);
-                    $(this).insertAfter(targetElement);
+                    $(this).insertAfter(targetElement); // jQuery: if an element is inserted into a single location elsewhere in the DOM, it will be moved after the target (not cloned).
                 });
             }
 
