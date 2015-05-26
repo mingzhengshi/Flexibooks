@@ -114,6 +114,7 @@ function fb_mce_editor_buttons_second_row( $buttons ) {
     // add custom buttons    
     if ($id == $FB_LEVEL_1_POST) {
         array_push( $buttons, 'fb_custom_button_comment_bubble' );
+        array_push( $buttons, 'fb_custom_button_comment_delete' );
     }
     
     return $buttons;

@@ -231,8 +231,61 @@ jQuery(document).ready(function ($) {
             }
         });
 
+        editor.addButton('fb_custom_button_comment_delete', {
+            title: 'Delete Comment',
+            icon: 'icon dashicons-dismiss',
+            onclick: function () {
+                deleteComment();
+            }
+        });
+
         function onMouseWheelEnd() {
             update();
+        }
+
+        function deleteComment() {
+            var node = editor.selection.getNode();
+            if (!node) {
+                alert('Please select a comment to delete.');
+                return;
+            }
+
+            var id = $(node).attr('id');
+
+            var count = 0;
+            while (!id) {
+                if (count > 10) break;
+                if (!$(node).parent()[0]) break; 
+                node = $(node).parent()[0]; 
+                id = $(node).attr('id');
+                count++;
+            }
+
+            if (!id) {
+                alert('Please select a comment to delete.');
+                return;
+            }
+
+            if ($(node).hasClass('fb-comment-bubble')) {
+                $(editor.getBody()).find('.fb-comment-content').each(function (index) {
+                    var selected_content = $(this);
+                    if (selected_content.attr('data-comment-id') === id) {
+                        selected_content.contents().unwrap();
+                    }
+                });
+
+                $(node).remove();
+            }
+            else { 
+                alert('Please select a comment to delete.');
+                return;
+            }
+        }
+
+        function unwrapCommentTagjQuery(element) {
+            var clean = element.find('span.fb-comment-content').contents().unwrap().end().end(); 
+            var html = clean.html();
+            return html;
         }
 
         function addComment() {
@@ -272,6 +325,7 @@ jQuery(document).ready(function ($) {
                     var d = date.getDate().toString();
                     var date_string = d + '/' + m + '/' + y + ':';
                     createCommentBubble(id, top, bubble_left, date_string);
+                    return false; // break;   
                 }
             });
         }
