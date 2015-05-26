@@ -1207,7 +1207,10 @@ jQuery(document).ready(function ($) {
                             start = true;
                             targetLevel = parseInt(element.tagName.substr(1));
 
-                            var element_copy = $(element).clone();
+                            var element_copy = $(element).clone(); // the children of the element should be cloned as well
+
+
+
                             $(element_copy).attr(fb_data_post_id, post_id);
                             content += $(element_copy).prop('outerHTML');
                         }
@@ -1498,6 +1501,17 @@ jQuery(document).ready(function ($) {
         }
 
         function collapseOrExpand(targetID, collapse) {
+            // when expanding, move the hidden elements first
+            if (!collapse) {
+                var targetElement = $(editor.getBody()).find('#' + targetID);
+                var id = targetID.replace(/[-.]/g, "");
+                $($(editor.getBody()).find('.fb-collapse-' + id).get().reverse()).each(function (index) {
+                    $(this).removeClass('fb-collapse-' + id);
+                    $(this).insertAfter(targetElement);
+                });
+            }
+
+            // collapse or expand
             var start = false;
             var targetLevel = 10000;
             var children = $(editor.getBody()).children();
@@ -1529,6 +1543,8 @@ jQuery(document).ready(function ($) {
                             else {
                                 if (collapse) {
                                     element.className += (' fb-display-none-h' + targetLevel);
+                                    var id = targetID.replace(/[-.]/g, "");
+                                    element.className += (' fb-collapse-' + id);
                                 }
                                 else {
                                     //$('#' + element.id).removeClass('fb-display-none-h' + targetLevel);
@@ -1541,6 +1557,8 @@ jQuery(document).ready(function ($) {
                         else {
                             if (collapse) {
                                 element.className += (' fb-display-none-h' + targetLevel);
+                                var id = targetID.replace(/[-.]/g, "");
+                                element.className += (' fb-collapse-' + id);
                             }
                             else {
                                 //$('#' + element.id).removeClass('fb-display-none-h' + targetLevel);

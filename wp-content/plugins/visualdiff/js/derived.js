@@ -1995,9 +1995,9 @@ jQuery(document).ready(function ($) {
                         var derive_bookmark;
                         // stores a bookmark of the current selection
                         derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true);
-                        console.log("comp outer: " + comp.prop('outerHTML'));
+                        //console.log("comp outer: " + comp.prop('outerHTML'));
                         var newHtml = unwrapDeleteInsertTagjQuery(comp);
-                        console.log("newHtml: " + newHtml);
+                        //console.log("newHtml: " + newHtml);
 
                         if (newHtml.trim().length > 0) {
                             var newHtml = "<span class='insert'>" + newHtml + "</span>";
