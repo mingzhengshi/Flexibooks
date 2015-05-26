@@ -1097,7 +1097,6 @@ jQuery(document).ready(function ($) {
                     $(clone).css('border-width', '1px');
                     $(clone).css('border-color', 'orange');
 
-                    //var newHtml = unwrapDeleteInsertTagjQuery(comp);
                     var html = $(clone).html();
                     var html = "<span class='insert'>" + html + "</span>";
                     $(clone).html(html);
@@ -1996,10 +1995,17 @@ jQuery(document).ready(function ($) {
                         var derive_bookmark;
                         // stores a bookmark of the current selection
                         derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true);
-
+                        console.log("comp outer: " + comp.prop('outerHTML'));
                         var newHtml = unwrapDeleteInsertTagjQuery(comp);
-                        var newHtml = "<span class='insert'>" + newHtml + "</span>";
-                        comp.html(newHtml);
+                        console.log("newHtml: " + newHtml);
+
+                        if (newHtml.trim().length > 0) {
+                            var newHtml = "<span class='insert'>" + newHtml + "</span>";
+                            comp.html(newHtml);
+                        }
+                        else {
+                            comp.remove(); // remove paragraphs with empty strings, i.e., '';
+                        }
 
                         // restore the selection bookmark
                         flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
@@ -2488,14 +2494,35 @@ jQuery(document).ready(function ($) {
 
     function unwrapDeleteInsertTag(element) {
         return unwrapDeleteInsertTagjQuery($(element));
-        //var clean = $(element).find('span.delete').contents().unwrap().end().end(); // remove all delete tags
-        //clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
-        //return clean.html();
     }
 
     function unwrapDeleteInsertTagjQuery(element) {
+        // does not consider nested delete/insert span tags
+        /*
         var clean = element.find('span.delete').contents().unwrap().end().end(); // remove all delete tags
         clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
+        var html = clean.html();
+        */
+
+        var count = 0;
+        var clean = element;
+        while (clean.find('span.delete').length > 0 && count < 10) {
+            var children = clean.find('span.delete').contents();
+            if (children.length <= 0) {
+                return '';
+            }
+            clean = clean.find('span.delete').contents().unwrap().end().end(); // remove all delete tags
+            count++;
+        }
+        count = 0;
+        while (clean.find('span.insert').length > 0 && count < 10) {
+            var children = clean.find('span.insert').contents();
+            if (children.length <= 0) {
+                return '';
+            }
+            clean = clean.find('span.insert').contents().unwrap().end().end(); // remove all insert tags
+            count++;
+        }
         var html = clean.html();
         return html;
     }
