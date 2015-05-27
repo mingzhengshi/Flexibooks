@@ -970,6 +970,7 @@ function fb_allow_all_tinymce_elements_attributes( $init ) {
         $init['extended_valid_elements'] = $ext;
     }
 
+    unset($init['preview_styles']); // allow tinymce format dropdown to show style previews
     // return value
     return $init;
 }

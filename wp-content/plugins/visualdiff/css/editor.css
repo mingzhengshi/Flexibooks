@@ -321,6 +321,10 @@ div.fb-comment-bubble-selected {
     border-color: #f6d0b0;
 }
 
+span.fb-comment-bubble-dummy-text {
+    color: lightgray;
+}
+
 /* html diff */
 span.insert {
     border-style: dotted;

@@ -201,6 +201,25 @@ jQuery(document).ready(function ($) {
 
         editor.on('mouseup', function (e) {
             if (on_icon_hover) return;
+
+            // check the selected node 
+            var node = editor.selection.getNode();
+            if (!node) return;
+            if (node.tagName.toLowerCase() === 'body') return; // do not consider the case when multiple paragraphs have been selected
+            //if (editor.id.indexOf("fb-source-mce") < 0 && editor.id.indexOf("fb-derived-mce") < 0) return;
+
+            var id = $(node).attr('id');
+            while ((id === null) || (typeof id === 'undefined')) {
+                if (!$(node).parent()[0]) { break; }
+                node = $(node).parent()[0]; // only consider that case when one paragraph has been selected
+                id = $(node).attr('id');
+            }
+
+            if (!id) return;
+            if (node.tagName.toLowerCase() === 'body') return; // if the node is the body again, then return
+            if (isAdminElement(node)) return;
+
+            // if it passes all the filters above:
             on_mouse_up = true;
             update(); 
         });
@@ -320,12 +339,15 @@ jQuery(document).ready(function ($) {
                     var top = offset.top;
                     var left = offset.left;
                     
+                    /*
                     var date = new Date();
                     var y = date.getFullYear().toString();
                     var m = (date.getMonth() + 1).toString(); // getMonth() is zero-based
                     var d = date.getDate().toString();
                     var date_string = d + '/' + m + '/' + y + ':';
-                    createCommentBubble(id, top, bubble_left, date_string);
+                    */
+                    var text = "<span class='fb-comment-bubble-dummy-text'>comment:</span>";
+                    createCommentBubble(id, top, bubble_left, text);
                     return false; // break;   
                 }
             });
@@ -747,12 +769,33 @@ jQuery(document).ready(function ($) {
         }
 
         function updateComments() {
+            // find if the selected node is a comment bubble or not
+            var node = editor.selection.getNode();
+            var node_id = null;
+            if (node) {
+                node_id = $(node).attr('id');
+                var count = 0;
+                while ((node_id === null) || (typeof node_id === 'undefined')) {
+                    count++;
+                    if (count > 20) break;
+                    if (!$(node).parent()[0]) break;
+                    node = $(node).parent()[0]; // only consider that case when one paragraph has been selected
+                    node_id = $(node).attr('id');
+                }
+            }
+
+            // update comments
             $(editor.getBody()).find('.fb-comment-content').each(function (index) {
                 $(this).removeClass('fb-comment-content-selected');
             });
 
             $(editor.getBody()).find('.fb-comment-bubble').each(function (index) {
+                if (node_id && node_id == $(this).attr('id')) return true; // continue
                 $(this).removeClass('fb-comment-bubble-selected');
+                var html = $(this).html().replace(/&nbsp;/ig, '').replace(/<br>/g, '');
+                if (html.trim().length <= 0) {
+                    $(this).html("<span class='fb-comment-bubble-dummy-text'>comment:</span>");
+                }
             });
 
             // if the comment bubble have not longer existed, remove the comment span tag of the related content
@@ -814,7 +857,7 @@ jQuery(document).ready(function ($) {
 
         function onCommentBubbleClick(bubble) {
             var bubble_id = bubble.attr('id');
-
+            bubble.find('.fb-comment-bubble-dummy-text').remove();
             bubble.addClass('fb-comment-bubble-selected');
             $(editor.getBody()).find('.fb-comment-content').each(function (index) {
                 var selected_content = $(this);
