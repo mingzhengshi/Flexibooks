@@ -61,6 +61,16 @@ $FB_LEVEL_1_LABEL = 'Source';
 $FB_LEVEL_2_LABEL = 'Master';
 $FB_LEVEL_3_LABEL = 'Derived';
 
+add_action('admin_print_styles', 'fb_remove_buttons');
+
+function fb_remove_buttons() {
+?>
+<style>
+  #minor-publishing-actions { display:none; }
+</style>
+<?php 
+}
+
 //-----------------------------------------------------------------------------------------------
 // Called on the admin_enqueue_scripts action, enqueues CSS to 
 // make all WordPress Dashicons available to TinyMCE. This is
@@ -137,6 +147,7 @@ function fb_mce_editor_buttons_third_row( $buttons ) {
 
 function fb_mce_settings( $init ) {
 	//unset( $init['wp_autoresize_on'] );
+    unset($init['preview_styles']); // allow tinymce format dropdown to show style previews
 	return $init;
 }
 
@@ -970,7 +981,6 @@ function fb_allow_all_tinymce_elements_attributes( $init ) {
         $init['extended_valid_elements'] = $ext;
     }
 
-    unset($init['preview_styles']); // allow tinymce format dropdown to show style previews
     // return value
     return $init;
 }
