@@ -275,6 +275,14 @@ p.title {
     color: white;
 }
 
+.fb-teacher-bubble {
+
+}
+
+.fb-student-bubble {
+    display: none;
+}
+
 /* folding editor */
 .fb-collapse {
 

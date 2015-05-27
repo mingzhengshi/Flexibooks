@@ -275,6 +275,7 @@ jQuery(document).ready(function ($) {
                 });
 
                 $(node).remove();
+                update();
             }
             else { 
                 alert('Please select a comment to delete.');
@@ -510,6 +511,7 @@ jQuery(document).ready(function ($) {
                 id = $(node).attr('id');
             }
             if (node.tagName.toLowerCase() === 'body') return; // if the node is the body again, then return
+            if (isAdminElement(node)) return; 
 
             //-----------------------------------------------------------------------------------------------
             // edit icons
@@ -752,7 +754,35 @@ jQuery(document).ready(function ($) {
             $(editor.getBody()).find('.fb-comment-bubble').each(function (index) {
                 $(this).removeClass('fb-comment-bubble-selected');
             });
-            
+
+            // if the comment bubble have not longer existed, remove the comment span tag of the related content
+            $(editor.getBody()).find('.fb-comment-content').each(function (index) {
+                var content = $(this);
+                var id = content.attr('data-comment-id');
+                var bubbles = $(editor.getBody()).find('#' + id);
+                if (bubbles.length <= 0) {
+                    content.contents().unwrap();
+                }
+            });
+
+            // if the comment content have not longer existed, remove the related comment bubble
+            $(editor.getBody()).find('.fb-comment-bubble').each(function (index) {
+                var bubble = $(this);
+                var id = bubble.attr('id');
+                var exist = false;
+                $(editor.getBody()).find('.fb-comment-content').each(function (index) {
+                    var content = $(this);
+                    if (content.attr('data-comment-id') == id) {
+                        exist = true;
+                        return false;
+                    }
+                });
+
+                if (!exist) {
+                    bubble.remove();
+                }
+            });
+
             $(editor.getBody()).find('.fb-comment-bubble').off(); // The .off() method removes event handlers that were attached with .on().
             $(editor.getBody()).find('.fb-comment-bubble').on('click', function () {
                 onCommentBubbleClick($(this));
@@ -762,6 +792,24 @@ jQuery(document).ready(function ($) {
                 //onCommentBubbleClick($(this));
             });
             */
+
+            updateBubblePosition()
+        }
+
+        function updateBubblePosition() {
+            $(editor.getBody()).find('.fb-comment-content').each(function (index) {
+                var content = $(this);
+                var id = content.attr('data-comment-id');
+                var bubbles = $(editor.getBody()).find('#' + id);
+                if (bubbles.length == 1) {
+                    var b = bubbles[0];
+                    var offset = $(content).offset(); // absolute position relative to the document
+                    var t = offset.top;
+                    var bubble_height = 60;
+                    var t = t - bubble_height / 2;
+                    $(b).css({ top: t });
+                }
+            });
         }
 
         function onCommentBubbleClick(bubble) {
@@ -1683,7 +1731,7 @@ jQuery(document).ready(function ($) {
             var bubble_top = top - bubble_height / 2;
 
             var bubble = document.createElement('div');
-            bubble.className = 'fb-comment fb-comment-bubble';
+            bubble.className = 'fb-comment fb-comment-bubble fb-teacher-bubble';
             bubble.id = id;
             bubble.innerHTML = text;
             bubble.style.position = 'absolute';

@@ -500,6 +500,11 @@ jQuery(document).ready(function ($) {
                         $(this).addClass('fb-student');
                         $(this).removeClass('fb-teacher');
                     });
+
+                    $(mce.getBody()).find('.fb-teacher-bubble').each(function () {
+                        $(this).addClass('fb-student-bubble');
+                        $(this).removeClass('fb-teacher-bubble');
+                    });
                 }
             }
         }
@@ -510,6 +515,11 @@ jQuery(document).ready(function ($) {
                     $(mce.getBody()).find('.fb-student').each(function () {
                         $(this).addClass('fb-teacher');
                         $(this).removeClass('fb-student');
+                    });
+
+                    $(mce.getBody()).find('.fb-student-bubble').each(function () {
+                        $(this).addClass('fb-teacher-bubble');
+                        $(this).removeClass('fb-student-bubble');
                     });
                 }
             }
