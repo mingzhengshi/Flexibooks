@@ -2572,11 +2572,14 @@ jQuery(document).ready(function ($) {
     function getiFrameOffsetTop(doc) {
         var iframes = document.getElementsByTagName("iframe");
         for (var i = 0; i < iframes.length; i++) {
-            var iframe_doc = iframes[i].contentDocument || iframes[i].contentWindow.document;
-            if (iframe_doc == doc) {
-                //var containerDiv = iframes[i].parentNode;
-                //return $(containerDiv).offset().top;
-                return $(iframes[i]).offset().top;
+            // only check the flexibook iframes
+            if ($(iframes[i]).attr('id').indexOf('fb-') >= 0) {
+                var iframe_doc = iframes[i].contentDocument || iframes[i].contentWindow.document;
+                if (iframe_doc == doc) {
+                    //var containerDiv = iframes[i].parentNode;
+                    //return $(containerDiv).offset().top;
+                    return $(iframes[i]).offset().top;
+                }
             }
         }
 
