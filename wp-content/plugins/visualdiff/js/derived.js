@@ -46,75 +46,6 @@ jQuery(document).ready(function ($) {
     var tab_template = "<li id='#{id}'><a href='#{href}' data-post-id='#{postid}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
     //----------------------------------------------------------------------------------------
-    // source tabs
-
-    // close icon: removing the tab on click
-    source_tabs.delegate("span.ui-icon-close", "click", function () {
-        var panelId = $(this).closest("li").remove().attr("aria-controls");
-        $("#" + panelId).remove();
-        source_tabs.tabs("refresh");
-
-        var post_id = meta_source_tabs_post_ids[panelId];
-        var index = meta_source_tabs_post_ids.indexOf(post_id);
-        if (index >= 0) meta_source_tabs_post_ids.splice(index, 1);
-        delete meta_source_tabs_post_ids[panelId]; // also remove the property
-
-        updateSourceTabsInput();
-        updateVisibleMces(true, true);
-
-        if (fb_post_type == FB_LEVEL_2_POST) {
-            var n = $('#fb-tabs-sources .ui-tabs-nav a').length;
-            if (n === 0) {
-                $("#fb-button-open-source-document").prop('disabled', false);
-            }
-        }
-    });
-
-    source_tabs.on("tabsactivate", function (event, ui) {
-        // console.log("tab activate...");
-        // var active_tab_id = $(".ui-state-active").attr("id");
-        //var tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
-        //var selected = $("#fb-tabs-sources ul>li a").eq(tabIndex).attr('href');
-
-        //generateMergeCases();
-        updateVisibleMces(true, true);
-        update();
-    });
-
-    //----------------------------------------------------------------------------------------
-    // derive tabs
-
-    // close icon: removing the tab on click
-    derive_tabs.delegate("span.ui-icon-close", "click", function () {
-        var panelId = $(this).closest("li").remove().attr("aria-controls");
-        $("#" + panelId).remove();
-        derive_tabs.tabs("refresh");
-
-        var tab_id = $("#fb-tabs-derives .ui-tabs-panel:visible").attr("id");
-        if (!tab_id) return;
-
-        var derive_mce_id = panelId.replace("fb-tabs-derive", "fb-derived-mce");
-        tinymce.execCommand('mceRemoveEditor', false, derive_mce_id); // error
-
-        flexibook.active_derive_mce = getVisibleDeriveMce();
-
-        updateVisibleMces(true, true);
-        update();
-    });
-
-    derive_tabs.on("tabsactivate", function (event, ui) {
-        // console.log("tab activate...");
-        // var active_tab_id = $(".ui-state-active").attr("id");
-        //var tabIndex = $('#fb-tabs-derives').tabs('option', 'active');
-        //var selected = $("#fb-tabs-derives ul>li a").eq(tabIndex).attr('href');
-
-        flexibook.active_derive_mce = getVisibleDeriveMce();
- 
-        updateVisibleMces(true, true);
-        update();
-    });
-
-    //----------------------------------------------------------------------------------------
     // init
 
     flexibook.regTableOfContentCallback(function (editor_id) {
@@ -1242,15 +1173,22 @@ jQuery(document).ready(function ($) {
         width: "50%",
         buttons: {
             Open: function () {
+                var checked = document.getElementById("fb-checkbox-add-all-selected-sources").checked;
+
                 if (fb_post_type == FB_LEVEL_2_POST) {
                     if (selected_sources.length > 1) {
                         alert("You cannot open more than one " + FB_LEVEL_1_POST + " document.");
                         $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
                         return;
                     }
-                }
 
-                var checked = document.getElementById("fb-checkbox-add-all-selected-sources").checked;
+                    var n = $('#fb-tabs-derives .ui-tabs-nav a').length;
+                    if ((n >= 1) && checked) {
+                        alert("You cannot open more than one " + FB_LEVEL_2_POST + " document.");
+                        $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
+                        return;
+                    }
+                }
 
                 //addTab();
                 for (var i = 0; i < selected_sources.length; i++) {
@@ -1450,6 +1388,85 @@ jQuery(document).ready(function ($) {
             });
     }
 
+
+    //----------------------------------------------------------------------------------------
+    // source and derived tabs
+
+    // close icon: removing the tab on click
+    source_tabs.delegate("span.ui-icon-close", "click", function () {
+        var panelId = $(this).closest("li").remove().attr("aria-controls");
+        $("#" + panelId).remove();
+        source_tabs.tabs("refresh");
+
+        var post_id = meta_source_tabs_post_ids[panelId];
+        var index = meta_source_tabs_post_ids.indexOf(post_id);
+        if (index >= 0) meta_source_tabs_post_ids.splice(index, 1);
+        delete meta_source_tabs_post_ids[panelId]; // also remove the property
+
+        updateSourceTabsInput();
+        updateVisibleMces(true, true);
+
+        if (fb_post_type == FB_LEVEL_2_POST) {
+            var n = $('#fb-tabs-sources .ui-tabs-nav a').length;
+            if (n === 0) {
+                $("#fb-button-open-source-document").prop('disabled', false);
+            }
+        }
+    });
+
+    source_tabs.on("tabsactivate", function (event, ui) {
+        // console.log("tab activate...");
+        // var active_tab_id = $(".ui-state-active").attr("id");
+        //var tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
+        //var selected = $("#fb-tabs-sources ul>li a").eq(tabIndex).attr('href');
+
+        //generateMergeCases();
+        updateVisibleMces(true, true);
+        update();
+    });
+
+    // close icon: removing the tab on click
+    derive_tabs.delegate("span.ui-icon-close", "click", function () {
+        var panelId = $(this).closest("li").remove().attr("aria-controls");
+        $("#" + panelId).remove();
+        derive_tabs.tabs("refresh");
+
+
+        var tab_id = $("#fb-tabs-derives .ui-tabs-panel:visible").attr("id");
+        if (!tab_id) {
+            if (fb_post_type == FB_LEVEL_2_POST) {
+                var n = $('#fb-tabs-derives .ui-tabs-nav a').length;
+                if (n === 0) {
+                    $("#fb-button-add-derive-document").prop('disabled', false);
+                }
+            }
+
+            return; // return here is a temp solution to avoid the error generated by the command 'mceRemoveEditor' below
+        }
+
+
+        var derive_mce_id = panelId.replace("fb-tabs-derive", "fb-derived-mce");
+        tinymce.execCommand('mceRemoveEditor', false, derive_mce_id); // error
+
+        flexibook.active_derive_mce = getVisibleDeriveMce();
+
+        updateVisibleMces(true, true);
+        update();
+    });
+
+    derive_tabs.on("tabsactivate", function (event, ui) {
+        // console.log("tab activate...");
+        // var active_tab_id = $(".ui-state-active").attr("id");
+        //var tabIndex = $('#fb-tabs-derives').tabs('option', 'active');
+        //var selected = $("#fb-tabs-derives ul>li a").eq(tabIndex).attr('href');
+
+        flexibook.active_derive_mce = getVisibleDeriveMce();
+
+        updateVisibleMces(true, true);
+        update();
+    });
+
+
     function addSourceTab(title, content, post_modified, post_id) {
         var tab_id = "fb-tabs-source-" + tab_counter_source;
         var mce_id = 'fb-source-mce-' + tab_counter_source;
@@ -1569,6 +1586,14 @@ jQuery(document).ready(function ($) {
                 derive_tabs.tabs("refresh");
             }
         });
+
+        if (fb_post_type == FB_LEVEL_2_POST) {
+            var n = $('#fb-tabs-derives .ui-tabs-nav a').length;
+            if (n === 1) {
+                $("#fb-button-add-derive-document").prop('disabled', true);
+            }
+        }
+
         tab_counter_derive++;
 
         return derive_mce;
