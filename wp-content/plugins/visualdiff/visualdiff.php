@@ -137,7 +137,7 @@ function fb_mce_editor_buttons_third_row( $buttons ) {
     //$type = get_current_screen()->post_type;
     $id = get_current_screen()->id;
     // add custom buttons    
-    if ($id == $FB_LEVEL_3_POST) {
+    if (($id == $FB_LEVEL_2_POST) || ($id == $FB_LEVEL_3_POST)) {
         array_push( $buttons, 'fb_custom_button_table_of_content' );
         array_push( $buttons, 'fb_custom_button_page_boundary' );
     }
