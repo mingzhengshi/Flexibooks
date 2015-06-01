@@ -1292,7 +1292,23 @@ jQuery(document).ready(function ($) {
 
                 $('#fb-tabs-derives .ui-tabs-nav a').each(function (index) {
                     if ('#' + tab_id === $(this).attr('href')) {
+                        // update the tab name
                         $(this).html(title);
+
+                        // update the post_name property of the related derive mce
+                        var derive_mce_id = tab_id.replace("fb-tabs-derive", "fb-derived-mce");
+                        var derive_mce = tinymce.get(derive_mce_id);
+                        var old_name = derive_mce.post_name;
+                        derive_mce.post_name = title;
+
+                        // update the meta data 
+                        for (var j = 0; j < meta_source_versions.length; j++) {
+                            if (old_name == meta_source_versions[j].derive_post_name) {
+                                meta_source_versions[j].derive_post_name = title;
+                                break;
+                            }
+                        }
+
                         return false;
                     }
                 });

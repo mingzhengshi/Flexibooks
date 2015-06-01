@@ -483,17 +483,10 @@ jQuery(document).ready(function ($) {
                 }
             });
 
-            var post_name = editor.post_name;
+            //var post_name = editor.post_name;
 
-            if (!post_name) {
-                // if post_name property does not exist, then it is a source document
-                var callback = flexibook.sourceTableOfContentCallback;
-                if (callback) callback();
-            }
-            else {
-                var callback = flexibook.tableOfContentCallback;
-                if (callback) callback(editor.id);
-            }
+            var callback = flexibook.tableOfContentCallback;
+            if (callback) callback(editor.id);           
         }
 
         function isOverlap(id1, id2) {
