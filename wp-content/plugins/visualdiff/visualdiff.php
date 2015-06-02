@@ -151,6 +151,15 @@ function fb_mce_settings( $init ) {
 	return $init;
 }
 
+/*
+function my_theme_add_editor_styles() {
+    add_editor_style( trailingslashit( plugin_dir_url(__FILE__) ) . 'css/editor.css' ); // ms - test
+    global $editor_styles;
+}
+add_action( 'init', 'my_theme_add_editor_styles' );
+add_action( 'pre_get_posts', 'my_theme_add_editor_styles' );
+*/
+
 function fb_mce_before_init( $settings ) {
 
     $style_formats = array(
@@ -169,11 +178,13 @@ function fb_mce_before_init( $settings ) {
             'block' => 'h2',
             'classes' => 'activity'
         ),
+        /*
         array(
             'title' => 'Answer',
             'block' => 'hr',
             'classes' => 'answer'
         ),
+        */
         array(
             'title' => 'body text italic',
             //'block' => 'p',
@@ -237,8 +248,11 @@ function fb_mce_editor_style($url) {
     if ( !empty($url) )
         $url .= ',';
     
+    global $editor_styles;
+
     $url .= trailingslashit( plugin_dir_url(__FILE__) ) . 'css/editor.css';
-    
+    $url .= ',';
+    $url .= trailingslashit( plugin_dir_url(__FILE__) ) . 'css/editor-v2.css'; 
     return $url;
 }
 
@@ -973,7 +987,6 @@ function fb_create_post_type() {
 }
 
 function fb_allow_all_tinymce_elements_attributes( $init ) {
-
     // Allow all elements and all attributes
     $ext = '*[*]';
 
@@ -987,5 +1000,6 @@ function fb_allow_all_tinymce_elements_attributes( $init ) {
     // return value
     return $init;
 }
+
 
 ?>

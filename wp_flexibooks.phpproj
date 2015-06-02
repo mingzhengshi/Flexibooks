@@ -1467,8 +1467,8 @@
     <Content Include="wp-content\plugins\freshdesk-support\readme.txt" />
     <Content Include="wp-content\plugins\visualdiff\css\custom-tinymce-dashicons.css" />
     <Content Include="wp-content\plugins\visualdiff\css\derived.css" />
+    <Content Include="wp-content\plugins\visualdiff\css\editor-v2.css" />
     <Content Include="wp-content\plugins\visualdiff\css\editor.css" />
-    <Content Include="wp-content\plugins\visualdiff\css\editor_div.css" />
     <Content Include="wp-content\plugins\visualdiff\css\revisionsdiff.css" />
     <Content Include="wp-content\plugins\visualdiff\image\activity.png" />
     <Content Include="wp-content\plugins\visualdiff\image\beach.png" />

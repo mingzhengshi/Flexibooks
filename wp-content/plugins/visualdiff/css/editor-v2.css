@@ -1,0 +1,388 @@
+html .mceContentBody {
+	max-width: 800px;
+}
+
+h1.main-heading-1 {
+    padding-left: 35px;
+    background-color: #f6d0b0;
+    color: #1f6ca5;
+    font-size: 35pt;
+}
+
+h2.main-heading-2 {
+    font-size: 19pt;
+    padding-left: 118px;
+    color: #d0e7f7;
+    background-image: url("../image/h2-bullet.png");
+    background-repeat: no-repeat;
+    background-position: 20px, 2px;
+}
+
+h2.activity {
+    font-style: italic;
+    font-weight: normal;
+    margin-top: 0px; /*ms*/
+    padding-top: 15px; 
+    padding-bottom: 20px;
+    font-size: 16pt;
+    padding-left: 160px;
+    color: #8fd425;
+    background-image: url("../image/activity.png");
+    background-size: 120px, 40px;
+    background-repeat: no-repeat;
+    background-position: 20px 6px;
+}
+
+ul {
+    padding-left:0;   
+    margin-left:0;  
+    font-size: 9pt; 
+}
+
+ul li {
+    margin-left: 1em;
+    font-weight: bold;
+}
+
+div.image {
+    margin-top: 25px;
+    text-align: center;
+    margin-bottom:35px;
+}
+
+div.image img {
+    max-width: 95%;
+}
+
+div.caption {
+    margin-top: 8px;
+    color: #562f85;
+}
+
+li.exercise {
+    font-family: "Lucida Console", Monaco, monospace;
+    font-size: 9pt; 
+}
+
+/*
+li.exercise table {
+   text-align: left;
+   table-layout: fixed; 
+   margin-top:20px;
+   margin-bottom:20px;
+   width: 100%;
+   border-collapse: collapse;
+   border: 1px #186da5 solid;
+   font-size: 9.5pt; 
+}
+
+li.exercise table tr th {
+   background-color: #d0e7f7;
+   border: 1px #186da5 solid;
+   padding: 8px;
+ }
+
+li.exercise table tr td {
+   padding: 8px;
+   border: 1px #186da5 solid;
+}
+*/
+
+fb-table {
+
+}
+
+table.fb-table {
+   text-align: left;
+   table-layout: fixed; 
+   margin-top:20px;
+   margin-bottom:20px;
+   width: 100%;
+   border-collapse: collapse;
+   border: 1px #186da5 solid;
+
+   font-family: "Lucida Console", Monaco, monospace;
+   font-size: 9.5pt; 
+}
+
+table.fb-table th {
+   background-color: #d0e7f7;
+   border: 1px #186da5 solid;
+   padding: 8px;
+}
+
+table.fb-table td {
+   padding: 8px;
+   border: 1px #186da5 solid;
+}
+
+hr.answer { 
+   padding-top: 20px;
+   margin-bottom: 8px;
+   border: 0px;
+   border-bottom: solid 1px black;
+   fill: none;
+}
+
+body {
+font-family: Frutiger CE 45 Light;
+font-size: 9.5pt;
+margin: 30px;
+}
+
+p {
+font-family: Frutiger CE 45 Light;
+font-size: 9.5pt;
+}
+
+/* styles */
+p.assessed {
+    font-family: Frutiger CE 45 Light;
+    font-size: 8pt; 
+    color: black;
+}
+
+span.body-text-italic, p.body-text-italic {
+    font-family: Frutiger CE 45 Light;
+    font-size: 9.5pt;
+    font-style: italic;
+    color: black;
+}
+
+p.c-head-sm {
+    font-family: Frutiger CE 55 Light;
+    font-size: 14pt;
+    font-style: italic;
+    color: blue;
+}
+
+p.d-head-sm {
+    font-family: Frutiger CE 55 Light;
+    font-size: 13pt; 
+    font-style: italic;
+    font-weight: bold;
+    color: purple;
+}
+
+p.diagram {
+    font-family: Frutiger CE 45 Light;
+    font-size: 9.5pt; 
+    font-style: italic;
+    color: purple;
+    text-align: center;
+}
+
+p.diagram2 {
+    font-family: Frutiger CE 45 Light;
+    font-size: 9.5pt; 
+    font-style: italic;
+    color: purple;
+}
+
+p.question-sm {
+    font-family: Frutiger CE 55 Light;
+    font-size: 9pt; 
+    color: black;
+}
+
+p.subtitle {
+    font-family: Arial;
+    font-size: 12pt;
+    text-align: center;
+}
+
+p.title {
+    font-family: Arial;
+    font-size: 16pt; 
+    font-weight: bold;
+    text-align: center;
+}
+
+/* the page that contains table of content */
+.toc-page {
+    height: 1015px; /* ms - test */
+}
+
+.toc {
+    /*vertical-align: middle;*/ /*not for div*/
+}
+
+.master-toc-title {
+    font-family: Arial;
+    font-size: 45pt;
+    color: #1f6ca5;
+    font-weight: bold;
+    margin-top: 40pt;
+    margin-bottom: 40pt;
+}
+
+.master-toc-main-heading {
+    font-size: 24pt;
+    margin-bottom: 18pt;
+    margin-left: 20pt;
+}
+
+.toc-title {
+    font-size: 45pt;
+    color: #1f6ca5;
+    text-align: center;
+    margin-bottom: 20pt;
+}
+
+.toc-main-heading-1 {
+    font-size: 12pt;
+    font-weight: bold;
+    margin-bottom: 3pt;
+    overflow-x: hidden;
+}
+
+.toc-ul {
+    list-style: none;
+    width: 100%;  
+    overflow-x: hidden;
+    margin-bottom: 10pt;
+}
+
+/* toc-li */
+.toc-main-heading-2 {
+    font-size: 10pt;
+    padding-left: 15pt;
+}
+
+.toc-heading-span {
+    background: white;
+}
+
+.toc-page-number-span {
+    float: right;
+    background: white;
+}
+
+/* pseudo-elements */
+.toc-main-heading-1::before, .toc-main-heading-2::before {
+    float: left;
+    width: 0;
+    white-space: nowrap;
+    content:". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "". . . . . . . . . . . . . . . . . . . . "
+}
+
+/* teacher-student version */
+.fb-teacher {
+    color: red;
+}
+
+.fb-student {
+    color: white;
+}
+
+.fb-teacher-bubble {
+
+}
+
+.fb-student-bubble {
+    display: none;
+}
+
+/* folding editor */
+.fb-collapse {
+
+}
+
+.fb-display-none-h1 {
+    display: none;
+}
+
+.fb-display-none-h2 {
+    display: none;
+}
+
+.fb-display-none-h3 {
+    display: none;
+}
+
+/* section highlight */
+.fb-section-highlight {
+    background-color: #f0f0f0;
+}
+
+/* source highlight */
+.fb-source-highlight {
+    opacity: 0.3;
+}
+
+/* comments */
+span.fb-comment-content-selected {
+    background-color: #f6d0b0;
+}
+
+div.fb-comment-bubble-selected {
+    border: solid;
+    border-width: 1px;
+    border-color: #f6d0b0;
+}
+
+span.fb-comment-bubble-dummy-text {
+    color: lightgray;
+}
+
+/* html diff */
+span.insert {
+    border-style: dotted;
+    border-width: 1px;
+    border-color: darkgray;
+}
+
+span.delete {
+    opacity: 0.3;
+}
+
+span.insert-merge {
+    background-color: #faee3d;
+}
+
+span.delete-merge {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+
+
+/*
+span.insert-ss {
+    background-color: #cefbcc;
+}
+
+span.insert-sd {
+    background-color: #faee3d;
+}
+
+span.delete-ss {
+    background-color: #cefbcc;
+}
+
+span.delete-sd {
+    background-color: #faee3d;
+}
+
+span.insert-highlight-ss {
+    background-color: #9cfb98;
+}
+
+span.insert-highlight-sd {
+    background-color: #f7e113;
+}
+
+span.delete-highlight-ss {
+    text-decoration: line-through;
+    opacity: 1;
+    font-weight: bold;
+    background-color: #9cfb98;
+}
+
+span.delete-highlight-sd {
+    text-decoration: line-through;
+    opacity: 1;
+    font-weight: bold;
+    background-color: #f7e113;
+}
+*/

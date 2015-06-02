@@ -33,6 +33,7 @@ jQuery(document).ready(function ($) {
     var fb_screen_dpi = -1;
 
     var fb_all_custom_style_classes = 'main-heading-1 main-heading-2 activity exercise assessed body-text-italic c-head-sm d-head-sm diagram diagram2 question-sm subtitle title';
+    var fb_plugin_url;
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
         this.updatePublic = updatePublic; // public member of the fb_folding_editor object
@@ -72,6 +73,8 @@ jQuery(document).ready(function ($) {
                     console.log("scrollstop: ");
                 });
             }
+
+            var test = fb_plugin_url;
 
             // test dpi
             $(editor.getBody()).append('<div id="div_dpi" class="dpi_test" style="width:1in;visible:hidden;padding:0px"></div>');
