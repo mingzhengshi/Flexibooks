@@ -636,6 +636,9 @@ function fb_post_box_derived_document_callback($post_type) {
             <input id="fb-button-table-of-content" type="button" value="Table of Content" class="button-secondary" style="margin-right:10px"/>   
 <?php } ?>           
             <input id="fb-button-rename-derive-tab" type="button" value="Rename" class="button-secondary" style="margin-right:10px"/>  
+<?php if ($post_type == $FB_LEVEL_2_POST) { ?>
+            <input id="fb-button-approve-all" type="button" value="Approve All" class="button-secondary" style="margin-right:10px"/>   
+<?php } ?> 
             <span id="fb-buttonset-toggle-merge" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-toggle-merge-on" name="fb-buttonset-toggle-merge" checked="checked"><label for="fb-buttonset-toggle-merge-on">Update On</label>
                 <input type="radio" id="fb-buttonset-toggle-merge-off" name="fb-buttonset-toggle-merge"><label for="fb-buttonset-toggle-merge-off">Off</label>

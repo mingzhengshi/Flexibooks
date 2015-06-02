@@ -386,6 +386,16 @@ jQuery(document).ready(function ($) {
         toggleStudentTeacherVersion();
     });
 
+    $("#fb-button-approve-all").button().click(function () {
+        var mce = getVisibleDeriveMce();
+        if (mce) {
+            var title = $('#title').val();
+            mce.plugins.fb_folding_editor.approveAll();
+        }
+    });
+    $("#fb-button-approve-all").prop('disabled', true);
+
+
     $("#publish").click(function () {
         $('#fb-tabs-derives .ui-tabs-nav a').each(function (index) {
             var tab_id = $(this).attr('href');
@@ -704,7 +714,7 @@ jQuery(document).ready(function ($) {
                         old_element = old_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // remove &nbsp; and <br> tag
                         //old_element = old_element.replace(/&nbsp;/ig, ' ');
 
-                        if (old_element.trim() === '') {
+                        if (exist_old_source === true && old_element.trim() === '') {
                             return true; // continue
                         }
 
@@ -1867,6 +1877,8 @@ jQuery(document).ready(function ($) {
     function updateMetaBoxSourceVersions() {
         var table = document.getElementById("fb-table-derived-meta");
 
+        $("#fb-button-approve-all").prop('disabled', true);
+
         // remove all data rows first
         if (table.rows.length > 1) {
             for (var i = table.rows.length - 1; i >= 1; i--) {
@@ -1900,6 +1912,7 @@ jQuery(document).ready(function ($) {
                 var cells = table.rows[i].cells;
                 if (cells[2].innerHTML.trim() != cells[3].innerHTML.trim()) {
                     table.rows[i].style.backgroundColor = "lightpink";
+                    $("#fb-button-approve-all").prop('disabled', false);
 
                     // set the corresponding derive tabs as well
                     $('#fb-tabs-derives .ui-tabs-nav a').each(function () {

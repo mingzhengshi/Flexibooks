@@ -36,6 +36,7 @@ jQuery(document).ready(function ($) {
         this.updatePublic = updatePublic; // public member of the fb_folding_editor object
         this.updateMasterTOC = updateMasterTableOfContent; // public member
         this.setupPostType = setupPostType; // public member
+        this.approveAll = approveAllMerges; // public member
 
         var page_boundary_on = false;
         var page_boundary_on_body_background_color = '#ebebeb';
@@ -415,6 +416,18 @@ jQuery(document).ready(function ($) {
                 fb_data_post_id = FB_DATA_LEVEL2_POST_ID;
                 fb_data_element_id = FB_DATA_LEVEL2_ELEMENT_ID;
             }
+        }
+
+        function approveAllMerges() {
+            $(editor.getBody()).find('.fb_tinymce_left_column_icon').each(function () {
+                var icon = $(this);
+                if (icon.html().charCodeAt() == '10003') {
+                    var mcase = icon.prop('data-mcase');
+                    if (mcase != '3') {
+                        iconOnClick(icon);
+                    }
+                }             
+            });
         }
 
         function updateMasterTableOfContent(title, post_names) {
@@ -1093,52 +1106,57 @@ jQuery(document).ready(function ($) {
             );
 
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').click(function () {
-                var this_icon = $(this);
-                var targetID = this_icon.attr('id').substr(5);
-                if (targetID == null) return;
+                iconOnClick($(this));
+            });
+        }
 
-                // click the minus box: collapse
-                if (this_icon.html().charCodeAt() == '8863') {
-                    collapseOrExpand(targetID, true);
+        function iconOnClick(icon) {
+            var this_icon = icon;
+            var targetID = this_icon.attr('id').substr(5);
+            if (targetID == null) return;
 
-                    this_icon.html('&#8862');  // switch to plus box
-                }
-                    // click the plug box: expand
-                else if (this_icon.html().charCodeAt() == '8862') {
-                    collapseOrExpand(targetID, false);
+            // click the minus box: collapse
+            if (this_icon.html().charCodeAt() == '8863') {
+                collapseOrExpand(targetID, true);
 
-                    this_icon.html('&#8863');  // switch to minus box
-                }
-                    // click the push button: add content
-                else if (this_icon.html().charCodeAt() == '9655') {
-                    insertContent(targetID);
-                }
-                    // click the delete button: delete this item
-                else if (this_icon.html().charCodeAt() == '10005') {
-                    var targetElement = editor.getDoc().getElementById(targetID);
-                    $(targetElement).remove();
-                }
-                    // click the merge button
-                else if (isMergeIcons(this_icon)) {
-                    var mcase = this_icon.prop('data-mcase');
-                    switch (mcase) {
-                        case "1":
-                        case "3":
-                        case "5":
-                        case "6":
-                            var post_id;
-                            var source_item_id;
-                            var derive_item_id = targetID;
+                this_icon.html('&#8862');  // switch to plus box
+            }
+                // click the plug box: expand
+            else if (this_icon.html().charCodeAt() == '8862') {
+                collapseOrExpand(targetID, false);
 
-                            $(editor.getBody()).find('#' + targetID).each(function () {
-                                post_id = $(this).attr(fb_data_post_id);
-                                source_item_id = $(this).attr(fb_data_element_id);
-                            });
+                this_icon.html('&#8863');  // switch to minus box
+            }
+                // click the push button: add content
+            else if (this_icon.html().charCodeAt() == '9655') {
+                insertContent(targetID);
+            }
+                // click the delete button: delete this item
+            else if (this_icon.html().charCodeAt() == '10005') {
+                var targetElement = editor.getDoc().getElementById(targetID);
+                $(targetElement).remove();
+            }
+                // click the merge button
+            else if (isMergeIcons(this_icon)) {
+                var mcase = this_icon.prop('data-mcase');
+                switch (mcase) {
+                    case "1":
+                    case "3":
+                    case "5":
+                    case "6":
+                        var post_id;
+                        var source_item_id;
+                        var derive_item_id = targetID;
 
-                            var callback = flexibook.mergeIconClickCallback;
-                            if (callback) callback(this_icon.html().charCodeAt(), post_id, source_item_id, derive_item_id, mcase);
+                        $(editor.getBody()).find('#' + targetID).each(function () {
+                            post_id = $(this).attr(fb_data_post_id);
+                            source_item_id = $(this).attr(fb_data_element_id);
+                        });
 
-                            break;
+                        var callback = flexibook.mergeIconClickCallback;
+                        if (callback) callback(this_icon.html().charCodeAt(), post_id, source_item_id, derive_item_id, mcase);
+
+                        break;
                         /*
                         case "5":
                             var post_id = editor.post_id;
@@ -1150,11 +1168,10 @@ jQuery(document).ready(function ($) {
 
                             break;
                         */
-                    }
                 }
+            }
 
-                update();
-            });
+            update();
         }
 
         function setupDraggableIconEvents(icon_id) {
