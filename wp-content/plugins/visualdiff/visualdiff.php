@@ -230,6 +230,19 @@ function fb_mce_before_init( $settings ) {
 }
 
 //-----------------------------------------------------------------------------------------------
+// change the style of wp editor - see http://codex.wordpress.org/TinyMCE_Custom_Styles
+
+// apply styles to the visual editor
+function fb_mce_editor_style($url) {
+    if ( !empty($url) )
+        $url .= ',';
+    
+    $url .= trailingslashit( plugin_dir_url(__FILE__) ) . 'css/editor.css';
+    
+    return $url;
+}
+
+//-----------------------------------------------------------------------------------------------
 
 function fb_admin_head() {
     global $FB_LEVEL_1_POST;
@@ -957,19 +970,6 @@ function fb_create_post_type() {
     );
     
     register_post_type($FB_LEVEL_3_POST, $args3);
-}
-
-//-----------------------------------------------------------------------------------------------
-// change the style of wp editor - see http://codex.wordpress.org/TinyMCE_Custom_Styles
-
-// apply styles to the visual editor
-function fb_mce_editor_style($url) {
-    if ( !empty($url) )
-        $url .= ',';
-    
-    $url .= trailingslashit( plugin_dir_url(__FILE__) ) . 'css/editor.css';
-    
-    return $url;
 }
 
 function fb_allow_all_tinymce_elements_attributes( $init ) {

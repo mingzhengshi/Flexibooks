@@ -32,6 +32,8 @@ jQuery(document).ready(function ($) {
 
     var fb_screen_dpi = -1;
 
+    var fb_all_custom_style_classes = 'main-heading-1 main-heading-2 activity exercise assessed body-text-italic c-head-sm d-head-sm diagram diagram2 question-sm subtitle title';
+
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
         this.updatePublic = updatePublic; // public member of the fb_folding_editor object
         this.updateMasterTOC = updateMasterTableOfContent; // public member
@@ -107,6 +109,40 @@ jQuery(document).ready(function ($) {
         editor.on('change', function (e) {
             console.log('on change');
             update();
+        });
+
+        /*
+        editor.on('BeforeAddUndo', function (e) {
+            console.log('on BeforeAddUndo');
+        });
+        */
+
+        editor.on('BeforeExecCommand', function (e) {
+            if (e.command === 'mceToggleFormat') {
+                console.log('ExecCommand event: mceToggleFormat');
+
+                // check the selected node 
+                var node = editor.selection.getNode();
+                if (!node) return;
+                if (isAdminElement(node)) return;
+
+                $(node).removeClass(fb_all_custom_style_classes);
+            }
+        });
+
+        editor.on('ExecCommand', function (e) {
+            /*
+            if (e.command === 'mceToggleFormat') {
+                console.log('ExecCommand event: mceToggleFormat');
+
+                // check the selected node 
+                var node = editor.selection.getNode();
+                if (!node) return;
+                if (isAdminElement(node)) return;
+
+
+            }
+            */
         });
 
         editor.on('PostProcess', function (e) {
