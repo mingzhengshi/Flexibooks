@@ -36,11 +36,14 @@ jQuery(document).ready(function ($) {
     var fb_plugin_url;
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
-        this.updatePublic = updatePublic; // public member of the fb_folding_editor object
-        this.updateMasterTOC = updateMasterTableOfContent; // public member
-        this.setupPostType = setupPostType; // public member
-        this.approveAll = approveAllMerges; // public member
+        // public members of the fb_folding_editor object
+        this.updatePublic = updatePublic; 
+        this.updateMasterTOC = updateMasterTableOfContent; 
+        this.setupPostType = setupPostType; 
+        this.approveAll = approveAllMerges; 
+        this.switchEditorCSS = switchStyleSheets; 
 
+        // private members
         var page_boundary_on = false;
         var page_boundary_on_body_background_color = '#ebebeb';
         var on_mouse_up = false;
@@ -75,6 +78,10 @@ jQuery(document).ready(function ($) {
             }
 
             var test = fb_plugin_url;
+            //editor.contentCSS.push('http://localhost:39759/wp-content/plugins/visualdiff/css/editor-v2.css');
+            //editor.contentCSS.push('http://localhost:39759/wp-content/plugins/visualdiff/css/editor.css');
+            //editor.dom.loadCSS('http://localhost:39759/wp-content/plugins/visualdiff/css/editor.css');
+            //editor.dom.styleSheetLoader.load('http://localhost:39759/wp-content/plugins/visualdiff/css/editor.css');
 
             // test dpi
             $(editor.getBody()).append('<div id="div_dpi" class="dpi_test" style="width:1in;visible:hidden;padding:0px"></div>');
@@ -147,6 +154,12 @@ jQuery(document).ready(function ($) {
             }
             */
         });
+
+        /*
+        editor.on('BeforeSetContent', function (e) {
+            console.log('BeforeSetContent event', e);
+        });
+        */
 
         editor.on('PostProcess', function (e) {
             update();
@@ -240,7 +253,7 @@ jQuery(document).ready(function ($) {
         });
 
         editor.on('mouseup', function (e) {
-            if (on_icon_hover) return;
+            if (on_icon_hover) return;          
 
             // check the selected node 
             var node = editor.selection.getNode();
@@ -297,6 +310,18 @@ jQuery(document).ready(function ($) {
                 deleteComment();
             }
         });
+
+        function switchStyleSheets(href) {
+            if (!href) return;
+
+            var link = document.createElement("link")
+            link.className = "fb-tinymce-stylesheet";
+            link.href = href;
+            link.rel = "stylesheet";
+            link.type = "text/css";
+            $(editor.getDoc()).find('.fb-tinymce-stylesheet').remove();
+            editor.getDoc().head.appendChild(link);
+        }
 
         function onMouseWheelEnd() {
             update();
@@ -767,7 +792,6 @@ jQuery(document).ready(function ($) {
 
         function update() {
             if (fb_post_type === null) return;
-
             updatePublic(true);
         }
 

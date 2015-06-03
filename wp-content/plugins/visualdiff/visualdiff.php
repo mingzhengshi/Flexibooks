@@ -251,8 +251,8 @@ function fb_mce_editor_style($url) {
     global $editor_styles;
 
     $url .= trailingslashit( plugin_dir_url(__FILE__) ) . 'css/editor.css';
-    $url .= ',';
-    $url .= trailingslashit( plugin_dir_url(__FILE__) ) . 'css/editor-v2.css'; 
+    //$url .= ',';
+    //$url .= trailingslashit( plugin_dir_url(__FILE__) ) . 'css/editor-v2.css'; 
     return $url;
 }
 
@@ -630,7 +630,11 @@ function fb_post_box_derived_document_callback($post_type) {
   <tr id="fb-tr-derive-document-editors">
     <td id="fb-td-source-mces" style="vertical-align:top">
         <div> 
-            <input id="fb-button-open-source-document" type="button" value="Open <?php echo $p_label; ?>" class="button-secondary" style="margin-right:10px"/>      
+            <input id="fb-button-open-source-document" type="button" value="Open <?php echo $p_label; ?>" class="button-secondary" style="margin-right:10px"/>  
+            <select id="fb-select-style-sheet" data-css-href-1="<?php echo plugins_url( 'css/editor.css' , __FILE__ ); ?>" data-css-href-2="<?php echo plugins_url( 'css/editor-v2.css' , __FILE__ ); ?>">
+                <option selected="selected">Style One</option>
+                <option>Style Two</option>
+            </select>   
             <!--input id="fb-button-floating-source" type="button" value="Turn Off Floating" class="button-secondary" style="margin-right:10px"-->
             <!--span id="fb-buttonset-floating-source" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-floating-source-on" name="fb-buttonset-floating-source" checked="checked"><label for="fb-buttonset-floating-source-on">Floating On</label>

@@ -341,6 +341,28 @@ jQuery(document).ready(function ($) {
     //---------------------------------------------------------------------------------------------------------------
     // setup buttons
 
+    //$('#fb-select-style-sheet').selectmenu();
+    $('#fb-select-style-sheet').change(function () {
+        var select = $("#fb-select-style-sheet option:selected").text();
+        var href = null;
+        if (select === 'Style One') {
+            href = $('#fb-select-style-sheet').attr('data-css-href-1');
+        }
+        else if (select === 'Style Two') {
+            href = $('#fb-select-style-sheet').attr('data-css-href-2');
+        }
+
+        if (href) {
+            for (var i = 0; i < tinymce.editors.length; i++) {
+                var editor = tinymce.editors[i];
+                if ((editor.id.indexOf("fb-source-mce") >= 0) || (editor.id.indexOf("fb-derived-mce") >= 0)) {
+                    editor.plugins.fb_folding_editor.switchEditorCSS(href);
+                }
+            }
+
+        }
+    });
+
     $('#fb-buttonset-toggle-sources').buttonset();
     $('#fb-buttonset-toggle-sources-on').click(function () {
         if (fb_show_source_column) return; // if already on, then return.
