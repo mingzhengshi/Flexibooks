@@ -632,8 +632,8 @@ function fb_post_box_derived_document_callback($post_type) {
         <div> 
             <input id="fb-button-open-source-document" type="button" value="Open <?php echo $p_label; ?>" class="button-secondary" style="margin-right:10px"/>  
             <select id="fb-select-style-sheet" data-css-href-1="<?php echo plugins_url( 'css/editor.css' , __FILE__ ); ?>" data-css-href-2="<?php echo plugins_url( 'css/editor-v2.css' , __FILE__ ); ?>">
-                <option selected="selected">Style One</option>
-                <option>Style Two</option>
+                <option selected="selected">Style 1</option>
+                <option>Style 2</option>
             </select>   
             <!--input id="fb-button-floating-source" type="button" value="Turn Off Floating" class="button-secondary" style="margin-right:10px"-->
             <!--span id="fb-buttonset-floating-source" style="margin-right:10px">

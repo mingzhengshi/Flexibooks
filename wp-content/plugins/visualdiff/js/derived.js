@@ -345,10 +345,10 @@ jQuery(document).ready(function ($) {
     $('#fb-select-style-sheet').change(function () {
         var select = $("#fb-select-style-sheet option:selected").text();
         var href = null;
-        if (select === 'Style One') {
+        if (select === 'Style 1') {
             href = $('#fb-select-style-sheet').attr('data-css-href-1');
         }
-        else if (select === 'Style Two') {
+        else if (select === 'Style 2') {
             href = $('#fb-select-style-sheet').attr('data-css-href-2');
         }
 
