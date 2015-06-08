@@ -2,9 +2,12 @@
 /* 
 Plugin Name: Visual Diff 
 Description: Visual Display of Revision Differences
+Version: 1.5.1
+Author: Mingzheng Shi
 */  
 
 require_once( 'simple_html_dom.php' );
+
 
 //add_action( 'admin_menu', 'fb_add_revision_compare_page' );
 add_action( 'admin_head', 'fb_admin_head' );

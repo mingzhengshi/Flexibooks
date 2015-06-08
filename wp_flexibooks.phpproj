@@ -442,6 +442,7 @@
     <Compile Include="wp-admin\user-new.php" />
     <Compile Include="wp-admin\users.php" />
     <Compile Include="wp-admin\widgets.php" />
+    <Compile Include="wp-content\plugins\disable-emojis\disable-emojis.php" />
     <Compile Include="wp-content\plugins\duplicate-post\duplicate-post-admin.php" />
     <Compile Include="wp-content\plugins\duplicate-post\duplicate-post-common.php" />
     <Compile Include="wp-content\plugins\duplicate-post\duplicate-post-options.php" />
@@ -1291,6 +1292,7 @@
     <Folder Include="wp-admin\network" />
     <Folder Include="wp-admin\user" />
     <Folder Include="wp-admin" />
+    <Folder Include="wp-content\plugins\disable-emojis\" />
     <Folder Include="wp-content\plugins\duplicate-post\" />
     <Folder Include="wp-content\plugins\duplicate-post\languages\" />
     <Folder Include="wp-content\plugins\freshdesk-support\" />
@@ -1434,6 +1436,8 @@
     <Folder Include="wp-includes" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="wp-content\plugins\disable-emojis\license.txt" />
+    <Content Include="wp-content\plugins\disable-emojis\readme.txt" />
     <Content Include="wp-content\plugins\duplicate-post\gpl-2.0.txt" />
     <Content Include="wp-content\plugins\duplicate-post\languages\duplicate-post-ca.mo" />
     <Content Include="wp-content\plugins\duplicate-post\languages\duplicate-post-cs_CZ.mo" />
