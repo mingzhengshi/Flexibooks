@@ -16,23 +16,48 @@ add_action( 'admin_head', 'ww_admin_head' );
 function ww_admin_head() {   
     //$filename = plugins_url( 'derived.txt' , __FILE__ );
     $ww_file_path = 'C:/Users/Mingzheng/Documents/GitHub/Macmillan/Files/html/';
+        
+    //----------------------------------------------------------
+    // open editor.css
+    $edito_css_file_name = $ww_file_path . 'editor.css';
+    $content = ww_read_file($edito_css_file_name);
+    if (!$content) return;
+    $editor_css_parser = new Sabberworm\CSS\Parser($content);
+    $editor_css = $editor_css_parser->parse();
     
+    //----------------------------------------------------------
+    // open html file
     $filename = $ww_file_path . '34_Risk-taking_combo.htm';
-    $file = fopen($filename, "r");
-    if (!$file) return;
-    $content = fread($file,filesize($filename));
-    fclose($file);
-    
+    $content = ww_read_file($filename);
+    if (!$content) return;  
     $html = str_get_html($content);  
+
+    //----------------------------------------------------------
+    // body
+    $word_section = $html->find('div.WordSection1');
+    if (count($word_section) != 1) {
+        echo "<p style='margin-left:200px'>error: div.WordSection1 tag count != 1.</p>";
+        return;
+    }
+    $body_content = $word_section[0]->innertext;   
+    
+    $body = str_get_html($body_content);  
+    //$body = ww_remove_toc($body); // remove table of content
+    if (!body) {
+        echo "<p style='margin-left:200px'>error: html body is empty.</p>";
+        return;
+    }
     
     //----------------------------------------------------------
     // css
     
     $style = null;
-    foreach($html->find('style') as $element) {
-        $style = $element->innertext;        
-        break;
+    $style_section = $html->find('style');
+    if (count($style_section) != 1) {
+        echo "<p style='margin-left:200px'>error: style tag count != 1.</p>";
+        return;
     }
+    $style = $style_section[0]->innertext;   
     if (!$style) return;
     $style = trim($style);
     
@@ -49,11 +74,40 @@ function ww_admin_head() {
     
     $css_parser = new Sabberworm\CSS\Parser($style);
     $css = $css_parser->parse();
-    ww_check_css($css); 
+    ww_check_css($editor_css, $css, $body); 
 }
 
-function ww_check_css() {
-    // 1. remove all styles started with 'mso' if they are not used in the html
+function ww_remove_toc($body) {
+    if (!body) return null;
+    foreach ($body->find('p') as $p){ 
+        $class = $p->class;
+        $class = strtolower($class);
+        if ((strpos($class, 'unitopening') !== false) || 
+            (strpos($class, 'msotoc') !== false)) {
+            $p->outertext = '';
+        }
+    }   
+    return $body;
+}
+
+function ww_read_file($name) {
+    $file = fopen($name, "r");
+    if (!$file) return null;
+    $content = fread($file,filesize($name));
+    fclose($file);
+    return $content;
+}
+
+function ww_check_css($editor_css, $css, $body) {
+    // 1. remove all styles if they are not used in the html
+    $clist = $css->getContents();
+    
+    
+    
+    
+    
+    $l = $editor_css->getContents();
+    
     
     // 2. for all other styles
     // if it is not used in html, then remove and skip
