@@ -36,29 +36,44 @@ function ww_admin_head() {
     // body
     $word_section = $html->find('div.WordSection1');
     if (count($word_section) != 1) {
-        echo "<p style='margin-left:200px'>error: div.WordSection1 tag count != 1.</p>";
+        echo "<p style='margin-left:200px'>error: div.WordSection1 tag count != 1.</p>"; // ms - temp
         return;
     }
     $body_content = $word_section[0]->innertext;   
     
     $body = str_get_html($body_content);  
-    //$body = ww_remove_toc($body); // remove table of content
+    $body = ww_remove_toc($body); // remove table of content
+    $body_content_no_toc = $body->save(); 
+    $body_content_no_toc = trim($body_content_no_toc);
+    $body = str_get_html($body_content_no_toc);  
     if (!body) {
-        echo "<p style='margin-left:200px'>error: html body is empty.</p>";
+        echo "<p style='margin-left:200px'>error: html body is empty.</p>"; // ms - temp
         return;
     }
     
     //----------------------------------------------------------
-    // css
-    
+    // css  
     $style = null;
     $style_section = $html->find('style');
     if (count($style_section) != 1) {
-        echo "<p style='margin-left:200px'>error: style tag count != 1.</p>";
+        echo "<p style='margin-left:200px'>error: style tag count != 1.</p>"; // ms - temp
         return;
     }
-    $style = $style_section[0]->innertext;   
-    if (!$style) return;
+    $style = $style_section[0]->innertext; 
+    $style = ww_clean_style_content($style);
+    if (!$style) {
+        echo "<p style='margin-left:200px'>error: style is empty.</p>"; // ms - temp
+        return;
+    }
+        
+    $css_parser = new Sabberworm\CSS\Parser($style);
+    $css = $css_parser->parse();
+    ww_check_css($editor_css, $css, $body); 
+}
+
+function ww_clean_style_content($style) {
+    if (!style) return null;
+    
     $style = trim($style);
     
     // clean beginning and end of a string
@@ -72,9 +87,7 @@ function ww_admin_head() {
     } 
     $style = trim($style);
     
-    $css_parser = new Sabberworm\CSS\Parser($style);
-    $css = $css_parser->parse();
-    ww_check_css($editor_css, $css, $body); 
+    return $style;
 }
 
 function ww_remove_toc($body) {
@@ -99,19 +112,44 @@ function ww_read_file($name) {
 }
 
 function ww_check_css($editor_css, $css, $body) {
-    // 1. remove all styles if they are not used in the html
-    $clist = $css->getContents();
+    // remove all styles if they are not used in the html
+    $list = $editor_css->getContents(); // this is a full copy of the array not a reference to the array
+    $csslist = $css->getContents();
+    //$csslist = $css->getAllDeclarationBlocks();
+    for ($i = count($csslist)-1; $i >= 0; $i--) {
+        $b = $csslist[$i];
+        $used = false;
+        foreach($b->getSelectors() as $selector) {
+            $s = $selector->getSelector();
+            $elements = $body->find($s);
+            if (count($elements) > 0) {
+                $used = true;
+                break;
+            }
+        }
+        if ($used == false) {
+            unset($csslist[$i]);
+        }
+    } 
     
+    // if the style is used in html, check if it already exists in the editor.css list; if yes, rename it if necessary
     
+    // have to use foreach here, due to the use of unset function above
+    foreach ($csslist as $b) {
+        if (count($list) == 0) {
+            $editor_css->appendToContent($b);
+        }
+        else {
+            for ($j = 0; $j < count($list); $j++) {
+                
+                
+            }        
+        }
+    }
     
+    $output = $editor_css->render();
     
-    
-    $l = $editor_css->getContents();
-    
-    
-    // 2. for all other styles
-    // if it is not used in html, then remove and skip
-    // if it is used in html, check if it already exists in the current css list; if yes, rename it if necessary
+   
 }
 
 ?>

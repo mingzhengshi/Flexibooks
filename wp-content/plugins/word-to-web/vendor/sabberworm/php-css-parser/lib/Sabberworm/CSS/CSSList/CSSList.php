@@ -16,7 +16,7 @@ use Sabberworm\CSS\Value\CSSFunction;
 abstract class CSSList {
 
 	protected $aContents;
-
+    
 	public function __construct() {
 		$this->aContents = array();
 	}
@@ -110,5 +110,10 @@ abstract class CSSList {
 
 	public function getContents() {
 		return $this->aContents;
+	}
+    
+    // ms 
+    public function appendToContent($b) {
+		$this->aContents[] = $b;
 	}
 }
