@@ -9,7 +9,7 @@ Author: Mingzheng Shi
 require_once( "vendor/autoload.php" );
 //require_once( 'simple_html_dom.php' );
 
-add_action( 'admin_head', 'ww_admin_head' );
+//add_action( 'admin_head', 'ww_admin_head' );
 
 
 
@@ -33,7 +33,7 @@ function ww_admin_head() {
     $html = str_get_html($content);  
 
     //----------------------------------------------------------
-    // body
+    // get body
     $word_section = $html->find('div.WordSection1');
     if (count($word_section) != 1) {
         echo "<p style='margin-left:200px'>error: div.WordSection1 tag count != 1.</p>"; // ms - temp
@@ -68,7 +68,18 @@ function ww_admin_head() {
         
     $css_parser = new Sabberworm\CSS\Parser($style);
     $css = $css_parser->parse();
-    ww_check_css($editor_css, $css, $body); 
+    ww_add_new_styles($editor_css, $css, $body); 
+    
+    $new_editor_css_content = $editor_css->render();
+    $write_result = ww_write_file($edito_css_file_name, $new_editor_css_content);
+    if ($write_result === false) {
+        echo "<p style='margin-left:200px'>error: cannot write to editor.css file</p>"; // ms - temp
+        return;    
+    }
+    
+    //----------------------------------------------------------
+    // check all elements in body
+    
 }
 
 function ww_clean_style_content($style) {
@@ -111,11 +122,19 @@ function ww_read_file($name) {
     return $content;
 }
 
-function ww_check_css($editor_css, $css, $body) {
+function ww_write_file($name, $content) {
+    $file = fopen($name, "w");
+    if (!$file) return null;
+    $result = fwrite($file, $content);
+    fclose($file);
+    return $result;
+}
+
+
+function ww_add_new_styles(&$editor_css, $css, &$body) {
     // remove all styles if they are not used in the html
     $list = $editor_css->getContents(); // this is a full copy of the array not a reference to the array
     $csslist = $css->getContents();
-    //$csslist = $css->getAllDeclarationBlocks();
     for ($i = count($csslist)-1; $i >= 0; $i--) {
         $b = $csslist[$i];
         $used = false;
@@ -146,10 +165,6 @@ function ww_check_css($editor_css, $css, $body) {
             }        
         }
     }
-    
-    $output = $editor_css->render();
-    
-   
 }
 
 ?>

@@ -1563,7 +1563,6 @@
     <Content Include="wp-content\plugins\visualdiff\lib\jstree\themes\default\throbber.gif" />
     <Content Include="wp-content\plugins\word-to-web\composer.json" />
     <Content Include="wp-content\plugins\word-to-web\composer.lock" />
-    <Content Include="wp-content\plugins\word-to-web\derived.css" />
     <Content Include="wp-content\plugins\word-to-web\vendor\composer\installed.json" />
     <Content Include="wp-content\plugins\word-to-web\vendor\sabberworm\php-css-parser\.travis.yml" />
     <Content Include="wp-content\plugins\word-to-web\vendor\sabberworm\php-css-parser\CHANGELOG.md" />
