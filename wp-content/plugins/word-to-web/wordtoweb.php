@@ -9,7 +9,7 @@ Author: Mingzheng Shi
 require_once( "vendor/autoload.php" );
 //require_once( 'simple_html_dom.php' );
 
-//add_action( 'admin_head', 'ww_admin_head' );
+add_action( 'admin_head', 'ww_admin_head' );
 
 
 
@@ -21,22 +21,28 @@ function ww_admin_head() {
     // open editor.css
     $edito_css_file_name = $ww_file_path . 'editor.css';
     $content = ww_read_file($edito_css_file_name);
-    if (!$content) return;
+    if (!$content) {
+        ww_log('error: css file error.');
+        return;
+    }      
     $editor_css_parser = new Sabberworm\CSS\Parser($content);
     $editor_css = $editor_css_parser->parse();
     
     //----------------------------------------------------------
-    // open html file
+    // open target html file
     $filename = $ww_file_path . '34_Risk-taking_combo.htm';
     $content = ww_read_file($filename);
-    if (!$content) return;  
+    if (!$content) {
+        ww_log('error: html file error.');
+        return;
+    }        
     $html = str_get_html($content);  
 
     //----------------------------------------------------------
     // get body
     $word_section = $html->find('div.WordSection1');
     if (count($word_section) != 1) {
-        echo "<p style='margin-left:200px'>error: div.WordSection1 tag count != 1.</p>"; // ms - temp
+        ww_log('error: div.WordSection1 tag count != 1.');
         return;
     }
     $body_content = $word_section[0]->innertext;   
@@ -47,22 +53,22 @@ function ww_admin_head() {
     $body_content_no_toc = trim($body_content_no_toc);
     $body = str_get_html($body_content_no_toc);  
     if (!body) {
-        echo "<p style='margin-left:200px'>error: html body is empty.</p>"; // ms - temp
+        ww_log('error: html body is empty.');
         return;
     }
     
     //----------------------------------------------------------
-    // css  
+    // get style  
     $style = null;
     $style_section = $html->find('style');
     if (count($style_section) != 1) {
-        echo "<p style='margin-left:200px'>error: style tag count != 1.</p>"; // ms - temp
+        ww_log('error: style tag count != 1.');
         return;
     }
     $style = $style_section[0]->innertext; 
     $style = ww_clean_style_content($style);
     if (!$style) {
-        echo "<p style='margin-left:200px'>error: style is empty.</p>"; // ms - temp
+        ww_log('error: style is empty.');
         return;
     }
         
@@ -70,16 +76,20 @@ function ww_admin_head() {
     $css = $css_parser->parse();
     ww_add_new_styles($editor_css, $css, $body); 
     
-    $new_editor_css_content = $editor_css->render();
+    $new_editor_css_content = $editor_css->render(Sabberworm\CSS\OutputFormat::createPretty());
     $write_result = ww_write_file($edito_css_file_name, $new_editor_css_content);
     if ($write_result === false) {
-        echo "<p style='margin-left:200px'>error: cannot write to editor.css file</p>"; // ms - temp
+        ww_log('error: cannot write to editor.css file.');
         return;    
     }
     
     //----------------------------------------------------------
     // check all elements in body
     
+}
+
+function ww_log($message) {
+    echo "<p style='margin-left:200px'>" . $message . "</p>"; // ms - temp
 }
 
 function ww_clean_style_content($style) {
@@ -132,7 +142,7 @@ function ww_write_file($name, $content) {
 
 
 function ww_add_new_styles(&$editor_css, $css, &$body) {
-    // remove all styles if they are not used in the html
+    // 1. remove all styles if they are not used in the html
     $list = $editor_css->getContents(); // this is a full copy of the array not a reference to the array
     $csslist = $css->getContents();
     for ($i = count($csslist)-1; $i >= 0; $i--) {
@@ -151,9 +161,39 @@ function ww_add_new_styles(&$editor_css, $css, &$body) {
         }
     } 
     
-    // if the style is used in html, check if it already exists in the editor.css list; if yes, rename it if necessary
-    
+    // 2. check the format of the selectors 
     // have to use foreach here, due to the use of unset function above
+    foreach ($csslist as $b) {
+        if (count($b->getSelectors()) > 1) {
+            if (count($b->getSelectors()) != 3) {
+                ww_log('Info: the selectors count is not equal to 1 or 3 (list below):');
+                foreach($b->getSelectors() as $selector) {
+                    $s = $selector->getSelector();
+                    ww_log($s);
+                }
+            }
+            
+            $classname = null;
+            foreach($b->getSelectors() as $selector) {
+                $s = $selector->getSelector();
+                $subs = explode(".", $s);
+                if (count($subs) != 2) {
+                    ww_log('Info: unexpected selector format: ' . $s);
+                }
+                else {
+                    if ($classname == null) {
+                        $classname = $subs[1];
+                    }
+                    else {
+                        if ($classname != $subs[1]) ww_log('Info: selector class names are not unique: ' . $classname . ' != ' . $subs[1]);
+                    }
+                }
+            }
+        }
+    }
+    
+    // 3. if the style is used in html, check if it already exists in the editor.css list; if yes, rename it if necessary
+    // have to use foreach here
     foreach ($csslist as $b) {
         if (count($list) == 0) {
             $editor_css->appendToContent($b);
@@ -166,5 +206,7 @@ function ww_add_new_styles(&$editor_css, $css, &$body) {
         }
     }
 }
+
+
 
 ?>
