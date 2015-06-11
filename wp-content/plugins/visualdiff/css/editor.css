@@ -92,12 +92,26 @@ fb-table {
 
 }
 
+/*
 table.fb-table {
    text-align: left;
    table-layout: fixed; 
    margin-top:20px;
    margin-bottom:20px;
    width: 100%;
+   border-collapse: collapse;
+   border: 1px #186da5 solid;
+
+   font-family: "Lucida Console", Monaco, monospace;
+   font-size: 9.5pt; 
+}
+*/
+
+table.fb-table {
+   text-align: left;
+   margin-top:20px;
+   margin-bottom:20px;
+
    border-collapse: collapse;
    border: 1px #186da5 solid;
 

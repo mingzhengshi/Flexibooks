@@ -9,7 +9,7 @@ Author: Mingzheng Shi
 require_once( "vendor/autoload.php" );
 //require_once( 'simple_html_dom.php' );
 
-add_action( 'admin_head', 'ww_admin_head' );
+//add_action( 'admin_head', 'ww_admin_head' );
 
 
 

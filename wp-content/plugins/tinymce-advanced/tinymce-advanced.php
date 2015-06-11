@@ -496,8 +496,8 @@ class Tinymce_Advanced {
 
 		$plugpath = TADV_URL . 'mce/';
 		$mce_plugins = (array) $mce_plugins;
-		$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-
+		//$suffix = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min'; // ms
+        $suffix = ''; // ms
 		foreach ( $this->plugins as $plugin ) {
 			$mce_plugins["$plugin"] = $plugpath . $plugin . "/plugin{$suffix}.js";
 		}

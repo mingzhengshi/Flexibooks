@@ -25,6 +25,9 @@
 		callback.apply(null, defs);
 	}
 
+
+
+
 	function define(id, dependencies, definition) {
 		if (typeof id !== 'string') {
 			throw 'invalid module definition, module id must be defined and be a string';
@@ -1908,7 +1911,7 @@ define("tinymce/tableplugin/Dialogs", [
 				appendStylesToData(dom, data, tableElm);
 
 				editor.windowManager.open({
-					title: "Table properties",
+					title: "Table properties...",
 					data: data,
 					bodyType: 'tabpanel',
 					body: [
@@ -1924,7 +1927,7 @@ define("tinymce/tableplugin/Dialogs", [
 				});
 			} else {
 				editor.windowManager.open({
-					title: "Table properties",
+					title: "Table properties...",
 					data: data,
 					body: generalTableForm,
 					onsubmit: onSubmitTableForm
