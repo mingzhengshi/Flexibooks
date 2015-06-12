@@ -358,6 +358,7 @@ jQuery(document).ready(function ($) {
                     }
                 });
 
+                $(editor.getBody()).find('#' + id + '-svg').remove(); // remove svg lines
                 $(node).remove();
                 update();
             }
@@ -412,61 +413,6 @@ jQuery(document).ready(function ($) {
                     return false; // break;   
                 }
             });
-        }
-
-        /*
-        function onCommentBubbleClick(bubble) {
-            var bubble_id = bubble.attr('id');
-            bubble.find('.fb-comment-bubble-dummy-text').remove();
-            bubble.addClass('fb-comment-bubble-selected');
-            $(editor.getBody()).find('.fb-comment-content').each(function (index) {
-                var selected_content = $(this);
-
-                var body_width = $(editor.getBody()).width();
-                var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
-                var bubble_left = body_width + body_margin_left + 10;
-
-                if (selected_content.attr('data-comment-id') === bubble_id) {
-                    var offset = selected_content.offset(); // absolute position relative to the document
-                    var top = offset.top;
-                    var left = offset.left;
-
-                    // left is not correct for multiple lines selection content; 
-                    // in that case, we need to wrap, e.g., the first char, as an element, find the left of the char, and then unwrap the element;
-                    selected_content.addClass('fb-comment-content-selected');
-                    drawCommentLine(left, top, bubble_left, top);
-                }
-            });
-        }
-        */
-
-        function drawCommentLine(id, x1, y1, x2, y2) {
-            /*
-            var id = editor.id + '-svg-comment-lines';
-            var height = 2;
-            if (Math.abs(y1 - y2) > 2) height = Math.abs(y1 - y2);
-            var width = 2;
-            if (Math.abs(x1 - x2) > 2) width = Math.abs(x1 - x2);
-            */
-            var svg_top = (y1 < y2) ? y1 : y2;
-            var svg_left = x1; // x1 is always smaller than x2
-            var svg_width = x2 - x1;
-            var svg_id = id + '-svg';
-            $(editor.getBody()).append('<svg id="' + svg_id + '" class="fb-comment-line-svg" style="position:absolute; top:' + svg_top + 'px; left:' + svg_left + 'px; height:3px; width:' + svg_width + 'px; z-index: 1;" xmlns="http://www.w3.org/2000/svg"/></svg>');
-
-            //var id = editor.id + '-svg';
-            var svg = editor.getDoc().getElementById(svg_id);
- 
-            // line for visualization
-            var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x1 - svg_left);
-            line.setAttribute('y1', y1 - svg_top);
-            line.setAttribute('x2', x2 - svg_left);
-            line.setAttribute('y2', y2 - svg_top);
-            line.setAttribute('stroke', '#f49965');
-            line.setAttribute('stroke-width', 1);
-            line.style.zIndex = 100;
-            if (svg) svg.appendChild(line);
         }
 
         function togglePageBoundary() {
@@ -959,7 +905,8 @@ jQuery(document).ready(function ($) {
             });
             */
 
-            updateBubblePosition()
+            updateBubblePosition();
+            redrawCommentLines(); // have to redraw the comment lines after the bubble position is updated.
         }
 
         function updateBubblePosition() {
@@ -977,6 +924,78 @@ jQuery(document).ready(function ($) {
                 }
             });
         }
+
+        function redrawCommentLines() {
+            $(editor.getBody()).find('.fb-comment-line-svg').remove();
+
+            var body_width = $(editor.getBody()).width();
+            var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
+            var bubble_left = body_width + body_margin_left + 10;
+            $(editor.getBody()).find('.fb-comment-content').each(function (index) {
+                var content = $(this);
+                var id = content.attr('data-comment-id');
+
+                var offset = content.offset(); // absolute position relative to the document
+                var top = offset.top;
+                var left = offset.left;
+                drawCommentLine(id, left, top, bubble_left, top);
+            });
+        }
+
+        function drawCommentLine(id, x1, y1, x2, y2) {
+            /*
+            var id = editor.id + '-svg-comment-lines';
+            var height = 2;
+            if (Math.abs(y1 - y2) > 2) height = Math.abs(y1 - y2);
+            var width = 2;
+            if (Math.abs(x1 - x2) > 2) width = Math.abs(x1 - x2);
+            */
+            var svg_top = (y1 < y2) ? y1 : y2;
+            var svg_left = x1; // x1 is always smaller than x2
+            var svg_width = x2 - x1;
+            var svg_id = id + '-svg';
+            $(editor.getBody()).append('<svg id="' + svg_id + '" class="fb-comment-line-svg" style="position:absolute; top:' + svg_top + 'px; left:' + svg_left + 'px; height:3px; width:' + svg_width + 'px; z-index: 1;" xmlns="http://www.w3.org/2000/svg"/></svg>');
+
+            //var id = editor.id + '-svg';
+            var svg = editor.getDoc().getElementById(svg_id);
+
+            // line for visualization
+            var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x1 - svg_left);
+            line.setAttribute('y1', y1 - svg_top);
+            line.setAttribute('x2', x2 - svg_left);
+            line.setAttribute('y2', y2 - svg_top);
+            line.setAttribute('stroke', '#f49965');
+            line.setAttribute('stroke-width', 1);
+            line.style.zIndex = 100;
+            if (svg) svg.appendChild(line);
+        }
+
+        /*
+        function onCommentBubbleClick(bubble) {
+            var bubble_id = bubble.attr('id');
+            bubble.find('.fb-comment-bubble-dummy-text').remove();
+            bubble.addClass('fb-comment-bubble-selected');
+            $(editor.getBody()).find('.fb-comment-content').each(function (index) {
+                var selected_content = $(this);
+
+                var body_width = $(editor.getBody()).width();
+                var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
+                var bubble_left = body_width + body_margin_left + 10;
+
+                if (selected_content.attr('data-comment-id') === bubble_id) {
+                    var offset = selected_content.offset(); // absolute position relative to the document
+                    var top = offset.top;
+                    var left = offset.left;
+
+                    // left is not correct for multiple lines selection content; 
+                    // in that case, we need to wrap, e.g., the first char, as an element, find the left of the char, and then unwrap the element;
+                    selected_content.addClass('fb-comment-content-selected');
+                    drawCommentLine(left, top, bubble_left, top);
+                }
+            });
+        }
+        */
 
         function resetIcons() {
             $(editor.getBody()).find('.fb_tinymce_left_column').remove();
