@@ -329,19 +329,21 @@ p.title {
 }
 
 /* comments */
-span.fb-comment-content-selected {
+span.fb-comment-content {
     background-color: #f6d0b0;
 }
 
-div.fb-comment-bubble-selected {
+div.fb-comment-bubble {
     border: solid;
     border-width: 1px;
     border-color: #f6d0b0;
 }
 
+/*
 span.fb-comment-bubble-dummy-text {
     color: lightgray;
 }
+*/
 
 /* html diff */
 span.insert {
