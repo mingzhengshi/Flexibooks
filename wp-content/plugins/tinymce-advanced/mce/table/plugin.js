@@ -1772,8 +1772,14 @@ define("tinymce/tableplugin/Dialogs", [
 						tableElm.insertBefore(captionElm, tableElm.firstChild);
 					}
 					unApplyAlign(tableElm);
+					tableElm.className = tableElm.className.replace(/(?:^|\s)fb-aligncenter(?!\S)/g, '').trim(); // remove class
 					if (data.align) {
-						editor.formatter.apply('align' + data.align, {}, tableElm);
+					    if (data.align == 'center') {
+					        tableElm.className += ' fb-aligncenter';
+					    }
+					    else {
+					        editor.formatter.apply('align' + data.align, {}, tableElm);
+					    }
 					}
 
 					editor.focus();
@@ -1911,7 +1917,7 @@ define("tinymce/tableplugin/Dialogs", [
 				appendStylesToData(dom, data, tableElm);
 
 				editor.windowManager.open({
-					title: "Table properties...",
+					title: "Table properties",
 					data: data,
 					bodyType: 'tabpanel',
 					body: [
@@ -1927,7 +1933,7 @@ define("tinymce/tableplugin/Dialogs", [
 				});
 			} else {
 				editor.windowManager.open({
-					title: "Table properties...",
+					title: "Table properties",
 					data: data,
 					body: generalTableForm,
 					onsubmit: onSubmitTableForm
@@ -2205,7 +2211,7 @@ define("tinymce/tableplugin/Dialogs", [
 						// Apply/remove alignment
 						unApplyAlign(rowElm);
 						if (data.align) {
-							editor.formatter.apply('align' + data.align, {}, rowElm);
+						    editor.formatter.apply('align' + data.align, {}, rowElm);
 						}
 					});
 
