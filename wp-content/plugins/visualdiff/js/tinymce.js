@@ -910,18 +910,40 @@ jQuery(document).ready(function ($) {
         }
 
         function updateBubblePosition() {
+            // 1. update bubble position
             $(editor.getBody()).find('.fb-comment-content').each(function (index) {
                 var content = $(this);
                 var id = content.attr('data-comment-id');
                 var bubbles = $(editor.getBody()).find('#' + id);
-                if (bubbles.length == 1) {
-                    var b = bubbles[0];
-                    var offset = $(content).offset(); // absolute position relative to the document
-                    var t = offset.top;
-                    var bubble_height = 60;
-                    var t = t - bubble_height / 2;
-                    $(b).css({ top: t });
+                if (bubbles.length <= 0) return true;
+
+                var bubble = bubbles[0];
+                var offset = $(content).offset(); // absolute position relative to the document
+                var t = offset.top;
+                var bubble_min_height = 60;
+                var t = t - bubble_min_height / 2;
+                $(bubble).css({ top: t });
+            });
+
+            // 2. avoid overlap
+            var margin_between_bubbles = 10;
+            var bottom = null;
+            $(editor.getBody()).find('.fb-comment-content').each(function (index) {
+                var content = $(this);
+                var id = content.attr('data-comment-id');
+                var bubbles = $(editor.getBody()).find('#' + id);
+                if (bubbles.length <= 0) return true;
+
+                var bubble = bubbles[0];
+                var bubble_top = parseInt($(bubble).css('top'), 10);
+                var bubble_height = $(bubble).height();
+                if (bottom !== null) {
+                    if (bubble_top < bottom + margin_between_bubbles) {
+                        bubble_top = bottom + margin_between_bubbles;
+                        $(bubble).css({ top: bubble_top });
+                    }
                 }
+                bottom = bubble_top + bubble_height;
             });
         }
 
@@ -930,15 +952,31 @@ jQuery(document).ready(function ($) {
 
             var body_width = $(editor.getBody()).width();
             var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
-            var bubble_left = body_width + body_margin_left + 10;
+            var body_right = body_width + body_margin_left;
+            var bubble_left = body_right + 10;
+
+            var bubble_min_height = 60;
+
             $(editor.getBody()).find('.fb-comment-content').each(function (index) {
                 var content = $(this);
                 var id = content.attr('data-comment-id');
+                var bubbles = $(editor.getBody()).find('#' + id);
+                if (bubbles.length <= 0) return true;
+
+                var bubble = bubbles[0];
+                var bubble_top = parseInt($(bubble).css('top'), 10);
 
                 var offset = content.offset(); // absolute position relative to the document
-                var top = offset.top;
-                var left = offset.left;
-                drawCommentLine(id, left, top, bubble_left, top);
+                var content_top = offset.top;
+                var content_left = offset.left;
+
+                if (Math.abs((bubble_top + (bubble_min_height / 2)) - content_top) > (bubble_min_height / 2)) {
+                    drawCommentLine(id, content_left, content_top, body_right, content_top);
+                    drawCommentLine(id + '-2', body_right, content_top, bubble_left, bubble_top + (bubble_min_height / 2));
+                }
+                else {
+                    drawCommentLine(id, content_left, content_top, bubble_left, content_top);
+                }
             });
         }
 
@@ -951,10 +989,12 @@ jQuery(document).ready(function ($) {
             if (Math.abs(x1 - x2) > 2) width = Math.abs(x1 - x2);
             */
             var svg_top = (y1 < y2) ? y1 : y2;
+            var svg_height = (y1 <= y2) ? (y2 - y1) : (y1 - y2);
+            if (svg_height === 0) svg_height = 1;
             var svg_left = x1; // x1 is always smaller than x2
             var svg_width = x2 - x1;
             var svg_id = id + '-svg';
-            $(editor.getBody()).append('<svg id="' + svg_id + '" class="fb-comment-line-svg" style="position:absolute; top:' + svg_top + 'px; left:' + svg_left + 'px; height:3px; width:' + svg_width + 'px; z-index: 1;" xmlns="http://www.w3.org/2000/svg"/></svg>');
+            $(editor.getBody()).append('<svg id="' + svg_id + '" class="fb-comment-line-svg" style="position:absolute; top:' + svg_top + 'px; left:' + svg_left + 'px; height:' + svg_height + 'px; width:' + svg_width + 'px; z-index: 1;" xmlns="http://www.w3.org/2000/svg"/></svg>');
 
             //var id = editor.id + '-svg';
             var svg = editor.getDoc().getElementById(svg_id);
