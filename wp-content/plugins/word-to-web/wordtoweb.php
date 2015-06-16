@@ -102,6 +102,65 @@ function ww_admin_head() {
 }
 
 function ww_rewrite_all_body_elements(&$body) {
+    // first loop to create questions list
+    foreach ($body->nodes as $node) {  
+        // consider the top level tags 
+        if ($node->parent()->tag == 'root'){   
+            if ($node->tag == 'p') {
+                if ($node->class == 'question') {
+                    //$ol = '';
+                    //$ol .= $node->outertext;
+                    
+                    $child = '';
+                    $next_sibling = $node->nextSibling();
+                    while ( ($next_sibling->class != 'Ahead') && 
+                            ($next_sibling->class != 'Bhead') &&
+                            ($next_sibling->class != 'Chead') && 
+                            ($next_sibling->class != 'activity') &&
+                            ($next_sibling->class != 'question')) {
+                        if ($next_sibling->tag == 'TNanswer') {
+                            $next_sibling->outertext = '<hr class="answer" /><hr class="answer" />'; // test only
+                        }
+                        $child .= $next_sibling->outertext;
+                        $next_sibling->outertext = '';
+                        $next_sibling = $next_sibling->nextSibling();
+                    }
+                    
+                    if ($child !== '') {
+                        //$child = '<ol>' . $child . '</ol>';
+                        $node->innertext .= $child;
+                    }
+                }
+            }           
+        }        
+    }
+    
+    // second loop to create questions list
+    foreach ($body->nodes as $node) {  
+        // consider the top level tags 
+        if ($node->parent()->tag == 'root'){   
+            if ($node->tag == 'p') {
+                if ($node->class == 'question') {
+                    $ol_text = '';
+                    $ol_text .= $node->outertext;
+                    
+                    $next_sibling = $node->nextSibling();
+                    while ( ($next_sibling->class != 'Ahead') && 
+                            ($next_sibling->class != 'Bhead') &&
+                            ($next_sibling->class != 'Chead') && 
+                            ($next_sibling->class != 'activity')) {
+
+                    }
+                    
+                    if ($child !== '') {
+                        //$child = '<ol>' . $child . '</ol>';
+                        $node->innertext .= $child;
+                    }
+                }
+            }           
+        }        
+    }
+    
     foreach ($body->nodes as $node){   
         // consider the top level tags 
         if ($node->parent()->tag == 'root'){   
@@ -121,21 +180,41 @@ function ww_rewrite_all_body_elements(&$body) {
                 else if ($node->class == 'Bhead') {
                     $node_dom = str_get_html($node->outertext);  
                     foreach ($node_dom->find('span') as $span){ 
-                        $span->outertext = ''; // remove span tags
+                        $span->outertext = ''; // remove all span tags
                     }
-                    foreach ($node_dom->find('img') as $img){ 
-                        $img->setAttribute('align', 'right'); // assume images are aligned right.
-                        //$filename = basename($img->getAttribute('src'));
-                        $filepath = $img->getAttribute('src');
-                        $fullpath = content_url();
-                        $img->setAttribute('src', $fullpath);
-                    }
+                    ww_set_image_attribute($node_dom);
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     $node->tag = 'h2';
                     $node->class = 'main-heading-2';
                 }
+                else if ($node->class == 'Chead') {
+                    $node_dom = str_get_html($node->outertext);  
+                    foreach ($node_dom->find('span') as $span){ 
+                        $span->outertext = ''; // remove all span tags
+                    }
+                    ww_set_image_attribute($node_dom);
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
+                    //$node->tag = 'h3';
+                    //$node->class = 'Chead'; // unchanged
+                }
+                else if ($node->class == 'activity') {
+                    $node_dom = str_get_html($node->outertext);  
+                    foreach ($node_dom->find('span') as $span){ 
+                        $span->outertext = ''; // remove all span tags
+                    }
+                    ww_set_image_attribute($node_dom);
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
+                    $node->tag = 'h2';
+                    //$node->class = 'activity'; // unchanged
+                }
                 else if ($node->class == 'bodytext') {
+                    $node_dom = str_get_html($node->outertext); 
+                    ww_set_image_attribute($node_dom);
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
                     $node->class = '';
                 }
                 else {
@@ -146,6 +225,16 @@ function ww_rewrite_all_body_elements(&$body) {
                 $node->outertext = ''; // test only
             }
         }
+    }
+}
+
+function ww_set_image_attribute(&$dom) {
+    foreach ($dom->find('img') as $img){ 
+        $img->setAttribute('align', 'right'); // assume images are aligned right.
+        //$filename = basename($img->getAttribute('src'));
+        $filepath = $img->getAttribute('src');
+        $fullpath = content_url() . '/uploads/' . $filepath;
+        $img->setAttribute('src', $fullpath);
     }
 }
 

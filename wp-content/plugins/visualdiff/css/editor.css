@@ -18,6 +18,16 @@ h2.main-heading-2 {
     background-position: 20px, 2px;
 }
 
+p.Chead, li.Chead, div.Chead {
+	text-align: justify;
+	page-break-after: avoid;
+	text-autospace: none;
+	font-size: 14.0pt;
+	font-family: "Frutiger CE 55 Roman";
+	color: #186BA7;
+	font-style: italic;
+}
+
 h2.activity {
     font-style: italic;
     font-weight: normal;
@@ -216,6 +226,16 @@ p.title {
     font-weight: bold;
     text-align: center;
 }
+
+span.TNAnswers-Hide {
+	font-family: "Frutiger CE 55 Roman";
+	color: white;
+	/*text-decoration: underline;*/
+	/*text-decoration-color: red;*/ /*not support in Chrome*/
+    border-bottom: 1px solid #186BA7;
+}
+
+/*******************************************************************************************/
 
 /* the page that contains table of content */
 .toc-page {
