@@ -113,12 +113,17 @@ function ww_rewrite_all_body_elements(&$body) {
                     
                     $child = '';
                     $next_sibling = $node->nextSibling();
+                    
+                    
+                    
+                    // should be rewrited similar to the second loop
+                    
                     while ( ($next_sibling->class != 'Ahead') && 
                             ($next_sibling->class != 'Bhead') &&
                             ($next_sibling->class != 'Chead') && 
                             ($next_sibling->class != 'activity') &&
                             ($next_sibling->class != 'question')) {
-                        if ($next_sibling->tag == 'TNanswer') {
+                        if ($next_sibling->class == 'TNanswer') {
                             $next_sibling->outertext = '<hr class="answer" /><hr class="answer" />'; // test only
                         }
                         $child .= $next_sibling->outertext;
@@ -136,26 +141,48 @@ function ww_rewrite_all_body_elements(&$body) {
     }
     
     // second loop to create questions list
+    $ol_text = '';
+    $first_question_node = null;
     foreach ($body->nodes as $node) {  
         // consider the top level tags 
         if ($node->parent()->tag == 'root'){   
             if ($node->tag == 'p') {
                 if ($node->class == 'question') {
-                    $ol_text = '';
-                    $ol_text .= $node->outertext;
+                    if ($ol_text === '') { // the first 'question' tag in the list
+                        $first_question_node = $node;                                           
+                    }
+
+                    $node->tag = 'li';
+                    $node->class = '';
+                    $ol_text .= $node->outertext;   
                     
+                    /*
                     $next_sibling = $node->nextSibling();
                     while ( ($next_sibling->class != 'Ahead') && 
                             ($next_sibling->class != 'Bhead') &&
                             ($next_sibling->class != 'Chead') && 
                             ($next_sibling->class != 'activity')) {
+                        if ($next_sibling->class == 'question') {
+                            $next_sibling->tag = 'li';
+                            $next_sibling->class = '';
+                            $ol_text .= $next_sibling->outertext;
+                            $next_sibling->outertext = '';
+                        }
+                        else {
+                            ww_log('Info: unexpected content');
+                        }
+                        $next_sibling = $next_sibling->nextSibling();
+                    }
 
+                    $node->outertext .= $child;
+                    */
+                }
+                else {
+                    if ($ol_text !== '') {
+                        $first_question_node->outertext = '<ol>' . $ol_text . '</ol>';
                     }
                     
-                    if ($child !== '') {
-                        //$child = '<ol>' . $child . '</ol>';
-                        $node->innertext .= $child;
-                    }
+                    $ol_text = '';
                 }
             }           
         }        
