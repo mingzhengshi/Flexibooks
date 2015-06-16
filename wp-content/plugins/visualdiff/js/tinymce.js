@@ -981,13 +981,6 @@ jQuery(document).ready(function ($) {
         }
 
         function drawCommentLine(id, x1, y1, x2, y2) {
-            /*
-            var id = editor.id + '-svg-comment-lines';
-            var height = 2;
-            if (Math.abs(y1 - y2) > 2) height = Math.abs(y1 - y2);
-            var width = 2;
-            if (Math.abs(x1 - x2) > 2) width = Math.abs(x1 - x2);
-            */
             var svg_top = (y1 < y2) ? y1 : y2;
             var svg_height = (y1 <= y2) ? (y2 - y1) : (y1 - y2);
             if (svg_height === 0) svg_height = 1;
@@ -1039,21 +1032,6 @@ jQuery(document).ready(function ($) {
 
         function resetIcons() {
             $(editor.getBody()).find('.fb_tinymce_left_column').remove();
-            /*
-            var left_column = document.createElement('div');
-            left_column.style.position = 'absolute';
-            left_column.style.top = 0;
-            left_column.style.left = 0;
-            left_column.style.width = '12px';
-            left_column.style.zIndex = -2;
-
-            //var body_height = $(editor.getBody()).height();
-            //left_column.style.height = body_height + 'px';
-            left_column.style.height = '100%';
-            left_column.style.backgroundColor = '#e8e8e8';
-            left_column.className = 'fb_tinymce_left_column';
-            editor.getBody().appendChild(left_column);
-            */
 
             // add svg element
             $(editor.getBody()).find('.fb_tinymce_left_column_svg').remove();

@@ -9,11 +9,11 @@ Author: Mingzheng Shi
 require_once( "vendor/autoload.php" );
 //require_once( 'simple_html_dom.php' );
 
-//add_action( 'admin_head', 'ww_admin_head' );
+add_action( 'admin_head', 'ww_admin_head' );
 
 
 
-function ww_admin_head() {   
+function ww_admin_head() {       
     //$filename = plugins_url( 'derived.txt' , __FILE__ );
     $ww_file_path = 'C:/Users/Mingzheng/Documents/GitHub/Macmillan/Files/html/';
         
@@ -31,6 +31,8 @@ function ww_admin_head() {
     //----------------------------------------------------------
     // open target html file
     $filename = $ww_file_path . '34_Risk-taking_combo.htm';
+    $filename_output = $ww_file_path . 'output_' . '34_Risk-taking_combo.htm';
+    //$filename = $ww_file_path . '22_About_alcohol_teach.htm';
     $content = ww_read_file($filename);
     if (!$content) {
         ww_log('error: html file error.');
@@ -40,12 +42,21 @@ function ww_admin_head() {
 
     //----------------------------------------------------------
     // get body
+   
+    /*
     $word_section = $html->find('div.WordSection1');
     if (count($word_section) != 1) {
         ww_log('error: div.WordSection1 tag count != 1.');
         return;
     }
     $body_content = $word_section[0]->innertext;   
+    */
+    
+    $body_content = '';
+    $word_sections = $html->find('div[class^="WordSection"]'); 
+    foreach ($word_sections as $section){   
+        $body_content .= $section->innertext;
+    }
     
     $body = str_get_html($body_content);  
     $body = ww_remove_toc($body); // remove table of content
@@ -85,7 +96,57 @@ function ww_admin_head() {
     
     //----------------------------------------------------------
     // check all elements in body
-    
+    ww_rewrite_all_body_elements($body);
+    $body_result = $body->save(); 
+    $write_result = ww_write_file($filename_output, $body_result);
+}
+
+function ww_rewrite_all_body_elements(&$body) {
+    foreach ($body->nodes as $node){   
+        // consider the top level tags 
+        if ($node->parent()->tag == 'root'){   
+            if ($node->tag == 'p') {
+                //$class = $node->getAttribute('class');
+                if ($node->class == 'Ahead') {
+                    $node_dom = str_get_html($node->outertext);  
+                    foreach ($node_dom->find('a') as $a){ 
+                        $a->outertext = $a->innertext; // unwrap 'a' tag in 'p.Ahead' tag
+                    }
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
+                    //$node_inner = $node->innertext;
+                    $node->tag = 'h1';
+                    $node->class = 'main-heading-1';
+                }
+                else if ($node->class == 'Bhead') {
+                    $node_dom = str_get_html($node->outertext);  
+                    foreach ($node_dom->find('span') as $span){ 
+                        $span->outertext = ''; // remove span tags
+                    }
+                    foreach ($node_dom->find('img') as $img){ 
+                        $img->setAttribute('align', 'right'); // assume images are aligned right.
+                        //$filename = basename($img->getAttribute('src'));
+                        $filepath = $img->getAttribute('src');
+                        $fullpath = content_url();
+                        $img->setAttribute('src', $fullpath);
+                    }
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
+                    $node->tag = 'h2';
+                    $node->class = 'main-heading-2';
+                }
+                else if ($node->class == 'bodytext') {
+                    $node->class = '';
+                }
+                else {
+                    $node->outertext = ''; // test only
+                }
+            } 
+            else {
+                $node->outertext = ''; // test only
+            }
+        }
+    }
 }
 
 function ww_log($message) {

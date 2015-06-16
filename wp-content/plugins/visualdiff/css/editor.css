@@ -149,8 +149,9 @@ margin: 30px;
 }
 
 p {
-font-family: Frutiger CE 45 Light;
-font-size: 9.5pt;
+    /*line-height: 11pt;*/
+    font-family: Frutiger CE 45 Light;
+    font-size: 9.5pt;
 }
 
 /* styles */
