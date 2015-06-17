@@ -30,8 +30,8 @@ function ww_admin_head() {
     
     //----------------------------------------------------------
     // open target html file
-    $filename = $ww_file_path . '34_Risk-taking_combo.htm';
-    $filename_output = $ww_file_path . 'output_' . '34_Risk-taking_combo.htm';
+    $filename = $ww_file_path . '04_Nutrition_and_health_NazarethCollege_72_50_65_combo_SC.htm';
+    $filename_output = $ww_file_path . 'output_' . '04_Nutrition_and_health_NazarethCollege_72_50_65_combo_SC.htm';
     //$filename = $ww_file_path . '22_About_alcohol_teach.htm';
     $content = ww_read_file($filename);
     if (!$content) {
@@ -192,7 +192,11 @@ function ww_rewrite_all_body_elements(&$body) {
                     $node->tag = 'li';
                     $node->class = 'question';
                     if (strlen($node->innertext) > 1) {
-                        $node_text = $node->innertext;
+                        $node_dom = str_get_html($node->outertext);  
+                        foreach ($node_dom->find('span') as $span){ 
+                            $span->outertext = ''; // remove all span tags
+                        }
+                        $node_text = $node_dom->find('li')[0]->innertext;
                         $node_text = substr($node_text, 1); // ms - trim the first char
                         //$node_text = iconv("UTF-8", "UTF-8//IGNORE", $node_text);
                         for($i=0; $i<strlen($node_text); $i++) {
@@ -219,7 +223,11 @@ function ww_rewrite_all_body_elements(&$body) {
                             $next_sibling->tag = 'li';
                             $next_sibling->class = 'question';
                             if (strlen($next_sibling->innertext) > 1) {
-                                $node_text = $next_sibling->innertext;
+                                $node_dom = str_get_html($next_sibling->outertext);  
+                                foreach ($node_dom->find('span') as $span){ 
+                                    $span->outertext = ''; // remove all span tags
+                                }
+                                $node_text = $node_dom->find('li')[0]->innertext;
                                 $node_text = substr($node_text, 1); // ms - trim the first char
                                 //$node_text = trim($node_text);
                                 $next_sibling->innertext = $node_text;

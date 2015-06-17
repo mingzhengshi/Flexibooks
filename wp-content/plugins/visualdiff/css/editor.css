@@ -242,6 +242,11 @@ p.title {
 /*******************************************************************************************/
 /* styles exported from microsoft word */
 
+span.bodytextboldChar {
+	font-family: "Frutiger CE 45 Light";
+	font-weight: bold;
+}
+
 p.bodytextHI, li.bodytextHI, div.bodytextHI {
 	/*text-indent: -17pt;*/
 	line-height: 11pt;
