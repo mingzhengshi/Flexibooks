@@ -9,7 +9,7 @@ Author: Mingzheng Shi
 require_once( "vendor/autoload.php" );
 //require_once( 'simple_html_dom.php' );
 
-add_action( 'admin_head', 'ww_admin_head' );
+//add_action( 'admin_head', 'ww_admin_head' );
 
 
 
@@ -108,31 +108,56 @@ function ww_rewrite_all_body_elements(&$body) {
         if ($node->parent()->tag == 'root'){   
             if ($node->tag == 'p') {
                 if ($node->class == 'question') {
-                    //$ol = '';
-                    //$ol .= $node->outertext;
-                    
+
                     $child = '';
                     $next_sibling = $node->nextSibling();
-                    
-                    
-                    
-                    // should be rewrited similar to the second loop
                     
                     while ( ($next_sibling->class != 'Ahead') && 
                             ($next_sibling->class != 'Bhead') &&
                             ($next_sibling->class != 'Chead') && 
                             ($next_sibling->class != 'activity') &&
                             ($next_sibling->class != 'question')) {
-                        if ($next_sibling->class == 'TNanswer') {
-                            $next_sibling->outertext = '<hr class="answer" /><hr class="answer" />'; // test only
+                        if (($next_sibling->class == 'questionhi1') ||
+                            ($next_sibling->class == 'answerline') ||
+                            ($next_sibling->class == 'TNanswer')) {
+                            if ($next_sibling->class == 'TNanswer') {
+                                $child .= '<p class=answerline>______________________________________________________________________________________________________________________________</p>';
+                                //$child .= '<p class=answerline>_________________________________________________________________________________________</p>'; // original
+                            }
+                            else if ($next_sibling->class == 'answerline') {
+                                $node_dom = str_get_html($next_sibling->outertext);  
+                                foreach ($node_dom->find('p') as $p){ 
+                                    $p->innertext = trim($p->innertext) . '_____________________________________'; 
+                                }
+                                $child .= $node_dom->find('p')[0]->outertext;
+                            }
+                            else {
+                                $child .= $next_sibling->outertext;
+                            }
                         }
-                        $child .= $next_sibling->outertext;
+                        else {
+
+                            if ($next_sibling->tag == 'div' && $next_sibling->class == '') {
+                                $all_attr = $next_sibling->getAllAttributes();
+                                $align = $next_sibling->getAttribute('align');
+                                if (count($all_attr) === 1 && $align === 'center') {
+                                    $child  .= $next_sibling->innertext;
+                                }
+                                else {
+                                    ww_log('Info: unexpected attributes of a div: ' . $next_sibling->outertext);
+                                }
+                            }
+                            else {
+                                ww_log('Info: unexpected class (1): ' . $next_sibling->outertext);
+                            }
+                        }
+                        //$child .= $next_sibling->outertext;
                         $next_sibling->outertext = '';
                         $next_sibling = $next_sibling->nextSibling();
                     }
                     
                     if ($child !== '') {
-                        //$child = '<ol>' . $child . '</ol>';
+                        $node->tag = 'div';
                         $node->innertext .= $child;
                     }
                 }
@@ -140,23 +165,39 @@ function ww_rewrite_all_body_elements(&$body) {
         }        
     }
     
+    $body_content = $body->save(); 
+    $body_content = trim($body_content);
+    $body = str_get_html($body_content);  
+    
     // second loop to create questions list
-    $ol_text = '';
-    $first_question_node = null;
     foreach ($body->nodes as $node) {  
         // consider the top level tags 
         if ($node->parent()->tag == 'root'){   
-            if ($node->tag == 'p') {
+            if ($node->tag == 'div') {
                 if ($node->class == 'question') {
+                    /*
                     if ($ol_text === '') { // the first 'question' tag in the list
                         $first_question_node = $node;                                           
                     }
-
+                    */
+                    $ol_text = '';
                     $node->tag = 'li';
-                    $node->class = '';
-                    $ol_text .= $node->outertext;   
-                    
+                    $node->class = 'question';
+                    if (strlen($node->innertext) > 1) {
+                        $node_text = $node->innertext;
+                        $node_text = substr($node_text, 1); // ms - trim the first char
+                        //$node_text = trim($node_text);
+                        $node->innertext = $node_text;
+                    }
                     /*
+                    if (strpos($node_text, "&nbsp;") !== false) { // find the first "&nbsp;" in the text
+                        $node_text = substr($node_text, strpos($node_text, "&nbsp;"));
+                        $node->innertex = $node_text;
+                    }
+                    */
+                    $ol_text .= $node->outertext;   
+                    //$node->outertext = '';
+                    
                     $next_sibling = $node->nextSibling();
                     while ( ($next_sibling->class != 'Ahead') && 
                             ($next_sibling->class != 'Bhead') &&
@@ -164,29 +205,40 @@ function ww_rewrite_all_body_elements(&$body) {
                             ($next_sibling->class != 'activity')) {
                         if ($next_sibling->class == 'question') {
                             $next_sibling->tag = 'li';
-                            $next_sibling->class = '';
+                            $next_sibling->class = 'question';
+                            if (strlen($next_sibling->innertext) > 1) {
+                                $node_text = $next_sibling->innertext;
+                                $node_text = substr($node_text, 1); // ms - trim the first char
+                                //$node_text = trim($node_text);
+                                $next_sibling->innertext = $node_text;
+                            }
                             $ol_text .= $next_sibling->outertext;
                             $next_sibling->outertext = '';
                         }
                         else {
-                            ww_log('Info: unexpected content');
+                            ww_log('Info: unexpected class (2): ' . $next_sibling->outertext);
                         }
                         $next_sibling = $next_sibling->nextSibling();
                     }
 
-                    $node->outertext .= $child;
-                    */
+                    $node->outertext .= '<ol>' . $ol_text . '</ol>';
                 }
                 else {
+                    /*
                     if ($ol_text !== '') {
                         $first_question_node->outertext = '<ol>' . $ol_text . '</ol>';
                     }
                     
                     $ol_text = '';
+                    */
                 }
             }           
         }        
     }
+    
+    $body_content = $body->save(); 
+    $body_content = trim($body_content);
+    $body = str_get_html($body_content);  
     
     foreach ($body->nodes as $node){   
         // consider the top level tags 
@@ -248,6 +300,10 @@ function ww_rewrite_all_body_elements(&$body) {
                     $node->outertext = ''; // test only
                 }
             } 
+            else if ($node->tag == 'ol') {
+                $test = 1;
+
+            }
             else {
                 $node->outertext = ''; // test only
             }
