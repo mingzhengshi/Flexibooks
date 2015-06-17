@@ -1388,7 +1388,7 @@ jQuery(document).ready(function ($) {
 
             $(editor.getBody()).find('table').each(function () {
                 var table = $(this);
-                if (table.hasClass("fb-table") == false) {
+                if (table.hasClass("no-border") == false && table.hasClass("fb-table") == false) {
                     table.addClass('fb-table');
                 }
 

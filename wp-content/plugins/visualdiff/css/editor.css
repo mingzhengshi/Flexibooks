@@ -113,6 +113,18 @@ table.fb-table {
 }
 */
 
+table.no-border {
+    border: none;
+}
+
+table.no-border th {
+    border: none;
+}
+
+table.no-border td {
+    border: none;
+}
+
 table.fb-table {
    text-align: left;
 
@@ -230,6 +242,15 @@ p.title {
 /*******************************************************************************************/
 /* styles exported from microsoft word */
 
+p.bodytextHI, li.bodytextHI, div.bodytextHI {
+	/*text-indent: -17pt;*/
+	line-height: 11pt;
+	text-autospace: none;
+	font-size: 9.5pt;
+	font-family: "Frutiger CE 45 Light";
+	color: black;
+}
+
 li.question {
 	font-size: 9.5pt;
 	font-family: "Frutiger CE 55 Roman";
@@ -244,7 +265,8 @@ p.questionhi1, li.questionhi1, div.questionhi1 {
 
 p.answerline, li.answerline, div.answerline {
 	text-align: justify;
-	line-height: 14.0pt;
+	line-height: 30pt;
+    margin-bottom: 1pt;
 	text-autospace: none;
 	font-size: 9.0pt;
 	font-family: "Frutiger CE 55 Roman";

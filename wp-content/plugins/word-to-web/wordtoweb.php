@@ -9,7 +9,7 @@ Author: Mingzheng Shi
 require_once( "vendor/autoload.php" );
 //require_once( 'simple_html_dom.php' );
 
-//add_action( 'admin_head', 'ww_admin_head' );
+add_action( 'admin_head', 'ww_admin_head' );
 
 
 
@@ -136,16 +136,24 @@ function ww_rewrite_all_body_elements(&$body) {
                             }
                         }
                         else {
-
                             if ($next_sibling->tag == 'div' && $next_sibling->class == '') {
                                 $all_attr = $next_sibling->getAllAttributes();
                                 $align = $next_sibling->getAttribute('align');
                                 if (count($all_attr) === 1 && $align === 'center') {
-                                    $child  .= $next_sibling->innertext;
+                                    $child .= $next_sibling->innertext;
                                 }
                                 else {
                                     ww_log('Info: unexpected attributes of a div: ' . $next_sibling->outertext);
                                 }
+                            }
+                            else if ($next_sibling->tag == 'table') {
+                                $table_border = $next_sibling->getAttribute('border');
+                                if ($table_border === false) {
+                                    $next_sibling->class = 'no-border';
+                                }
+                                $node_dom = str_get_html($next_sibling->outertext); 
+                                ww_set_image_attribute($node_dom, '');
+                                $child .= $node_dom->find('table')[0]->outertext;
                             }
                             else {
                                 ww_log('Info: unexpected class (1): ' . $next_sibling->outertext);
@@ -186,6 +194,10 @@ function ww_rewrite_all_body_elements(&$body) {
                     if (strlen($node->innertext) > 1) {
                         $node_text = $node->innertext;
                         $node_text = substr($node_text, 1); // ms - trim the first char
+                        //$node_text = iconv("UTF-8", "UTF-8//IGNORE", $node_text);
+                        for($i=0; $i<strlen($node_text); $i++) {
+                            $c = $node_text[$i];
+                        }
                         //$node_text = trim($node_text);
                         $node->innertext = $node_text;
                     }
@@ -261,7 +273,7 @@ function ww_rewrite_all_body_elements(&$body) {
                     foreach ($node_dom->find('span') as $span){ 
                         $span->outertext = ''; // remove all span tags
                     }
-                    ww_set_image_attribute($node_dom);
+                    ww_set_image_attribute($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     $node->tag = 'h2';
@@ -272,7 +284,7 @@ function ww_rewrite_all_body_elements(&$body) {
                     foreach ($node_dom->find('span') as $span){ 
                         $span->outertext = ''; // remove all span tags
                     }
-                    ww_set_image_attribute($node_dom);
+                    ww_set_image_attribute($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     //$node->tag = 'h3';
@@ -283,7 +295,7 @@ function ww_rewrite_all_body_elements(&$body) {
                     foreach ($node_dom->find('span') as $span){ 
                         $span->outertext = ''; // remove all span tags
                     }
-                    ww_set_image_attribute($node_dom);
+                    ww_set_image_attribute($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     $node->tag = 'h2';
@@ -291,29 +303,47 @@ function ww_rewrite_all_body_elements(&$body) {
                 }
                 else if ($node->class == 'bodytext') {
                     $node_dom = str_get_html($node->outertext); 
-                    ww_set_image_attribute($node_dom);
+                    ww_set_image_attribute($node_dom, 'align-right');
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
+                    $node->class = '';
+                }
+                else if ($node->class == 'bodytextHI') {
+                    $node_dom = str_get_html($node->outertext); 
+                    ww_set_image_attribute($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     $node->class = '';
                 }
                 else {
+                    //ww_log('Info: skip: ' . $node->outertext);
                     $node->outertext = ''; // test only
                 }
             } 
             else if ($node->tag == 'ol') {
-                $test = 1;
+                
 
             }
+            else if ($node->tag == 'table') {
+                $table_border = $node->getAttribute('border');
+                if ($table_border === false) {
+                    $node->class = 'no-border';
+                }
+                $node_dom = str_get_html($node->outertext); 
+                ww_set_image_attribute($node_dom, '');
+                $node->outertext = $node_dom->find('table')[0]->outertext;                
+            }
             else {
+                //ww_log('Info: skip: ' . $node->outertext);
                 $node->outertext = ''; // test only
             }
         }
     }
 }
 
-function ww_set_image_attribute(&$dom) {
+function ww_set_image_attribute(&$dom, $align) {
     foreach ($dom->find('img') as $img){ 
-        $img->setAttribute('align', 'right'); // assume images are aligned right.
+        if ($align == 'align-right') $img->setAttribute('align', 'right'); // assume images are aligned right.
         //$filename = basename($img->getAttribute('src'));
         $filepath = $img->getAttribute('src');
         $fullpath = content_url() . '/uploads/' . $filepath;
