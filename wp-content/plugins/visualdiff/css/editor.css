@@ -266,6 +266,25 @@ p.bodytextHI, li.bodytextHI, div.bodytextHI {
 	color: black;
 }
 
+p.bodytextcentered, li.bodytextcentered, div.bodytextcentered {
+	text-align: center;
+	line-height: 11pt;
+	text-autospace: none;
+	font-size: 9.5pt;
+	font-family: "Frutiger CE 45 Light";
+	color: black;
+}
+
+p.diagram, li.diagram, div.diagram {
+	text-align: center;
+	line-height: 11pt;
+	text-autospace: none;
+	font-size: 9.5pt;
+	font-family: "Frutiger CE 45 Light";
+	color: #562b87;
+	font-style: italic;
+}
+
 li.question {
 	font-size: 9.5pt;
 	font-family: "Frutiger CE 55 Roman";
@@ -331,15 +350,35 @@ p.TNboxanswer-Show, li.TNboxanswer-Show, div.TNboxanswer-Show {
 	text-decoration: underline;
 }
 
-p.diagram, li.diagram, div.diagram {
+p.wordsearchclues, li.wordsearchclues, div.wordsearchclues {
+	line-height: 11pt;
+	text-autospace: none;
+	font-size: 9.5pt;
+	font-family: "Frutiger 55 Roman";
+	color: black;
+	font-weight: bold;
+}
+
+p.wordsearchletters, li.wordsearchletters, div.wordsearchletters {
 	text-align: center;
 	line-height: 11pt;
 	text-autospace: none;
 	font-size: 9.5pt;
 	font-family: "Frutiger CE 45 Light";
-	color: #562b87;
-	font-style: italic;
+	color: black;
 }
+
+p.wordsearchanswers-on, li.wordsearchanswers-on, div.wordsearchanswers-on {
+	text-align: center;
+	line-height: 11pt;
+	text-autospace: none;
+	font-size: 11pt;
+	font-family: "Frutiger CE 45 Light";
+	color: black;
+	font-weight: bold;
+}
+
+
 
 /*******************************************************************************************/
 

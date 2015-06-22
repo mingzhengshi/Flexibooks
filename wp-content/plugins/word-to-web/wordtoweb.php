@@ -41,8 +41,8 @@ function ww_add_meta_box_word_to_web_page_callback() {
     
     //----------------------------------------------------------
     // open target html file
-    $filename = $ww_file_path . '22_About_alcohol_teach.htm';
-    $filename_output = $ww_file_path . 'output_' . '22_About_alcohol_teach.htm';
+    $filename = $ww_file_path . '23_Drug_education_teach.htm';
+    $filename_output = $ww_file_path . 'output_' . '23_Drug_education_teach.htm';
 
     $content = ww_read_file($filename);
     if (!$content) {
@@ -140,7 +140,8 @@ function ww_rewrite_all_body_elements(&$body) {
                             ($next_sibling->class == 'bodytext') ||
                             ($next_sibling->class == 'bodytextHI') ||
                             ($next_sibling->class == 'diagram') ||
-                            ($next_sibling->class == 'questionbold')) {
+                            ($next_sibling->class == 'questionbold') ||
+                            ($next_sibling->class == 'bodytextcentered')) {
                             if ($next_sibling->class == 'TNanswer') {
                                 $outer = $next_sibling->outertext;; 
                                 //$outer = str_replace("&nbsp;", "", $outer); // remove all &nbsp;
@@ -242,14 +243,8 @@ function ww_rewrite_all_body_elements(&$body) {
                         //$node_text = trim($node_text);
                         $node->innertext = $node_text;
                     }
-                    /*
-                    if (strpos($node_text, "&nbsp;") !== false) { // find the first "&nbsp;" in the text
-                        $node_text = substr($node_text, strpos($node_text, "&nbsp;"));
-                        $node->innertex = $node_text;
-                    }
-                    */
+
                     $ol_text .= $node->outertext;   
-                    //$node->outertext = '';
                     
                     $next_sibling = $node->nextSibling();
                     while ( ($next_sibling->class != 'Ahead') && 
@@ -375,9 +370,18 @@ function ww_rewrite_all_body_elements(&$body) {
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     $node->class = '';
-                }             
+                } 
+                else if ($node->class == 'wordsearchclues') {
+                    
+                }
+                else if ($node->class == '') {
+                    $node_dom = str_get_html($node->outertext); 
+                    ww_set_image_attribute($node_dom, 'align-right');
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
+                }
                 else {
-                    ww_log('Info: skip (p.class): ' . $node->outertext);
+                    ww_log('Info: skip (class=' . $node->tag . '): ' . $node->outertext);
                     $node->outertext = ''; // test only
                 }
             } 
