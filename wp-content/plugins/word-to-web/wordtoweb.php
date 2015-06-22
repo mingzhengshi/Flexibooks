@@ -9,7 +9,7 @@ Author: Mingzheng Shi
 require_once( "vendor/autoload.php" );
 //require_once( 'simple_html_dom.php' );
 
-add_action( 'add_meta_boxes', 'ww_add_meta_box_word_to_web_page' );
+//add_action( 'add_meta_boxes', 'ww_add_meta_box_word_to_web_page' );
 
 function ww_add_meta_box_word_to_web_page() {
     global $FB_LEVEL_1_POST;
@@ -70,7 +70,6 @@ function ww_add_meta_box_word_to_web_page_callback() {
     }
     
     // remove special characters
-    //$body_content = htmlentities($body_content, null, 'utf-8'); // convert some characters to HTML entities
     $body_content = str_replace("\xa0", "", $body_content);
     $body_content = str_replace("\xc2", "", $body_content);
     
@@ -136,7 +135,10 @@ function ww_rewrite_all_body_elements(&$body) {
                             ($next_sibling->class != 'question')) {
                         if (($next_sibling->class == 'questionhi1') ||
                             ($next_sibling->class == 'answerline') ||
-                            ($next_sibling->class == 'TNanswer')) {
+                            ($next_sibling->class == 'TNanswer') ||
+                            ($next_sibling->class == 'bodytext') ||
+                            ($next_sibling->class == 'bodytextHI') ||
+                            ($next_sibling->class == 'diagram')) {
                             if ($next_sibling->class == 'TNanswer') {
                                 $child .= '<p class=answerline>______________________________________________________________________________________________________________________________</p>';
                                 //$child .= '<p class=answerline>_________________________________________________________________________________________</p>'; // original
@@ -342,15 +344,17 @@ function ww_rewrite_all_body_elements(&$body) {
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     $node->class = '';
-                }
+                }             
                 else {
                     //ww_log('Info: skip: ' . $node->outertext);
                     $node->outertext = ''; // test only
                 }
             } 
             else if ($node->tag == 'ol') {
-                
-
+                $node_dom = str_get_html($node->outertext); 
+                ww_set_image_attribute($node_dom, 'align-right');
+                $inner = $node_dom->find('ol')[0]->innertext;
+                $node->innertext = $inner;         
             }
             else if ($node->tag == 'table') {
                 $table_border = $node->getAttribute('border');
@@ -371,7 +375,13 @@ function ww_rewrite_all_body_elements(&$body) {
 
 function ww_set_image_attribute(&$dom, $align) {
     foreach ($dom->find('img') as $img){ 
-        if ($align == 'align-right') $img->setAttribute('align', 'right'); // assume images are aligned right.
+        $original_align = $img->getAttribute('align');
+        if ($original_align == 'left') {
+            if ($align == 'align-right') $img->setAttribute('align', 'right'); // assume images are aligned right.
+        }
+        else {
+            $img->setAttribute('align', 'middle');
+        }
         //$filename = basename($img->getAttribute('src'));
         $filepath = $img->getAttribute('src');
         $fullpath = content_url() . '/uploads/' . $filepath;

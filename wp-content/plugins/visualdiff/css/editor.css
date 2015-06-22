@@ -286,6 +286,16 @@ span.TNAnswers-Hide {
     border-bottom: 1px solid #186BA7;
 }
 
+p.diagram, li.diagram, div.diagram {
+	text-align: center;
+	line-height: 11pt;
+	text-autospace: none;
+	font-size: 9.5pt;
+	font-family: "Frutiger CE 45 Light";
+	color: #562b87;
+	font-style: italic;
+}
+
 /*******************************************************************************************/
 
 /* the page that contains table of content */
