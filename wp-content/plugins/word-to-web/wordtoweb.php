@@ -9,11 +9,22 @@ Author: Mingzheng Shi
 require_once( "vendor/autoload.php" );
 //require_once( 'simple_html_dom.php' );
 
-add_action( 'admin_head', 'ww_admin_head' );
+add_action( 'add_meta_boxes', 'ww_add_meta_box_word_to_web_page' );
 
+function ww_add_meta_box_word_to_web_page() {
+    global $FB_LEVEL_1_POST;
+    global $FB_LEVEL_2_POST;
+    global $FB_LEVEL_3_POST;
+    global $post;
+    $meta_box_title = 'Word to Web Page';
+    if ($post) {        
+        if (($post->post_type == $FB_LEVEL_1_POST) || ($post->post_type == $FB_LEVEL_2_POST)){
+            add_meta_box('meta_box_source_list', $meta_box_title, 'ww_add_meta_box_word_to_web_page_callback', null, 'side', 'core' );
+        }
+    }
+}
 
-
-function ww_admin_head() {       
+function ww_add_meta_box_word_to_web_page_callback() {       
     //$filename = plugins_url( 'derived.txt' , __FILE__ );
     $ww_file_path = 'C:/Users/Mingzheng/Documents/GitHub/Macmillan/Files/html/';
         
@@ -30,9 +41,9 @@ function ww_admin_head() {
     
     //----------------------------------------------------------
     // open target html file
-    $filename = $ww_file_path . '04_Nutrition_and_health_NazarethCollege_72_50_65_combo_SC.htm';
-    $filename_output = $ww_file_path . 'output_' . '04_Nutrition_and_health_NazarethCollege_72_50_65_combo_SC.htm';
-    //$filename = $ww_file_path . '22_About_alcohol_teach.htm';
+    $filename = $ww_file_path . '10_Smoking_teach.htm';
+    $filename_output = $ww_file_path . 'output_' . '10_Smoking_teach.htm';
+
     $content = ww_read_file($filename);
     if (!$content) {
         ww_log('error: html file error.');
@@ -58,8 +69,14 @@ function ww_admin_head() {
         $body_content .= $section->innertext;
     }
     
+    // remove special characters
+    //$body_content = htmlentities($body_content, null, 'utf-8'); // convert some characters to HTML entities
+    $body_content = str_replace("\xa0", "", $body_content);
+    $body_content = str_replace("\xc2", "", $body_content);
+    
     $body = str_get_html($body_content);  
     $body = ww_remove_toc($body); // remove table of content
+
     $body_content_no_toc = $body->save(); 
     $body_content_no_toc = trim($body_content_no_toc);
     $body = str_get_html($body_content_no_toc);  
@@ -280,6 +297,9 @@ function ww_rewrite_all_body_elements(&$body) {
                     $node_dom = str_get_html($node->outertext);  
                     foreach ($node_dom->find('span') as $span){ 
                         $span->outertext = ''; // remove all span tags
+                    }
+                    foreach ($node_dom->find('a') as $a){ 
+                        $a->outertext = $a->innertext; // unwrap 'a' tag in 'p.Bhead' tag
                     }
                     ww_set_image_attribute($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
