@@ -41,8 +41,8 @@ function ww_add_meta_box_word_to_web_page_callback() {
     
     //----------------------------------------------------------
     // open target html file
-    $filename = $ww_file_path . '10_Smoking_teach.htm';
-    $filename_output = $ww_file_path . 'output_' . '10_Smoking_teach.htm';
+    $filename = $ww_file_path . '22_About_alcohol_teach.htm';
+    $filename_output = $ww_file_path . 'output_' . '22_About_alcohol_teach.htm';
 
     $content = ww_read_file($filename);
     if (!$content) {
@@ -71,7 +71,7 @@ function ww_add_meta_box_word_to_web_page_callback() {
     
     // remove special characters
     $body_content = str_replace("\xa0", "", $body_content);
-    $body_content = str_replace("\xc2", "", $body_content);
+    $body_content = str_replace("\xc2", "&nbsp;", $body_content);
     
     $body = str_get_html($body_content);  
     $body = ww_remove_toc($body); // remove table of content
@@ -131,6 +131,7 @@ function ww_rewrite_all_body_elements(&$body) {
                     while ( ($next_sibling->class != 'Ahead') && 
                             ($next_sibling->class != 'Bhead') &&
                             ($next_sibling->class != 'Chead') && 
+                            ($next_sibling->class != 'Dhead') && 
                             ($next_sibling->class != 'activity') &&
                             ($next_sibling->class != 'question')) {
                         if (($next_sibling->class == 'questionhi1') ||
@@ -138,9 +139,14 @@ function ww_rewrite_all_body_elements(&$body) {
                             ($next_sibling->class == 'TNanswer') ||
                             ($next_sibling->class == 'bodytext') ||
                             ($next_sibling->class == 'bodytextHI') ||
-                            ($next_sibling->class == 'diagram')) {
+                            ($next_sibling->class == 'diagram') ||
+                            ($next_sibling->class == 'questionbold')) {
                             if ($next_sibling->class == 'TNanswer') {
-                                $child .= '<p class=answerline>______________________________________________________________________________________________________________________________</p>';
+                                $outer = $next_sibling->outertext;; 
+                                //$outer = str_replace("&nbsp;", "", $outer); // remove all &nbsp;
+                                $child .= $outer;
+                                
+                                //$child .= '<p class=answerline>______________________________________________________________________________________________________________________________</p>';
                                 //$child .= '<p class=answerline>_________________________________________________________________________________________</p>'; // original
                             }
                             else if ($next_sibling->class == 'answerline') {
@@ -155,6 +161,7 @@ function ww_rewrite_all_body_elements(&$body) {
                             }
                         }
                         else {
+                            // <div align=center>
                             if ($next_sibling->tag == 'div' && $next_sibling->class == '') {
                                 $all_attr = $next_sibling->getAllAttributes();
                                 $align = $next_sibling->getAttribute('align');
@@ -212,15 +219,26 @@ function ww_rewrite_all_body_elements(&$body) {
                     $node->class = 'question';
                     if (strlen($node->innertext) > 1) {
                         $node_dom = str_get_html($node->outertext);  
+                        /*
                         foreach ($node_dom->find('span') as $span){ 
                             $span->outertext = ''; // remove all span tags
                         }
+                        */
                         $node_text = $node_dom->find('li')[0]->innertext;
-                        $node_text = substr($node_text, 1); // ms - trim the first char
+                        $first_char = substr($node_text, 0, 1);
+                        if (is_numeric($first_char)) {
+                            $node_text = substr($node_text, 1); // ms - trim the first char
+                        }
+                        if (strpos($node_text, "&nbsp;") === 0) {
+                            $node_text = preg_replace("#(^(&nbsp;|\s)+|(&nbsp;|\s)+$)#", "", $node_text); // remove leading and ending "&nbsp;"
+                        }
+
                         //$node_text = iconv("UTF-8", "UTF-8//IGNORE", $node_text);
+                        /*
                         for($i=0; $i<strlen($node_text); $i++) {
                             $c = $node_text[$i];
                         }
+                        */
                         //$node_text = trim($node_text);
                         $node->innertext = $node_text;
                     }
@@ -237,17 +255,26 @@ function ww_rewrite_all_body_elements(&$body) {
                     while ( ($next_sibling->class != 'Ahead') && 
                             ($next_sibling->class != 'Bhead') &&
                             ($next_sibling->class != 'Chead') && 
+                            ($next_sibling->class != 'Dhead') && 
                             ($next_sibling->class != 'activity')) {
                         if ($next_sibling->class == 'question') {
                             $next_sibling->tag = 'li';
                             $next_sibling->class = 'question';
                             if (strlen($next_sibling->innertext) > 1) {
                                 $node_dom = str_get_html($next_sibling->outertext);  
+                                /*
                                 foreach ($node_dom->find('span') as $span){ 
                                     $span->outertext = ''; // remove all span tags
                                 }
+                                */
                                 $node_text = $node_dom->find('li')[0]->innertext;
-                                $node_text = substr($node_text, 1); // ms - trim the first char
+                                if (is_numeric($first_char)) {
+                                    $node_text = substr($node_text, 1); // ms - trim the first char
+                                }
+                                if (strpos($node_text, "&nbsp;") === 0) {
+                                    $node_text = preg_replace("#(^(&nbsp;|\s)+|(&nbsp;|\s)+$)#", "", $node_text); // remove leading and ending "&nbsp;"
+                                }
+                                
                                 //$node_text = trim($node_text);
                                 $next_sibling->innertext = $node_text;
                             }
@@ -289,6 +316,7 @@ function ww_rewrite_all_body_elements(&$body) {
                     foreach ($node_dom->find('a') as $a){ 
                         $a->outertext = $a->innertext; // unwrap 'a' tag in 'p.Ahead' tag
                     }
+                    ww_set_image_attribute($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     //$node_inner = $node->innertext;
@@ -320,6 +348,9 @@ function ww_rewrite_all_body_elements(&$body) {
                     //$node->tag = 'h3';
                     //$node->class = 'Chead'; // unchanged
                 }
+                else if ($node->class == 'Dhead') {
+
+                }
                 else if ($node->class == 'activity') {
                     $node_dom = str_get_html($node->outertext);  
                     foreach ($node_dom->find('span') as $span){ 
@@ -346,7 +377,7 @@ function ww_rewrite_all_body_elements(&$body) {
                     $node->class = '';
                 }             
                 else {
-                    //ww_log('Info: skip: ' . $node->outertext);
+                    ww_log('Info: skip (p.class): ' . $node->outertext);
                     $node->outertext = ''; // test only
                 }
             } 
@@ -365,8 +396,14 @@ function ww_rewrite_all_body_elements(&$body) {
                 ww_set_image_attribute($node_dom, '');
                 $node->outertext = $node_dom->find('table')[0]->outertext;                
             }
+            else if ($node->tag == 'div') {
+                $node_dom = str_get_html($node->outertext); 
+                ww_set_image_attribute($node_dom, 'align-right');
+                $inner = $node_dom->find('div')[0]->innertext;
+                $node->innertext = $inner;                  
+            }
             else {
-                //ww_log('Info: skip: ' . $node->outertext);
+                //ww_log('Info: skip (tag): ' . $node->outertext);
                 $node->outertext = ''; // test only
             }
         }
@@ -380,7 +417,7 @@ function ww_set_image_attribute(&$dom, $align) {
             if ($align == 'align-right') $img->setAttribute('align', 'right'); // assume images are aligned right.
         }
         else {
-            $img->setAttribute('align', 'middle');
+            //if ($align == 'align-right') $img->setAttribute('align', 'right'); // assume images are aligned right.
         }
         //$filename = basename($img->getAttribute('src'));
         $filepath = $img->getAttribute('src');
