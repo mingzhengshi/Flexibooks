@@ -262,6 +262,25 @@ p.answerline, li.answerline, div.answerline {
 	color: #186BA7;
 }
 
+p.bodytextbold, li.bodytextbold, div.bodytextbold {
+	line-height: 11pt;
+	text-autospace: none;
+	font-size: 9.5pt;
+	font-family: "Frutiger CE 45 Light";
+	color: black;
+	font-weight: bold;
+}
+
+p.Bodytextboldcentered, li.Bodytextboldcentered, div.Bodytextboldcentered {
+	text-align: center;
+	line-height: 11pt;
+	text-autospace: none;
+	font-size: 9.5pt;
+	font-family: "Frutiger CE 45 Light";
+	color: black;
+	font-weight: bold;
+}
+
 span.bodytextboldChar {
 	font-family: "Frutiger CE 45 Light";
 	font-weight: bold;
@@ -341,6 +360,15 @@ p.Source, li.Source, div.Source {
 	font-size: 8pt;
 	font-family: "Frutiger CE 55 Roman";
 	color: black;
+}
+
+p.tabletext, li.tabletext, div.tabletext {
+	line-height: 13pt;
+	text-autospace: none;
+	font-size: 9.5pt;
+	font-family: "Frutiger CE 45 Light";
+	color: black;
+	font-weight: bold;
 }
 
 p.TNanswer, li.TNanswer, div.TNanswer {

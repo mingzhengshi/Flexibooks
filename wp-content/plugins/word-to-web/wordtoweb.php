@@ -41,8 +41,8 @@ function ww_add_meta_box_word_to_web_page_callback() {
     
     //----------------------------------------------------------
     // open target html file
-    $filename = $ww_file_path . '01c_Intro_to_PDHPE_teach.htm';
-    $filename_output = $ww_file_path . 'output_' . '01c_Intro_to_PDHPE_teach.htm';
+    $filename = $ww_file_path . '25b_Health_information_teach.htm';
+    $filename_output = $ww_file_path . 'output_' . '25b_Health_information_teach.htm';
 
     $content = ww_read_file($filename);
     if (!$content) {
@@ -126,8 +126,18 @@ function ww_rewrite_all_body_elements(&$body) {
         if ($node->parent()->tag == 'root'){   
             if ($node->tag == 'p') {
                 if ($node->class == 'question') {
-
-                    $child = '';
+                    $node_dom = str_get_html($node->outertext); 
+                    $img_outertext = ''; // move image tag to the end of a question class
+                    foreach ($node_dom->find('img') as $img){                        
+                        $img_outertext .= $img->outertext;
+                        $img->outertext = '';
+                    }
+                    foreach ($node_dom->find('br') as $br){                        
+                        $br->outertext = '';
+                    }
+                    $child = trim($node_dom->find('p')[0]->innertext);
+                    $child .= $img_outertext;
+                    //$child = $node->innertext;
                     $next_sibling = $node->nextSibling();
                     
                     while ( ($next_sibling !== null) &&   
@@ -144,9 +154,10 @@ function ww_rewrite_all_body_elements(&$body) {
                             ($next_sibling->class == 'bodytextHI') ||
                             ($next_sibling->class == 'diagram') ||
                             ($next_sibling->class == 'questionbold') ||
-                            ($next_sibling->class == 'bodytextcentered')) {
+                            ($next_sibling->class == 'bodytextcentered') ||
+                            ($next_sibling->class == 'Bodytextboldcentered')) {
                             if ($next_sibling->class == 'TNanswer') {
-                                $outer = $next_sibling->outertext;; 
+                                $outer = $next_sibling->outertext;
                                 //$outer = str_replace("&nbsp;", "", $outer); // remove all &nbsp;
                                 $child .= $outer;
                                 
@@ -202,10 +213,19 @@ function ww_rewrite_all_body_elements(&$body) {
                         $next_sibling = $next_sibling->nextSibling();
                     }
                     
+                    $node->tag = 'div';
+                    $node->innertext = $child;
+                    
+                    /*
                     if ($child !== '') {
                         $node->tag = 'div';
                         $node->innertext .= $child;
                     }
+                    else {
+                        // there is no child for this question
+                        $node->tag = 'div';
+                    }
+                    */
                 }
             }           
         }        
@@ -356,7 +376,10 @@ function ww_rewrite_all_body_elements(&$body) {
                     //$node->class = 'Chead'; // unchanged
                 }
                 else if ($node->class == 'Dhead') {
-
+                    $node_dom = str_get_html($node->outertext); 
+                    ww_set_image_attribute($node_dom, 'align-right');
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
                 }
                 else if ($node->class == 'bodytext') {
                     $node_dom = str_get_html($node->outertext); 
@@ -403,6 +426,12 @@ function ww_rewrite_all_body_elements(&$body) {
                     $node->innertext = $inner;
                 }
                 else if ($node->class == 'diagram2') {
+                    $node_dom = str_get_html($node->outertext); 
+                    ww_set_image_attribute($node_dom, 'align-right');
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
+                }
+                else if ($node->class == 'question') {
                     $node_dom = str_get_html($node->outertext); 
                     ww_set_image_attribute($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
