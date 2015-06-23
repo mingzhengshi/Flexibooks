@@ -41,8 +41,8 @@ function ww_add_meta_box_word_to_web_page_callback() {
     
     //----------------------------------------------------------
     // open target html file
-    $filename = $ww_file_path . '23_Drug_education_teach.htm';
-    $filename_output = $ww_file_path . 'output_' . '23_Drug_education_teach.htm';
+    $filename = $ww_file_path . '01c_Intro_to_PDHPE_teach.htm';
+    $filename_output = $ww_file_path . 'output_' . '01c_Intro_to_PDHPE_teach.htm';
 
     $content = ww_read_file($filename);
     if (!$content) {
@@ -118,6 +118,8 @@ function ww_add_meta_box_word_to_web_page_callback() {
 }
 
 function ww_rewrite_all_body_elements(&$body) {
+    $number_of_chars_in_an_answer_line = 128;
+    
     // first loop to create questions list
     foreach ($body->nodes as $node) {  
         // consider the top level tags 
@@ -128,7 +130,8 @@ function ww_rewrite_all_body_elements(&$body) {
                     $child = '';
                     $next_sibling = $node->nextSibling();
                     
-                    while ( ($next_sibling->class != 'Ahead') && 
+                    while ( ($next_sibling !== null) &&   
+                            ($next_sibling->class != 'Ahead') && 
                             ($next_sibling->class != 'Bhead') &&
                             ($next_sibling->class != 'Chead') && 
                             ($next_sibling->class != 'Dhead') && 
@@ -153,7 +156,15 @@ function ww_rewrite_all_body_elements(&$body) {
                             else if ($next_sibling->class == 'answerline') {
                                 $node_dom = str_get_html($next_sibling->outertext);  
                                 foreach ($node_dom->find('p') as $p){ 
-                                    $p->innertext = trim($p->innertext) . '_____________________________________'; 
+                                    $p->innertext = trim($p->innertext);
+                                    $l = strlen($p->innertext);
+                                    if ($l < $number_of_chars_in_an_answer_line) {
+                                        $add = $number_of_chars_in_an_answer_line - $l;
+                                        for ($i = 0; $i < $add; $i++) {
+                                            $p->innertext .= '_';
+                                        }
+                                    }
+                                    //$p->innertext = trim($p->innertext) . '_____________________________________'; 
                                 }
                                 $child .= $node_dom->find('p')[0]->outertext;
                             }
@@ -247,7 +258,8 @@ function ww_rewrite_all_body_elements(&$body) {
                     $ol_text .= $node->outertext;   
                     
                     $next_sibling = $node->nextSibling();
-                    while ( ($next_sibling->class != 'Ahead') && 
+                    while ( ($next_sibling !== null) &&  
+                            ($next_sibling->class != 'Ahead') && 
                             ($next_sibling->class != 'Bhead') &&
                             ($next_sibling->class != 'Chead') && 
                             ($next_sibling->class != 'Dhead') && 
@@ -282,7 +294,7 @@ function ww_rewrite_all_body_elements(&$body) {
                         $next_sibling = $next_sibling->nextSibling();
                     }
 
-                    $node->outertext .= '<ol>' . $ol_text . '</ol>';
+                    $node->outertext = '<ol>' . $ol_text . '</ol>';
                 }
                 else {
                     /*
@@ -346,19 +358,13 @@ function ww_rewrite_all_body_elements(&$body) {
                 else if ($node->class == 'Dhead') {
 
                 }
-                else if ($node->class == 'activity') {
-                    $node_dom = str_get_html($node->outertext);  
-                    foreach ($node_dom->find('span') as $span){ 
-                        $span->outertext = ''; // remove all span tags
-                    }
-                    ww_set_image_attribute($node_dom, 'align-right');
-                    $inner = $node_dom->find('p')[0]->innertext;
-                    $node->innertext = $inner;
-                    $node->tag = 'h2';
-                    //$node->class = 'activity'; // unchanged
-                }
                 else if ($node->class == 'bodytext') {
                     $node_dom = str_get_html($node->outertext); 
+                    foreach ($node_dom->find('a') as $a){ 
+                        if (trim($a->innertext) === '') {
+                            $a->outertext = ''; // remove 'a' tag if it is empty
+                        }
+                    }
                     ww_set_image_attribute($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
@@ -371,6 +377,37 @@ function ww_rewrite_all_body_elements(&$body) {
                     $node->innertext = $inner;
                     $node->class = '';
                 } 
+                else if ($node->class == 'activity') {
+                    $node_dom = str_get_html($node->outertext);  
+                    foreach ($node_dom->find('span') as $span){ 
+                        $span->outertext = ''; // remove all span tags
+                    }
+                    foreach ($node_dom->find('a') as $a){ 
+                        if (trim($a->innertext) === '') {
+                            $a->outertext = ''; // remove 'a' tag if it is empty
+                        }
+                        else {
+                            $a->outertext = $a->innertext; // unwrap 'a' tag in 'activity' class
+                        }
+                    }
+                    ww_set_image_attribute($node_dom, 'align-right');
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
+                    $node->tag = 'h2';
+                    //$node->class = 'activity'; // unchanged
+                }
+                else if ($node->class == 'diagram') {
+                    $node_dom = str_get_html($node->outertext); 
+                    ww_set_image_attribute($node_dom, 'align-right');
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
+                }
+                else if ($node->class == 'diagram2') {
+                    $node_dom = str_get_html($node->outertext); 
+                    ww_set_image_attribute($node_dom, 'align-right');
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
+                }
                 else if ($node->class == 'wordsearchclues') {
                     
                 }
@@ -381,8 +418,9 @@ function ww_rewrite_all_body_elements(&$body) {
                     $node->innertext = $inner;
                 }
                 else {
-                    ww_log('Info: skip (class=' . $node->tag . '): ' . $node->outertext);
-                    $node->outertext = ''; // test only
+                    ww_log('Info: other classes (class=' . $node->class . '): ' . $node->outertext);
+                    //ww_log('Info: skip (class=' . $node->class . '): ' . $node->outertext);
+                    //$node->outertext = ''; // test only
                 }
             } 
             else if ($node->tag == 'ol') {
@@ -407,8 +445,10 @@ function ww_rewrite_all_body_elements(&$body) {
                 $node->innertext = $inner;                  
             }
             else {
-                //ww_log('Info: skip (tag): ' . $node->outertext);
-                $node->outertext = ''; // test only
+                if (trim($node->outertext) !== '') {
+                    ww_log('Info: other tags (tag= ' . $node->tag . '): ' . $node->outertext);
+                //$node->outertext = ''; // test only
+                }
             }
         }
     }

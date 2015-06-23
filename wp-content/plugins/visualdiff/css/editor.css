@@ -252,6 +252,16 @@ p.Dhead, li.Dhead, div.Dhead {
 	font-style: italic;
 }
 
+p.answerline, li.answerline, div.answerline {
+	text-align: justify;
+	line-height: 25pt;
+    margin-bottom: 1pt;
+	text-autospace: none;
+	font-size: 9.0pt;
+	font-family: "Frutiger CE 55 Roman";
+	color: #186BA7;
+}
+
 span.bodytextboldChar {
 	font-family: "Frutiger CE 45 Light";
 	font-weight: bold;
@@ -285,6 +295,15 @@ p.diagram, li.diagram, div.diagram {
 	font-style: italic;
 }
 
+p.diagram2, li.diagram2, div.diagram2 {
+	line-height: 11pt;
+	text-autospace: none;
+	font-size: 9.5pt;
+	font-family: "Frutiger CE 45 Light";
+	color: #562b87;
+	font-style: italic;
+}
+
 li.question {
 	font-size: 9.5pt;
 	font-family: "Frutiger CE 55 Roman";
@@ -306,14 +325,22 @@ p.questionbold, li.questionbold, div.questionbold {
 	font-weight: bold;
 }
 
-p.answerline, li.answerline, div.answerline {
-	text-align: justify;
-	line-height: 25pt;
-    margin-bottom: 1pt;
+p.quote, li.quote, div.quote {
+	line-height: 11pt;
 	text-autospace: none;
-	font-size: 9.0pt;
+	font-size: 9pt;
+	font-family: "Frutiger CE 45 Light";
+	color: black;
+	font-style: italic;
+}
+
+p.Source, li.Source, div.Source {
+	text-align: right;
+	line-height: 11pt;
+	text-autospace: none;
+	font-size: 8pt;
 	font-family: "Frutiger CE 55 Roman";
-	color: #186BA7;
+	color: black;
 }
 
 p.TNanswer, li.TNanswer, div.TNanswer {
