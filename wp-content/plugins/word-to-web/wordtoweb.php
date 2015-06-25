@@ -62,8 +62,7 @@ function ww_add_meta_box_word_to_web_page_callback() {
     
     // remove special characters
     $body_content = str_replace("\xa0", "", $body_content);
-    $body_content = str_replace("\xc2", "&nbsp;", $body_content);
-    
+    $body_content = str_replace("\xc2", "&nbsp;", $body_content);   
 
     $body = str_get_html($body_content);  
     if (!$body) {
@@ -73,17 +72,13 @@ function ww_add_meta_box_word_to_web_page_callback() {
     
     // remove table of content
     $body = ww_remove_toc($body); 
-    
-    // add comments
-    $body = ww_add_comments($body, $html);
     if (!$body) {
         ww_log('error: html body is empty.');
         return;
     }
     
-    $body_content_no_toc = $body->save(); 
-    $body_content_no_toc = trim($body_content_no_toc);
-    $body = str_get_html($body_content_no_toc);  
+    // add comments
+    $body = ww_add_comments($body, $html);
     if (!$body) {
         ww_log('error: html body is empty.');
         return;
@@ -151,7 +146,8 @@ function ww_rewrite_all_body_elements(&$body) {
                             ($next_sibling->class != 'Chead') && 
                             ($next_sibling->class != 'Dhead') && 
                             ($next_sibling->class != 'activity') &&
-                            ($next_sibling->class != 'question')) {
+                            ($next_sibling->class != 'question') &&
+                            (strrpos($next_sibling->class, 'fb-comment') === false)) {
                         if (($next_sibling->class == 'questionhi1') ||
                             ($next_sibling->class == 'answerline') ||
                             ($next_sibling->class == 'TNanswer') ||
@@ -210,7 +206,8 @@ function ww_rewrite_all_body_elements(&$body) {
                                 $child .= $node_dom->find('table')[0]->outertext;
                             }
                             else {
-                                ww_log('Info: unexpected class (1): ' . $next_sibling->outertext);
+                                ww_log('Info: unexpected class (1): ' . $next_sibling->tag . '.' . $next_sibling->class);
+                                //$child . $next_sibling->outertext;
                             }
                         }
                         //$child .= $next_sibling->outertext;
@@ -288,7 +285,8 @@ function ww_rewrite_all_body_elements(&$body) {
                             ($next_sibling->class != 'Bhead') &&
                             ($next_sibling->class != 'Chead') && 
                             ($next_sibling->class != 'Dhead') && 
-                            ($next_sibling->class != 'activity')) {
+                            ($next_sibling->class != 'activity') &&
+                            (strrpos($next_sibling->class, 'fb-comment') === false)) {
                         if ($next_sibling->class == 'question') {
                             $next_sibling->tag = 'li';
                             $next_sibling->class = 'question';
@@ -359,7 +357,9 @@ function ww_rewrite_all_body_elements(&$body) {
                 else if ($node->class == 'Bhead') {
                     $node_dom = str_get_html($node->outertext);  
                     foreach ($node_dom->find('span') as $span){ 
-                        $span->outertext = ''; // remove all span tags
+                        if (strrpos($span->class, 'fb-comment') === false) {
+                            $span->outertext = ''; // remove all span tags
+                        }
                     }
                     foreach ($node_dom->find('a') as $a){ 
                         $a->outertext = $a->innertext; // unwrap 'a' tag in 'p.Bhead' tag
@@ -373,7 +373,9 @@ function ww_rewrite_all_body_elements(&$body) {
                 else if ($node->class == 'Chead') {
                     $node_dom = str_get_html($node->outertext);  
                     foreach ($node_dom->find('span') as $span){ 
-                        $span->outertext = ''; // remove all span tags
+                        if (strrpos($span->class, 'fb-comment') === false) {
+                            $span->outertext = ''; // remove all span tags
+                        }
                     }
                     ww_set_image_attribute($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
@@ -409,7 +411,9 @@ function ww_rewrite_all_body_elements(&$body) {
                 else if ($node->class == 'activity') {
                     $node_dom = str_get_html($node->outertext);  
                     foreach ($node_dom->find('span') as $span){ 
-                        $span->outertext = ''; // remove all span tags
+                        if (strrpos($span->class, 'fb-comment') === false) {
+                            $span->outertext = ''; // remove all span tags
+                        }
                     }
                     foreach ($node_dom->find('a') as $a){ 
                         if (trim($a->innertext) === '') {
@@ -527,6 +531,7 @@ function ww_clean_style_content($style) {
 
 function ww_add_comments($body, $html) {
     if ((!$body) || (!$html)) return null;
+    $comments_bubble_outertext = '';
     foreach ($body->find('a.msocomanchor') as $a) { 
         $href = $a->href;  
         if (!$href) { 
@@ -552,8 +557,9 @@ function ww_add_comments($body, $html) {
         }
         $inner = $node_dom->find('p.TNcomment')[0]->innertext;
         $bubble_uid = uniqid(rand(), true);  
+        $bubble_uid = str_replace(".", "-", $bubble_uid);
         $bubble_outer = '<div id="' . $bubble_uid . '" class="fb-comment fb-comment-bubble fb-teacher-bubble" style="position: absolute; width: 100px; min-height: 60px;">' . $inner . '</div>';
-        $body->outertext .= $bubble_outer;
+        $comments_bubble_outertext .= $bubble_outer;
         
         $archor_text = $a->previousSibling();
         if ($archor_text == null) {
@@ -566,7 +572,26 @@ function ww_add_comments($body, $html) {
         }
         $archor_text->outertext = "<span class='fb-comment fb-comment-content' data-comment-id='" . $bubble_uid . "'>" . $archor_text->innertext . "</span>";        
     }
-    
+
+    $body_content = $body->save(); 
+    $body_content .= $comments_bubble_outertext;
+    $body = str_get_html($body_content);
+    foreach ($body->find('span.fb-comment-content') as $span) { 
+        $p = $span->parentNode();
+        if ($p->class == 'MsoCommentReference') {
+            $p->outertext = $span->outertext;
+        }
+    }
+    $body_content = $body->save(); 
+    $body = str_get_html($body_content);
+    foreach ($body->find('span.MsoCommentReference') as $span) { 
+        $span->outertext = '';
+    }
+    foreach ($body->find('a.msocomanchor') as $a) { 
+        $a->outertext = '';
+    }
+    $body_content = $body->save(); 
+    $body = str_get_html($body_content);
     return $body;
 }
 
@@ -580,6 +605,9 @@ function ww_remove_toc($body) {
             $p->outertext = '';
         }
     }   
+    $body_content_no_toc = $body->save(); 
+    $body_content_no_toc = trim($body_content_no_toc);
+    $body = str_get_html($body_content_no_toc);  
     return $body;
 }
 
