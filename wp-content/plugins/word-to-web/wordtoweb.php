@@ -7,9 +7,8 @@ Author: Mingzheng Shi
 */  
 
 require_once( "vendor/autoload.php" );
-//require_once( 'simple_html_dom.php' );
 
-//add_action( 'add_meta_boxes', 'ww_add_meta_box_word_to_web_page' );
+add_action( 'add_meta_boxes', 'ww_add_meta_box_word_to_web_page' );
 
 function ww_add_meta_box_word_to_web_page() {
     global $FB_LEVEL_1_POST;
@@ -53,16 +52,8 @@ function ww_add_meta_box_word_to_web_page_callback() {
 
     //----------------------------------------------------------
     // get body
-   
-    /*
-    $word_section = $html->find('div.WordSection1');
-    if (count($word_section) != 1) {
-        ww_log('error: div.WordSection1 tag count != 1.');
-        return;
-    }
-    $body_content = $word_section[0]->innertext;   
-    */
     
+    // get body content
     $body_content = '';
     $word_sections = $html->find('div[class^="WordSection"]'); 
     foreach ($word_sections as $section){   
@@ -73,13 +64,27 @@ function ww_add_meta_box_word_to_web_page_callback() {
     $body_content = str_replace("\xa0", "", $body_content);
     $body_content = str_replace("\xc2", "&nbsp;", $body_content);
     
-    $body = str_get_html($body_content);  
-    $body = ww_remove_toc($body); // remove table of content
 
+    $body = str_get_html($body_content);  
+    if (!$body) {
+        ww_log('error: html body is empty.');
+        return;
+    }
+    
+    // remove table of content
+    $body = ww_remove_toc($body); 
+    
+    // add comments
+    $body = ww_add_comments($body, $html);
+    if (!$body) {
+        ww_log('error: html body is empty.');
+        return;
+    }
+    
     $body_content_no_toc = $body->save(); 
     $body_content_no_toc = trim($body_content_no_toc);
     $body = str_get_html($body_content_no_toc);  
-    if (!body) {
+    if (!$body) {
         ww_log('error: html body is empty.');
         return;
     }
@@ -333,6 +338,7 @@ function ww_rewrite_all_body_elements(&$body) {
     $body_content = trim($body_content);
     $body = str_get_html($body_content);  
     
+    // rewrite other body elements
     foreach ($body->nodes as $node){   
         // consider the top level tags 
         if ($node->parent()->tag == 'root'){   
@@ -437,9 +443,6 @@ function ww_rewrite_all_body_elements(&$body) {
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                 }
-                else if ($node->class == 'wordsearchclues') {
-                    
-                }
                 else if ($node->class == '') {
                     $node_dom = str_get_html($node->outertext); 
                     ww_set_image_attribute($node_dom, 'align-right');
@@ -522,9 +525,54 @@ function ww_clean_style_content($style) {
     return $style;
 }
 
+function ww_add_comments($body, $html) {
+    if ((!$body) || (!$html)) return null;
+    foreach ($body->find('a.msocomanchor') as $a) { 
+        $href = $a->href;  
+        if (!$href) { 
+            ww_log('Error: comment href is null.');
+            //return null;
+        }
+        
+        $as = $html->find('a[name='. substr($href, 1) .']');
+        if (count($as) !== 1) { 
+            ww_log('Error: comment href does not link to one comment.');
+            return null;
+        }
+        
+        $comment = $as[0]->parentNode();
+        $node_dom = str_get_html($comment->outertext); 
+        foreach ($node_dom->find('span.MsoCommentReference') as $span){ 
+            $span->outertext = ''; // remove all span.MsoCommentReference tags
+        }
+        $outer_content = $node_dom->save();
+        $node_dom = str_get_html($outer_content); 
+        foreach ($node_dom->find('span') as $span){ 
+            $span->outertext = $span->innertext; // unwrap span tags
+        }
+        $inner = $node_dom->find('p.TNcomment')[0]->innertext;
+        $bubble_uid = uniqid(rand(), true);  
+        $bubble_outer = '<div id="' . $bubble_uid . '" class="fb-comment fb-comment-bubble fb-teacher-bubble" style="position: absolute; width: 100px; min-height: 60px;">' . $inner . '</div>';
+        $body->outertext .= $bubble_outer;
+        
+        $archor_text = $a->previousSibling();
+        if ($archor_text == null) {
+            $a_parent = $a->parentNode();
+            $archor_text = $a_parent->previousSibling();
+        }
+        if ($archor_text->tag !== 'a') {
+            ww_log('Info: "a" tag expected for archor text');
+            return null;
+        }
+        $archor_text->outertext = "<span class='fb-comment fb-comment-content' data-comment-id='" . $bubble_uid . "'>" . $archor_text->innertext . "</span>";        
+    }
+    
+    return $body;
+}
+
 function ww_remove_toc($body) {
-    if (!body) return null;
-    foreach ($body->find('p') as $p){ 
+    if (!$body) return null;
+    foreach ($body->find('p') as $p) { 
         $class = $p->class;
         $class = strtolower($class);
         if ((strpos($class, 'unitopening') !== false) || 

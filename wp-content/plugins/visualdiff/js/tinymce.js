@@ -386,7 +386,13 @@ jQuery(document).ready(function ($) {
             }
 
             var content = editor.selection.getContent();
+            /*
             if ((!content) || (content.trim().length === 0)) {
+                alert('Please select some content.');
+                return;
+            }
+            */
+            if (!content) {
                 alert('Please select some content.');
                 return;
             }
@@ -910,6 +916,10 @@ jQuery(document).ready(function ($) {
         }
 
         function updateBubblePosition() {
+            var body_width = $(editor.getBody()).width();
+            var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
+            var bubble_left = body_width + body_margin_left + 10;
+
             // 1. update bubble position
             $(editor.getBody()).find('.fb-comment-content').each(function (index) {
                 var content = $(this);
@@ -923,6 +933,7 @@ jQuery(document).ready(function ($) {
                 var bubble_min_height = 60;
                 var t = t - bubble_min_height / 2;
                 $(bubble).css({ top: t });
+                $(bubble).css({ left: bubble_left });
             });
 
             // 2. avoid overlap
