@@ -1697,12 +1697,29 @@ jQuery(document).ready(function ($) {
     function update() {
         if (flexibook.postpone_update == true) return;
         if (fb_derived_mce_init_done == false) return;
-
+        var t0 = performance.now();
         updateMetaSourceVersions();
+        var t1 = performance.now();
         updatePublishButton();
+        var t2 = performance.now();
         updateSourceHighlight();
+        var t3 = performance.now();
         updateHTMLDiff();
+        var t4 = performance.now();
         updateSVG();
+        var t5 = performance.now();
+        var p1 = t1 - t0;
+        var p2 = t2 - t1;
+        var p3 = t3 - t2;
+        var p4 = t4 - t3;
+        var p5 = t5 - t4;
+        console.log(".........................................................................");
+        console.log("derived.js update:");
+        console.log("performance (updateMetaSourceVersions): " + p1);
+        console.log("performance (updatePublishButton): " + p2);
+        console.log("performance (updateSourceHighlight): " + p3);
+        console.log("performance (updateHTMLDiff): " + p4);
+        console.log("performance (updateSVG): " + p5);
     }
 
     function updateAllMces() {

@@ -117,7 +117,7 @@ table.no-border td {
 
 table.fb-table {
    text-align: left;
-
+   /*width: 200px;*/ /* ms - to override the default width parameter */
    margin-top:20px;
    margin-bottom:20px;
 
@@ -404,7 +404,16 @@ p.TNboxanswer-Show, li.TNboxanswer-Show, div.TNboxanswer-Show {
 	color: #d22161;
 	text-decoration: underline;
 }
-
+/*
+p.TNboxanswer-Hide, li.TNboxanswer-Hide, div.TNboxanswer-Hide {
+	text-align: justify;
+	line-height: 18pt;
+	text-autospace: none;
+	font-size: 9pt;
+	font-family: "Frutiger CE 55 Roman";
+	color: white;
+}
+*/
 p.wordsearchclues, li.wordsearchclues, div.wordsearchclues {
 	line-height: 11pt;
 	text-autospace: none;
@@ -433,6 +442,14 @@ p.wordsearchanswers-on, li.wordsearchanswers-on, div.wordsearchanswers-on {
 	font-weight: bold;
 }
 
+p.wordsearchanswers-off, li.wordsearchanswers-off, div.wordsearchanswers-off {
+	text-align: center;
+	line-height: 11pt;
+	text-autospace: none;
+	font-size: 9.5pt;
+	font-family: "Frutiger CE 45 Light";
+	color: black;
+}
 
 
 /*******************************************************************************************/

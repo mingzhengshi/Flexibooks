@@ -8,7 +8,7 @@ Author: Mingzheng Shi
 
 require_once( "vendor/autoload.php" );
 
-add_action( 'add_meta_boxes', 'ww_add_meta_box_word_to_web_page' );
+//add_action( 'add_meta_boxes', 'ww_add_meta_box_word_to_web_page' );
 
 function ww_add_meta_box_word_to_web_page() {
     global $FB_LEVEL_1_POST;
@@ -40,8 +40,8 @@ function ww_add_meta_box_word_to_web_page_callback() {
     
     //----------------------------------------------------------
     // open target html file
-    $filename = $ww_file_path . '25b_Health_information_teach.htm';
-    $filename_output = $ww_file_path . 'output_' . '25b_Health_information_teach.htm';
+    $filename = $ww_file_path . '04_Nutrition_and_health_NazarethCollege_72_50_65_combo_SC.htm';
+    $filename_output = $ww_file_path . 'output_' . '04_Nutrition_and_health_NazarethCollege_72_50_65_combo_SC.htm';
 
     $content = ww_read_file($filename);
     if (!$content) {
@@ -63,7 +63,8 @@ function ww_add_meta_box_word_to_web_page_callback() {
     // remove special characters
     $body_content = str_replace("\xa0", "", $body_content);
     $body_content = str_replace("\xc2", "&nbsp;", $body_content);   
-
+    $body_content = str_replace("\xb7", "&nbsp;", $body_content);
+    
     $body = str_get_html($body_content);  
     if (!$body) {
         ww_log('error: html body is empty.');
@@ -202,7 +203,7 @@ function ww_rewrite_all_body_elements(&$body) {
                                     $next_sibling->class = 'no-border';
                                 }
                                 $node_dom = str_get_html($next_sibling->outertext); 
-                                ww_set_image_attribute($node_dom, '');
+                                ww_set_image_align($node_dom, '');
                                 $child .= $node_dom->find('table')[0]->outertext;
                             }
                             else {
@@ -336,6 +337,11 @@ function ww_rewrite_all_body_elements(&$body) {
     $body_content = trim($body_content);
     $body = str_get_html($body_content);  
     
+    // set image path
+    ww_set_image_path($body);
+    $body_content = $body->save(); 
+    $body = str_get_html($body_content); 
+    
     // rewrite other body elements
     foreach ($body->nodes as $node){   
         // consider the top level tags 
@@ -347,7 +353,7 @@ function ww_rewrite_all_body_elements(&$body) {
                     foreach ($node_dom->find('a') as $a){ 
                         $a->outertext = $a->innertext; // unwrap 'a' tag in 'p.Ahead' tag
                     }
-                    ww_set_image_attribute($node_dom, 'align-right');
+                    ww_set_image_align($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     //$node_inner = $node->innertext;
@@ -364,7 +370,7 @@ function ww_rewrite_all_body_elements(&$body) {
                     foreach ($node_dom->find('a') as $a){ 
                         $a->outertext = $a->innertext; // unwrap 'a' tag in 'p.Bhead' tag
                     }
-                    ww_set_image_attribute($node_dom, 'align-right');
+                    ww_set_image_align($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     $node->tag = 'h2';
@@ -377,7 +383,7 @@ function ww_rewrite_all_body_elements(&$body) {
                             $span->outertext = ''; // remove all span tags
                         }
                     }
-                    ww_set_image_attribute($node_dom, 'align-right');
+                    ww_set_image_align($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     //$node->tag = 'h3';
@@ -385,7 +391,7 @@ function ww_rewrite_all_body_elements(&$body) {
                 }
                 else if ($node->class == 'Dhead') {
                     $node_dom = str_get_html($node->outertext); 
-                    ww_set_image_attribute($node_dom, 'align-right');
+                    ww_set_image_align($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                 }
@@ -396,14 +402,14 @@ function ww_rewrite_all_body_elements(&$body) {
                             $a->outertext = ''; // remove 'a' tag if it is empty
                         }
                     }
-                    ww_set_image_attribute($node_dom, 'align-right');
+                    ww_set_image_align($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     $node->class = '';
                 }
                 else if ($node->class == 'bodytextHI') {
                     $node_dom = str_get_html($node->outertext); 
-                    ww_set_image_attribute($node_dom, 'align-right');
+                    ww_set_image_align($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     $node->class = '';
@@ -423,7 +429,7 @@ function ww_rewrite_all_body_elements(&$body) {
                             $a->outertext = $a->innertext; // unwrap 'a' tag in 'activity' class
                         }
                     }
-                    ww_set_image_attribute($node_dom, 'align-right');
+                    ww_set_image_align($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                     $node->tag = 'h2';
@@ -431,29 +437,34 @@ function ww_rewrite_all_body_elements(&$body) {
                 }
                 else if ($node->class == 'diagram') {
                     $node_dom = str_get_html($node->outertext); 
-                    ww_set_image_attribute($node_dom, 'align-right');
+                    ww_set_image_align($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                 }
                 else if ($node->class == 'diagram2') {
                     $node_dom = str_get_html($node->outertext); 
-                    ww_set_image_attribute($node_dom, 'align-right');
+                    ww_set_image_align($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                 }
                 else if ($node->class == 'question') {
                     $node_dom = str_get_html($node->outertext); 
-                    ww_set_image_attribute($node_dom, 'align-right');
+                    ww_set_image_align($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                 }
                 else if ($node->class == '') {
                     $node_dom = str_get_html($node->outertext); 
-                    ww_set_image_attribute($node_dom, 'align-right');
+                    ww_set_image_align($node_dom, 'align-right');
                     $inner = $node_dom->find('p')[0]->innertext;
                     $node->innertext = $inner;
                 }
                 else {
+                    $node_dom = str_get_html($node->outertext); 
+                    ww_set_image_align($node_dom, 'align-right');
+                    $inner = $node_dom->find('p')[0]->innertext;
+                    $node->innertext = $inner;
+                    
                     ww_log('Info: other classes (class=' . $node->class . '): ' . $node->outertext);
                     //ww_log('Info: skip (class=' . $node->class . '): ' . $node->outertext);
                     //$node->outertext = ''; // test only
@@ -461,7 +472,7 @@ function ww_rewrite_all_body_elements(&$body) {
             } 
             else if ($node->tag == 'ol') {
                 $node_dom = str_get_html($node->outertext); 
-                ww_set_image_attribute($node_dom, 'align-right');
+                ww_set_image_align($node_dom, 'align-right');
                 $inner = $node_dom->find('ol')[0]->innertext;
                 $node->innertext = $inner;         
             }
@@ -471,17 +482,17 @@ function ww_rewrite_all_body_elements(&$body) {
                     $node->class = 'no-border';
                 }
                 $node_dom = str_get_html($node->outertext); 
-                ww_set_image_attribute($node_dom, '');
+                ww_set_image_align($node_dom, '');
                 $node->outertext = $node_dom->find('table')[0]->outertext;                
             }
             else if ($node->tag == 'div') {
                 $node_dom = str_get_html($node->outertext); 
-                ww_set_image_attribute($node_dom, 'align-right');
+                ww_set_image_align($node_dom, 'align-right');
                 $inner = $node_dom->find('div')[0]->innertext;
                 $node->innertext = $inner;                  
             }
             else {
-                if (trim($node->outertext) !== '') {
+                if (trim($node->outertext) !== '') {                    
                     ww_log('Info: other tags (tag= ' . $node->tag . '): ' . $node->outertext);
                 //$node->outertext = ''; // test only
                 }
@@ -490,7 +501,7 @@ function ww_rewrite_all_body_elements(&$body) {
     }
 }
 
-function ww_set_image_attribute(&$dom, $align) {
+function ww_set_image_align(&$dom, $align) {
     foreach ($dom->find('img') as $img){ 
         $original_align = $img->getAttribute('align');
         if ($original_align == 'left') {
@@ -499,6 +510,11 @@ function ww_set_image_attribute(&$dom, $align) {
         else {
             //if ($align == 'align-right') $img->setAttribute('align', 'right'); // assume images are aligned right.
         }
+    }
+}
+
+function ww_set_image_path(&$dom) {
+    foreach ($dom->find('img') as $img){ 
         //$filename = basename($img->getAttribute('src'));
         $filepath = $img->getAttribute('src');
         $fullpath = content_url() . '/uploads/' . $filepath;
@@ -550,15 +566,22 @@ function ww_add_comments($body, $html) {
         foreach ($node_dom->find('span.MsoCommentReference') as $span){ 
             $span->outertext = ''; // remove all span.MsoCommentReference tags
         }
+        foreach ($node_dom->find('br') as $br){ 
+            $br->outertext = ''; // remove all br tags
+        }
         $outer_content = $node_dom->save();
         $node_dom = str_get_html($outer_content); 
-        foreach ($node_dom->find('span') as $span){ 
+        foreach ($node_dom->find('span') as $span) { 
             $span->outertext = $span->innertext; // unwrap span tags
         }
-        $inner = $node_dom->find('p.TNcomment')[0]->innertext;
+        $inner = '';
+        foreach ($node_dom->find('p.TNcomment') as $p) { 
+            $inner .= $p->innertext;
+        }
+        $inner = trim($inner);
         $bubble_uid = uniqid(rand(), true);  
         $bubble_uid = str_replace(".", "-", $bubble_uid);
-        $bubble_outer = '<div id="' . $bubble_uid . '" class="fb-comment fb-comment-bubble fb-teacher-bubble" style="position: absolute; width: 100px; min-height: 60px;">' . $inner . '</div>';
+        $bubble_outer = '<div id="' . $bubble_uid . '" class="fb-comment fb-comment-bubble fb-teacher-bubble" style="position: absolute; width: 200px; min-height: 60px;">' . $inner . '</div>';
         $comments_bubble_outertext .= $bubble_outer;
         
         $archor_text = $a->previousSibling();
@@ -566,9 +589,17 @@ function ww_add_comments($body, $html) {
             $a_parent = $a->parentNode();
             $archor_text = $a_parent->previousSibling();
         }
+        if ($archor_text == null) {
+            $a_parent = $a->parentNode()->parentNode();
+            $archor_text = $a_parent->previousSibling();
+        }
         if ($archor_text->tag !== 'a') {
             ww_log('Info: "a" tag expected for archor text');
             return null;
+        }
+        $archor_text->innertext = trim($archor_text->innertext);
+        if ($archor_text->innertext === "") {
+            $archor_text->innertext = "&nbsp;";
         }
         $archor_text->outertext = "<span class='fb-comment fb-comment-content' data-comment-id='" . $bubble_uid . "'>" . $archor_text->innertext . "</span>";        
     }

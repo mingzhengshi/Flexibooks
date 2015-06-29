@@ -799,17 +799,20 @@ jQuery(document).ready(function ($) {
         }
 
         function updatePublic(derived_callback) {
+            var t0 = performance.now();
             setupNewElements();
-            setupDerivedElementID(); 
+            var t1 = performance.now();
+            setupDerivedElementID();
+            var t2 = performance.now();
             updateComments();
-
+            var t3 = performance.now();
             if (derived_callback) {
                 if ((editor.id.indexOf("fb-derived-mce") >= 0) || (editor.id.indexOf("fb-source-mce") >= 0)) {
                     var callback = flexibook.deriveUpdateCallback;
                     if (callback) callback();
                 }
             }
-
+            var t4 = performance.now();
             // setup drag event for derive elements
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 $(editor.getBody()).children().on('dragenter', function () {
@@ -829,15 +832,34 @@ jQuery(document).ready(function ($) {
                     }
                 });
             }
-
+            var t5 = performance.now();
             resetIcons();
             if (on_mouse_up) {
                 onMouseUp();
                 on_mouse_up = false;
             }
             setupIconEvents();
+            var t6 = performance.now();
             drawLines();
             drawLinesMergeElements();
+            var t7 = performance.now();
+            var p1 = t1 - t0;
+            var p2 = t2 - t1;
+            var p3 = t3 - t2;
+            var p4 = t4 - t3;
+            var p5 = t5 - t4;
+            var p6 = t6 - t5;
+            var p7 = t7 - t6;
+            console.log(".........................................................................");
+            console.log("tinymce.js update:");
+            console.log("performance (setupNewElements): " + p1);
+            console.log("performance (setupDerivedElementID): " + p2);
+            console.log("performance (updateComments): " + p3);
+            console.log("performance (deriveUpdateCallback): " + p4);
+            console.log("performance (setup drag even): " + p5);
+            console.log("performance (setup icons): " + p6);
+            console.log("performance (draw lines): " + p7);
+            console.log(".........................................................................");
         }
 
         function updateComments() {
@@ -934,6 +956,12 @@ jQuery(document).ready(function ($) {
                 var t = t - bubble_min_height / 2;
                 $(bubble).css({ top: t });
                 $(bubble).css({ left: bubble_left });
+                if (fb_post_type == FB_LEVEL_1_POST) {
+                    $(bubble).css({ width: '250px' });
+                }
+                else {
+                    $(bubble).css({ width: '100px' });
+                }
             });
 
             // 2. avoid overlap
