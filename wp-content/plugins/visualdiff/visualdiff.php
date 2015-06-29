@@ -289,12 +289,14 @@ function fb_admin_head() {
     
     if (($id == $FB_LEVEL_2_POST) || ($id == $FB_LEVEL_3_POST)) {
         $htmldiff_js_url = plugins_url( 'js/htmldiff.js' , __FILE__ );
+        $underscore_js_url = plugins_url( 'js/underscore.js' , __FILE__ );
         $derived_js_url = plugins_url( 'js/derived.js' , __FILE__ );
         
         $derived_css_url = plugins_url( 'css/derived.css' , __FILE__ );
         $jquery_css_url = plugins_url( 'css/jquery-ui-themes-1.11.2/themes/smoothness/jquery-ui.css' , __FILE__ );
     
         echo '<script type="text/javascript" src="' . $htmldiff_js_url . '" ></script>'; // need to come first; to be used in other js files;
+        echo '<script type="text/javascript" src="' . $underscore_js_url . '" ></script>'; // need to come first; to be used in other js files;
         echo '<script type="text/javascript" src="' . $derived_js_url . '" ></script>';
         
         echo '<link rel="stylesheet" type="text/css" href="' . $derived_css_url . '" />';

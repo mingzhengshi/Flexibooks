@@ -46,8 +46,7 @@ jQuery(document).ready(function ($) {
     var tab_template = "<li id='#{id}'><a href='#{href}' data-post-id='#{postid}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
     // performance
-    var fb_previous_update_source_scroll_top = null;
-    var fb_previous_update_derive_scroll_top = null;
+
 
     //----------------------------------------------------------------------------------------
     // init
@@ -65,11 +64,11 @@ jQuery(document).ready(function ($) {
     });
 
     flexibook.regDerivedElementMouseUpCallback(function (post_id, d_id) {
-        //update();        
+    
     });
 
-    flexibook.regDeriveUpdateCallback(function () {
-        update();
+    flexibook.regDeriveUpdateCallback(function (caller_function) {
+        update(caller_function);
     });
 
     flexibook.regOnDragEndCallback(function () {
@@ -77,8 +76,6 @@ jQuery(document).ready(function ($) {
         var dragged_item = derived_doc.getElementById(flexibook.dragged_item_id);
         $(dragged_item).removeClass('fb_tinymce_dragging');
         $(dragged_item).css('opacity', 1);
-
-        //update();
     });
 
     flexibook.regDeriveMceInitCallback(function () {
@@ -1698,9 +1695,25 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    function update() {
+    /*
+    function update(caller_function) {
+
+        //debounceUpdate();
+    }
+
+    var debounceUpdate = _.debounce(executeAllUpdates, 1000);
+    */
+
+    function update(caller_function) {
+
+        //debounceUpdate();
+    }
+
+    function updateOrigianl(caller_function) {
         if (flexibook.postpone_update == true) return;
         if (fb_derived_mce_init_done == false) return;
+        caller_function = caller_function || '';
+
         var t0 = performance.now();
         updateMetaSourceVersions();
         var t1 = performance.now();
@@ -1708,7 +1721,9 @@ jQuery(document).ready(function ($) {
         var t2 = performance.now();
         updateSourceHighlight();
         var t3 = performance.now();
-        updateHTMLDiff();
+        if (caller_function != 'fb_on_mouse_wheel_end') {
+            updateHTMLDiff();
+        }
         var t4 = performance.now();
         updateSVG();
         var t5 = performance.now();
@@ -2194,27 +2209,10 @@ jQuery(document).ready(function ($) {
         var source_mce = getVisibleSourceMce();
         if (!source_mce) return;
         var source_doc = source_mce.getDoc();
+        var svg_column_id = 'fb-svg-mid-column';
 
-        updateSVGColumn(source_doc, derived_doc, 'fb-svg-mid-column');
-    }
-
-    function isTinymceAdminElement(element) {
-        if (element.prop("tagName").toLowerCase() == 'svg') return true;
-        if (element.hasClass("fb_tinymce_left_column") == true ||
-            element.hasClass("fb_tinymce_left_column_icon") == true ||
-            element.hasClass("fb_tinymce_left_column_svg") == true ||
-            element.hasClass("fb_tinymce_left_column_page") == true ||
-            element.hasClass("fb-comment") == true ||
-            element.hasClass("toc-page") == true ||
-            element.hasClass("mce-resizehandle") == true ||
-            element['data-mce-bogus']) return true;
-        //if (element.attr('class').indexOf("fb_tinymce_left_column") >= 0) return true;
-        return false;
-    }
-
-    function updateSVGColumn(left_doc, right_doc, svg_column_id) {
-        var source_iframe_container_top = getiFrameOffsetTop(left_doc);
-        var derived_iframe_container_top = getiFrameOffsetTop(right_doc);
+        var source_iframe_container_top = getiFrameOffsetTop(source_doc);
+        var derived_iframe_container_top = getiFrameOffsetTop(derived_doc);
 
         if (!source_iframe_container_top || !derived_iframe_container_top) return;
 
@@ -2229,13 +2227,13 @@ jQuery(document).ready(function ($) {
         var previous_y_top_left = null;
         var previous_y_bottom_right = null;
 
-        var left_scrollTop = left_doc.body.scrollTop;
-        var right_scrollTop = right_doc.body.scrollTop;
+        var left_scrollTop = source_doc.body.scrollTop;
+        var right_scrollTop = derived_doc.body.scrollTop;
 
         // remove all polygons
         $('#' + svg_column_id).find('.fb-svg-polygons').remove();
 
-        $(right_doc.body).children().each(function (index) {
+        $(derived_doc.body).children().each(function (index) {
             var right = $(this);
             if (isTinymceAdminElement(right)) return true; // continue
             var source_id = null;
@@ -2247,7 +2245,7 @@ jQuery(document).ready(function ($) {
                 var y_top_right = null;
 
                 if (right.attr('class') && right.attr('class').indexOf("fb-display-none") >= 0) {
-                    var derived_bottom = getParentOffsetBottom(right.attr("id"), right_doc.body);
+                    var derived_bottom = getParentOffsetBottom(right.attr("id"), derived_doc.body);
                     if (derived_bottom >= 0) {
                         derived_bottom += (derived_iframe_container_top - svg_container_top);
                         y_bottom_right = derived_bottom;
@@ -2268,7 +2266,7 @@ jQuery(document).ready(function ($) {
                 }
 
                 // check if left element is visible
-                var left = left_doc.getElementById(source_id);
+                var left = source_doc.getElementById(source_id);
                 if (!left) {
                     var right_clone = right.clone();
                     var right_html = unwrapDeleteInsertTagjQuery(right_clone);
@@ -2333,7 +2331,7 @@ jQuery(document).ready(function ($) {
 
                     // calcuate y_top_left and y_bottom_left
                     if ($(left).attr('class') && $(left).attr('class').indexOf("fb-display-none") >= 0) {
-                        var source_bottom = getParentOffsetBottom($(left).attr("id"), left_doc.body);
+                        var source_bottom = getParentOffsetBottom($(left).attr("id"), source_doc.body);
                         if (source_bottom >= 0) {
                             source_bottom += (source_iframe_container_top - svg_container_top);
                             y_top_left = source_bottom;
@@ -2480,6 +2478,20 @@ jQuery(document).ready(function ($) {
             }
 
         });
+    }
+
+    function isTinymceAdminElement(element) {
+        if (element.prop("tagName").toLowerCase() == 'svg') return true;
+        if (element.hasClass("fb_tinymce_left_column") == true ||
+            element.hasClass("fb_tinymce_left_column_icon") == true ||
+            element.hasClass("fb_tinymce_left_column_svg") == true ||
+            element.hasClass("fb_tinymce_left_column_page") == true ||
+            element.hasClass("fb-comment") == true ||
+            element.hasClass("toc-page") == true ||
+            element.hasClass("mce-resizehandle") == true ||
+            element['data-mce-bogus']) return true;
+        //if (element.attr('class').indexOf("fb_tinymce_left_column") >= 0) return true;
+        return false;
     }
 
     function createSVGPolygon(pts, id, classes, fill, svg_column_id, opacity) {

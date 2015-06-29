@@ -35,6 +35,10 @@ jQuery(document).ready(function ($) {
     var fb_all_custom_style_classes = 'main-heading-1 main-heading-2 activity exercise assessed body-text-italic c-head-sm d-head-sm diagram diagram2 question-sm subtitle title';
     var fb_plugin_url;
 
+    // performance 
+    var fb_performance_global_time_step = null;
+
+
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
         // public members of the fb_folding_editor object
         this.updatePublic = updatePublic; 
@@ -118,7 +122,7 @@ jQuery(document).ready(function ($) {
 
         editor.on('change', function (e) {
             console.log('on change');
-            update();
+            update('fb_on_change');
         });
 
         /*
@@ -162,15 +166,15 @@ jQuery(document).ready(function ($) {
         */
 
         editor.on('PostProcess', function (e) {
-            update();
+            update('fb_on_post_process');
         });
 
         editor.on('activate', function (e) {
-            update();
+            update('fb_on_activate');
         });
 
         editor.on('focus', function (e) {
-            update();
+            update('fb_on_focus');
         });
 
         editor.on('cut', function (e) {
@@ -274,7 +278,7 @@ jQuery(document).ready(function ($) {
 
             // if it passes all the filters above:
             on_mouse_up = true;
-            update(); 
+            update('fb_on_mouse_up');
         });
 
         // add custom buttons
@@ -324,7 +328,7 @@ jQuery(document).ready(function ($) {
         }
 
         function onMouseWheelEnd() {
-            update();
+            update('fb_on_mouse_wheel_end');
         }
 
         function deleteComment() {
@@ -360,7 +364,7 @@ jQuery(document).ready(function ($) {
 
                 $(editor.getBody()).find('#' + id + '-svg').remove(); // remove svg lines
                 $(node).remove();
-                update();
+                update('fb_on_delete_comment');
             }
             else { 
                 alert('Please select a comment to delete.');
@@ -424,7 +428,7 @@ jQuery(document).ready(function ($) {
         function togglePageBoundary() {
             page_boundary_on = !page_boundary_on;
             updatePageBoundary();
-            update();
+            update('fb_on_toggle_page_boundary');
         }
 
         function updatePageBoundary() {
@@ -793,14 +797,26 @@ jQuery(document).ready(function ($) {
             return false;
         }
 
-        function update() {
+        var debounce_update = null;
+        if (debounce_update === null) debounce_update = _.debounce(updatePublic, 200);
+
+        function update(caller_function) {
             if (fb_post_type === null) return;
-            updatePublic(true);
+            
+            if (fb_performance_global_time_step != null) {
+                var interval = performance.now() - fb_performance_global_time_step;
+                console.log('update call interval: ' + interval + "; caller_function: " + caller_function + "; editor_id: " + editor.id);
+            }
+            fb_performance_global_time_step = performance.now();
+            
+            caller_function = caller_function || '';
+            debounce_update(true, caller_function);
+            //updatePublic(true, caller_function);
         }
 
         function updatePublic(derived_callback, caller_function) {
             derived_callback = derived_callback || false;
-            caller_function = caller_function || null;
+            caller_function = caller_function || '';
 
             var t0 = performance.now();
             setupNewElements();
@@ -810,7 +826,9 @@ jQuery(document).ready(function ($) {
             updateComments();
             var t3 = performance.now();
             if (derived_callback) {
-                if ((editor.id.indexOf("fb-derived-mce") >= 0) || (editor.id.indexOf("fb-source-mce") >= 0)) {
+                //if ((editor.id.indexOf("fb-derived-mce") >= 0) || (editor.id.indexOf("fb-source-mce") >= 0)) {
+                // assume that source document cannot be edited when the post type is derived
+                if (editor.id.indexOf("fb-derived-mce") >= 0) { // if the tinymce event comes from the source editor, then derive.js update is not necessary
                     var callback = flexibook.deriveUpdateCallback;
                     if (callback) callback(caller_function);
                 }
@@ -854,7 +872,7 @@ jQuery(document).ready(function ($) {
             var p6 = t6 - t5;
             var p7 = t7 - t6;
             console.log(".........................................................................");
-            console.log("tinymce.js update:");
+            console.log("tinymce.js update; caller: " + caller_function + "; editor_id: " + editor.id);
             console.log("performance (setupNewElements): " + p1);
             console.log("performance (setupDerivedElementID): " + p2);
             console.log("performance (updateComments): " + p3);
@@ -1317,7 +1335,7 @@ jQuery(document).ready(function ($) {
                 }
             }
 
-            update();
+            update('fb_on_icon_click');
         }
 
         function setupDraggableIconEvents(icon_id) {
