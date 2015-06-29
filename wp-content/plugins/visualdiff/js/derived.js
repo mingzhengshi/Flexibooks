@@ -45,6 +45,10 @@ jQuery(document).ready(function ($) {
 
     var tab_template = "<li id='#{id}'><a href='#{href}' data-post-id='#{postid}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
+    // performance
+    var fb_previous_update_source_scroll_top = null;
+    var fb_previous_update_derive_scroll_top = null;
+
     //----------------------------------------------------------------------------------------
     // init
 
@@ -2011,40 +2015,87 @@ jQuery(document).ready(function ($) {
     function updateHTMLDiff() {
         if (!flexibook.active_derive_mce) return;
         var derived_doc = flexibook.active_derive_mce.getDoc();
+        var derived_editor_height = getiFrameHeight(derived_doc);
 
         // get active tab id
         var source_mce = getVisibleSourceMce();
         if (!source_mce) return;
         var source_doc = source_mce.getDoc();
+        var source_editor_height = getiFrameHeight(source_doc);
 
-        updateHTMLDiffColumn(source_doc, derived_doc, true);
-    }
-
-    function updateHTMLDiffColumn(base_doc, comp_doc, clean_base) {
         // firstly clean base document
+        var scrolled_into_view_started = false;
+        var clean_base = true;
         if (clean_base) {
-            $(base_doc.body).children().each(function (index) {
+            $(source_doc.body).children().each(function (index) {
                 var base = $(this);
+                if (isElementScrolledIntoView(base, source_doc, source_editor_height) == false) {
+                    if (scrolled_into_view_started == false) {
+                        return true; // continue; only update elements that are visible
+                    }
+                    else {
+                        return false; // break;
+                    }
+                }
                 if (isTinymceAdminElement(base)) return true; // continue
                 if (base.attr(fb_data_merge_case)) return true; // continue; ms - skip the elements that require merge actions
-                var id = base.attr('id');
 
+                scrolled_into_view_started = true;
+                var id = base.attr('id');
                 if (id && id != 'none') {
                     var source_html = unwrapDeleteInsertTagjQuery(base);
                     base.html(source_html);
                 }
-
             });
         }
 
-        $(comp_doc.body).children().each(function (index) {
+        // performance
+        var visible_derived_elements = 0;
+        var scrolled_into_view_started = false;
+        $(derived_doc.body).children().each(function (index) {
             var comp = $(this);
 
-            //if (comp.hasClass("fb_tinymce_left_column") == false && comp.hasClass("fb_tinymce_left_column_icon") == false) {
+            var source_id = comp.attr(fb_data_element_id);
+            if (source_id && source_id != 'none') {
+                var base = source_doc.getElementById(source_id);
+                if (base) {
+                    if (isElementScrolledIntoView(comp, derived_doc, derived_editor_height) == false &&
+                        isElementScrolledIntoView($(base), source_doc, source_editor_height) == false) {
+                        if (scrolled_into_view_started == false) {
+                            return true; // continue; only update elements that are visible
+                        }
+                        else {
+                            return false; // break;
+                        }
+                    }
+                }
+                else {
+                    if (isElementScrolledIntoView(comp, derived_doc, derived_editor_height) == false) {
+                        if (scrolled_into_view_started == false) {
+                            return true; // continue; only update elements that are visible
+                        }
+                        else {
+                            return false; // break;
+                        }
+                    }
+                }
+            }
+            else {
+                if (isElementScrolledIntoView(comp, derived_doc, derived_editor_height) == false) {
+                    if (scrolled_into_view_started == false) {
+                        return true; // continue; only update elements that are visible
+                    }
+                    else {
+                        return false; // break;
+                    }
+                }
+            }
             if (isTinymceAdminElement(comp)) return true; // continue
             if (comp.attr(fb_data_merge_case)) return true; // continue; ms - skip the elements that require merge actions
-            var source_id = comp.attr(fb_data_element_id);
 
+            scrolled_into_view_started = true;
+            visible_derived_elements++;
+            console.log('visible_derived_elements: ' + visible_derived_elements);
             var id = comp.attr('id');
 
             if (source_id && source_id != 'none') {
@@ -2052,7 +2103,7 @@ jQuery(document).ready(function ($) {
                 var derive_bookmark;
                 derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
 
-                var base = base_doc.getElementById(source_id);
+                var base = source_doc.getElementById(source_id);
                 if (base) {
                     var derive_html = unwrapDeleteInsertTagjQuery(comp);
 
@@ -2116,6 +2167,19 @@ jQuery(document).ready(function ($) {
                 }
             }
         });
+    }
+
+    function isElementScrolledIntoView(element, doc, editorHeight) {
+        if (!element) return false;
+        if (!doc) return false;
+        var editorViewTop = doc.body.scrollTop;
+        var editorViewBottom = editorViewTop + editorHeight;
+
+        var elemTop = element.offset().top;
+        var elemBottom = elemTop + element.height();
+
+        if ((elemTop > editorViewBottom) || (elemBottom < editorViewTop)) return false;
+        return true;
     }
 
     function updateSVG() {
@@ -2672,6 +2736,21 @@ jQuery(document).ready(function ($) {
                     //var containerDiv = iframes[i].parentNode;
                     //return $(containerDiv).offset().top;
                     return $(iframes[i]).offset().top;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    function getiFrameHeight(doc) {
+        var iframes = document.getElementsByTagName("iframe");
+        for (var i = 0; i < iframes.length; i++) {
+            // only check the flexibook iframes
+            if ($(iframes[i]).attr('id').indexOf('fb-') >= 0) {
+                var iframe_doc = iframes[i].contentDocument || iframes[i].contentWindow.document;
+                if (iframe_doc == doc) {
+                    return $(iframes[i]).height();
                 }
             }
         }

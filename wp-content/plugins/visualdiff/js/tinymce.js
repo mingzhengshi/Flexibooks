@@ -798,7 +798,10 @@ jQuery(document).ready(function ($) {
             updatePublic(true);
         }
 
-        function updatePublic(derived_callback) {
+        function updatePublic(derived_callback, caller_function) {
+            derived_callback = derived_callback || false;
+            caller_function = caller_function || null;
+
             var t0 = performance.now();
             setupNewElements();
             var t1 = performance.now();
@@ -809,7 +812,7 @@ jQuery(document).ready(function ($) {
             if (derived_callback) {
                 if ((editor.id.indexOf("fb-derived-mce") >= 0) || (editor.id.indexOf("fb-source-mce") >= 0)) {
                     var callback = flexibook.deriveUpdateCallback;
-                    if (callback) callback();
+                    if (callback) callback(caller_function);
                 }
             }
             var t4 = performance.now();
