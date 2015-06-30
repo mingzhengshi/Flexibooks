@@ -121,8 +121,8 @@ jQuery(document).ready(function ($) {
         */
 
         editor.on('change', function (e) {
-            console.log('on change');
-            update('fb_on_change');
+            //console.log('on change');
+            //update('fb_on_change'); // comment out to improve performance
         });
 
         /*
@@ -185,6 +185,7 @@ jQuery(document).ready(function ($) {
             onCutOrCopy(e);
         });
 
+        /*
         editor.on('keydown', function (e) {
             if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
 
@@ -216,23 +217,21 @@ jQuery(document).ready(function ($) {
 
             flexibook.postpone_update = false;
 
-            //update();
 
             // backspace key
             if (e.keyCode == 8) {
-                //console.log('backspace key up');
-                //update();
+
             }
                 // enter key
             else if (e.keyCode == 13) {
-                //onEnterKeyUp(e);
+
             }
                 // delete key
             else if (e.keyCode == 46) {
-                //console.log('delete key up');
-                //update();
+
             }
         });
+        */
 
         /*
         editor.on('NodeChange', function (e) {
@@ -798,7 +797,7 @@ jQuery(document).ready(function ($) {
         }
 
         var debounce_update = null;
-        if (debounce_update === null) debounce_update = _.debounce(updatePublic, 200);
+        if (debounce_update === null) debounce_update = _.debounce(updatePublic, 300);
 
         function update(caller_function) {
             if (fb_post_type === null) return;

@@ -46,7 +46,8 @@ jQuery(document).ready(function ($) {
     var tab_template = "<li id='#{id}'><a href='#{href}' data-post-id='#{postid}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
 
     // performance
-
+    var fb_performance_previous_derive_scroll_top = null;
+    var fb_performance_previous_source_scroll_top = null;
 
     //----------------------------------------------------------------------------------------
     // init
@@ -1471,7 +1472,7 @@ jQuery(document).ready(function ($) {
 
         //generateMergeCases();
         updateVisibleMces(true, true);
-        update();
+        update("fb_on_source_tabs_activate");
     });
 
     // close icon: removing the tab on click
@@ -1500,7 +1501,7 @@ jQuery(document).ready(function ($) {
         flexibook.active_derive_mce = getVisibleDeriveMce();
 
         updateVisibleMces(true, true);
-        update();
+        update("fb_on_tabs_remove");
     });
 
     derive_tabs.on("tabsactivate", function (event, ui) {
@@ -1512,7 +1513,7 @@ jQuery(document).ready(function ($) {
         flexibook.active_derive_mce = getVisibleDeriveMce();
 
         updateVisibleMces(true, true);
-        update();
+        update("fb_on_derived_tabs_activate");
     });
 
 
@@ -1553,7 +1554,7 @@ jQuery(document).ready(function ($) {
 
         source_mce.setContent(content); // note: the get method does not work when tinymce.js has not been loaded;
         source_mce.on('change', function (e) {
-            update();
+            //update();
         });
         source_mce["post_id"] = post_id;
         source_mce["post_modified"] = post_modified;
@@ -1619,7 +1620,7 @@ jQuery(document).ready(function ($) {
 
         derive_mce.setContent(content); // note: the get method does not work when tinymce.js has not been loaded;
         derive_mce.on('change', function (e) {
-            update();
+            //update();
         });
         derive_mce["post_name"] = title;
 
@@ -1704,40 +1705,50 @@ jQuery(document).ready(function ($) {
     var debounceUpdate = _.debounce(executeAllUpdates, 1000);
     */
 
-    function update(caller_function) {
+    var debounce_update = null;
+    //if (debounce_update === null) debounce_update = _.debounce(executeUpdate, 200, true); // execute immediately
+    if (debounce_update === null) debounce_update = _.debounce(executeUpdate, 200); 
 
-        //debounceUpdate();
+    function update(caller_function) {
+        //debounce_update(caller_function);
+        executeUpdate(caller_function);
     }
 
-    function updateOrigianl(caller_function) {
+    // this is the original update function without debounce
+    function executeUpdate(caller_function) {
         if (flexibook.postpone_update == true) return;
         if (fb_derived_mce_init_done == false) return;
         caller_function = caller_function || '';
+        console.log(".........................................................................");
+        console.log("derived.js update;" + " caller_function: " + caller_function);
 
         var t0 = performance.now();
+
         updateMetaSourceVersions();
         var t1 = performance.now();
+        var p1 = t1 - t0;
+        console.log("performance (updateMetaSourceVersions): " + p1);
+
         updatePublishButton();
         var t2 = performance.now();
+        var p2 = t2 - t1;
+        console.log("performance (updatePublishButton): " + p2);
+
         updateSourceHighlight();
         var t3 = performance.now();
+        var p3 = t3 - t2;
+        console.log("performance (updateSourceHighlight): " + p3);
+
         if (caller_function != 'fb_on_mouse_wheel_end') {
             updateHTMLDiff();
         }
         var t4 = performance.now();
-        updateSVG();
-        var t5 = performance.now();
-        var p1 = t1 - t0;
-        var p2 = t2 - t1;
-        var p3 = t3 - t2;
         var p4 = t4 - t3;
-        var p5 = t5 - t4;
-        console.log(".........................................................................");
-        console.log("derived.js update:");
-        console.log("performance (updateMetaSourceVersions): " + p1);
-        console.log("performance (updatePublishButton): " + p2);
-        console.log("performance (updateSourceHighlight): " + p3);
         console.log("performance (updateHTMLDiff): " + p4);
+
+        updateSVG(caller_function);
+        var t5 = performance.now();
+        var p5 = t5 - t4;
         console.log("performance (updateSVG): " + p5);
     }
 
@@ -2110,7 +2121,7 @@ jQuery(document).ready(function ($) {
 
             scrolled_into_view_started = true;
             visible_derived_elements++;
-            console.log('visible_derived_elements: ' + visible_derived_elements);
+            //console.log('visible_derived_elements: ' + visible_derived_elements);
             var id = comp.attr('id');
 
             if (source_id && source_id != 'none') {
@@ -2182,6 +2193,7 @@ jQuery(document).ready(function ($) {
                 }
             }
         });
+        console.log('   total_visible_derived_elements: ' + visible_derived_elements);
     }
 
     function isElementScrolledIntoView(element, doc, editorHeight) {
@@ -2197,18 +2209,21 @@ jQuery(document).ready(function ($) {
         return true;
     }
 
-    function updateSVG() {
+    function updateSVG(caller_function) {
         if (!flexibook.active_derive_mce) {
             // remove all polygons
             $('#fb-svg-mid-column').find('.fb-svg-polygons').remove();
             return;
         }
         var derived_doc = flexibook.active_derive_mce.getDoc();
+        var derived_editor_height = getiFrameHeight(derived_doc);
 
         // get active tab id
         var source_mce = getVisibleSourceMce();
         if (!source_mce) return;
         var source_doc = source_mce.getDoc();
+        var source_editor_height = getiFrameHeight(source_doc);
+
         var svg_column_id = 'fb-svg-mid-column';
 
         var source_iframe_container_top = getiFrameOffsetTop(source_doc);
@@ -2230,20 +2245,55 @@ jQuery(document).ready(function ($) {
         var left_scrollTop = source_doc.body.scrollTop;
         var right_scrollTop = derived_doc.body.scrollTop;
 
+        if (caller_function == 'fb_on_mouse_up') {
+            if (fb_performance_previous_source_scroll_top !== null &&
+                fb_performance_previous_derive_scroll_top !== null) {
+                console.log('   fb_performance_previous_source_scroll_top: ' + fb_performance_previous_source_scroll_top);
+                console.log('   left_scrollTop: ' + left_scrollTop);
+                console.log('   fb_performance_previous_derive_scroll_top: ' + fb_performance_previous_derive_scroll_top);
+                console.log('   right_scrollTop: ' + right_scrollTop);
+                if ((fb_performance_previous_source_scroll_top === left_scrollTop) &&
+                    (fb_performance_previous_derive_scroll_top === right_scrollTop)) {
+                    return;
+                }
+            }
+        }
+        fb_performance_previous_source_scroll_top = left_scrollTop;
+        fb_performance_previous_derive_scroll_top = right_scrollTop;
+
+        var total_visible_svg = 0;
         // remove all polygons
         $('#' + svg_column_id).find('.fb-svg-polygons').remove();
 
+        var t0 = performance.now();
+        var total_time_create_svg = 0;
+        var total_children_count = 0;
         $(derived_doc.body).children().each(function (index) {
             var right = $(this);
+            total_children_count++;
             if (isTinymceAdminElement(right)) return true; // continue
             var source_id = null;
             source_id = right.attr(fb_data_element_id);
 
             if (source_id && source_id != 'none') {
+                var left = source_doc.getElementById(source_id);
+                if (left) {
+                    if (isElementScrolledIntoView(right, derived_doc, derived_editor_height) == false &&
+                        isElementScrolledIntoView($(left), source_doc, source_editor_height) == false) {
+                        return true; // continue; only update elements that are visible
+                    }
+                }
+                else {
+                    if (isElementScrolledIntoView(right, derived_doc, derived_editor_height) == false) return true; // continue; only update elements that are visible                   
+                }
+            }
+
+            if (source_id && source_id != 'none') {
+                var t00 = performance.now();
                 // calculate y_bottom_right and y_top_right
                 var y_bottom_right = null;
                 var y_top_right = null;
-
+                total_visible_svg++;
                 if (right.attr('class') && right.attr('class').indexOf("fb-display-none") >= 0) {
                     var derived_bottom = getParentOffsetBottom(right.attr("id"), derived_doc.body);
                     if (derived_bottom >= 0) {
@@ -2475,9 +2525,21 @@ jQuery(document).ready(function ($) {
                         }
                     }
                 }
+
+                var t01 = performance.now();
+                var p01 = t01 - t00;
+                total_time_create_svg += p01;
             }
 
         });
+
+        var t1 = performance.now();
+        var p1 = t1 - t0;
+
+        console.log('   total_children_count: ' + total_children_count);
+        console.log('   total_visible_svg: ' + total_visible_svg);
+        console.log('   total_time_create_svg: ' + total_time_create_svg);
+        console.log("   performance (derived_doc.body loop): " + p1);
     }
 
     function isTinymceAdminElement(element) {
@@ -2648,13 +2710,13 @@ jQuery(document).ready(function ($) {
                                 var t = left_scrollTop - (y_top_right - y_top_left);
                                 if (t < 0) t = 0;
 
-                                $(target_mce.getBody()).animate({ 'scrollTop': t }, { duration: 'medium', easing: 'swing', complete: function () { updateVisibleMces(true, false); update(); } });
+                                $(target_mce.getBody()).animate({ 'scrollTop': t }, { duration: 'medium', easing: 'swing', complete: function () { updateVisibleMces(true, false); update('fb_update_scroll'); } });
                             }
                             else if (target_mce.id.indexOf("fb-derived-mce") >= 0) {
                                 var t = right_scrollTop - (y_top_left - y_top_right);
                                 if (t < 0) t = 0;
 
-                                $(target_mce.getBody()).animate({ 'scrollTop': t }, { duration: 'medium', easing: 'swing', complete: function () { updateVisibleMces(true, false); update(); } });
+                                $(target_mce.getBody()).animate({ 'scrollTop': t }, { duration: 'medium', easing: 'swing', complete: function () { updateVisibleMces(true, false); update('fb_update_scroll'); } });
                             }
                             // use margin top
                             //var height_diff = t - source_mce.current_margin_top;
