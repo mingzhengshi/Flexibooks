@@ -2053,18 +2053,21 @@ jQuery(document).ready(function ($) {
         var scrolled_into_view_started = false;
         var clean_base = true;
         if (clean_base) {
-            $(source_doc.body).children().each(function (index) {
-                var base = $(this);
+            var source_children = source_doc.body.children;
+            for (var i = 0; i < source_children.length; i++) {
+                var base = $(source_children[i]);
+                //$(source_doc.body).children().each(function (index) {
+                //var base = $(this);
                 if (isElementScrolledIntoView(base, source_doc, source_editor_height) == false) {
                     if (scrolled_into_view_started == false) {
-                        return true; // continue; only update elements that are visible
+                        continue; // continue; only update elements that are visible
                     }
                     else {
-                        return false; // break;
+                        break; // break;
                     }
                 }
-                if (isTinymceAdminElement(base)) return true; // continue
-                if (base.attr(fb_data_merge_case)) return true; // continue; ms - skip the elements that require merge actions
+                if (isTinymceAdminElement(base)) continue; // continue
+                if (base.attr(fb_data_merge_case)) continue; // continue; ms - skip the elements that require merge actions
 
                 scrolled_into_view_started = true;
                 var id = base.attr('id');
@@ -2072,14 +2075,18 @@ jQuery(document).ready(function ($) {
                     var source_html = unwrapDeleteInsertTagjQuery(base);
                     base.html(source_html);
                 }
-            });
+            //});
+            }
         }
 
-        // performance
-        var visible_derived_elements = 0;
+
+        var visible_derived_elements = 0; // performance
         var scrolled_into_view_started = false;
-        $(derived_doc.body).children().each(function (index) {
-            var comp = $(this);
+        var children = derived_doc.body.children;
+        for (var i = 0; i < children.length; i++) {
+            var comp = $(children[i]);
+            //$(derived_doc.body).children().each(function (index) {
+            //var comp = $(this);
 
             var source_id = comp.attr(fb_data_element_id);
             if (source_id && source_id != 'none') {
@@ -2087,37 +2094,46 @@ jQuery(document).ready(function ($) {
                 if (base) {
                     if (isElementScrolledIntoView(comp, derived_doc, derived_editor_height) == false &&
                         isElementScrolledIntoView($(base), source_doc, source_editor_height) == false) {
+                        //continue; // continue; only update elements that are visible
+                        
                         if (scrolled_into_view_started == false) {
-                            return true; // continue; only update elements that are visible
+                            continue; // continue; only update elements that are visible
                         }
                         else {
-                            return false; // break;
+                            break; // break;
                         }
+                        
                     }
                 }
                 else {
                     if (isElementScrolledIntoView(comp, derived_doc, derived_editor_height) == false) {
+                        //continue; // continue; only update elements that are visible
+                        
                         if (scrolled_into_view_started == false) {
-                            return true; // continue; only update elements that are visible
+                            continue; // continue; only update elements that are visible
                         }
                         else {
-                            return false; // break;
+                            break; // break;
                         }
+                        
                     }
                 }
             }
             else {
                 if (isElementScrolledIntoView(comp, derived_doc, derived_editor_height) == false) {
+                    //continue; // continue; only update elements that are visible
+                    
                     if (scrolled_into_view_started == false) {
-                        return true; // continue; only update elements that are visible
+                        continue; // continue; only update elements that are visible
                     }
                     else {
-                        return false; // break;
+                        break; // break;
                     }
+                    
                 }
             }
-            if (isTinymceAdminElement(comp)) return true; // continue
-            if (comp.attr(fb_data_merge_case)) return true; // continue; ms - skip the elements that require merge actions
+            if (isTinymceAdminElement(comp)) continue; // continue
+            if (comp.attr(fb_data_merge_case)) continue; // continue; ms - skip the elements that require merge actions
 
             scrolled_into_view_started = true;
             visible_derived_elements++;
@@ -2192,7 +2208,8 @@ jQuery(document).ready(function ($) {
                     }
                 }
             }
-        });
+        //});
+        }
         console.log('   total_visible_derived_elements: ' + visible_derived_elements);
     }
 
@@ -2267,11 +2284,22 @@ jQuery(document).ready(function ($) {
 
         var t0 = performance.now();
         var total_time_create_svg = 0;
+        var total_time_check_admin_element = 0;
         var total_children_count = 0;
-        $(derived_doc.body).children().each(function (index) {
-            var right = $(this);
+
+        var children = derived_doc.body.children;
+        for (var i = 0; i < children.length; i++) {
+            var right = $(children[i]);
+            //$(derived_doc.body).children().each(function (index) {
+            //var right = $(this);
             total_children_count++;
-            if (isTinymceAdminElement(right)) return true; // continue
+
+            //var timer_isTinymceAdminElement = performance.now();
+            
+            if (isTinymceAdminElement(right)) continue; // performance: take 2.5 milliseconds to check 200-300 elements
+            //timer_isTinymceAdminElement = performance.now() - timer_isTinymceAdminElement;
+            //total_time_check_admin_element += timer_isTinymceAdminElement;
+
             var source_id = null;
             source_id = right.attr(fb_data_element_id);
 
@@ -2280,11 +2308,11 @@ jQuery(document).ready(function ($) {
                 if (left) {
                     if (isElementScrolledIntoView(right, derived_doc, derived_editor_height) == false &&
                         isElementScrolledIntoView($(left), source_doc, source_editor_height) == false) {
-                        return true; // continue; only update elements that are visible
+                        continue; // continue; only update elements that are visible
                     }
                 }
                 else {
-                    if (isElementScrolledIntoView(right, derived_doc, derived_editor_height) == false) return true; // continue; only update elements that are visible                   
+                    if (isElementScrolledIntoView(right, derived_doc, derived_editor_height) == false) continue; // continue; only update elements that are visible                   
                 }
             }
 
@@ -2531,14 +2559,15 @@ jQuery(document).ready(function ($) {
                 total_time_create_svg += p01;
             }
 
-        });
-
+        //});
+        }
         var t1 = performance.now();
         var p1 = t1 - t0;
 
         console.log('   total_children_count: ' + total_children_count);
         console.log('   total_visible_svg: ' + total_visible_svg);
         console.log('   total_time_create_svg: ' + total_time_create_svg);
+        //console.log('   total_time_check_admin_element: ' + total_time_check_admin_element);
         console.log("   performance (derived_doc.body loop): " + p1);
     }
 
