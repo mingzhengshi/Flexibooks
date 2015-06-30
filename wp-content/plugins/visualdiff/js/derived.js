@@ -2056,9 +2056,10 @@ jQuery(document).ready(function ($) {
             var source_children = source_doc.body.children;
             for (var i = 0; i < source_children.length; i++) {
                 var base = $(source_children[i]);
+                var baseNative = source_children[i];
                 //$(source_doc.body).children().each(function (index) {
                 //var base = $(this);
-                if (isElementScrolledIntoView(base, source_doc, source_editor_height) == false) {
+                if (isElementScrolledIntoViewNative(baseNative, source_doc, source_editor_height) == false) {
                     if (scrolled_into_view_started == false) {
                         continue; // continue; only update elements that are visible
                     }
@@ -2079,12 +2080,12 @@ jQuery(document).ready(function ($) {
             }
         }
 
-
         var visible_derived_elements = 0; // performance
         var scrolled_into_view_started = false;
         var children = derived_doc.body.children;
         for (var i = 0; i < children.length; i++) {
             var comp = $(children[i]);
+            var compNative = children[i];
             //$(derived_doc.body).children().each(function (index) {
             //var comp = $(this);
 
@@ -2092,44 +2093,44 @@ jQuery(document).ready(function ($) {
             if (source_id && source_id != 'none') {
                 var base = source_doc.getElementById(source_id);
                 if (base) {
-                    if (isElementScrolledIntoView(comp, derived_doc, derived_editor_height) == false &&
-                        isElementScrolledIntoView($(base), source_doc, source_editor_height) == false) {
-                        //continue; // continue; only update elements that are visible
-                        
+                    if (isElementScrolledIntoViewNative(compNative, derived_doc, derived_editor_height) == false &&
+                        isElementScrolledIntoViewNative(base, source_doc, source_editor_height) == false) {
+                        continue; // continue; only update elements that are visible
+                        /*
                         if (scrolled_into_view_started == false) {
                             continue; // continue; only update elements that are visible
                         }
                         else {
                             break; // break;
                         }
-                        
+                        */
                     }
                 }
                 else {
-                    if (isElementScrolledIntoView(comp, derived_doc, derived_editor_height) == false) {
-                        //continue; // continue; only update elements that are visible
-                        
+                    if (isElementScrolledIntoViewNative(compNative, derived_doc, derived_editor_height) == false) {
+                        continue; // continue; only update elements that are visible
+                        /*
                         if (scrolled_into_view_started == false) {
                             continue; // continue; only update elements that are visible
                         }
                         else {
                             break; // break;
                         }
-                        
+                        */
                     }
                 }
             }
             else {
-                if (isElementScrolledIntoView(comp, derived_doc, derived_editor_height) == false) {
-                    //continue; // continue; only update elements that are visible
-                    
+                if (isElementScrolledIntoViewNative(compNative, derived_doc, derived_editor_height) == false) {
+                    continue; // continue; only update elements that are visible
+                    /*
                     if (scrolled_into_view_started == false) {
                         continue; // continue; only update elements that are visible
                     }
                     else {
                         break; // break;
                     }
-                    
+                    */
                 }
             }
             if (isTinymceAdminElement(comp)) continue; // continue
@@ -2213,14 +2214,28 @@ jQuery(document).ready(function ($) {
         console.log('   total_visible_derived_elements: ' + visible_derived_elements);
     }
 
+    // this function is much slower than the native version below
     function isElementScrolledIntoView(element, doc, editorHeight) {
         if (!element) return false;
         if (!doc) return false;
         var editorViewTop = doc.body.scrollTop;
         var editorViewBottom = editorViewTop + editorHeight;
 
-        var elemTop = element.offset().top;
-        var elemBottom = elemTop + element.height();
+        var elemTop = element.offset().top; // performance issue
+        var elemBottom = elemTop + element.height(); // performance issue
+
+        if ((elemTop > editorViewBottom) || (elemBottom < editorViewTop)) return false;
+        return true;
+    }
+
+    function isElementScrolledIntoViewNative(element, doc, editorHeight) {
+        if (!element) return false;
+        if (!doc) return false;
+        var editorViewTop = doc.body.scrollTop;
+        var editorViewBottom = editorViewTop + editorHeight;
+
+        var elemTop = element.offsetTop;
+        var elemBottom = elemTop + element.offsetHeight;
 
         if ((elemTop > editorViewBottom) || (elemBottom < editorViewTop)) return false;
         return true;
@@ -2287,9 +2302,40 @@ jQuery(document).ready(function ($) {
         var total_time_check_admin_element = 0;
         var total_children_count = 0;
 
+        // test only
+        /*
+        var children = derived_doc.body.children;
+        var total_time_children_loop = performance.now();
+        for (var i = 0; i < children.length; i++) {
+            var right = $(children[i]);
+            if (isTinymceAdminElement(right)) continue; // performance: take 2.5 milliseconds to check 200-300 elements
+            //timer_isTinymceAdminElement = performance.now() - timer_isTinymceAdminElement;
+            //total_time_check_admin_element += timer_isTinymceAdminElement;
+
+            var source_id = null;
+            source_id = right.attr(fb_data_element_id);
+
+            if (source_id && source_id != 'none') {
+                var left = source_doc.getElementById(source_id);
+
+                //if (isElementScrolledIntoView(right, derived_doc, derived_editor_height) === false) continue; // continue; only update elements that are visible    
+                if (left) {
+                    //var l = $(left);
+                    //if (isElementScrolledIntoView(right, derived_doc, derived_editor_height) === false) continue; // performance is good
+                    if (isElementScrolledIntoViewNative(left, source_doc, source_editor_height) === false) continue; // performance is poor
+
+                }
+
+            }
+        }
+        total_time_children_loop = performance.now() - total_time_children_loop;
+        console.log('   total_time_children_loop: ' + total_time_children_loop);
+        */
+
         var children = derived_doc.body.children;
         for (var i = 0; i < children.length; i++) {
             var right = $(children[i]);
+            var rightNative = children[i];
             //$(derived_doc.body).children().each(function (index) {
             //var right = $(this);
             total_children_count++;
@@ -2306,13 +2352,13 @@ jQuery(document).ready(function ($) {
             if (source_id && source_id != 'none') {
                 var left = source_doc.getElementById(source_id);
                 if (left) {
-                    if (isElementScrolledIntoView(right, derived_doc, derived_editor_height) == false &&
-                        isElementScrolledIntoView($(left), source_doc, source_editor_height) == false) {
+                    if (isElementScrolledIntoViewNative(rightNative, derived_doc, derived_editor_height) === false &&
+                        isElementScrolledIntoViewNative(left, source_doc, source_editor_height) === false) {
                         continue; // continue; only update elements that are visible
                     }
                 }
                 else {
-                    if (isElementScrolledIntoView(right, derived_doc, derived_editor_height) == false) continue; // continue; only update elements that are visible                   
+                    if (isElementScrolledIntoViewNative(rightNative, derived_doc, derived_editor_height) === false) continue; // continue; only update elements that are visible                   
                 }
             }
 
