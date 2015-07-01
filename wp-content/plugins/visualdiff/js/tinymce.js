@@ -123,7 +123,7 @@ jQuery(document).ready(function ($) {
 
         editor.on('change', function (e) {
             //console.log('on change');
-            //update('fb_on_change'); // comment out to improve performance
+            update('fb_on_change'); // comment out to improve performance
         });
 
         /*
@@ -186,53 +186,19 @@ jQuery(document).ready(function ($) {
             onCutOrCopy(e);
         });
 
-        /*
+        
         editor.on('keydown', function (e) {
             if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
 
-            console.log('........................................................');
-            console.log('on key down');
-
             flexibook.postpone_update = true;
-
-            // backspace key
-            if (e.keyCode == 8) {
-                //flexibook.postpone_update = true;
-                //console.log('backspace key down');
-            }
-                // enter key
-            else if (e.keyCode == 13) {
-            }
-                // delete key
-            else if (e.keyCode == 46) {
-                //flexibook.postpone_update = true;
-                //console.log('delete key down');
-            }
-
         });
 
         editor.on('keyup', function (e) {
             if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
 
-            console.log('on key up');
-
             flexibook.postpone_update = false;
-
-
-            // backspace key
-            if (e.keyCode == 8) {
-
-            }
-                // enter key
-            else if (e.keyCode == 13) {
-
-            }
-                // delete key
-            else if (e.keyCode == 46) {
-
-            }
         });
-        */
+        
 
         /*
         editor.on('NodeChange', function (e) {
@@ -806,7 +772,8 @@ jQuery(document).ready(function ($) {
         }
 
         var debounce_update = null;
-        if (debounce_update === null) debounce_update = _.debounce(updatePublic, 300);
+        //if (debounce_update === null) debounce_update = _.debounce(updatePublic, 300); // this function causes cursor jumping
+        if (debounce_update === null) debounce_update = _.debounce(updatePublic, 500, true);
 
         function update(caller_function) {
             if (fb_post_type === null) return;
@@ -818,7 +785,7 @@ jQuery(document).ready(function ($) {
             fb_performance_global_time_step = performance.now();
             
             caller_function = caller_function || '';
-            debounce_update(true, caller_function);
+            debounce_update(true, caller_function); 
             //updatePublic(true, caller_function);
         }
 
@@ -1044,6 +1011,7 @@ jQuery(document).ready(function ($) {
                 if (bubbles.length <= 0) return true;
 
                 var bubble = bubbles[0];
+                if (bubble.className.indexOf('fb-display-none-h') >= 0) return true; // continue
                 var bubble_top = parseInt($(bubble).css('top'), 10);
 
                 var offset = content.offset(); // absolute position relative to the document
@@ -1911,6 +1879,7 @@ jQuery(document).ready(function ($) {
                                     var re = new RegExp(input, "g");
                                     element.className = element.className.replace(re, '').trim(); // remove class
                                 }
+                                collapseOrExpandComments(collapse, element, targetLevel);
                             }
                         }
                         else {
@@ -1925,10 +1894,30 @@ jQuery(document).ready(function ($) {
                                 var re = new RegExp(input, "g");
                                 element.className = element.className.replace(re, '').trim(); // remove class
                             }
+                            collapseOrExpandComments(collapse, element, targetLevel);
                         }
                     }
                 }
             }
+        }
+
+        function collapseOrExpandComments(collapse, element, targetLevel) {
+            $(element).find('.fb-comment-content').each(function (index) {
+                var content = $(this);
+                var id = content.attr('data-comment-id');
+                var bubbles = $(editor.getBody()).find('#' + id);
+                if (bubbles.length === 1) {
+                    var b = bubbles[0];
+                    if (collapse) {
+                        b.className += (' fb-display-none-h' + targetLevel);
+                    }
+                    else {
+                        var input = 'fb-display-none-h' + targetLevel;
+                        var re = new RegExp(input, "g");
+                        b.className = b.className.replace(re, '').trim(); // remove class
+                    }
+                }
+            });
         }
 
         function createIcon(id, top, left, text, fontsize) {

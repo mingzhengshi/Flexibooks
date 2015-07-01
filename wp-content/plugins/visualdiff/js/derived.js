@@ -2037,7 +2037,7 @@ jQuery(document).ready(function ($) {
 
         return ids;
     }
-
+    
     function updateHTMLDiff() {
         if (!flexibook.active_derive_mce) return;
         var derived_doc = flexibook.active_derive_mce.getDoc();
@@ -2059,6 +2059,9 @@ jQuery(document).ready(function ($) {
                 var baseNative = source_children[i];
                 //$(source_doc.body).children().each(function (index) {
                 //var base = $(this);
+                if (isTinymceAdminElement(base)) continue; // continue
+                if (base.attr(fb_data_merge_case)) continue; // continue; ms - skip the elements that require merge actions
+
                 if (isElementScrolledIntoViewNative(baseNative, source_doc, source_editor_height) == false) {
                     if (scrolled_into_view_started == false) {
                         continue; // continue; only update elements that are visible
@@ -2067,8 +2070,6 @@ jQuery(document).ready(function ($) {
                         break; // break;
                     }
                 }
-                if (isTinymceAdminElement(base)) continue; // continue
-                if (base.attr(fb_data_merge_case)) continue; // continue; ms - skip the elements that require merge actions
 
                 scrolled_into_view_started = true;
                 var id = base.attr('id');
@@ -2080,14 +2081,17 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        var total_time_on_html_diff = 0;
+        var total_time_on_performance_test = 0;
         var visible_derived_elements = 0; // performance
         var scrolled_into_view_started = false;
         var children = derived_doc.body.children;
         for (var i = 0; i < children.length; i++) {
             var comp = $(children[i]);
             var compNative = children[i];
-            //$(derived_doc.body).children().each(function (index) {
-            //var comp = $(this);
+
+            if (isTinymceAdminElement(comp)) continue; // continue
+            if (comp.attr(fb_data_merge_case)) continue; // continue; ms - skip the elements that require merge actions
 
             var source_id = comp.attr(fb_data_element_id);
             if (source_id && source_id != 'none') {
@@ -2096,56 +2100,45 @@ jQuery(document).ready(function ($) {
                     if (isElementScrolledIntoViewNative(compNative, derived_doc, derived_editor_height) == false &&
                         isElementScrolledIntoViewNative(base, source_doc, source_editor_height) == false) {
                         continue; // continue; only update elements that are visible
-                        /*
-                        if (scrolled_into_view_started == false) {
-                            continue; // continue; only update elements that are visible
-                        }
-                        else {
-                            break; // break;
-                        }
-                        */
                     }
                 }
                 else {
                     if (isElementScrolledIntoViewNative(compNative, derived_doc, derived_editor_height) == false) {
                         continue; // continue; only update elements that are visible
-                        /*
-                        if (scrolled_into_view_started == false) {
-                            continue; // continue; only update elements that are visible
-                        }
-                        else {
-                            break; // break;
-                        }
-                        */
                     }
                 }
             }
             else {
                 if (isElementScrolledIntoViewNative(compNative, derived_doc, derived_editor_height) == false) {
                     continue; // continue; only update elements that are visible
-                    /*
-                    if (scrolled_into_view_started == false) {
-                        continue; // continue; only update elements that are visible
-                    }
-                    else {
-                        break; // break;
-                    }
-                    */
                 }
             }
-            if (isTinymceAdminElement(comp)) continue; // continue
-            if (comp.attr(fb_data_merge_case)) continue; // continue; ms - skip the elements that require merge actions
 
             scrolled_into_view_started = true;
             visible_derived_elements++;
+
+            // performance test start
+            var t_test = performance.now();
+            if (source_id && source_id != 'none') {
+                // stores a bookmark of the current selection
+                var derive_bookmark = getBookmark(comp); // use a non-html bookmark
+                //var derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
+
+                // restore the selection bookmark
+                moveToBookmark(derive_bookmark);
+                //flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
+            }
+            total_time_on_performance_test += (performance.now() - t_test);
+            // performance test end
+
             //console.log('visible_derived_elements: ' + visible_derived_elements);
             var id = comp.attr('id');
 
             if (source_id && source_id != 'none') {
                 // stores a bookmark of the current selection
-                var derive_bookmark;
-                derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
-
+                var derive_bookmark = null;
+                derive_bookmark = getBookmark(comp); // use a non-html bookmark
+                //var derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
                 var base = source_doc.getElementById(source_id);
                 if (base) {
                     var derive_html = unwrapDeleteInsertTagjQuery(comp);
@@ -2153,6 +2146,7 @@ jQuery(document).ready(function ($) {
                     var source_html = $(base).html();
 
                     if (source_html != derive_html) {
+                        var t = performance.now();
                         // comp element
                         var r1 = html_diff(source_html, derive_html, 'insert');
                         comp.html(r1);
@@ -2160,6 +2154,8 @@ jQuery(document).ready(function ($) {
                         // base element
                         var r2 = html_diff(source_html, derive_html, 'delete');
                         $(base).html(r2);
+
+                        total_time_on_html_diff += (performance.now() - t);
                     }
                     else if (source_html == derive_html) {
                         // derive element
@@ -2181,7 +2177,8 @@ jQuery(document).ready(function ($) {
                 }
 
                 // restore the selection bookmark
-                flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
+                moveToBookmark(derive_bookmark);
+                //flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
             }
             else {
                 if (id && id != 'none') {
@@ -2189,9 +2186,10 @@ jQuery(document).ready(function ($) {
                     if ((comp.prop("tagName").toLowerCase() != 'ol') &&
                         (comp.prop("tagName").toLowerCase() != 'ul') &&
                         (comp.prop("tagName").toLowerCase() != 'table')) {
-                        var derive_bookmark;
+                        var derive_bookmark = null;
+                        derive_bookmark = getBookmark(comp); // use a non-html bookmark
+                        //var derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
                         // stores a bookmark of the current selection
-                        derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true);
                         //console.log("comp outer: " + comp.prop('outerHTML'));
                         var newHtml = unwrapDeleteInsertTagjQuery(comp);
                         //console.log("newHtml: " + newHtml);
@@ -2205,16 +2203,30 @@ jQuery(document).ready(function ($) {
                         }
 
                         // restore the selection bookmark
-                        flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
+                        moveToBookmark(derive_bookmark);
+                        //flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
                     }
                 }
             }
-        //});
         }
         console.log('   total_visible_derived_elements: ' + visible_derived_elements);
+        console.log('   total_time_on_html_diff: ' + total_time_on_html_diff);
+        console.log('   total_time_on_performance_test: ' + total_time_on_performance_test);
+    }
+    
+
+    function getBookmark(element) {
+        if (element.className && element.className.indexOf('fb-display-none-h') >= 0) return null;
+        return flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
+    }
+
+    function moveToBookmark(derive_bookmark) {
+        if (!derive_bookmark) return;
+        flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
     }
 
     // this function is much slower than the native version below
+    /*
     function isElementScrolledIntoView(element, doc, editorHeight) {
         if (!element) return false;
         if (!doc) return false;
@@ -2227,10 +2239,13 @@ jQuery(document).ready(function ($) {
         if ((elemTop > editorViewBottom) || (elemBottom < editorViewTop)) return false;
         return true;
     }
+    */
 
     function isElementScrolledIntoViewNative(element, doc, editorHeight) {
         if (!element) return false;
         if (!doc) return false;
+        if (element.className && element.className.indexOf('fb-display-none-h') >= 0) return false;
+
         var editorViewTop = doc.body.scrollTop;
         var editorViewBottom = editorViewTop + editorHeight;
 
