@@ -52,6 +52,7 @@ jQuery(document).ready(function ($) {
         var page_boundary_on_body_background_color = '#ebebeb';
         var on_mouse_up = false;
         var mouse_wheel_timer = null;
+        var performance_previous_scroll_top = null;
 
         // events
         editor.on('init', function () {
@@ -459,7 +460,7 @@ jQuery(document).ready(function ($) {
                 */
 
                 // pixels                
-                createPageBoundary('page-boundary-' + page_count, total_page_height + 1, body_offset.left - 10, body_width + 20, page_height_in_pixel - 1);
+                createPageBoundary('page-boundary-' + page_count, page_count, total_page_height + 1, body_offset.left - 10, body_width + 20, page_height_in_pixel - 1);
                 total_page_height += page_height_in_pixel;
                 page_count++;
             }
@@ -544,7 +545,9 @@ jQuery(document).ready(function ($) {
                         var id1 = element.attr('id');
                         var id2 = $(this).attr('id');
                         if (isOverlap(id1, id2)) {
-                            page_number = parseInt(id2.substr(id2.length - 1), 10);
+                            var page_count = $(this).prop('data-page-count');
+                            //page_number = parseInt(id2.substr(id2.length - 1), 10);
+                            page_number = page_count;
                             return false; // break 
                         }
                     });
@@ -554,14 +557,20 @@ jQuery(document).ready(function ($) {
                 page_number += 1; // page_number starts from 0;
 
                 if (element.hasClass("main-heading-1") === true) {
-                    $(toc).append('<p class="toc-main-heading-1"><span class="toc-heading-span">' + element.html() + '</span><span class="toc-page-number-span">' + page_number + '</span></p>');
+                    var clone = element.clone();
+                    $(clone).find('img').remove();
+                    var inner = $(clone).html();
+                    $(toc).append('<p class="toc-main-heading-1"><span class="toc-heading-span">' + $(clone).html() + '</span><span class="toc-page-number-span">' + page_number + '</span></p>');
                     ul = $('<ul class="toc-ul"></ul>');
                     $(toc).append(ul);
                 }
 
                 if (element.hasClass("main-heading-2") === true) {
                     if (ul != null) {
-                        ul.append('<li class="toc-main-heading-2"><span class="toc-heading-span">' + element.html() + '</span><span class="toc-page-number-span">' + page_number + '</span></li>');
+                        var clone = element.clone();
+                        $(clone).find('img').remove();
+                        var inner = $(clone).html();
+                        ul.append('<li class="toc-main-heading-2"><span class="toc-heading-span">' + $(clone).html() + '</span><span class="toc-page-number-span">' + page_number + '</span></li>');
                     }
                 }
             });
@@ -825,11 +834,23 @@ jQuery(document).ready(function ($) {
             updateComments();
             var t3 = performance.now();
             if (derived_callback) {
-                //if ((editor.id.indexOf("fb-derived-mce") >= 0) || (editor.id.indexOf("fb-source-mce") >= 0)) {
-                // assume that source document cannot be edited when the post type is derived
-                if (editor.id.indexOf("fb-derived-mce") >= 0) { // if the tinymce event comes from the source editor, then derive.js update is not necessary
+                if (editor.id.indexOf("fb-derived-mce") >= 0) { 
                     var callback = flexibook.deriveUpdateCallback;
                     if (callback) callback(caller_function);
+                }
+
+                // if the tinymce event comes from the source editor, then derive.js update is not necessary
+                if (editor.id.indexOf("fb-source-mce") >= 0) {
+                    if (performance_previous_scroll_top === null) {
+                        performance_previous_scroll_top = editor.getBody().scrollTop;
+                    }
+                    else {
+                        if (performance_previous_scroll_top != editor.getBody().scrollTop) {
+                            performance_previous_scroll_top = editor.getBody().scrollTop;
+                            var callback = flexibook.deriveUpdateCallback;
+                            if (callback) callback(caller_function);
+                        }
+                    }
                 }
             }
             var t4 = performance.now();
@@ -2007,10 +2028,11 @@ jQuery(document).ready(function ($) {
 
         // the size of A4: 210mm x 297mm or 8.27in x 11.69in
         // 1 inch = 25.4 millimetres
-        function createPageBoundary(id, top, left, width, height) {
+        function createPageBoundary(id, page_count, top, left, width, height) {
             var page = document.createElement('div');
             page.className = 'fb_tinymce_left_column_page';
             page.id = id;
+            page['data-page-count'] = page_count;
             page.style.position = 'absolute';
             page.style.top = top + 'px';
             page.style.left = left + 'px';
