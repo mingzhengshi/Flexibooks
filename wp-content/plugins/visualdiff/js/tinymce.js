@@ -1548,10 +1548,10 @@ jQuery(document).ready(function ($) {
 
                             var element_copy = $(element).clone(); // the children of the element should be cloned as well
 
-
-
                             $(element_copy).attr(fb_data_post_id, post_id);
                             content += $(element_copy).prop('outerHTML');
+                            insertComments(element);
+
                         }
                     }
                     else {
@@ -1564,12 +1564,14 @@ jQuery(document).ready(function ($) {
                                 var element_copy = $(element).clone();
                                 $(element_copy).attr(fb_data_post_id, post_id);
                                 content += $(element_copy).prop('outerHTML');
+                                insertComments(element);
                             }
                         }
                         else {
                             var element_copy = $(element).clone();
                             $(element_copy).attr(fb_data_post_id, post_id);
                             content += $(element_copy).prop('outerHTML');
+                            insertComments(element);
                         }
                     }
                 }
@@ -1582,6 +1584,23 @@ jQuery(document).ready(function ($) {
                     derived_mce.insertContent(content); // inserts content at cursor position
                 }
             }
+        }
+
+        function insertComments(element) {
+            $(element).find('.fb-comment-content').each(function (index) {
+                var content = $(this);
+                var id = content.attr('data-comment-id');
+                var bubbles = $(editor.getBody()).find('#' + id);
+                if (bubbles.length === 1) {
+                    var b = bubbles[0];
+                    if (flexibook.active_derive_mce) {
+                        var derived_mce = flexibook.active_derive_mce;
+                        if (derived_mce) {
+                            $(derived_mce.getBody()).append($(b).prop('outerHTML'));
+                        }
+                    }
+                }
+            });
         }
 
         function isAdminElement(element) {

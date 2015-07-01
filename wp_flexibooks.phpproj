@@ -1548,6 +1548,7 @@
     <Content Include="wp-content\plugins\visualdiff\js\htmldiff.js" />
     <Content Include="wp-content\plugins\visualdiff\js\source.js" />
     <Content Include="wp-content\plugins\visualdiff\js\tinymce.js" />
+    <Content Include="wp-content\plugins\visualdiff\js\underscore.js" />
     <Content Include="wp-content\plugins\visualdiff\js\visualdiff.js" />
     <Content Include="wp-content\plugins\visualdiff\lib\jstree\jstree.js" />
     <Content Include="wp-content\plugins\visualdiff\lib\jstree\jstree.min.js" />
