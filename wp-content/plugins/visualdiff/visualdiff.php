@@ -181,13 +181,11 @@ function fb_mce_before_init( $settings ) {
             'block' => 'h2',
             'classes' => 'activity'
         ),
-        /*
         array(
-            'title' => 'Answer',
-            'block' => 'hr',
-            'classes' => 'answer'
+            'title' => 'body text HI',
+            'block' => 'p',
+            'classes' => 'bodytextHI'
         ),
-        */
         array(
             'title' => 'body text italic',
             //'block' => 'p',

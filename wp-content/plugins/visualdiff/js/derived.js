@@ -2081,6 +2081,7 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        var derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
         var total_time_on_html_diff = 0;
         var total_time_on_performance_test = 0;
         var visible_derived_elements = 0; // performance
@@ -2118,17 +2119,17 @@ jQuery(document).ready(function ($) {
             visible_derived_elements++;
 
             // performance test start
+            /*
             var t_test = performance.now();
             if (source_id && source_id != 'none') {
                 // stores a bookmark of the current selection
                 var derive_bookmark = getBookmark(comp); // use a non-html bookmark
-                //var derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
 
                 // restore the selection bookmark
                 moveToBookmark(derive_bookmark);
-                //flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
             }
             total_time_on_performance_test += (performance.now() - t_test);
+            */
             // performance test end
 
             //console.log('visible_derived_elements: ' + visible_derived_elements);
@@ -2136,9 +2137,8 @@ jQuery(document).ready(function ($) {
 
             if (source_id && source_id != 'none') {
                 // stores a bookmark of the current selection
-                var derive_bookmark = null;
-                derive_bookmark = getBookmark(comp); // use a non-html bookmark
-                //var derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
+                //var derive_bookmark = getBookmark(comp); // use a non-html bookmark
+
                 var base = source_doc.getElementById(source_id);
                 if (base) {
                     var derive_html = unwrapDeleteInsertTagjQuery(comp);
@@ -2177,8 +2177,7 @@ jQuery(document).ready(function ($) {
                 }
 
                 // restore the selection bookmark
-                moveToBookmark(derive_bookmark);
-                //flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
+                //moveToBookmark(derive_bookmark);
             }
             else {
                 if (id && id != 'none') {
@@ -2186,9 +2185,8 @@ jQuery(document).ready(function ($) {
                     if ((comp.prop("tagName").toLowerCase() != 'ol') &&
                         (comp.prop("tagName").toLowerCase() != 'ul') &&
                         (comp.prop("tagName").toLowerCase() != 'table')) {
-                        var derive_bookmark = null;
-                        derive_bookmark = getBookmark(comp); // use a non-html bookmark
-                        //var derive_bookmark = flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
+                        //var derive_bookmark = getBookmark(comp); // use a non-html bookmark
+
                         // stores a bookmark of the current selection
                         //console.log("comp outer: " + comp.prop('outerHTML'));
                         var newHtml = unwrapDeleteInsertTagjQuery(comp);
@@ -2203,12 +2201,13 @@ jQuery(document).ready(function ($) {
                         }
 
                         // restore the selection bookmark
-                        moveToBookmark(derive_bookmark);
-                        //flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
+                        //moveToBookmark(derive_bookmark);
+
                     }
                 }
             }
         }
+        moveToBookmark(derive_bookmark);
         console.log('   total_visible_derived_elements: ' + visible_derived_elements);
         console.log('   total_time_on_html_diff: ' + total_time_on_html_diff);
         console.log('   total_time_on_performance_test: ' + total_time_on_performance_test);
@@ -2314,6 +2313,7 @@ jQuery(document).ready(function ($) {
 
         var t0 = performance.now();
         var total_time_create_svg = 0;
+        var total_time_jquery_methods = 0;
         var total_time_check_admin_element = 0;
         var total_children_count = 0;
 
@@ -2326,7 +2326,7 @@ jQuery(document).ready(function ($) {
             total_children_count++;
 
             //var timer_isTinymceAdminElement = performance.now();
-            
+
             if (isTinymceAdminElement(right)) continue; // performance: take 2.5 milliseconds to check 200-300 elements
             //timer_isTinymceAdminElement = performance.now() - timer_isTinymceAdminElement;
             //total_time_check_admin_element += timer_isTinymceAdminElement;
@@ -2364,7 +2364,9 @@ jQuery(document).ready(function ($) {
                 else {
                     //var derived_height = right.height();
                     var derived_outer_height = right.outerHeight(true);
+                    var t = performance.now();
                     var derived_top = right.position().top;
+                    total_time_jquery_methods += (performance.now() - t);
                     var derived_padding_top = parseInt(right.css('padding-top'), 10);
                     var derived_margin_top = parseInt(right.css('margin-top'), 10);
                     derived_top += (derived_iframe_container_top - svg_container_top);
@@ -2377,7 +2379,9 @@ jQuery(document).ready(function ($) {
                 // check if left element is visible
                 var left = source_doc.getElementById(source_id);
                 if (!left) {
+                    var t = performance.now();
                     var right_clone = right.clone();
+                    total_time_jquery_methods += (performance.now() - t);
                     var right_html = unwrapDeleteInsertTagjQuery(right_clone);
                     right_html = right_html.replace(/&nbsp;/ig, ' ').replace(/<br>/g, '');
                     if (right_html.trim() !== '') {
@@ -2409,7 +2413,7 @@ jQuery(document).ready(function ($) {
                             pts[6] = x_right;
                             pts[7] = y_top_right;
                             var id = right.attr('id');
-                            var polygon = createSVGPolygon(pts, id, classes, 'grey', svg_column_id, 0.24);
+                            var polygon = createSVGPolygon(pts, id, classes, 'grey', svg_column_id, 0.24); // performance: this function is fast
                             if (polygon !== null) {
                                 $(polygon).click(function () {
                                     var tab_index = -1;
@@ -2450,7 +2454,9 @@ jQuery(document).ready(function ($) {
                     else {
                         //var source_height = $(left).height();
                         var source_outer_height = $(left).outerHeight(true);
+                        var t = performance.now();
                         var source_top = $(left).position().top;
+                        total_time_jquery_methods += (performance.now() - t);
                         var source_padding_top = parseInt($(left).css('padding-top'), 10);
                         var source_margin_top = parseInt($(left).css('margin-top'), 10);
                         source_top += (source_iframe_container_top - svg_container_top);
@@ -2494,6 +2500,7 @@ jQuery(document).ready(function ($) {
                         previous_y_bottom_right = y_bottom_right;
 
                         //-----------------------------
+                        var t = performance.now();
                         var s_clone = $(left).clone();
                         var d_clone = right.clone();
 
@@ -2502,6 +2509,7 @@ jQuery(document).ready(function ($) {
 
                         var source_clean = unwrapDeleteInsertTag(s_clone);
                         var comp_clean = unwrapDeleteInsertTag(d_clone);
+                        total_time_jquery_methods += (performance.now() - t);
                         var fill = 'green';
                         if (source_clean !== comp_clean) {
                             fill = 'red';
@@ -2523,7 +2531,7 @@ jQuery(document).ready(function ($) {
                         pts[6] = left_polygon_width;
                         pts[7] = y_top_left;
                         var id = $(left).attr('id');
-                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.24);
+                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.24); // performance: this function is fast
                         if (polygon !== null) {
                             $(polygon).click(function () {
                                 updateDerivePosition(derive_element_id);
@@ -2543,7 +2551,7 @@ jQuery(document).ready(function ($) {
                         pts[6] = x_right;
                         pts[7] = y_top_right;
                         var id = right.attr('id');
-                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.24);
+                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.24); // performance: this function is fast
                         if (polygon !== null) {
                             $(polygon).click(function () {
                                 var tab_index = -1;
@@ -2578,7 +2586,7 @@ jQuery(document).ready(function ($) {
                         pts[6] = x_right - left_polygon_width;
                         pts[7] = y_top_right;
                         //var id = right.attr('id');
-                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.2);
+                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.2); // performance: this function is fast
                         if (polygon !== null) {
                             document.getElementById(svg_column_id).appendChild(polygon);
                         }
@@ -2590,13 +2598,14 @@ jQuery(document).ready(function ($) {
                 total_time_create_svg += p01;
             }
 
-        //});
+            //});
         }
         var t1 = performance.now();
         var p1 = t1 - t0;
 
         console.log('   total_children_count: ' + total_children_count);
         console.log('   total_visible_svg: ' + total_visible_svg);
+        console.log('   total_time_jquery_methods: ' + total_time_jquery_methods);
         console.log('   total_time_create_svg: ' + total_time_create_svg);
         //console.log('   total_time_check_admin_element: ' + total_time_check_admin_element);
         console.log("   performance (derived_doc.body loop): " + p1);
