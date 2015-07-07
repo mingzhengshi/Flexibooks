@@ -1384,9 +1384,23 @@ jQuery(document).ready(function ($) {
                     $(dragged_item).css('opacity', 1);
                 }
                 else if (editor.id.indexOf("fb-source-mce") >= 0) {
+                    // set drag item attributes
                     var callback = flexibook.onDragEndCallback;
                     if (callback) callback();
 
+                    // add comment bubbles
+                    var original_dragged_item_in_source = editor.getDoc().getElementById(flexibook.dragged_item_id);
+                    var bubble = getCommentsBubbleOuterHtml(editor, original_dragged_item_in_source);
+                    if (bubble !== '') {
+                        if (flexibook.active_derive_mce) {
+                            var derived_mce = flexibook.active_derive_mce;
+                            if (derived_mce) {
+                                $(derived_mce.getBody()).append(bubble);
+                            }
+                        }
+                    }
+
+                    // setup derive element id 
                     setupDerivedElementID();
                 }
                 //console.log('dragend');
@@ -1518,8 +1532,10 @@ jQuery(document).ready(function ($) {
 
                             $(element_copy).attr(fb_data_post_id, post_id);
                             content += $(element_copy).prop('outerHTML');
-                            insertComments(element);
-
+                            var bubble = getCommentsBubbleOuterHtml(editor, element);
+                            if (bubble !== '') {
+                                content += bubble;
+                            }
                         }
                     }
                     else {
@@ -1532,14 +1548,20 @@ jQuery(document).ready(function ($) {
                                 var element_copy = $(element).clone();
                                 $(element_copy).attr(fb_data_post_id, post_id);
                                 content += $(element_copy).prop('outerHTML');
-                                insertComments(element);
+                                var bubble = getCommentsBubbleOuterHtml(editor, element);
+                                if (bubble !== '') {
+                                    content += bubble;
+                                }
                             }
                         }
                         else {
                             var element_copy = $(element).clone();
                             $(element_copy).attr(fb_data_post_id, post_id);
                             content += $(element_copy).prop('outerHTML');
-                            insertComments(element);
+                            var bubble = getCommentsBubbleOuterHtml(editor, element);
+                            if (bubble !== '') {
+                                content += bubble;
+                            }
                         }
                     }
                 }
@@ -1554,21 +1576,27 @@ jQuery(document).ready(function ($) {
             }
         }
 
-        function insertComments(element) {
+        function getCommentsBubbleOuterHtml(targetEditor, element) {
+            var outer = '';
             $(element).find('.fb-comment-content').each(function (index) {
                 var content = $(this);
                 var id = content.attr('data-comment-id');
-                var bubbles = $(editor.getBody()).find('#' + id);
+                var bubbles = $(targetEditor.getBody()).find('#' + id);
                 if (bubbles.length === 1) {
                     var b = bubbles[0];
+                    outer += $(b).prop('outerHTML');
+                    /*
                     if (flexibook.active_derive_mce) {
                         var derived_mce = flexibook.active_derive_mce;
                         if (derived_mce) {
                             $(derived_mce.getBody()).append($(b).prop('outerHTML'));
                         }
                     }
+                    */
                 }
             });
+
+            return outer;
         }
 
         function isAdminElement(element) {
