@@ -167,7 +167,7 @@ jQuery(document).ready(function ($) {
         */
 
         editor.on('PostProcess', function (e) {
-            update('fb_on_post_process');
+            //update('fb_on_post_process');
         });
 
         editor.on('activate', function (e) {

@@ -182,6 +182,11 @@ function fb_mce_before_init( $settings ) {
             'classes' => 'activity'
         ),
         array(
+            'title' => 'body text',
+            'block' => 'p',
+            'classes' => 'bodytext'
+        ),
+        array(
             'title' => 'body text HI',
             'block' => 'p',
             'classes' => 'bodytextHI'
@@ -232,6 +237,16 @@ function fb_mce_before_init( $settings ) {
             'title' => 'Title',
             'block' => 'p',
             'classes' => 'title'
+        ),
+        array(
+            'title' => 'TN Answers - Show',
+            'inline' => 'span',
+            'classes' => 'TNAnswers-Show'
+        ),
+        array(
+            'title' => 'TN Answers - Hide',
+            'inline' => 'span',
+            'classes' => 'TNAnswers-Hide'
         )
     );
 

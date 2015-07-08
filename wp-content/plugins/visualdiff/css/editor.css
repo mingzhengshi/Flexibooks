@@ -155,9 +155,9 @@ hr.answer {
 }
 
 body {
-font-family: Frutiger CE 45 Light;
-font-size: 9.5pt;
-margin: 30px;
+    font-family: Frutiger CE 45 Light;
+    font-size: 9.5pt;
+    /*margin: 30px;*/
 }
 
 p {
@@ -260,6 +260,11 @@ p.answerline, li.answerline, div.answerline {
 	font-size: 9.0pt;
 	font-family: "Frutiger CE 55 Roman";
 	color: #186BA7;
+}
+
+p.bodytext, li.bodytext, div.bodytext {
+	font-size: 9.5pt;
+	font-family: "Frutiger CE 45 Light";
 }
 
 p.bodytextbold, li.bodytextbold, div.bodytextbold {
