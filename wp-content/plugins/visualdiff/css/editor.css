@@ -232,6 +232,19 @@ p.title {
 /*******************************************************************************************/
 /* styles exported from microsoft word */
 
+/* unvisited links */
+a:link {
+	font-family: "Arial", sans-serif;
+	color: blue;
+	text-decoration: underline;
+}
+
+/* visited links */
+a:visited {
+	color: purple;
+	text-decoration: underline;
+}
+
 p.Chead, li.Chead, div.Chead {
 	text-align: justify;
 	page-break-after: avoid;
