@@ -753,40 +753,12 @@ jQuery(document).ready(function ($) {
                             new_element = new_element.replace(/&nbsp;/ig, ' ').replace(/<br>/g, ''); // ms - remove &nbsp; and <br> tag
                             //new_element = new_element.replace(/&nbsp;/ig, ' ');
 
-                            // compare the children elements instead of the parent element
-                            /*
-                            if ((new_element.indexOf("</table>") >= 0) && (old_element.indexOf("</table>") >= 0)) {
-                                var n = $(new_element);
-                                var o = $(old_element);
-                                //var n_inner_text = n.text();
-                                //var o_inner_text = o.text();
-
-                                // get text not nested in child tags
-                                var o_text = o.clone()    //clone the element
-                                              .children() //select all the children
-                                              .remove()   //remove all the children
-                                              .end()     //again go back to selected element
-                                              .text();
-                                o_text = o_text.trim();
-                                var n_text = n.clone()    //clone the element
-                                              .children() //select all the children
-                                              .remove()   //remove all the children
-                                              .end()     //again go back to selected element
-                                              .text();
-                                n_text = n_text.trim();
-
-                                var n_children_html = '';
-                                var o_children_html = '';
-                                n.children().each(function () {
-                                    n_children_html += $(this).html();
-                                });
-                                o.children().each(function () {
-                                    o_children_html += $(this).html();
-                                });
-
-                                if (n_children_html === o_children_html && o_text === n_text) return false; // ms - may be not able to detect some changes in rare case 
+                            // remove whitespace before table tag
+                            if ((new_element.indexOf("<table") >= 0) && (old_element.indexOf("<table") >= 0)) {
+                                var s1 = removeWhitespaceBeforeTableTag(new_element);
+                                var s2 = removeWhitespaceBeforeTableTag(old_element);
+                                if (s1 === s2) return true; 
                             }
-                            */
 
                             if (new_element.trim() != old_element.trim()) {
                                 // derive element                                  
@@ -1002,6 +974,26 @@ jQuery(document).ready(function ($) {
                 break;
             }
         };
+    }
+
+    function removeWhitespaceBeforeTableTag(outer_html) {
+        var html = outer_html;
+        var start_index = 0;
+        while (true) {
+            var index = html.indexOf("<table", start_index);
+            if (index < 0) break;
+            if (index === 0) {
+                start_index = 1;
+            }
+            else {
+                start_index = index + 1;
+                var s1 = html.substring(0, index - 1);
+                var s2 = html.substring(index);
+                s1 = s1.trim();
+                html = s1 + s2;
+            }
+        }
+        return html;
     }
 
     // merge case 6: delete item in source, unchange in derive

@@ -32,7 +32,11 @@ jQuery(document).ready(function ($) {
 
     var fb_screen_dpi = -1;
 
-    var fb_all_custom_style_classes = 'main-heading-1 main-heading-2 activity exercise assessed body-text-italic c-head-sm d-head-sm diagram diagram2 question-sm subtitle title';
+    var fb_all_custom_style_classes = 'main-heading-1 main-heading-2 activity c-head-sm d-head-sm';
+    fb_all_custom_style_classes += ' bodytext bodytextHI body-text-italic';
+    fb_all_custom_style_classes += ' exercise assessed diagram diagram2 question-sm';
+    fb_all_custom_style_classes += ' subtitle title';
+    fb_all_custom_style_classes += ' TNAnswers-Hide TNAnswers-Show';
     var fb_plugin_url;
 
     // performance 
