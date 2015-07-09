@@ -52,6 +52,9 @@ jQuery(document).ready(function ($) {
     //----------------------------------------------------------------------------------------
     // init
 
+    /**
+    * When user clicks the 'update table of content' button in tinymce editor this method will be called to create the table of content of the document
+    */
     flexibook.regTableOfContentCallback(function (editor_id) {
         if (!flexibook.active_derive_mce) return;
         var doc = flexibook.active_derive_mce.getDoc();
@@ -72,6 +75,9 @@ jQuery(document).ready(function ($) {
         update(caller_function);
     });
 
+    /**
+    * This method will be called when user drags and drops a paragraph of a doucment within the same editor or between two editors. 
+    */
     flexibook.regOnDragEndCallback(function () {
         var derived_doc = getVisibleDeriveMce().getDoc();
         var dragged_item = derived_doc.getElementById(flexibook.dragged_item_id);
@@ -79,6 +85,9 @@ jQuery(document).ready(function ($) {
         $(dragged_item).css('opacity', 1);
     });
 
+    /**
+    * This method is called when the editor of the derived document is inited to make sure that the codes in this method is executed correctly.
+    */
     flexibook.regDeriveMceInitCallback(function () {
         if (fb_derived_mce_init_called == true) return;
         fb_derived_mce_init_called = true;
@@ -133,6 +142,9 @@ jQuery(document).ready(function ($) {
         fb_derived_mce_init_done = true;
     });
 
+    /**
+    * This method resolves the changes (that are cascaded from the sources) in the derived document.
+    */
     flexibook.regMergeIconClickCallback(function (icon, post_id, s_id, d_id, mcase) {
         var new_doc = null;
         for (var i = 0; i < tinymce.editors.length; i++) {
@@ -200,29 +212,7 @@ jQuery(document).ready(function ($) {
                 // case 3:
                 // source documen is modified; derive document is modified
             case "3":
-                // show more options 
-                if (icon == '8681') {
-                    // derive document
-                    /*
-                    var derive_element = derived_doc.getElementById(d_id);
-                    if (derive_element) {
-
-                        var clone = $(derive_element).clone();
-                        var clean_html = unwrapDeleteInsertTag(clone);
-                        var cid = $(clone).attr('id');
-
-                        $(clone).html(clean_html);
-                        $(clone).css('background-color', '#e8e8e8');
-                        $(clone).attr('id', 'mcase-' + cid);
-                        $(clone).addClass('fb_tinymce_left_column_text');
-
-                        var outer = $(derive_element).prop('outerHTML') + $(clone).prop('outerHTML');
-                        $(derive_element).prop('outerHTML', outer);
-
-                    }
-                    */
-                }
-                else if (icon == '10003') {
+                if (icon == '10003') {
                     // derive document
                     // ms - does not consider multiple ids in one paragraph
 
@@ -1462,6 +1452,7 @@ jQuery(document).ready(function ($) {
             var n = $('#fb-tabs-sources .ui-tabs-nav a').length;
             if (n === 0) {
                 $("#fb-button-open-source-document").prop('disabled', false);
+                source_tabs.addClass('fb-tabs-sources-display-none');
             }
         }
     });
@@ -1490,6 +1481,7 @@ jQuery(document).ready(function ($) {
                 var n = $('#fb-tabs-derives .ui-tabs-nav a').length;
                 if (n === 0) {
                     $("#fb-button-add-derive-document").prop('disabled', false);
+                    derive_tabs.addClass('fb-tabs-sources-display-none');
                 }
             }
 
@@ -1564,9 +1556,9 @@ jQuery(document).ready(function ($) {
         source_mce["original_margin_top"] = parseInt($(source_mce.getBody()).css('margin-top'), 10);
         source_mce["current_margin_top"] = source_mce["original_margin_top"];
 
-        if (tab_counter_source == 0) {
+        //if (tab_counter_source == 0) {
             source_tabs.removeClass('fb-tabs-sources-display-none');
-        }
+        //}
 
         source_tabs.tabs("refresh");
         source_tabs.tabs("option", "active", $('#' + li_id).index());
@@ -1626,9 +1618,9 @@ jQuery(document).ready(function ($) {
         });
         derive_mce["post_name"] = title;
 
-        if (tab_counter_derive == 0) {
+        //if (tab_counter_derive == 0) {
             derive_tabs.removeClass('fb-tabs-sources-display-none');
-        }
+        //}
 
         derive_tabs.tabs("refresh");
         derive_tabs.tabs("option", "active", $('#' + li_id).index());
