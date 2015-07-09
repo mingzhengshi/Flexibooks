@@ -895,16 +895,6 @@ jQuery(document).ready(function ($) {
                                     setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
                                 }
                             }
-
-                            // merge case 5:
-                            /*
-                            var html = n_this.html();
-                            var html = "<span class='insert insert-merge'>" + html + "</span>";
-                            n_this.html(html);
-                            n_this.attr(fb_data_merge_case, 5); // this modification is in memory only, will not be saved to database
-                            addNewItemToDerive(n_this, new_doc, derived_doc, source_post_id);
-                            setNumberOfMergeRequests(derive_post_name, source_post_id, 1);
-                            */
                         }
                     }
                 });
@@ -1064,9 +1054,14 @@ jQuery(document).ready(function ($) {
                     $(clone).css('border-width', '1px');
                     $(clone).css('border-color', 'orange');
 
-                    var html = $(clone).html();
-                    var html = "<span class='insert'>" + html + "</span>";
-                    $(clone).html(html);
+                    //var html = $(clone).html();
+                    //var html = "<span class='insert'>" + html + "</span>";
+                    //$(clone).html(html);
+
+                    var source_id = $(clone).attr("id");
+                    $(clone).attr(fb_data_element_id, source_id);
+                    $(clone).attr("id", generateUUID());
+
                     $(clone).insertAfter($(this));
 
                     //var callback = flexibook.addMergeIconsCallback;
@@ -1088,9 +1083,14 @@ jQuery(document).ready(function ($) {
                         $(clone).css('border-style', 'dotted');
                         $(clone).css('border-width', '1px');
                         $(clone).css('border-color', 'orange');
-                        var html = $(clone).html();
-                        var html = "<span class='insert'>" + html + "</span>";
-                        $(clone).html(html);
+                        //var html = $(clone).html();
+                        //var html = "<span class='insert'>" + html + "</span>";
+                        //$(clone).html(html);
+
+                        var source_id = $(clone).attr("id");
+                        $(clone).attr(fb_data_element_id, source_id);
+                        $(clone).attr("id", generateUUID());
+
                         $(clone).insertBefore($(this));
                         found = true;
                         return false;
@@ -1104,6 +1104,16 @@ jQuery(document).ready(function ($) {
 
         }
     }
+
+    function generateUUID() {
+        var d = new Date().getTime();
+        var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = (d + Math.random() * 16) % 16 | 0;
+            d = Math.floor(d / 16);
+            return (c == 'x' ? r : (r & 0x7 | 0x8)).toString(16);
+        });
+        return uuid;
+    };
 
     function setNumberOfMergeRequests(derive_post_name, source_post_id, value) {
         if (!meta_source_versions || meta_source_versions.length <= 0) return;
@@ -2346,365 +2356,6 @@ jQuery(document).ready(function ($) {
                 var y_top_right = null;
                 total_visible_svg++;
                 if (right.attr('class') && right.attr('class').indexOf("fb-display-none") >= 0) {
-                    var derived_bottom = getParentOffsetBottom(right.attr("id"), derived_doc.body);
-                    if (derived_bottom >= 0) {
-                        derived_bottom += (derived_iframe_container_top - svg_container_top);
-                        y_bottom_right = derived_bottom;
-                        y_top_right = derived_bottom;
-                    }
-                }
-                else {
-                    //var derived_height = right.height();
-                    var derived_outer_height = right.outerHeight(true);
-                    var t = performance.now();
-                    var derived_top = right.position().top;
-                    total_time_jquery_methods += (performance.now() - t);
-                    var derived_padding_top = parseInt(right.css('padding-top'), 10);
-                    var derived_margin_top = parseInt(right.css('margin-top'), 10);
-                    derived_top += (derived_iframe_container_top - svg_container_top);
-                    //derived_top -= (derived_padding_top + derived_margin_top);
-
-                    y_bottom_right = derived_top + derived_outer_height;
-                    y_top_right = derived_top;
-                }
-
-                // check if left element is visible
-                var left = source_doc.getElementById(source_id);
-                if (!left) {
-                    var t = performance.now();
-                    var right_clone = right.clone();
-                    total_time_jquery_methods += (performance.now() - t);
-                    var right_html = unwrapDeleteInsertTagjQuery(right_clone);
-                    right_html = right_html.replace(/&nbsp;/ig, ' ').replace(/<br>/g, '');
-                    if (right_html.trim() !== '') {
-                        // update SVG 
-                        if (y_bottom_right !== null && y_top_right !== null) {
-                            if (previous_y_bottom_right !== null) {
-                                if (previous_y_bottom_right > y_top_right) {
-                                    y_top_right = previous_y_bottom_right;
-                                }
-                            }
-                            previous_y_bottom_right = y_bottom_right;
-
-                            var source_post_id = right.attr(fb_data_post_id);
-                            var derive_element_id = right.attr('id');
-                            var classes = right.attr('id');
-
-                            y_top_right -= right_scrollTop;
-                            y_bottom_right -= right_scrollTop;
-
-                            //-----------------------------
-                            // right polygon 
-                            var pts = [];
-                            pts[0] = x_right - left_polygon_width;
-                            pts[1] = y_top_right;
-                            pts[2] = x_right - left_polygon_width;
-                            pts[3] = y_bottom_right;
-                            pts[4] = x_right;
-                            pts[5] = y_bottom_right;
-                            pts[6] = x_right;
-                            pts[7] = y_top_right;
-                            var id = right.attr('id');
-                            var polygon = createSVGPolygon(pts, id, classes, 'grey', svg_column_id, 0.24); // performance: this function is fast
-                            if (polygon !== null) {
-                                $(polygon).click(function () {
-                                    var tab_index = -1;
-                                    $('#fb-tabs-sources .ui-tabs-nav a').each(function (index) {
-                                        var a = $(this);
-                                        if (a.attr('data-post-id') == source_post_id) {
-                                            tab_index = index;
-                                            return false;
-                                        }
-                                    });
-
-                                    if (tab_index >= 0) {
-                                        $('#fb-tabs-sources').tabs("option", "active", tab_index);
-                                    }
-
-                                    if (fb_floating_sources) {
-                                        updateSourcePosition(derive_element_id);
-                                    }
-                                });
-                                document.getElementById(svg_column_id).appendChild(polygon);
-                            }
-                        }
-                    }
-                }
-                if (left) {
-                    var y_top_left = null;
-                    var y_bottom_left = null;
-
-                    // calcuate y_top_left and y_bottom_left
-                    if ($(left).attr('class') && $(left).attr('class').indexOf("fb-display-none") >= 0) {
-                        var source_bottom = getParentOffsetBottom($(left).attr("id"), source_doc.body);
-                        if (source_bottom >= 0) {
-                            source_bottom += (source_iframe_container_top - svg_container_top);
-                            y_top_left = source_bottom;
-                            y_bottom_left = source_bottom;
-                        }
-                    }
-                    else {
-                        //var source_height = $(left).height();
-                        var source_outer_height = $(left).outerHeight(true);
-                        var t = performance.now();
-                        var source_top = $(left).position().top;
-                        total_time_jquery_methods += (performance.now() - t);
-                        var source_padding_top = parseInt($(left).css('padding-top'), 10);
-                        var source_margin_top = parseInt($(left).css('margin-top'), 10);
-                        source_top += (source_iframe_container_top - svg_container_top);
-                        //source_top -= (source_padding_top + source_margin_top);
-                        //console.log($(source_element).attr('id') + ": " + source_outer_height);
-
-                        y_top_left = source_top;
-                        y_bottom_left = source_top + source_outer_height;
-                    }
-
-                    // update SVG 
-                    if (y_bottom_right !== null && y_top_right !== null && y_top_left !== null && y_bottom_left !== null) {
-                        y_top_right -= right_scrollTop;
-                        y_bottom_right -= right_scrollTop;
-                        y_top_left -= left_scrollTop;
-                        y_bottom_left -= left_scrollTop;
-
-                        // paragraphs in source may change order in derive
-                        if (previous_y_bottom_left !== null && previous_y_top_left !== null) {
-                            /*
-                            if (previous_y_bottom_left > y_top_left) {
-                                //console.log('previous_y_bottom_left: ' + previous_y_bottom_left + '; y_top_left: ' + y_top_left);
-                                y_top_left = previous_y_bottom_left;
-                            }
-                            */
-                            if ((y_top_left < previous_y_bottom_left) && (y_top_left > previous_y_top_left)) {
-                                y_top_left = previous_y_bottom_left;
-                            }
-                            else if ((y_bottom_left < previous_y_bottom_left) && (y_bottom_left > previous_y_top_left)) {
-                                y_bottom_left = previous_y_top_left;
-                            }
-                        }
-                        previous_y_top_left = y_top_left;
-                        previous_y_bottom_left = y_bottom_left;
-
-                        if (previous_y_bottom_right !== null) {
-                            if (previous_y_bottom_right > y_top_right) {
-                                y_top_right = previous_y_bottom_right;
-                            }
-                        }
-                        previous_y_bottom_right = y_bottom_right;
-
-                        //-----------------------------
-                        var t = performance.now();
-                        var s_clone = $(left).clone();
-                        var d_clone = right.clone();
-
-                        $(s_clone).find("br").remove();
-                        $(d_clone).find("br").remove();
-
-                        var source_clean = unwrapDeleteInsertTag(s_clone);
-                        var comp_clean = unwrapDeleteInsertTag(d_clone);
-                        total_time_jquery_methods += (performance.now() - t);
-                        var fill = 'green';
-                        if (source_clean !== comp_clean) {
-                            fill = 'red';
-                        }
-
-                        var source_post_id = right.attr(fb_data_post_id);
-                        var derive_element_id = right.attr('id');
-                        var classes = right.attr('id') + ' ' + $(left).attr('id');
-
-                        //-----------------------------
-                        // left polygon 
-                        var pts = [];
-                        pts[0] = 0;
-                        pts[1] = y_top_left;
-                        pts[2] = 0;
-                        pts[3] = y_bottom_left;
-                        pts[4] = left_polygon_width;
-                        pts[5] = y_bottom_left;
-                        pts[6] = left_polygon_width;
-                        pts[7] = y_top_left;
-                        var id = $(left).attr('id');
-                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.24); // performance: this function is fast
-                        if (polygon !== null) {
-                            $(polygon).click(function () {
-                                updateDerivePosition(derive_element_id);
-                            });
-                            document.getElementById(svg_column_id).appendChild(polygon);
-                        }
-
-                        //-----------------------------
-                        // right polygon 
-                        var pts = [];
-                        pts[0] = x_right - left_polygon_width;
-                        pts[1] = y_top_right;
-                        pts[2] = x_right - left_polygon_width;
-                        pts[3] = y_bottom_right;
-                        pts[4] = x_right;
-                        pts[5] = y_bottom_right;
-                        pts[6] = x_right;
-                        pts[7] = y_top_right;
-                        var id = right.attr('id');
-                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.24); // performance: this function is fast
-                        if (polygon !== null) {
-                            $(polygon).click(function () {
-                                var tab_index = -1;
-                                $('#fb-tabs-sources .ui-tabs-nav a').each(function (index) {
-                                    var a = $(this);
-                                    if (a.attr('data-post-id') == source_post_id) {
-                                        tab_index = index;
-                                        return false;
-                                    }
-                                });
-
-                                if (tab_index >= 0) {
-                                    $('#fb-tabs-sources').tabs("option", "active", tab_index);
-                                }
-
-                                if (fb_floating_sources) {
-                                    updateSourcePosition(derive_element_id);
-                                }
-                            });
-                            document.getElementById(svg_column_id).appendChild(polygon);
-                        }
-
-                        //-----------------------------
-                        // mid polygon 
-                        var pts = [];
-                        pts[0] = left_polygon_width;
-                        pts[1] = y_top_left;
-                        pts[2] = left_polygon_width;
-                        pts[3] = y_bottom_left;
-                        pts[4] = x_right - left_polygon_width;
-                        pts[5] = y_bottom_right;
-                        pts[6] = x_right - left_polygon_width;
-                        pts[7] = y_top_right;
-                        //var id = right.attr('id');
-                        var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.2); // performance: this function is fast
-                        if (polygon !== null) {
-                            document.getElementById(svg_column_id).appendChild(polygon);
-                        }
-                    }
-                }
-
-                var t01 = performance.now();
-                var p01 = t01 - t00;
-                total_time_create_svg += p01;
-            }
-
-            //});
-        }
-        var t1 = performance.now();
-        var p1 = t1 - t0;
-
-        console.log('   total_children_count: ' + total_children_count);
-        console.log('   total_visible_svg: ' + total_visible_svg);
-        console.log('   total_time_jquery_methods: ' + total_time_jquery_methods);
-        console.log('   total_time_create_svg: ' + total_time_create_svg);
-        //console.log('   total_time_check_admin_element: ' + total_time_check_admin_element);
-        console.log("   performance (derived_doc.body loop): " + p1);
-    }
-
-
-    function updateSVGNative(caller_function) {
-        if (!flexibook.active_derive_mce) {
-            // remove all polygons
-            $('#fb-svg-mid-column').find('.fb-svg-polygons').remove();
-            return;
-        }
-        var derived_doc = flexibook.active_derive_mce.getDoc();
-        var derived_editor_height = getiFrameHeight(derived_doc);
-
-        // get active tab id
-        var source_mce = getVisibleSourceMce();
-        if (!source_mce) return;
-        var source_doc = source_mce.getDoc();
-        var source_editor_height = getiFrameHeight(source_doc);
-
-        var svg_column_id = 'fb-svg-mid-column';
-
-        var source_iframe_container_top = getiFrameOffsetTop(source_doc);
-        var derived_iframe_container_top = getiFrameOffsetTop(derived_doc);
-
-        if (!source_iframe_container_top || !derived_iframe_container_top) return;
-
-        //var svg_container_top = $('#fb-td-mid-column').offset().top;
-        var svg_container_top = document.getElementById("fb-td-mid-column").offsetTop;
-        svg_container_top += parseInt($('#fb-svg-mid-column').css('top'), 10);
-
-        var x_left = 0;
-        var x_right = $('#' + svg_column_id).width();
-        var left_polygon_width = 12;
-
-        var previous_y_bottom_left = null;
-        var previous_y_top_left = null;
-        var previous_y_bottom_right = null;
-
-        var left_scrollTop = source_doc.body.scrollTop;
-        var right_scrollTop = derived_doc.body.scrollTop;
-
-        if (caller_function == 'fb_on_mouse_up') {
-            if (fb_performance_previous_source_scroll_top !== null &&
-                fb_performance_previous_derive_scroll_top !== null) {
-                console.log('   fb_performance_previous_source_scroll_top: ' + fb_performance_previous_source_scroll_top);
-                console.log('   left_scrollTop: ' + left_scrollTop);
-                console.log('   fb_performance_previous_derive_scroll_top: ' + fb_performance_previous_derive_scroll_top);
-                console.log('   right_scrollTop: ' + right_scrollTop);
-                if ((fb_performance_previous_source_scroll_top === left_scrollTop) &&
-                    (fb_performance_previous_derive_scroll_top === right_scrollTop)) {
-                    return;
-                }
-            }
-        }
-        fb_performance_previous_source_scroll_top = left_scrollTop;
-        fb_performance_previous_derive_scroll_top = right_scrollTop;
-
-        var total_visible_svg = 0;
-        // remove all polygons
-        $('#' + svg_column_id).find('.fb-svg-polygons').remove();
-
-        var t0 = performance.now();
-        var total_time_create_svg = 0;
-        var total_time_jquery_methods = 0;
-        var total_time_check_admin_element = 0;
-        var total_children_count = 0;
-
-        var children = derived_doc.body.children;
-        for (var i = 0; i < children.length; i++) {
-            var right = $(children[i]);
-            var rightNative = children[i];
-            //$(derived_doc.body).children().each(function (index) {
-            //var right = $(this);
-            total_children_count++;
-
-            //var timer_isTinymceAdminElement = performance.now();
-
-            if (isTinymceAdminElement(right)) continue; // performance: take 2.5 milliseconds to check 200-300 elements
-            //timer_isTinymceAdminElement = performance.now() - timer_isTinymceAdminElement;
-            //total_time_check_admin_element += timer_isTinymceAdminElement;
-
-            var source_id = null;
-            source_id = right.attr(fb_data_element_id);
-
-            if (source_id && source_id != 'none') {
-                var left = source_doc.getElementById(source_id);
-                if (left) {
-                    if (isElementScrolledIntoViewNative(rightNative, derived_doc, derived_editor_height) === false &&
-                        isElementScrolledIntoViewNative(left, source_doc, source_editor_height) === false) {
-                        continue; // continue; only update elements that are visible
-                    }
-                }
-                else {
-                    if (isElementScrolledIntoViewNative(rightNative, derived_doc, derived_editor_height) === false) continue; // continue; only update elements that are visible                   
-                }
-            }
-
-            if (source_id && source_id != 'none') {
-                var t00 = performance.now();
-                // calculate y_bottom_right and y_top_right
-                var y_bottom_right = null;
-                var y_top_right = null;
-                total_visible_svg++;
-                //if (right.attr('class') && right.attr('class').indexOf("fb-display-none") >= 0) {
-                if (rightNative.className && rightNative.className.indexOf('fb-display-none') >= 0) {
                     var derived_bottom = getParentOffsetBottom(right.attr("id"), derived_doc.body);
                     if (derived_bottom >= 0) {
                         derived_bottom += (derived_iframe_container_top - svg_container_top);

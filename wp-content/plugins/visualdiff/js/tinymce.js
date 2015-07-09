@@ -1467,18 +1467,6 @@ jQuery(document).ready(function ($) {
             $(editor.getBody()).children().each(function (index) {
                 var element = $(this);
                 if (!isAdminElementjQuery(element)) {
-                    // if a new paragraph is empty, we should not consider as if it is derived from the source
-                    /*
-                    if (element.html().trim() == '') {
-                        if (element.attr(fb_data_element_id)) {
-                            element.removeAttr(fb_data_element_id);
-                        }
-                        if (element.attr(fb_data_post_id)) {
-                            element.removeAttr(fb_data_post_id);
-                        }
-                    }
-                    */
-
                     if (!element.attr(fb_data_element_id)) {
                         if (!element.attr('id')) {
                             // new element created by the user
