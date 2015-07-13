@@ -16,17 +16,17 @@ jQuery(document).ready(function ($) {
     var FB_DATA_LEVEL2_ELEMENT_ID = 'data-master-element-id'; // a html attribute for a html element in 'derived' document; indicate the id of its the ancestor element
     var fb_data_element_id = null;
 
-    var fb_derived_mce_init_done = false;
-    var fb_derived_mce_init_called = false;
-    var fb_source_mce_init_count = 0;
+    var fb_meta_opened_source_post_list = []; // this variable is saved in the postmeta table in the database
+    var fb_meta_document_dependency_list = []; // this variable is saved in the postmeta table in the database
 
-    var fb_meta_opened_source_post_list = []; // this variable will be saved in the postmeta table in the database
-    var fb_meta_document_dependency_list = []; // this variable will be saved in the postmeta table in the database
-
-    var fb_previous_source_revisions = []; // list of previous source revisions for merge
+    var fb_earlier_source_revisions = []; // list of previous source revisions for merge
     var fb_original_derive_units = []; // the original copy of derive units before any changes
     var fb_original_source_units = []; // the original copy of source units before any changes
     var fb_previous_source_count = 0;
+
+    var fb_derived_mce_init_done = false;
+    var fb_derived_mce_init_called = false;
+    var fb_source_mce_init_count = 0;
 
     var fb_floating_sources = true;
     var fb_highlighting_source = true;
@@ -620,6 +620,16 @@ jQuery(document).ready(function ($) {
 
     }
 
+    ////
+    //                                         (changes)
+    //          source document (old version) -----------> source document (new version)
+    //                |
+    //                | (dependency)
+    //                |
+    //          derive document
+    //
+    // If a derived document depends on a source document and the source document has been changed, then load the earlier version of the source document into memory
+    //
     function getEarlierSourceVersions() {
         if (!fb_meta_document_dependency_list || fb_meta_document_dependency_list.length <= 0) return;
         var previous_sources = [];
@@ -639,8 +649,6 @@ jQuery(document).ready(function ($) {
                         source_post_modified: fb_meta_document_dependency_list[i].source_post_previous_version
                     });
                 }
-                //getSourcePostRevision(fb_meta_document_dependency_list[i].source_post_id, fb_meta_document_dependency_list[i].source_post_previous_version, fb_meta_document_dependency_list[i].derive_post_name);
-                //$("#fb-button-show-previous-source").prop('disabled', false);
             }
         }
 
@@ -652,13 +660,16 @@ jQuery(document).ready(function ($) {
         else {
             for (var i = 0; i < previous_sources.length; i++) {
                 var p = previous_sources[i];
-                getSourcePostRevision(p.source_post_id, p.source_post_modified, previous_sources.length);
+                getEarlierSourceVersionsAjex(p.source_post_id, p.source_post_modified, previous_sources.length);
 
             }
         }
     }
 
-    function getSourcePostRevision(post_id, post_modified, total) {
+    ////
+    // Get the earlier source version via ajax 
+    //
+    function getEarlierSourceVersionsAjax(post_id, post_modified, total) {
         // before use ajax, check if the post already exists in the memory
         var exist = false;
 
@@ -686,10 +697,13 @@ jQuery(document).ready(function ($) {
         }
     }
 
+    ////
+    // Put the earlier source document into an object
+    //
     function createSourceRevisionObject(post_id, post_modified, post_content) {
         // avoid duplicate objects
-        for (var i = 0; i < fb_previous_source_revisions.length; i++) {
-            if (fb_previous_source_revisions[i].post_id == post_id) {
+        for (var i = 0; i < fb_earlier_source_revisions.length; i++) {
+            if (fb_earlier_source_revisions[i].post_id == post_id) {
                 return;
             }
         }
@@ -700,28 +714,66 @@ jQuery(document).ready(function ($) {
         obj['post_modified'] = post_modified;
         obj['post_content'] = post_content;
 
-        fb_previous_source_revisions.push(obj);
+        fb_earlier_source_revisions.push(obj);
     }
 
+    ////
+    // Get the content/html of an earlier source version based on its post id
+    //
     function getSourceRevisionContent(post_id) {
-        for (var i = 0; i < fb_previous_source_revisions.length; i++) {
-            if (fb_previous_source_revisions[i].post_id == post_id) {
-                return fb_previous_source_revisions[i].post_content;
+        for (var i = 0; i < fb_earlier_source_revisions.length; i++) {
+            if (fb_earlier_source_revisions[i].post_id == post_id) {
+                return fb_earlier_source_revisions[i].post_content;
             }
         }
         return null;
     }
 
+    ////
+    // Get the modified date of an earlier source version based on its post id
+    //
     function getSourceRevisionDate(post_id) {
-        for (var i = 0; i < fb_previous_source_revisions.length; i++) {
-            if (fb_previous_source_revisions[i].post_id == post_id) {
-                return fb_previous_source_revisions[i].post_modified;
+        for (var i = 0; i < fb_earlier_source_revisions.length; i++) {
+            if (fb_earlier_source_revisions[i].post_id == post_id) {
+                return fb_earlier_source_revisions[i].post_modified;
             }
         }
         return null;
     }
 
-    // ms - do not consider the case where one source unit is contained by multiple derive units 
+    ////
+    //                                         (changes)
+    //          source document (old version) -----------> source document (new version)
+    //                |
+    //                | (dependency)
+    //                |                        (changes)
+    //          derive document (old version) -----------> derive document (new version)
+    //
+    // We have four different documents:
+    //      source document (old version)
+    //      source document (new version)
+    //      derive document (old version)
+    //      derive document (new version)
+    // But note that: source document (old version) == derive document (old version)
+    // 
+    // We need to determine the following eight possible cases for each html element in the new version of derive document 
+    // 1.	Modified in SD, unchanged in DD
+    // 2.	Modified in SD, deleted in DD
+    //          - no change required
+    // 3.	Modified in SD. Modified in DD
+    // 4.	Added item in SD, section deleted in DD
+    //          - no change required
+    // 5.	Added item in SD, where section still exists
+    // 6.	Deleted in SD, unchanged in DD
+    // 7.	Deleted in SD, deleted in DD
+    //          - no change required
+    // 8.	Deleted in SD. Modified in DD
+    // (SD=source doc, DD=derived doc)
+    //
+    // Note: A derive document can contain multiple derive units. Each unit is a tab. 
+    // Note: A 'master' documents can contain one and only one derive unit (only one opened tab).
+    // Note: this method do not consider the case where one source unit is contained by multiple derive units 
+    //
     function generateMergeCases() {
         if (!fb_meta_document_dependency_list) return;
 
@@ -742,6 +794,9 @@ jQuery(document).ready(function ($) {
         }
     }
 
+    ////
+    // Determine the eight possible cases for each html element in a derive unit 
+    //
     function generateMergeCaseDeriveUnit(source_post_id, old_content, derive_post_name) {
         for (var i = 0; i < tinymce.editors.length; i++) {
             if (tinymce.editors[i].id.indexOf("fb-source-mce") >= 0 && tinymce.editors[i].post_id == source_post_id) {
@@ -1010,6 +1065,9 @@ jQuery(document).ready(function ($) {
         };
     }
 
+    ////
+    // A utility method to remove all whitespace before a table tag in a html
+    //
     function removeWhitespaceBeforeTableTag(outer_html) {
         var html = outer_html;
         var start_index = 0;
@@ -1030,7 +1088,9 @@ jQuery(document).ready(function ($) {
         return html;
     }
 
-    // merge case 6: delete item in source, unchange in derive
+    ////
+    // This method is used in merge case 6: delete item in source, unchange in derive
+    //
     function addDeleteItemToSource(element, new_doc, old_doc, post_id) {
         var clone = element.clone();
         var s_id = $(clone).attr('id').trim();
@@ -1080,7 +1140,9 @@ jQuery(document).ready(function ($) {
         }
     }
 
-    // merge case 5: add item in source, where section exists in derive
+    ////
+    // This method is used in merge case 5: add item in source, where section exists in derive
+    //
     function addNewItemToDerive(element, new_doc, derived_doc, post_id) {
         var clone = element.clone();
         var s_id = $(clone).attr('id').trim();
@@ -1149,6 +1211,9 @@ jQuery(document).ready(function ($) {
         }
     }
 
+    ////
+    // Generate a UUID for an element in html
+    //
     function generateUUID() {
         var d = new Date().getTime();
         var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -1159,6 +1224,9 @@ jQuery(document).ready(function ($) {
         return uuid;
     };
 
+    ////
+    // Increase or decrease the numbers of merges (or changes) required to be resolved by the user when the source document and/or the derived document have been modified.
+    // 
     function setNumberOfMergeRequests(derive_post_name, source_post_id, value) {
         if (!fb_meta_document_dependency_list || fb_meta_document_dependency_list.length <= 0) return;
 
@@ -1173,6 +1241,11 @@ jQuery(document).ready(function ($) {
         }
     }
 
+    ////
+    // This method checks if we are still in the merge mode 
+    //
+    // Note: if there are still merges (or changes) available to be resolved in any derived units, then we consider we still in the merge mode
+    //
     function isMergeMode() {
         if (!fb_meta_document_dependency_list || fb_meta_document_dependency_list.length <= 0) return false;
 
@@ -1185,6 +1258,9 @@ jQuery(document).ready(function ($) {
         return false;
     }
 
+    ////
+    // Get the parent element id of a html element
+    //
     function getParentID(body, id) {
         var start = false;
         var parent = null;
@@ -1207,6 +1283,9 @@ jQuery(document).ready(function ($) {
         return parent;
     }
 
+    ////
+    // Get the previous element id of a html element
+    //
     function getPreviousID(body, id) {
         var start = false;
         var previous = null;
@@ -1226,6 +1305,9 @@ jQuery(document).ready(function ($) {
         return previous;
     }
 
+    ////
+    // Get the next element id of a html element
+    //
     function getNextID(body, id) {
         var start = false;
         var next = null;
@@ -1245,8 +1327,9 @@ jQuery(document).ready(function ($) {
         return next;
     }
 
-    //----------------------------------------------------------------------------------------
-    // source selection dialog
+    ////
+    // The dialog to select a source document. All the source documents in the database will be listed in the dialog
+    //
     var fb_source_selection_dialog = $("#fb-source-selection-dialog").dialog({
         autoOpen: false,
         modal: true,
@@ -1270,7 +1353,7 @@ jQuery(document).ready(function ($) {
                     }
                 }
 
-                //addTab();
+                // get the selected source documents from the database and open them in the source tabs
                 for (var i = 0; i < selected_sources.length; i++) {
                     var post_id = selected_sources[i];
                     getSourcePost(post_id, checked);
@@ -1278,12 +1361,6 @@ jQuery(document).ready(function ($) {
                 $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
                 $(this).dialog("close");
             },
-            /*
-            Clear: function () {
-                selected_sources.splice(0);
-                $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
-            },
-            */
             Cancel: function () {
                 selected_sources.splice(0);
                 $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
@@ -1298,6 +1375,9 @@ jQuery(document).ready(function ($) {
         }
     });
 
+    ////
+    // Click this button to open the dialog to select source documents
+    //
     $("#fb-button-open-source-document").button().click(function () {
         selected_sources.splice(0);
         $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
@@ -1305,6 +1385,9 @@ jQuery(document).ready(function ($) {
     });
     $("#fb-button-open-source-document").prop('disabled', true);
 
+    ////
+    // When the search button is clicked in the source selecting dialog, this method will be called to list all the source documents that match the search criteria. 
+    //
     $("#fb-button-search-source-list").click(function () {
         $(".fb-li-source-list").each(function () {
             var li = $(this);
@@ -1327,8 +1410,9 @@ jQuery(document).ready(function ($) {
         });
     });
 
-    //----------------------------------------------------------------------------------------
-    // add derive dialog
+    ////
+    // The dialog to add a new derive document.
+    //
     var fb_add_derive_dialog = $("#fb-add-derive-dialog").dialog({
         autoOpen: false,
         modal: true,
@@ -1349,12 +1433,16 @@ jQuery(document).ready(function ($) {
         }
     });
 
+    ////
+    // Click this button to open the dialog to add a new derive document.
+    //
     $("#fb-button-add-derive-document").button().click(function () {
         fb_add_derive_dialog.dialog("open");
     });
 
-    //----------------------------------------------------------------------------------------
-    // rename derive tab dialog
+    ////
+    // The dialog to rename a new derive document.
+    //
     var fb_rename_derive_dialog = $("#fb-rename-derive-tab-dialog").dialog({
         autoOpen: false,
         modal: true,
