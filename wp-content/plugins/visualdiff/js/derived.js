@@ -4,7 +4,7 @@
 // There are three levels of documents:
 //      - 'source' documents
 //      - 'master' documents
-//      - 'derived' documents
+//      - 'derive' documents
 // 
 // Each leve of document is corresponding to a post type (with the same name) in wordpress.
 //
@@ -12,12 +12,24 @@
 //      - the list view lists all documents of the type
 //      - select a document in the list view will go to the edit view of the selected document
 //
+// Document dependency:
+//      - 'source' documents: do not depend on any documents
+//      - 'master' documents: depend on 'source' documents
+//      - 'derive' documents: depend on 'master' documents
+// The terms source and derive (without quotation mark) is used (in the source code and comments) to denote the generic dependencies between two documents
+//          source      |      derive
+//         -------------|-------------
+//         'source'     |     'master'
+//         'master'     |     'derive'
+//
 // Document structure:
 //      - a 'source' document: contain one and only one 'source' (tinymce) editor. we consider an editor is equivalent to a unit.
 //      - a 'master' document: contain one and only one 'master' editor/unit, and contain zero or one 'source' editor/unit. 
-//      - a 'derived' document: contain one or more than one 'derived' editor/unit,
+//      - a 'derive' document: contain one or more than one 'derive' editor/unit, and contain zero, one or more than one 'master' editors/units.
+//      - a unit contains a set of html elements.
+//      - each html element has a global unique id.
+// 'source', 'master', 'derive' will be used in the comments to denote a specific level of document
 //
-// 'source', 'master', 'derived' will be used in the comments to denote a specific level of document
 //----------------------------------------------------------------------------------------
 
 jQuery(document).ready(function ($) {
@@ -2270,7 +2282,7 @@ jQuery(document).ready(function ($) {
         obj['source_post_id'] = post_id;
         obj['number_of_merges'] = 0;
 
-        // ms - not yet consider the source editors have been closed 
+        // ms - do not consider the source editors have been closed 
         for (var j = 0; j < tinymce.editors.length; j++) {
             if ((tinymce.editors[j].id.indexOf("fb-source-mce") >= 0) && (tinymce.editors[j].post_id == post_id)) {
                 obj['derive_post_name'] = derive_post_name;
@@ -2301,6 +2313,10 @@ jQuery(document).ready(function ($) {
         return ids;
     }
     
+    ////
+    // If a derive element is depended on a source element, then compare the two elements using a html diffing algorithm 
+    // This method compares each pair of derive and source elements, at the element level.
+    //
     function updateHTMLDiff() {
         if (!flexibook.active_derive_mce) return;
         var derived_doc = flexibook.active_derive_mce.getDoc();
@@ -2380,20 +2396,6 @@ jQuery(document).ready(function ($) {
 
             scrolled_into_view_started = true;
             visible_derived_elements++;
-
-            // performance test start
-            /*
-            var t_test = performance.now();
-            if (source_id && source_id != 'none') {
-                // stores a bookmark of the current selection
-                var derive_bookmark = getBookmark(comp); // use a non-html bookmark
-
-                // restore the selection bookmark
-                moveToBookmark(derive_bookmark);
-            }
-            total_time_on_performance_test += (performance.now() - t_test);
-            */
-            // performance test end
 
             //console.log('visible_derived_elements: ' + visible_derived_elements);
             var id = comp.attr('id');
@@ -2476,12 +2478,17 @@ jQuery(document).ready(function ($) {
         console.log('   total_time_on_performance_test: ' + total_time_on_performance_test);
     }
     
-
+    ////
+    // A utility method to save the current bookmark of the active tinymce editor
+    //
     function getBookmark(element) {
         if (element.className && element.className.indexOf('fb-display-none-h') >= 0) return null;
         return flexibook.active_derive_mce.selection.getBookmark(2, true); // use a non-html bookmark
     }
 
+    ////
+    // A utility method to move the cursor back to the saved bookmark 
+    //
     function moveToBookmark(derive_bookmark) {
         if (!derive_bookmark) return;
         flexibook.active_derive_mce.selection.moveToBookmark(derive_bookmark);
@@ -2503,6 +2510,9 @@ jQuery(document).ready(function ($) {
     }
     */
 
+    ////
+    // Check if a html element is scrolled into view in the editor
+    // 
     function isElementScrolledIntoViewNative(element, doc, editorHeight) {
         if (!element) return false;
         if (!doc) return false;
@@ -2518,6 +2528,10 @@ jQuery(document).ready(function ($) {
         return true;
     }
 
+    ////
+    // Each element in source and derive units has a svg bar.
+    // This method redraw the svg bars when the document has been updated.
+    //
     function updateSVG(caller_function) {
         if (!flexibook.active_derive_mce) {
             // remove all polygons
@@ -2693,7 +2707,7 @@ jQuery(document).ready(function ($) {
                                     }
 
                                     if (fb_floating_sources) {
-                                        updateSourcePosition(derive_element_id);
+                                        updateSourceScrollPosition(derive_element_id);
                                     }
                                 });
                                 document.getElementById(svg_column_id).appendChild(polygon);
@@ -2797,7 +2811,7 @@ jQuery(document).ready(function ($) {
                         var polygon = createSVGPolygon(pts, id, classes, fill, svg_column_id, 0.24); // performance: this function is fast
                         if (polygon !== null) {
                             $(polygon).click(function () {
-                                updateDerivePosition(derive_element_id);
+                                updateDeriveScrollPosition(derive_element_id);
                             });
                             document.getElementById(svg_column_id).appendChild(polygon);
                         }
@@ -2831,7 +2845,7 @@ jQuery(document).ready(function ($) {
                                 }
 
                                 if (fb_floating_sources) {
-                                    updateSourcePosition(derive_element_id);
+                                    updateSourceScrollPosition(derive_element_id);
                                 }
                             });
                             document.getElementById(svg_column_id).appendChild(polygon);
@@ -2874,6 +2888,9 @@ jQuery(document).ready(function ($) {
         console.log("   performance (derived_doc.body loop): " + p1);
     }
 
+    ////
+    // Check if a html element is an administrative element (i.e., not the actual content of the document) in the editor.
+    //
     function isTinymceAdminElement(element) {
         if (element.prop("tagName").toLowerCase() == 'svg') return true;
         if (element.hasClass("fb_tinymce_left_column") == true ||
@@ -2888,6 +2905,9 @@ jQuery(document).ready(function ($) {
         return false;
     }
 
+    ////
+    // Create a svg polygon
+    //
     function createSVGPolygon(pts, id, classes, fill, svg_column_id, opacity) {
         if (!pts || pts.length != 8) return null;
 
@@ -2928,6 +2948,9 @@ jQuery(document).ready(function ($) {
         return polygon;
     }
 
+    ////
+    // Clear whitespace in a html text
+    //
     function cleanWhitespace(element) {
         clone = $(element).clone();
         $(clone).contents().filter(function () {
@@ -2936,7 +2959,11 @@ jQuery(document).ready(function ($) {
         return $(clone).html();
     }
 
-    function updateSourcePosition(d_id) {
+    ////
+    // If a derive element is depended on a source element and the source unit and derive unit are scrolled to different pages such that, for example, the derive document is visible but 
+    // the source document is not visible, then you can click on the svg bar of the derive element so that the source unit will auto-scroll to the position of the depended source element.
+    //
+    function updateSourceScrollPosition(d_id) {
         if (!flexibook.active_derive_mce) return;
         var derived_doc = flexibook.active_derive_mce.getDoc();
 
@@ -2951,7 +2978,11 @@ jQuery(document).ready(function ($) {
         updateScroll(source_doc, derived_doc, d_id, source_mce);
     }
 
-    function updateDerivePosition(d_id) {
+    ////
+    // This method is similar to updateSourceScrollPosition
+    // Click the svg bar of a source element to auto-scroll the derive unit.
+    //
+    function updateDeriveScrollPosition(d_id) {
         if (!flexibook.active_derive_mce) return;
         var derived_doc = flexibook.active_derive_mce.getDoc();
 
@@ -2963,6 +2994,9 @@ jQuery(document).ready(function ($) {
         updateScroll(source_doc, derived_doc, d_id, flexibook.active_derive_mce);
     }
 
+    ////
+    // Update the scroll position of the target editor
+    //
     function updateScroll(source_doc, derive_doc, d_id, target_mce) {
         var source_iframe_container_top = getiFrameOffsetTop(source_doc);
         var derived_iframe_container_top = getiFrameOffsetTop(derive_doc);
@@ -3064,11 +3098,19 @@ jQuery(document).ready(function ($) {
     }
 
     //------------------------------------------------------------------------------------------------------
+    // Utilities
+    //------------------------------------------------------------------------------------------------------
 
+    ////
+    // Unwrap the delete and insert tag of a html element
+    //
     function unwrapDeleteInsertTag(element) {
         return unwrapDeleteInsertTagjQuery($(element));
     }
 
+    ////
+    // Unwrap the delete and insert tag of a html element using jQuery
+    //
     function unwrapDeleteInsertTagjQuery(element) {
         // does not consider nested delete/insert span tags
         /*
@@ -3100,6 +3142,9 @@ jQuery(document).ready(function ($) {
         return html;
     }
 
+    ////
+    // Get the bottom position of the parent html element
+    //
     function getParentOffsetBottom(target_id, body) {
         var start = false;
         var bottom = -1;
@@ -3132,6 +3177,9 @@ jQuery(document).ready(function ($) {
         return bottom;
     }
     
+    ////
+    // Get the offset top of the iframe
+    //
     function getiFrameOffsetTop(doc) {
         var iframes = document.getElementsByTagName("iframe");
         for (var i = 0; i < iframes.length; i++) {
@@ -3149,6 +3197,9 @@ jQuery(document).ready(function ($) {
         return null;
     }
 
+    ////
+    // Get the height of the iframe
+    //
     function getiFrameHeight(doc) {
         var iframes = document.getElementsByTagName("iframe");
         for (var i = 0; i < iframes.length; i++) {
@@ -3164,6 +3215,9 @@ jQuery(document).ready(function ($) {
         return null;
     }
 
+    ////
+    // Remove all editors
+    //
     function removeAllEditor() {
         var length = tinymce.editors.length;
         for (var i = length; i > 0; i--) {
