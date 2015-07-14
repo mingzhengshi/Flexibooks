@@ -1,3 +1,25 @@
+//----------------------------------------------------------------------------------------
+// Terminology
+//
+// There are three levels of documents:
+//      - 'source' documents
+//      - 'master' documents
+//      - 'derived' documents
+// 
+// Each leve of document is corresponding to a post type (with the same name) in wordpress.
+//
+// Each post type in wordpress has a list view and an edit view:
+//      - the list view lists all documents of the type
+//      - select a document in the list view will go to the edit view of the selected document
+//
+// Document structure:
+//      - a 'source' document: contain one and only one 'source' (tinymce) editor. we consider an editor is equivalent to a unit.
+//      - a 'master' document: contain one and only one 'master' editor/unit, and contain zero or one 'source' editor/unit. 
+//      - a 'derived' document: contain one or more than one 'derived' editor/unit,
+//
+// 'source', 'master', 'derived' will be used in the comments to denote a specific level of document
+//----------------------------------------------------------------------------------------
+
 jQuery(document).ready(function ($) {
     var FB_LEVEL_1_POST = 'source'; // 'source' documents are the original documents that do not depend on any documents
     var FB_LEVEL_2_POST = 'master'; // 'master' documents depend on 'source' documents
@@ -35,13 +57,13 @@ jQuery(document).ready(function ($) {
     var fb_teacher_student_version = 'teacher';
 
     // source tabs
-    var selected_sources = [];
-    var source_tabs = $('#fb-tabs-sources').tabs().css({'min-height': '850px'});
-    var tab_counter_source = 0;
+    var fb_selected_sources = [];
+    var fb_source_tabs = $('#fb-tabs-sources').tabs().css({'min-height': '850px'});
+    var fb_source_tab_counter = 0;
 
     // derive tabs
-    var derive_tabs = $('#fb-tabs-derives').tabs().css({'min-height': '850px'});
-    var tab_counter_derive = 0;
+    var fb_derive_tabs = $('#fb-tabs-derives').tabs().css({'min-height': '850px'});
+    var fb_derive_tab_counter = 0;
 
     var fb_tab_template = "<li id='#{id}'><a href='#{href}' data-post-id='#{postid}'>#{label}</a><span class='ui-icon ui-icon-close' role='presentation'>Remove Tab</span></li>";
     var fb_tab_template_without_close_icon = "<li id='#{id}'><a href='#{href}' data-post-id='#{postid}'>#{label}</a></li>";
@@ -51,7 +73,8 @@ jQuery(document).ready(function ($) {
     var fb_performance_previous_source_scroll_top = null;
 
     //----------------------------------------------------------------------------------------
-    // init
+    // Init
+    //----------------------------------------------------------------------------------------
 
     ////
     // This method is called when the editor of the derived document is initialized.
@@ -345,6 +368,7 @@ jQuery(document).ready(function ($) {
 
     //---------------------------------------------------------------------------------------------------------------
     // setup buttons
+    //---------------------------------------------------------------------------------------------------------------
 
     ////
     // switch among style sheets for the documents in tinymce editor 
@@ -1339,7 +1363,7 @@ jQuery(document).ready(function ($) {
                 var checked = document.getElementById("fb-checkbox-add-all-selected-sources").checked;
 
                 if (fb_post_type == FB_LEVEL_2_POST) {
-                    if (selected_sources.length > 1) {
+                    if (fb_selected_sources.length > 1) {
                         alert("You cannot open more than one " + FB_LEVEL_1_POST + " document.");
                         $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
                         return;
@@ -1354,22 +1378,22 @@ jQuery(document).ready(function ($) {
                 }
 
                 // get the selected source documents from the database and open them in the source tabs
-                for (var i = 0; i < selected_sources.length; i++) {
-                    var post_id = selected_sources[i];
+                for (var i = 0; i < fb_selected_sources.length; i++) {
+                    var post_id = fb_selected_sources[i];
                     getSourcePost(post_id, checked);
                 }
                 $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
                 $(this).dialog("close");
             },
             Cancel: function () {
-                selected_sources.splice(0);
+                fb_selected_sources.splice(0);
                 $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
                 document.getElementById("fb-checkbox-add-all-selected-sources").checked = false;
                 $(this).dialog("close");
             },
         },
         close: function () {
-            selected_sources.splice(0);
+            fb_selected_sources.splice(0);
             $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
             document.getElementById("fb-checkbox-add-all-selected-sources").checked = false;
         }
@@ -1379,11 +1403,24 @@ jQuery(document).ready(function ($) {
     // Click this button to open the dialog to select source documents
     //
     $("#fb-button-open-source-document").button().click(function () {
-        selected_sources.splice(0);
+        fb_selected_sources.splice(0);
         $('#fb-selectable-source-list .ui-selected').removeClass('ui-selected');
         fb_source_selection_dialog.dialog("open");
     });
     $("#fb-button-open-source-document").prop('disabled', true);
+
+    ////
+    // selectable in the dialog
+    //
+    $("#fb-selectable-source-list").selectable({
+        stop: function () {
+            fb_selected_sources.splice(0);
+            $(".ui-selected", this).each(function () {
+                var post_id = $(this).attr("source-post-id");
+                fb_selected_sources.push(post_id);
+            });
+        }
+    });
 
     ////
     // When the search button is clicked in the source selecting dialog, this method will be called to list all the source documents that match the search criteria. 
@@ -1441,7 +1478,7 @@ jQuery(document).ready(function ($) {
     });
 
     ////
-    // The dialog to rename a new derive document.
+    // The dialog to rename a derive document.
     //
     var fb_rename_derive_dialog = $("#fb-rename-derive-tab-dialog").dialog({
         autoOpen: false,
@@ -1492,6 +1529,9 @@ jQuery(document).ready(function ($) {
         }
     });
 
+    ////
+    // Click this button to open the dialog to rename a derive document.
+    //
     $("#fb-button-rename-derive-tab").button().click(function () {
         var tab_id = $("#fb-tabs-derives .ui-tabs-panel:visible").attr("id");
 
@@ -1505,6 +1545,9 @@ jQuery(document).ready(function ($) {
         fb_rename_derive_dialog.dialog("open");
     });
 
+    ////
+    // Create the table of content for the derived document. The table of content will be put in a new derive tab.
+    //
     $("#fb-button-table-of-content").button().click(function () {
         var tab_index = -1;
         $('#fb-tabs-derives .ui-tabs-nav a').each(function (index) {
@@ -1537,6 +1580,9 @@ jQuery(document).ready(function ($) {
         }
     });
 
+    ////
+    // Get the source post via ajax 
+    //
     function getSourcePost(post_id, add_to_derive) {
         var action = null;
         if (fb_post_type == FB_LEVEL_2_POST) {
@@ -1575,31 +1621,37 @@ jQuery(document).ready(function ($) {
 
     //----------------------------------------------------------------------------------------
     // source and derived tabs
+    //----------------------------------------------------------------------------------------
 
-    // close icon: removing the tab on click
-    source_tabs.delegate("span.ui-icon-close", "click", function () {
+    ////
+    // Removing the source tab on click
+    //
+    fb_source_tabs.delegate("span.ui-icon-close", "click", function () {
         var panelId = $(this).closest("li").remove().attr("aria-controls");
         $("#" + panelId).remove();
-        source_tabs.tabs("refresh");
+        fb_source_tabs.tabs("refresh");
 
         var post_id = fb_meta_opened_source_post_list[panelId];
         var index = fb_meta_opened_source_post_list.indexOf(post_id);
         if (index >= 0) fb_meta_opened_source_post_list.splice(index, 1);
         delete fb_meta_opened_source_post_list[panelId]; // also remove the property
 
-        updateSourceTabsInput();
+        updateOpenedSourceTabsList();
         updateVisibleMces(true, true);
 
         if (fb_post_type == FB_LEVEL_2_POST) {
             var n = $('#fb-tabs-sources .ui-tabs-nav a').length;
             if (n === 0) {
                 $("#fb-button-open-source-document").prop('disabled', false);
-                source_tabs.addClass('fb-tabs-sources-display-none');
+                fb_source_tabs.addClass('fb-tabs-sources-display-none');
             }
         }
     });
 
-    source_tabs.on("tabsactivate", function (event, ui) {
+    ////
+    // On tab activate event
+    //
+    fb_source_tabs.on("tabsactivate", function (event, ui) {
         // console.log("tab activate...");
         // var active_tab_id = $(".ui-state-active").attr("id");
         //var tabIndex = $('#fb-tabs-sources').tabs('option', 'active');
@@ -1610,11 +1662,13 @@ jQuery(document).ready(function ($) {
         update("fb_on_source_tabs_activate");
     });
 
-    // close icon: removing the tab on click
-    derive_tabs.delegate("span.ui-icon-close", "click", function () {
+    ////
+    // Removing the derive tab on click
+    //
+    fb_derive_tabs.delegate("span.ui-icon-close", "click", function () {
         var panelId = $(this).closest("li").remove().attr("aria-controls");
         $("#" + panelId).remove();
-        derive_tabs.tabs("refresh");
+        fb_derive_tabs.tabs("refresh");
 
 
         var tab_id = $("#fb-tabs-derives .ui-tabs-panel:visible").attr("id");
@@ -1623,7 +1677,7 @@ jQuery(document).ready(function ($) {
                 var n = $('#fb-tabs-derives .ui-tabs-nav a').length;
                 if (n === 0) {
                     $("#fb-button-add-derive-document").prop('disabled', false);
-                    derive_tabs.addClass('fb-tabs-sources-display-none');
+                    fb_derive_tabs.addClass('fb-tabs-sources-display-none');
                 }
             }
 
@@ -1640,7 +1694,10 @@ jQuery(document).ready(function ($) {
         update("fb_on_tabs_remove");
     });
 
-    derive_tabs.on("tabsactivate", function (event, ui) {
+    ////
+    // On tab activate event
+    //
+    fb_derive_tabs.on("tabsactivate", function (event, ui) {
         // console.log("tab activate...");
         // var active_tab_id = $(".ui-state-active").attr("id");
         //var tabIndex = $('#fb-tabs-derives').tabs('option', 'active');
@@ -1652,10 +1709,12 @@ jQuery(document).ready(function ($) {
         update("fb_on_derived_tabs_activate");
     });
 
-
+    ////
+    // Add a new source tab to the (jQuery UI) source tabs
+    //
     function addSourceTab(title, content, post_modified, post_id) {
-        var tab_id = "fb-tabs-source-" + tab_counter_source;
-        var mce_id = 'fb-source-mce-' + tab_counter_source;
+        var tab_id = "fb-tabs-source-" + fb_source_tab_counter;
+        var mce_id = 'fb-source-mce-' + fb_source_tab_counter;
         var li_id = tab_id + "-selector";
         var template = "";
         if (fb_post_type == FB_LEVEL_2_POST) {
@@ -1671,7 +1730,7 @@ jQuery(document).ready(function ($) {
                                .replace(/#\{postid\}/g, post_id));
 
         $("#fb-ul-source-tabs").append(li);
-        source_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
+        fb_source_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
 
 
         //$("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
@@ -1706,21 +1765,21 @@ jQuery(document).ready(function ($) {
         source_mce["original_margin_top"] = parseInt($(source_mce.getBody()).css('margin-top'), 10);
         source_mce["current_margin_top"] = source_mce["original_margin_top"];
 
-        //if (tab_counter_source == 0) {
-            source_tabs.removeClass('fb-tabs-sources-display-none');
+        //if (fb_source_tab_counter == 0) {
+            fb_source_tabs.removeClass('fb-tabs-sources-display-none');
         //}
 
-        source_tabs.tabs("refresh");
-        source_tabs.tabs("option", "active", $('#' + li_id).index());
-        source_tabs.find(".ui-tabs-nav").sortable({
+        fb_source_tabs.tabs("refresh");
+        fb_source_tabs.tabs("option", "active", $('#' + li_id).index());
+        fb_source_tabs.find(".ui-tabs-nav").sortable({
             axis: "x",
             stop: function () {
-                source_tabs.tabs("refresh");
+                fb_source_tabs.tabs("refresh");
             }
         });
         fb_meta_opened_source_post_list[tab_id] = post_id; // add property for quick index
         fb_meta_opened_source_post_list.push(post_id);
-        updateSourceTabsInput();
+        updateOpenedSourceTabsList();
 
         if (fb_post_type == FB_LEVEL_2_POST) {
             var n = $('#fb-tabs-sources .ui-tabs-nav a').length;
@@ -1729,14 +1788,17 @@ jQuery(document).ready(function ($) {
             }
         }
 
-        tab_counter_source++;
+        fb_source_tab_counter++;
     }
 
+    ////
+    // Add a new derive tab to the (jQuery UI) derive tabs
+    //
     function addDeriveTab(title, content, postid) {
-        var tab_id = "fb-tabs-derive-" + tab_counter_derive;
-        var mce_id = 'fb-derived-mce-' + tab_counter_derive;
-        var mce_title = 'fb-derived-mce-title-' + tab_counter_derive;
-        var mce_tab_index = 'fb-derived-mce-tab-index-' + tab_counter_derive;
+        var tab_id = "fb-tabs-derive-" + fb_derive_tab_counter;
+        var mce_id = 'fb-derived-mce-' + fb_derive_tab_counter;
+        var mce_title = 'fb-derived-mce-title-' + fb_derive_tab_counter;
+        var mce_tab_index = 'fb-derived-mce-tab-index-' + fb_derive_tab_counter;
         var li_id = tab_id + "-selector";
 
         var template = "";
@@ -1754,11 +1816,11 @@ jQuery(document).ready(function ($) {
 
         if (postid === 'toc') {
             $("#fb-ul-derive-tabs").prepend(li);
-            derive_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
+            fb_derive_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
         }
         else {
             $("#fb-ul-derive-tabs").append(li);
-            derive_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
+            fb_derive_tabs.append("<div id='" + tab_id + "' style='padding-left:5px;padding-right:5px'></div>");
         }
 
         //$("#" + tab_id).append("<div id='" + mce_id + "' style='height:600px'></div>");
@@ -1777,16 +1839,16 @@ jQuery(document).ready(function ($) {
         });
         derive_mce["post_name"] = title;
 
-        //if (tab_counter_derive == 0) {
-            derive_tabs.removeClass('fb-tabs-sources-display-none');
+        //if (fb_derive_tab_counter == 0) {
+            fb_derive_tabs.removeClass('fb-tabs-sources-display-none');
         //}
 
-        derive_tabs.tabs("refresh");
-        derive_tabs.tabs("option", "active", $('#' + li_id).index());
-        derive_tabs.find(".ui-tabs-nav").sortable({
+        fb_derive_tabs.tabs("refresh");
+        fb_derive_tabs.tabs("option", "active", $('#' + li_id).index());
+        fb_derive_tabs.find(".ui-tabs-nav").sortable({
             axis: "x",
             stop: function () {
-                derive_tabs.tabs("refresh");
+                fb_derive_tabs.tabs("refresh");
             }
         });
 
@@ -1797,11 +1859,16 @@ jQuery(document).ready(function ($) {
             }
         }
 
-        tab_counter_derive++;
+        fb_derive_tab_counter++;
 
         return derive_mce;
     }
 
+    ////
+    // In 'derived' document, there can be more than one derive tabs. This method gets the visible/active derive tab
+    //
+    // Note: in 'master' document, there is only one derive tab.
+    //
     function getVisibleDeriveMce() {
         // get active tab id
         var tab_id = $("#fb-tabs-derives .ui-tabs-panel:visible").attr("id");
@@ -1812,6 +1879,11 @@ jQuery(document).ready(function ($) {
         return derive_mce;
     }
 
+    ////
+    // In 'derived' document, there can be more than one source tabs. This method gets the visible/active source tab
+    //
+    // Note: in 'master' document, there is only one source tab.
+    //
     function getVisibleSourceMce() {
         // get active tab id
         var tab_id = $("#fb-tabs-sources .ui-tabs-panel:visible").attr("id");
@@ -1824,8 +1896,12 @@ jQuery(document).ready(function ($) {
 
     //-----------------------------------------------------------------------------------------------------
     // updates
+    //-----------------------------------------------------------------------------------------------------
 
-    function updateSourceTabsInput() {
+    ////
+    // Update opened source tabs list
+    //
+    function updateOpenedSourceTabsList() {
         $("#fb-input-source-tabs").val("");
 
         if (fb_meta_opened_source_post_list.length <= 0) return;
@@ -1837,17 +1913,6 @@ jQuery(document).ready(function ($) {
 
         $("#fb-input-source-tabs").val(ids);
     }
-
-    // selectable in the dialog
-    $("#fb-selectable-source-list").selectable({
-        stop: function () {
-            selected_sources.splice(0);
-            $(".ui-selected", this).each(function () {
-                var post_id = $(this).attr("source-post-id");
-                selected_sources.push(post_id);
-            });
-        }
-    });
 
     /*
     function update(caller_function) {
@@ -1867,7 +1932,10 @@ jQuery(document).ready(function ($) {
         executeUpdate(caller_function);
     }
 
-    // this is the original update function without debounce
+    ////
+    // this is the original update function without debounce.
+    // This method is the root of almost all update functions in derive document.
+    //
     function executeUpdate(caller_function) {
         if (flexibook.postpone_update == true) return;
         if (fb_derived_mce_init_done == false) return;
@@ -1877,10 +1945,10 @@ jQuery(document).ready(function ($) {
 
         var t0 = performance.now();
 
-        updateMetaSourceVersions();
+        updateDocumentDependencyList();
         var t1 = performance.now();
         var p1 = t1 - t0;
-        console.log("performance (updateMetaSourceVersions): " + p1);
+        console.log("performance (updateDocumentDependencyList): " + p1);
 
         updatePublishButton();
         var t2 = performance.now();
@@ -1905,6 +1973,9 @@ jQuery(document).ready(function ($) {
         console.log("performance (updateSVG): " + p5);
     }
 
+    ////
+    // Call the update method of all tinymce editors
+    //
     function updateAllMces() {
         for (var i = 0; i < tinymce.editors.length; i++) {
             var editor = tinymce.editors[i];
@@ -1914,6 +1985,9 @@ jQuery(document).ready(function ($) {
         }
     }
 
+    ////
+    // Call the update method of visible tinymce editors only
+    //
     function updateVisibleMces(update_source, update_derive) {
         if (update_source) {
             var source_mce = getVisibleSourceMce();
@@ -1930,11 +2004,17 @@ jQuery(document).ready(function ($) {
         }
     }
 
+    ////
+    // Call the update method of a tinymce editor
+    //
     function updateMce(mce) {
         if (!mce) return;
         mce.plugins.fb_folding_editor.updatePublic(false);
     }
 
+    ////
+    // Highlight the source elements that have been used in the derived units. The source elements that have not been used in derive units will be blurred.
+    //
     function updateSourceHighlight() {
         // get active tab id
         var source_mce = getVisibleSourceMce();
@@ -1945,6 +2025,9 @@ jQuery(document).ready(function ($) {
         highlightSource(source_doc, pid);
     }
 
+    ////
+    // Highlight the source elements.
+    //
     function highlightSource(source_doc, pid) {
         if (fb_highlighting_source == false) {
             $(source_doc.body).children().each(function (index) {
@@ -1990,7 +2073,12 @@ jQuery(document).ready(function ($) {
         }
     }
 
-    function updateMetaSourceVersions() {
+    ////
+    // Update document dependency list for all derive units
+    //      - If a derive unit uses an element from a source unit, then we say that the derive unit is depended on the source unit.
+    //      - A derive unit can depend on zero, one, or more than one source units.
+    //
+    function updateDocumentDependencyList() {
         if (fb_derived_mce_init_done == false) return;
 
         // remove objects from fb_meta_document_dependency_list if they are not longer in derived tabs 
@@ -2020,16 +2108,20 @@ jQuery(document).ready(function ($) {
             
             if (derive_doc != null) {
                 var source_post_ids = getUniqueSourcePostIDs(derive_doc);
-                updateMetaSourceVersionsForDeriveUnit(derive_post_name, source_post_ids)
+                updateDocumentDependencyForDeriveUnit(derive_post_name, source_post_ids)
             }
         });
 
         var meta_source_versions_string = JSON.stringify(fb_meta_document_dependency_list);
         $("#fb-input-derived-meta").val(meta_source_versions_string);
 
-        updateMetaBoxSourceVersions();
+        updateDocumentDependencyMetaBox();
     }
 
+    ////
+    // If there are still changes (cascaded/descended from source document) that have not been resolved in derived document, then the publish/save button will be disable.
+    //      - It is not allow to save the derive document in the middle of resolving changes.
+    // 
     function updatePublishButton() {
         $("#publish").attr('value', 'Save');
         $("#publish").prop('disabled', false);
@@ -2043,6 +2135,9 @@ jQuery(document).ready(function ($) {
         }
     }
 
+    ////
+    // Get the derive doc in tincymce base on its post name
+    //
     function getDeriveDocByName(derive_post_name) {
         for (var e = 0; e < tinymce.editors.length; e++) {
             if (tinymce.editors[e].id.indexOf("fb-derived-mce") >= 0 && tinymce.editors[e].post_name == derive_post_name) {
@@ -2054,10 +2149,13 @@ jQuery(document).ready(function ($) {
         return null;
     }
 
-    function updateMetaSourceVersionsForDeriveUnit(derive_post_name, source_post_ids) {
+    ////
+    // Update the document dependency for a derive unit/tab
+    //
+    function updateDocumentDependencyForDeriveUnit(derive_post_name, source_post_ids) {
         if (fb_meta_document_dependency_list.length == 0) {
             for (var i = 0; i < source_post_ids.length; i++) {
-                createNewDeriveMetaObject(derive_post_name, source_post_ids[i]);
+                createDocumentDependencyObject(derive_post_name, source_post_ids[i]);
             }
         }
         else {
@@ -2089,14 +2187,19 @@ jQuery(document).ready(function ($) {
                 }
 
                 if (post_ids_exist == false) {
-                    createNewDeriveMetaObject(derive_post_name, source_post_ids[i]);
+                    createDocumentDependencyObject(derive_post_name, source_post_ids[i]);
                 }
             }
         }
     }
 
-    // this function will also set the corresponding derive tabs that require merge to a different color as well
-    function updateMetaBoxSourceVersions() {
+    ////
+    // There is a meta box in wordpress to display the data in the document dependency list.
+    // This method will update the meta box every time the document dependency list has been updated.
+    //
+    // Note: this function will also set the derive tabs that contain changes to a different color as well
+    //
+    function updateDocumentDependencyMetaBox() {
         var table = document.getElementById("fb-table-derived-meta");
 
         $("#fb-button-approve-all").prop('disabled', true);
@@ -2159,7 +2262,10 @@ jQuery(document).ready(function ($) {
         }
     }
 
-    function createNewDeriveMetaObject(derive_post_name, post_id) {
+    ////
+    // Create a document dependency object and add the object to the document dependency list 
+    //
+    function createDocumentDependencyObject(derive_post_name, post_id) {
         var obj = new Object();
         obj['source_post_id'] = post_id;
         obj['number_of_merges'] = 0;
@@ -2178,6 +2284,10 @@ jQuery(document).ready(function ($) {
         fb_meta_document_dependency_list.push(obj);
     }
 
+    ////
+    // Get all the source units that have been used in a derive unit
+    // Note: a derive unit can depend on zero, one, or more than one source units.
+    // 
     function getUniqueSourcePostIDs(derived_doc) {
         var ids = [];
 
