@@ -1,3 +1,11 @@
+//----------------------------------------------------------------------------------------
+// Plugin for tinymce editor in wordpress
+//
+// 
+//
+//
+//----------------------------------------------------------------------------------------
+
 jQuery(document).ready(function ($) {
     // global variables
     var FB_LEVEL_1_POST = 'source';
@@ -23,25 +31,20 @@ jQuery(document).ready(function ($) {
     var copied_node = null;
     var copied_mode = "";
 
-    var on_icon_hover = false;
-
+    var fb_on_icon_hover = false;
     var fb_dragging = false;
     var fb_dragged_item_copy = null;
-
-    var FB_TOC_ID = "table_of_content";
-
     var fb_screen_dpi = -1;
+    var FB_TOC_ID = "table_of_content";
 
     var fb_all_custom_style_classes = 'main-heading-1 main-heading-2 activity c-head-sm d-head-sm';
     fb_all_custom_style_classes += ' bodytext bodytextHI body-text-italic';
     fb_all_custom_style_classes += ' exercise assessed diagram diagram2 question-sm';
     fb_all_custom_style_classes += ' subtitle title';
     fb_all_custom_style_classes += ' TNAnswers-Hide TNAnswers-Show';
-    var fb_plugin_url;
 
     // performance 
     var fb_performance_global_time_step = null;
-
 
     tinymce.PluginManager.add('fb_folding_editor', function (editor, url) {
         // public members of the fb_folding_editor object
@@ -58,7 +61,13 @@ jQuery(document).ready(function ($) {
         var mouse_wheel_timer = null;
         var performance_previous_scroll_top = null;
 
-        // events
+        //----------------------------------------------------------------------------------------
+        // Events
+        //----------------------------------------------------------------------------------------
+
+        ////
+        // On init of the tinymce editor 
+        //
         editor.on('init', function () {
             if ((editor.id.indexOf("fb-derived-mce") >= 0) || (editor.id.indexOf("fb-source-mce") >= 0)) {
                 // The Element.scrollTop property gets or sets the number of pixels that the content of an element is scrolled upward
@@ -66,8 +75,6 @@ jQuery(document).ready(function ($) {
                     var w = $(this).get(0);
                     var delta = e.originalEvent.wheelDelta;
                     var editor_height = editor.getContentAreaContainer().offsetHeight;
-                    //console.log("mousewheel: w.get(0).scrollHeight: " + w.scrollHeight);
-                    //console.log("mousewheel: scrollTop: " + w.scrollTop);
                     if (delta > 0 && w.scrollTop === 0) {
                         e.preventDefault();
                     }
@@ -86,13 +93,7 @@ jQuery(document).ready(function ($) {
                 });
             }
 
-            var test = fb_plugin_url;
-            //editor.contentCSS.push('http://localhost:39759/wp-content/plugins/visualdiff/css/editor-v2.css');
-            //editor.contentCSS.push('http://localhost:39759/wp-content/plugins/visualdiff/css/editor.css');
-            //editor.dom.loadCSS('http://localhost:39759/wp-content/plugins/visualdiff/css/editor.css');
-            //editor.dom.styleSheetLoader.load('http://localhost:39759/wp-content/plugins/visualdiff/css/editor.css');
-
-            // test dpi
+            // test screen dpi
             $(editor.getBody()).append('<div id="div_dpi" class="dpi_test" style="width:1in;visible:hidden;padding:0px"></div>');
             fb_screen_dpi = editor.getDoc().getElementById('div_dpi').offsetWidth;
             $(editor.getDoc()).find('.dpi_test').remove();
@@ -118,6 +119,7 @@ jQuery(document).ready(function ($) {
             update();
         });
 
+        // disable to improve performance
         /*
         editor.on('SetContent', function () {
             console.log('on set content');
@@ -125,81 +127,84 @@ jQuery(document).ready(function ($) {
         });
         */
 
+        ////
+        // On the change of content within tinymce editor.
+        // Update the views and controls in the editor
+        //
         editor.on('change', function (e) {
             //console.log('on change');
-            update('fb_on_change'); // comment out to improve performance
+            update('fb_on_change'); // disable to improve performance
         });
 
-        /*
-        editor.on('BeforeAddUndo', function (e) {
-            console.log('on BeforeAddUndo');
-        });
-        */
-
+        ////
+        // Fires before a execCommand call is made. 
+        //
         editor.on('BeforeExecCommand', function (e) {
             if (e.command === 'mceToggleFormat') {
-                console.log('ExecCommand event: mceToggleFormat');
+                //console.log('ExecCommand event: mceToggleFormat');
 
                 // check the selected node 
                 var node = editor.selection.getNode();
                 if (!node) return;
                 if (isAdminElement(node)) return;
 
+                // by default, user can select one or more styles in the Format dropdown list for a html element.
+                // clear all (selected) classes to ensure that only one style can be selected for each html element.
                 $(node).removeClass(fb_all_custom_style_classes);
             }
         });
 
-        editor.on('ExecCommand', function (e) {
-            /*
-            if (e.command === 'mceToggleFormat') {
-                console.log('ExecCommand event: mceToggleFormat');
-
-                // check the selected node 
-                var node = editor.selection.getNode();
-                if (!node) return;
-                if (isAdminElement(node)) return;
-
-
-            }
-            */
-        });
-
-        /*
-        editor.on('BeforeSetContent', function (e) {
-            console.log('BeforeSetContent event', e);
-        });
-        */
-
         editor.on('PostProcess', function (e) {
-            //update('fb_on_post_process');
+            //update('fb_on_post_process'); // disable to improve performance
         });
 
+        ////
+        // Fires when the focus is moved from one editor to another editor.
+        //
         editor.on('activate', function (e) {
             update('fb_on_activate');
         });
 
+        ////
+        // This method is called when the editor gets focused, e.g., when the user places cursor in the content of the editor.
+        //
         editor.on('focus', function (e) {
             update('fb_on_focus');
         });
 
+        ////
+        // Fire when content is cut in the editor
+        //
         editor.on('cut', function (e) {
             onCutOrCopy(e);
         });
 
+        ////
+        // Fire when content is copied in the editor
+        //
         editor.on('copy', function (e) {
             onCutOrCopy(e);
         });
 
-        
+        ////
+        // Fire when keydown
+        //
         editor.on('keydown', function (e) {
             if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
 
+            // set the postpone update flag to true
+            // postpone the update method while user is editing
             flexibook.postpone_update = true;
         });
 
+        ////
+        // Fire when keyup
+        //
         editor.on('keyup', function (e) {
             if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
 
+            // set the postpone update flag to false
+            // the editor can be updated now
             flexibook.postpone_update = false;
         });
         
@@ -220,14 +225,20 @@ jQuery(document).ready(function ($) {
         });
         */
 
+        ////
+        // Enables you to modify the pasted content before it gets inserted into the editor.
+        //
         editor.on('PastePreProcess', function (e) {
             if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
 
             pastePreProcess(e);
         });
 
+        ////
+        // On mouse up
+        //
         editor.on('mouseup', function (e) {
-            if (on_icon_hover) return;          
+            if (fb_on_icon_hover) return;          
 
             // check the selected node 
             var node = editor.selection.getNode();
@@ -246,12 +257,15 @@ jQuery(document).ready(function ($) {
             if (node.tagName.toLowerCase() === 'body') return; // if the node is the body again, then return
             if (isAdminElement(node)) return;
 
-            // if it passes all the filters above:
+            // if it passes all the conditions above:
+            // set the on mouse up flag to true and update the editor. An mouse up event will be called within the update method.
             on_mouse_up = true;
             update('fb_on_mouse_up');
         });
 
-        // add custom buttons
+        ////
+        // Add a custom button in the editor toolbar to create and update the table of content of the document
+        //
         editor.addButton('fb_custom_button_table_of_content', {
             title: 'Update Table of Content',
             icon: 'icon dashicons-media-spreadsheet',
@@ -261,6 +275,9 @@ jQuery(document).ready(function ($) {
             }
         });
 
+        ////
+        // Add a custom button in the editor toolbar to toggle the page boundary in the editor
+        //
         editor.addButton('fb_custom_button_page_boundary', {
             title: 'Toggle Page Boundary',
             icon: 'icon dashicons-tablet',
@@ -269,6 +286,9 @@ jQuery(document).ready(function ($) {
             }
         });
 
+        ////
+        // Add a custom button in the editor toolbar to create a new comment bubble
+        //
         editor.addButton('fb_custom_button_comment_bubble', {
             title: 'New Comment',
             icon: 'icon dashicons-testimonial',
@@ -277,6 +297,9 @@ jQuery(document).ready(function ($) {
             }
         });
 
+        ////
+        // Add a custom button in the editor toolbar to delete the selected comment bubble
+        //
         editor.addButton('fb_custom_button_comment_delete', {
             title: 'Delete Comment',
             icon: 'icon dashicons-dismiss',
@@ -285,6 +308,10 @@ jQuery(document).ready(function ($) {
             }
         });
 
+        ////
+        // Switch among different style sheets
+        // This method will be called by derive.js
+        //
         function switchStyleSheets(href) {
             if (!href) return;
 
@@ -297,10 +324,16 @@ jQuery(document).ready(function ($) {
             editor.getDoc().head.appendChild(link);
         }
 
+        ////
+        // Update the editor when mouse wheel end
+        //
         function onMouseWheelEnd() {
             update('fb_on_mouse_wheel_end');
         }
 
+        ////
+        // delete the selected comment bubble
+        //
         function deleteComment() {
             var node = editor.selection.getNode();
             if (!node) {
@@ -342,12 +375,9 @@ jQuery(document).ready(function ($) {
             }
         }
 
-        function unwrapCommentTagjQuery(element) {
-            var clean = element.find('span.fb-comment-content').contents().unwrap().end().end(); 
-            var html = clean.html();
-            return html;
-        }
-
+        ////
+        // Add an empty comment bubble
+        //
         function addComment() {
             // add the comment bubbles without considering overlapping.
             // resolve overlapping after all comment bubbles have been added.
@@ -395,12 +425,18 @@ jQuery(document).ready(function ($) {
             });
         }
 
+        ////
+        // Toggle page boundary on and off
+        //
         function togglePageBoundary() {
             page_boundary_on = !page_boundary_on;
             updatePageBoundary();
             update('fb_on_toggle_page_boundary');
         }
 
+        ////
+        // Update page boundary
+        //
         function updatePageBoundary() {
             $(editor.getBody()).find('.fb_tinymce_left_column_page').remove();
 
@@ -445,6 +481,10 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        ////
+        // This method is called by derived.js when a new editor has been created.
+        // The plugin is used in all post types. This method set the fb_post_type variable so that the editor knows which post type it is working on.
+        //
         function setupPostType(post_type) {
             fb_post_type = post_type;
             if (fb_post_type == FB_LEVEL_2_POST) {
@@ -459,6 +499,10 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        ////
+        // This method is called by derived.js when the 'approve all' button is clicked outside the editor.
+        // Approve all changes (or merge requests) in the derive document that are descended/cascaded from the source document
+        //
         function approveAllMerges() {
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').each(function () {
                 var icon = $(this);
@@ -471,6 +515,12 @@ jQuery(document).ready(function ($) {
             });
         }
 
+        ////
+        // This method is called by derived.js when the 'update master table of content' button is clicked outside the editor.
+        // The master table of content will be updated
+        //      - the master table of content is in a separate tab.
+        //      - the master table of content lists all units/tabs in the document
+        //
         function updateMasterTableOfContent(title, post_names) {
             // firstly remove the toc if it already exists
             $(editor.getBody()).find('.toc-page').remove();
@@ -493,7 +543,9 @@ jQuery(document).ready(function ($) {
             }
         }
 
-        //---------------------------------------------------------------------
+        ////
+        // This method is fired when the 'update table of content' button within the editor is clicked.
+        //      - you can create and update a table of content for each unit/tab in the document.
         function updateTableOfContent() {
             // firstly remove the toc if it already exists
             $(editor.getBody()).find('.toc-page').remove();
@@ -551,6 +603,9 @@ jQuery(document).ready(function ($) {
             if (callback) callback(editor.id);           
         }
 
+        ////
+        // Check if the bounding boxes of two html elements are overlapped. 
+        //
         function isOverlap(id1, id2) {
             var r1 = editor.getDoc().getElementById(id1).getBoundingClientRect();
             var r2 = editor.getDoc().getElementById(id2).getBoundingClientRect();
@@ -563,6 +618,9 @@ jQuery(document).ready(function ($) {
             return overlap;
         }
 
+        ////
+        // The mouse up event will be called in the 'update' method.
+        //
         function onMouseUp() {
             console.log("tinymce mouse up event");
 
@@ -620,6 +678,9 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        ////
+        // Fire when the enter key is up
+        //
         function onEnterKeyUp(e) {
             var content = editor.selection.getContent();
             var node = editor.selection.getNode();
@@ -654,6 +715,9 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        ////
+        // Called when content in the editor has been cut or copied
+        //
         function onCutOrCopy(e) {
             if (!editor.hasOwnProperty("post_id")) return;
             var post_id = editor.post_id;
@@ -662,8 +726,6 @@ jQuery(document).ready(function ($) {
             copied_content = editor.selection.getContent();
             copied_node = null;
 
-            //console.log("COPY:");
-            //console.log("copy from editor: " + copied_from_editor_id);
             if (copied_content == null || copied_content.length == 0) return;
 
             var copied_node = editor.selection.getNode(); // returns the currently selected element or the common ancestor element for both start and end of the selection
@@ -673,10 +735,6 @@ jQuery(document).ready(function ($) {
                 editor.id.indexOf("fb-derived-mce") >= 0) {
                 // usually, multiple paragraphs or parts of multiple paragraphs have been selected
                 if (copied_node.tagName.toLowerCase() == 'body') {
-                    //console.log("copied node:");
-                    //console.log(copied_node);
-                    //console.log("selected content:" + copied_content);
-
                     copied_mode = "multiple";
                     copied_node = null; // we don't need the node
 
@@ -695,24 +753,18 @@ jQuery(document).ready(function ($) {
                     $(node).attr(fb_data_post_id, post_id);
                     $(node).html(copied_content);
                     copied_content = $(node).prop('outerHTML');
-
-                    //console.log("copied node:");
-                    //console.log(copied_node);
-                    //console.log("selected content:" + copied_content);
                 }
             }
         }
 
-        // this function only considers content copied from source or derived editors 
+        ////
+        // Content may be pasted into the editor from external documents. this function only processes content copied from source or derived editors within wordpress.
+        //
         function pastePreProcess(e) {
-            //console.log("PASTE:");
-            //console.log("e.content:" + e.content);
-            //console.log("copied_content:" + copied_content);
             if (e.content == null || e.content.length <= 0) return;
 
             // COPY: (assume that) all content copies from source or derived editors are html elements; 
-            // CUT: single paragraph content cut from source or derived editors are NOT html elements; - but we should assume source content is not editable in derived pages
-            //if (isHTML(e.content) == false) return;
+            // CUT: single paragraph content cut from source or derived editors are NOT html elements;
 
             // if the content comes from the source document
             if (copied_from_editor_id.indexOf("fb-source-mce") >= 0) {
@@ -753,6 +805,9 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        ////
+        // Check if the content is empty.
+        //
         function isEmptyContent(content) {
             if (!content) return true;
 
@@ -766,6 +821,9 @@ jQuery(document).ready(function ($) {
             return false;
         }
 
+        ////
+        // Check if the text is html or not.
+        //
         function isHTML(text) {
             var a = document.createElement('div');
             a.innerHTML = text;
@@ -775,7 +833,12 @@ jQuery(document).ready(function ($) {
             return false;
         }
 
-        var debounce_update = null;
+        ////
+        // Debounce: grouping multiple events in one event.
+        // Using debounce significantly increases the performance of the application.
+        // If the update method is called multiple times within very short period, e.g., a few hundreds milliseconds, then fire the update method only once using debounce from underscore.js
+        //
+        var debounce_update = null; // debounce version of the update method
         //if (debounce_update === null) debounce_update = _.debounce(updatePublic, 300); // this function causes cursor jumping
         if (debounce_update === null) debounce_update = _.debounce(updatePublic, 500, true);
 
@@ -793,11 +856,14 @@ jQuery(document).ready(function ($) {
             //updatePublic(true, caller_function);
         }
 
+        ////
+        // The update method can be called by derived.js when events occurred outside the tinymce editor
+        //
         function updatePublic(derived_callback, caller_function) {
             derived_callback = derived_callback || false;
             caller_function = caller_function || '';
 
-            var t0 = performance.now();
+            var t0 = performance.now(); // measure the performance of each method in this function
             setupNewElements();
             var t1 = performance.now();
             setupDerivedElementID();
@@ -874,42 +940,10 @@ jQuery(document).ready(function ($) {
             console.log(".........................................................................");
         }
 
+        ////
+        // Update the comment bubbles
+        //
         function updateComments() {
-            // find if the selected node is a comment bubble or not
-            /*
-            var node = editor.selection.getNode();
-            var node_id = null;
-            if (node) {
-                node_id = $(node).attr('id');
-                var count = 0;
-                while ((node_id === null) || (typeof node_id === 'undefined')) {
-                    count++;
-                    if (count > 20) break;
-                    if (!$(node).parent()[0]) break;
-                    node = $(node).parent()[0]; // only consider that case when one paragraph has been selected
-                    node_id = $(node).attr('id');
-                }
-            }
-            */
-
-            // update comments
-            /*
-            $(editor.getBody()).find('.fb-comment-content').each(function (index) {
-                $(this).removeClass('fb-comment-content-selected');
-            });
-            */
-
-            /*
-            $(editor.getBody()).find('.fb-comment-bubble').each(function (index) {
-                if (node_id && node_id == $(this).attr('id')) return true; // continue
-                $(this).removeClass('fb-comment-bubble-selected');
-                var html = $(this).html().replace(/&nbsp;/ig, '').replace(/<br>/g, '');
-                if (html.trim().length <= 0) {
-                    $(this).html("<span class='fb-comment-bubble-dummy-text'>comment:</span>");
-                }
-            });
-            */
-
             // if the comment bubble have not longer existed, remove the comment span tag of the related content
             $(editor.getBody()).find('.fb-comment-content').each(function (index) {
                 var content = $(this);
@@ -938,17 +972,13 @@ jQuery(document).ready(function ($) {
                 }
             });
 
-            /*
-            $(editor.getBody()).find('.fb-comment-bubble').off(); // The .off() method removes event handlers that were attached with .on().
-            $(editor.getBody()).find('.fb-comment-bubble').on('click', function () {
-                onCommentBubbleClick($(this));
-            });
-            */
-
             updateBubblePosition();
             redrawCommentLines(); // have to redraw the comment lines after the bubble position is updated.
         }
 
+        ////
+        // Update the comment bubble positions
+        //
         function updateBubblePosition() {
             var body_width = $(editor.getBody()).width();
             var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
@@ -998,6 +1028,9 @@ jQuery(document).ready(function ($) {
             });
         }
 
+        ////
+        // Redraw the lines that link between comment bubbles and comment texts in the html content
+        //
         function redrawCommentLines() {
             $(editor.getBody()).find('.fb-comment-line-svg').remove();
 
@@ -1032,6 +1065,9 @@ jQuery(document).ready(function ($) {
             });
         }
 
+        ////
+        // Draw a comment line
+        //
         function drawCommentLine(id, x1, y1, x2, y2) {
             var svg_top = (y1 < y2) ? y1 : y2;
             var svg_height = (y1 <= y2) ? (y2 - y1) : (y1 - y2);
@@ -1056,32 +1092,9 @@ jQuery(document).ready(function ($) {
             if (svg) svg.appendChild(line);
         }
 
-        /*
-        function onCommentBubbleClick(bubble) {
-            var bubble_id = bubble.attr('id');
-            bubble.find('.fb-comment-bubble-dummy-text').remove();
-            bubble.addClass('fb-comment-bubble-selected');
-            $(editor.getBody()).find('.fb-comment-content').each(function (index) {
-                var selected_content = $(this);
-
-                var body_width = $(editor.getBody()).width();
-                var body_margin_left = parseInt($(editor.getBody()).css('margin-left'), 10);
-                var bubble_left = body_width + body_margin_left + 10;
-
-                if (selected_content.attr('data-comment-id') === bubble_id) {
-                    var offset = selected_content.offset(); // absolute position relative to the document
-                    var top = offset.top;
-                    var left = offset.left;
-
-                    // left is not correct for multiple lines selection content; 
-                    // in that case, we need to wrap, e.g., the first char, as an element, find the left of the char, and then unwrap the element;
-                    selected_content.addClass('fb-comment-content-selected');
-                    drawCommentLine(left, top, bubble_left, top);
-                }
-            });
-        }
-        */
-
+        ////
+        // Reset all the icons/buttons in the tinymce html body
+        //
         function resetIcons() {
             $(editor.getBody()).find('.fb_tinymce_left_column').remove();
 
@@ -1196,9 +1209,12 @@ jQuery(document).ready(function ($) {
                 });
             }
 
-            on_icon_hover = false;
+            fb_on_icon_hover = false;
         }
 
+        ////
+        // Setup icon events for icons in the tinymce html body
+        //
         function setupIconEvents() {
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').each(function () {
                 var this_icon = $(this);
@@ -1218,7 +1234,7 @@ jQuery(document).ready(function ($) {
                     if (targetID == null) return;
 
                     this_icon.css('cursor', 'pointer');
-                    on_icon_hover = true;
+                    fb_on_icon_hover = true;
 
                     if (this_icon.html().charCodeAt() == '8863' || this_icon.html().charCodeAt() == '8862') {
                         sectionHighlight(targetID, true);
@@ -1242,7 +1258,7 @@ jQuery(document).ready(function ($) {
                     if (targetID == null) return;
 
                     this_icon.css('cursor', 'text');
-                    on_icon_hover = false;
+                    fb_on_icon_hover = false;
 
                     if (this_icon.html().charCodeAt() == '8863' || this_icon.html().charCodeAt() == '8862') {
                         sectionHighlight(targetID, false);
@@ -1266,6 +1282,9 @@ jQuery(document).ready(function ($) {
             });
         }
 
+        ////
+        // Called when an icon is clicked
+        //
         function iconOnClick(icon) {
             var this_icon = icon;
             var targetID = this_icon.attr('id').substr(5);
@@ -1330,6 +1349,10 @@ jQuery(document).ready(function ($) {
             update('fb_on_icon_click');
         }
 
+        ////
+        // Setup draggable icon events
+        // The user can use the draggable icon to move an element from a source unit to a derive unit, or move an element up or down within the derive unit.
+        //
         function setupDraggableIconEvents(icon_id) {
             var icon = editor.getDoc().getElementById(icon_id);
             /*
@@ -1370,7 +1393,6 @@ jQuery(document).ready(function ($) {
                     var post_id = editor.post_id;
                     $(fb_dragged_item_copy).attr(fb_data_post_id, post_id);
                 }
-                //console.log('dragstart');
             });
 
             /*
@@ -1411,6 +1433,9 @@ jQuery(document).ready(function ($) {
             });
         }
 
+        ////
+        // Checked if the icon is for approving or rejecting changes in a derive unit
+        //
         function isMergeIcons(this_icon) {
             if ((this_icon.html().charCodeAt() == '10003') ||
                 (this_icon.html().charCodeAt() == '10007') ||
@@ -1420,6 +1445,9 @@ jQuery(document).ready(function ($) {
             return false;
         }
 
+        ////
+        // Checked if the icon is a move icon or a delete icon
+        //
         function isEditIcons(this_icon) {
             if (this_icon.html().charCodeAt() == '9776' || 
                (this_icon.html().charCodeAt() == '10005')) {
@@ -1428,7 +1456,9 @@ jQuery(document).ready(function ($) {
             return false;
         }
 
-
+        ////
+        // When new elements are inserted into the editor, create a unique id for each of the new elements
+        //
         function setupNewElements() {
             $(editor.getBody()).children().each(function (index) {
                 var element = $(this);
@@ -1461,6 +1491,11 @@ jQuery(document).ready(function ($) {
             });
         }
 
+        ////
+        // This method is for derive editor only
+        // Create a unique id for each new elements in the derive editor
+        // If a derive element is descended from a source element, then save this dependency in the derive element as well
+        //
         function setupDerivedElementID() {
             if (editor.id.indexOf("fb-derived-mce") < 0) return; // only for derived editor
 
@@ -1491,6 +1526,9 @@ jQuery(document).ready(function ($) {
             });
         }
 
+        ////
+        // Generate a global unique id
+        //
         function generateUUID() {
             var d = new Date().getTime();
             var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
