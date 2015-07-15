@@ -78,7 +78,7 @@ function fb_remove_buttons() {
 // Called on the admin_enqueue_scripts action, enqueues CSS to 
 // make all WordPress Dashicons available to TinyMCE. This is
 // where most of the magic happens.
-
+//
 function fb_custom_tinymce_dashicons() {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
@@ -93,7 +93,7 @@ function fb_custom_tinymce_dashicons() {
 
 //-----------------------------------------------------------------------------------------------
 // load external TinyMCE plugins
- 
+ //
 function fb_tinymce_plugin( $tinymce_vb ) {
 	$tinymce_vb[ 'fb_folding_editor' ] = plugins_url( 'js/tinymce.js', __FILE__ );
 	return $tinymce_vb;
@@ -101,7 +101,7 @@ function fb_tinymce_plugin( $tinymce_vb ) {
 
 //-----------------------------------------------------------------------------------------------
 // tinymce custom buttons
-
+//
 function fb_mce_editor_buttons_second_row( $buttons ) {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
@@ -133,6 +133,10 @@ function fb_mce_editor_buttons_second_row( $buttons ) {
     return $buttons;
 }
 
+//-----------------------------------------------------------------------------------------------
+// add the third row of tinymce toolbar
+// custom buttons will be put in this row
+//
 function fb_mce_editor_buttons_third_row( $buttons ) {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
@@ -154,15 +158,9 @@ function fb_mce_settings( $init ) {
 	return $init;
 }
 
-/*
-function my_theme_add_editor_styles() {
-    add_editor_style( trailingslashit( plugin_dir_url(__FILE__) ) . 'css/editor.css' ); // ms - test
-    global $editor_styles;
-}
-add_action( 'init', 'my_theme_add_editor_styles' );
-add_action( 'pre_get_posts', 'my_theme_add_editor_styles' );
-*/
-
+//-----------------------------------------------------------------------------------------------
+// add styles into the 'Format' drop down list in the toolbar
+// the styles in this method is defined in editor.css file
 function fb_mce_before_init( $settings ) {
 
     $style_formats = array(
@@ -258,8 +256,8 @@ function fb_mce_before_init( $settings ) {
 
 //-----------------------------------------------------------------------------------------------
 // change the style of wp editor - see http://codex.wordpress.org/TinyMCE_Custom_Styles
-
-// apply styles to the visual editor
+// apply styles in editor.css to the visual editor
+//
 function fb_mce_editor_style($url) {
     if ( !empty($url) )
         $url .= ',';
@@ -273,7 +271,8 @@ function fb_mce_editor_style($url) {
 }
 
 //-----------------------------------------------------------------------------------------------
-
+// during the init of the admin page, add js and css files to the admin page
+//
 function fb_admin_head() {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
@@ -321,6 +320,9 @@ function fb_derived_admin_footer() {
 
 }
 
+//-----------------------------------------------------------------------------------------------
+// add jquery ui libraries
+//
 function fb_admin_print_scripts() {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
@@ -341,6 +343,7 @@ function fb_admin_print_scripts() {
 
 //-----------------------------------------------------------------------------------------------
 // ajax action
+//-----------------------------------------------------------------------------------------------
 
 function fb_source_query_level_1() {   
     // query the post content
@@ -460,8 +463,8 @@ function fb_source_element_revision_query() {
 }
 
 //-----------------------------------------------------------------------------------------------
-// derived meta boxes
-
+// add a meta box in derive document
+// 
 function fb_add_meta_box_derived_document() {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
@@ -484,6 +487,9 @@ function fb_add_meta_box_derived_document() {
     }
 }
 
+//-----------------------------------------------------------------------------------------------
+// callback function when the meta box is added into derive document
+//
 function fb_add_meta_box_derived_document_callback() {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
@@ -528,8 +534,8 @@ function fb_add_meta_box_derived_document_callback() {
 }
 
 //-----------------------------------------------------------------------------------------------
-// derived post boxes
-
+// add a post box to derive document
+//
 function fb_add_post_box_derived_document() {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
@@ -542,6 +548,9 @@ function fb_add_post_box_derived_document() {
     }
 }
 
+//-----------------------------------------------------------------------------------------------
+// callback function when the post box is added into derive document
+//
 function fb_post_box_derived_document_callback($post_type) {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;
@@ -552,13 +561,36 @@ function fb_post_box_derived_document_callback($post_type) {
     global $post;
     $p_label = null;
     $c_label = null;
+    
+    // tooltip variables
+    $open_source_title = "";
+    $select_style_sheet_title = "Switch among style sheets for all opened editors";
+    $add_derive_title = "";
+    $master_toc_title = "";
+    $rename_tab_title = "Rename the selected tab";
+    $toggle_merge_mode_title = "";
+    $toggle_source_column_title = "";
+    $toggle_student_teacher_title = "";
+    
     if ($post_type == $FB_LEVEL_2_POST) {
         $p_label = $FB_LEVEL_1_LABEL;
         $c_label = $FB_LEVEL_2_LABEL;
+        $open_source_title = "You can open only one source document";
+        $add_derive_title = "You can add only one master tab";
+        $master_toc_title = "Create or update the book's table of content for the master document";
+        $toggle_merge_mode_title = "Show or hide all the changes in the master unit that have descended from source unit";
+        $toggle_source_column_title = "Show or hide the source tab/editor";
+        $toggle_student_teacher_title = "Switch between student and teacher versions in the master document";
     }
     else if ($post_type == $FB_LEVEL_3_POST) {
         $p_label = $FB_LEVEL_2_LABEL;
         $c_label = $FB_LEVEL_3_LABEL;
+        $open_source_title = "You can open one or more master documents";
+        $add_derive_title = "You can add one or more derive tabs";
+        $master_toc_title = "Create or update the book's table of content for the derive document";
+        $toggle_merge_mode_title = "Show or hide all the changes in the derive unit that have descended from master unit";
+        $toggle_source_column_title = "Show or hide the master tab(s)/editor(s)";
+        $toggle_student_teacher_title = "Switch between student and teacher versions in the derive document";
     }
     
     $custom = get_post_custom($post->ID);
@@ -648,8 +680,8 @@ function fb_post_box_derived_document_callback($post_type) {
   <tr id="fb-tr-derive-document-editors">
     <td id="fb-td-source-mces" style="vertical-align:top">
         <div> 
-            <input id="fb-button-open-source-document" type="button" value="Open <?php echo $p_label; ?>" class="button-secondary" style="margin-right:10px"/>  
-            <select id="fb-select-style-sheet" data-css-href-1="<?php echo plugins_url( 'css/editor.css' , __FILE__ ); ?>" data-css-href-2="<?php echo plugins_url( 'css/editor-v2.css' , __FILE__ ); ?>">
+            <input id="fb-button-open-source-document" type="button" value="Open <?php echo $p_label; ?>" class="button-secondary" title="<?php echo $open_source_title; ?>" style="margin-right:10px"/>  
+            <select id="fb-select-style-sheet" title="<?php echo $select_style_sheet_title; ?>" data-css-href-1="<?php echo plugins_url( 'css/editor.css' , __FILE__ ); ?>" data-css-href-2="<?php echo plugins_url( 'css/editor-v2.css' , __FILE__ ); ?>">
                 <option selected="selected">Style 1</option>
                 <option>Style 2</option>
             </select>   
@@ -680,25 +712,25 @@ function fb_post_box_derived_document_callback($post_type) {
     <td id="fb-td-derive-mces" style="vertical-align:top">
         <!--h3 style="margin-bottom:8px">Derived Document</h3-->
         <div> 
-            <input id="fb-button-add-derive-document" type="button" value="Add <?php echo $c_label; ?> Section" class="button-secondary" style="margin-right:10px"/>  
+            <input id="fb-button-add-derive-document" type="button" value="Add <?php echo $c_label; ?> Section" title="<?php echo $add_derive_title; ?>" class="button-secondary" style="margin-right:10px"/>  
 <?php if ($post_type == $FB_LEVEL_3_POST) { ?>
-            <input id="fb-button-table-of-content" type="button" value="Table of Content" class="button-secondary" style="margin-right:10px"/>   
+            <input id="fb-button-table-of-content" type="button" value="Table of Content" title="<?php echo $master_toc_title; ?>" class="button-secondary" style="margin-right:10px"/>   
 <?php } ?>           
-            <input id="fb-button-rename-derive-tab" type="button" value="Rename" class="button-secondary" style="margin-right:10px"/>  
+            <input id="fb-button-rename-derive-tab" type="button" value="Rename" title="<?php echo $rename_tab_title; ?>" class="button-secondary" style="margin-right:10px"/>  
 <?php if ($post_type == $FB_LEVEL_2_POST) { ?>
             <input id="fb-button-approve-all" type="button" value="Approve All" class="button-secondary" style="margin-right:10px"/>   
 <?php } ?> 
-            <span id="fb-buttonset-toggle-merge" style="margin-right:10px">
+            <span id="fb-buttonset-toggle-merge" title="<?php echo $toggle_merge_mode_title; ?>" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-toggle-merge-on" name="fb-buttonset-toggle-merge" checked="checked"><label for="fb-buttonset-toggle-merge-on">Update On</label>
                 <input type="radio" id="fb-buttonset-toggle-merge-off" name="fb-buttonset-toggle-merge"><label for="fb-buttonset-toggle-merge-off">Off</label>
             </span>
             <!--input type="checkbox" id="fb-checkbox-toggle-merge" style="margin-right:10px"><label for="fb-checkbox-toggle-merge">Approve Updates</label-->
-            <span id="fb-buttonset-toggle-sources" style="margin-right:10px">
+            <span id="fb-buttonset-toggle-sources" title="<?php echo $toggle_source_column_title; ?>" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-toggle-sources-on" name="fb-buttonset-toggle-sources" checked="checked"><label for="fb-buttonset-toggle-sources-on"><?php echo $p_label; ?> On</label>
                 <input type="radio" id="fb-buttonset-toggle-sources-off" name="fb-buttonset-toggle-sources"><label for="fb-buttonset-toggle-sources-off">Off</label>
             </span>
 <?php if ($post_type == $FB_LEVEL_3_POST) { ?>
-            <span id="fb-buttonset-teacher-student" style="margin-right:10px">
+            <span id="fb-buttonset-teacher-student" title="<?php echo $toggle_student_teacher_title; ?>" style="margin-right:10px">
                 <input type="radio" id="fb-buttonset-teacher-student-t" name="fb-buttonset-teacher-student" checked="checked"><label for="fb-buttonset-teacher-student-t">Teacher</label>
                 <input type="radio" id="fb-buttonset-teacher-student-s" name="fb-buttonset-teacher-student"><label for="fb-buttonset-teacher-student-s">Student</label>
             </span>
@@ -728,6 +760,9 @@ function fb_error_notice() {
     }
 }
 
+//-----------------------------------------------------------------------------------------------
+// check if a title of a document is used by other documents
+//
 function checkDuplicateTitle($postid, $post) {
     global $_POST;
     global $wpdb;
@@ -759,10 +794,16 @@ function checkDuplicateTitle($postid, $post) {
     }
 }
 
+//-----------------------------------------------------------------------------------------------
+// Called when the publish button is clicked
+//
 function fb_publish_post($postid, $post) {
     checkDuplicateTitle($postid, $post);
 }
 
+//-----------------------------------------------------------------------------------------------
+// Called when the document is been saved
+//
 function fb_save_document($postid, $post) {
     global $FB_LEVEL_1_POST;
     global $FB_LEVEL_2_POST;

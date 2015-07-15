@@ -1,9 +1,6 @@
 //----------------------------------------------------------------------------------------
 // Plugin for tinymce editor in wordpress
 //
-// 
-//
-//
 //----------------------------------------------------------------------------------------
 
 jQuery(document).ready(function ($) {
@@ -1189,7 +1186,6 @@ jQuery(document).ready(function ($) {
                             var textID = 'mtxt-' + node.attr('id');
 
                             createMergeIcon(yesIconID, top, width + 60, '&#10003', mcase, "Accept this option");
-                            //createMergeText(textID, offset.top, 'OPTION', mcase);
                         }
                         else if (mcase == 5) {
                             var yesIconID = 'myes-' + node.attr('id');
@@ -1539,6 +1535,9 @@ jQuery(document).ready(function ($) {
             return uuid;
         };
 
+        ////
+        // There is an 'insert content' (triangle) icon for each section (h1, h2, h3) in the source unit. Click the icon will insert the source section at the cursor position of the derive unit.
+        //
         function insertContent(targetID) {
             var content = "";
 
@@ -1606,6 +1605,9 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        ////
+        // Get the outer html of a comment bubble
+        //
         function getCommentsBubbleOuterHtml(targetEditor, element) {
             var outer = '';
             $(element).find('.fb-comment-content').each(function (index) {
@@ -1629,10 +1631,16 @@ jQuery(document).ready(function ($) {
             return outer;
         }
 
+        ////
+        // Check if a html element is an administrative element (i.e., not the actual content of the document) in the editor.
+        //
         function isAdminElement(element) {
             return isAdminElementjQuery($(element));
         }
 
+        ////
+        // jQuery version
+        //
         function isAdminElementjQuery(element) {
             if (element.prop("tagName").toLowerCase() == 'svg') return true;
             if (element.hasClass("fb_tinymce_left_column") == true ||
@@ -1648,6 +1656,9 @@ jQuery(document).ready(function ($) {
             return false;
         }
         
+        ////
+        // If a derive element contains changes descended from the source element, then draw a line on the right of the element as a highlight.
+        //
         function drawLinesMergeElements() {
             if (editor.id.indexOf("fb-derived-mce") >= 0) {
                 $(editor.getBody()).children().each(function (index) {
@@ -1716,6 +1727,10 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        ////
+        // Draw a vertical line for each h1 and h2 section in the editor.
+        // Hover the mouse on the line will highlight the whole section.
+        //
         function drawLines() {         
             $(editor.getBody()).find('.fb_tinymce_left_column_icon').each(function () {
                 var this_icon = $(this);
@@ -1834,6 +1849,9 @@ jQuery(document).ready(function ($) {
             });
         }
 
+        ////
+        // Highlight a h1 or h2 section
+        //
         function sectionHighlight(id, on) {
             var start = false;
             var targetLevel = 10000;
@@ -1885,6 +1903,12 @@ jQuery(document).ready(function ($) {
 
         }
 
+        ////
+        // Collapse icon: -
+        // Expand icon: +
+        // There is a collapse icon initially for each h1 and h2 section in the editor content.
+        // Click the 'collapse' icon will collapse the selected section. Click the 'expand' icon will expand the selected section
+        //
         function collapseOrExpand(targetID, collapse) {
             // when expanding, move the hidden elements first
             if (!collapse) {
@@ -1959,6 +1983,9 @@ jQuery(document).ready(function ($) {
             }
         }
 
+        ////
+        // Hide the commment bubbles if the section that the bubbles belong to has been collapse, and show the bubble otherwise.
+        //
         function collapseOrExpandComments(collapse, element, targetLevel) {
             $(element).find('.fb-comment-content').each(function (index) {
                 var content = $(this);
@@ -1978,6 +2005,12 @@ jQuery(document).ready(function ($) {
             });
         }
 
+        ////
+        // Create an icon. The icon can be:
+        //      - collapse icon
+        //      - expand icon
+        //      - insert content icon
+        //
         function createIcon(id, top, left, text, fontsize) {
             //text = typeof text !== 'undefined' ? text : '&#8863'; // default parameter
 
@@ -1996,6 +2029,11 @@ jQuery(document).ready(function ($) {
             editor.getBody().appendChild(icon);
         }
 
+        ////
+        // Create an icon for merge actions. The icon can be:
+        //      - accept changes
+        //      - ignore changes
+        //
         function createMergeIcon(id, top, left, text, mcase, title) {
             //text = typeof text !== 'undefined' ? text : '&#8863'; // default parameter
 
@@ -2029,6 +2067,9 @@ jQuery(document).ready(function ($) {
             editor.getBody().appendChild(icon);
         }
 
+        ////
+        // Create a comment bubble for selected text
+        //
         function createCommentBubble(id, top, left, text) {
             var bubble_height = 60;
             var bubble_top = top - bubble_height / 2;
@@ -2053,19 +2094,11 @@ jQuery(document).ready(function ($) {
             editor.getBody().appendChild(bubble);
         }
 
-        function createMergeText(id, top, text, mcase) {
-            var t = document.createElement('div');
-            t.className = 'fb_tinymce_left_column';
-            t.id = id;
-            t['data-mcase'] = mcase;
-            t.innerHTML = text;
-            t.style.position = 'absolute';
-            t.style.top = top + 'px';
-            t.style.left = '50px';
-
-            editor.getBody().appendChild(t);
-        }
-
+        ////
+        // Create an icon for edit the html elements. The icon can be:
+        //      - move icon that can move a paragraph around
+        //      - delete icon to delete a paragraph
+        //
         function createEditIcon(id, top, left, text, title, draggable) {
             var icon = document.createElement('div');
             icon.className = 'fb_tinymce_left_column_icon';
@@ -2092,8 +2125,11 @@ jQuery(document).ready(function ($) {
             editor.getBody().appendChild(icon);
         }
 
+        ////
+        // Create A4 page boundary for the html body in the editor 
         // the size of A4: 210mm x 297mm or 8.27in x 11.69in
         // 1 inch = 25.4 millimetres
+        //
         function createPageBoundary(id, page_count, top, left, width, height) {
             var page = document.createElement('div');
             page.className = 'fb_tinymce_left_column_page';
