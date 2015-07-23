@@ -25,7 +25,7 @@
 // Document structure:
 //      - a 'source' document: contain one and only one 'source' (tinymce) editor. we consider an editor is equivalent to a unit.
 //      - a 'master' document: contain one and only one 'master' editor/unit, and contain zero or one 'source' editor/unit. 
-//      - a 'derive' document: contain one or more than one 'derive' editor/unit, and contain zero, one or more than one 'master' editors/units.
+//      - a 'derive' document: contain one or more 'derive' editor/unit, and contain zero, one or more 'master' editors/units.
 //      - a unit contains a set of html elements.
 //      - each html element has a global unique id.
 // 'source', 'master', 'derive' will be used in the comments to denote a specific level of document
