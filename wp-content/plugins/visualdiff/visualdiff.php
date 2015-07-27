@@ -93,7 +93,7 @@ function fb_custom_tinymce_dashicons() {
 
 //-----------------------------------------------------------------------------------------------
 // load external TinyMCE plugins
- //
+//
 function fb_tinymce_plugin( $tinymce_vb ) {
 	$tinymce_vb[ 'fb_folding_editor' ] = plugins_url( 'js/tinymce.js', __FILE__ );
 	return $tinymce_vb;

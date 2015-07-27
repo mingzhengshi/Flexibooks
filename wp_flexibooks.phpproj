@@ -578,6 +578,9 @@
     <Compile Include="wp-content\plugins\word-to-web\vendor\sabberworm\php-css-parser\tests\Sabberworm\CSS\RuleSet\DeclarationBlockTest.php" />
     <Compile Include="wp-content\plugins\word-to-web\vendor\sabberworm\php-css-parser\tests\Sabberworm\CSS\RuleSet\LenientParsingTest.php" />
     <Compile Include="wp-content\plugins\word-to-web\wordtoweb.php" />
+    <Compile Include="wp-content\plugins\wp-post-styling\uninstall.php" />
+    <Compile Include="wp-content\plugins\wp-post-styling\wp-post-styling-manager.php" />
+    <Compile Include="wp-content\plugins\wp-post-styling\wp-post-styling.php" />
     <Compile Include="wp-content\themes\twentyfourteen\css\editor-style.css" />
     <Compile Include="wp-content\themes\twentyfourteen\css\ie.css" />
     <Compile Include="wp-content\themes\twentyfourteen\genericons\font\genericons-regular-webfont.eot" />
@@ -640,6 +643,7 @@
     <Compile Include="wp-content\themes\twentyfourteen\style.css" />
     <Compile Include="wp-content\themes\twentyfourteen\tag.php" />
     <Compile Include="wp-content\themes\twentyfourteen\taxonomy-post_format.php" />
+    <Compile Include="wp-content\themes\twentythirteen-child\functions.php" />
     <Compile Include="wp-content\themes\twentythirteen\css\editor-style.css" />
     <Compile Include="wp-content\themes\twentythirteen\css\ie.css" />
     <Compile Include="wp-content\themes\twentythirteen\genericons\font\genericons-regular-webfont.eot" />
@@ -1395,6 +1399,7 @@
     <Folder Include="wp-content\plugins\word-to-web\vendor\sabberworm\php-css-parser\tests\Sabberworm\" />
     <Folder Include="wp-content\plugins\word-to-web\vendor\sabberworm\php-css-parser\tests\Sabberworm\CSS\" />
     <Folder Include="wp-content\plugins\word-to-web\vendor\sabberworm\php-css-parser\tests\Sabberworm\CSS\RuleSet\" />
+    <Folder Include="wp-content\plugins\wp-post-styling\" />
     <Folder Include="wp-content\themes\twentyfourteen\css" />
     <Folder Include="wp-content\themes\twentyfourteen\genericons\font" />
     <Folder Include="wp-content\themes\twentyfourteen\genericons" />
@@ -1404,6 +1409,7 @@
     <Folder Include="wp-content\themes\twentyfourteen\languages" />
     <Folder Include="wp-content\themes\twentyfourteen\page-templates" />
     <Folder Include="wp-content\themes\twentyfourteen" />
+    <Folder Include="wp-content\themes\twentythirteen-child\" />
     <Folder Include="wp-content\themes\twentythirteen\css" />
     <Folder Include="wp-content\themes\twentythirteen\genericons\font" />
     <Folder Include="wp-content\themes\twentythirteen\genericons" />
@@ -1596,5 +1602,18 @@
     <Content Include="wp-content\plugins\word-to-web\vendor\sabberworm\php-css-parser\tests\files\webkit.css" />
     <Content Include="wp-content\plugins\word-to-web\vendor\sabberworm\php-css-parser\tests\files\whitespace.css" />
     <Content Include="wp-content\plugins\word-to-web\vendor\sabberworm\php-css-parser\tests\phpunit.xml" />
+    <Content Include="wp-content\plugins\wp-post-styling\gpl.txt" />
+    <Content Include="wp-content\plugins\wp-post-styling\readme.txt" />
+    <Content Include="wp-content\plugins\wp-post-styling\screenshot-1.png" />
+    <Content Include="wp-content\plugins\wp-post-styling\screenshot-2.png" />
+    <Content Include="wp-content\plugins\wp-post-styling\styles.css" />
+    <Content Include="wp-content\plugins\wp-post-styling\wp-post-styling-ga.mo" />
+    <Content Include="wp-content\plugins\wp-post-styling\wp-post-styling-ga.po" />
+    <Content Include="wp-content\plugins\wp-post-styling\wp-post-styling-ja.mo" />
+    <Content Include="wp-content\plugins\wp-post-styling\wp-post-styling-ja.po" />
+    <Content Include="wp-content\plugins\wp-post-styling\wp-post-styling-ru_RU.mo" />
+    <Content Include="wp-content\plugins\wp-post-styling\wp-post-styling-ru_RU.po" />
+    <Content Include="wp-content\plugins\wp-post-styling\wp-post-styling.pot" />
+    <Content Include="wp-content\themes\twentythirteen-child\style.css" />
   </ItemGroup>
 </Project>

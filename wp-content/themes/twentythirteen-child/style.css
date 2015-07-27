@@ -1,0 +1,17 @@
+/*
+ Theme Name:   Twenty Thirteen Child
+ Theme URI:    
+ Description:  Twenty Thirteen Child Theme
+ Author:       Mingzheng Shi
+ Author URI:   
+ Template:     twentythirteen
+ Version:      1.0.0
+ License:      GNU General Public License v2 or later
+ License URI:  http://www.gnu.org/licenses/gpl-2.0.html
+ Tags:         
+ Text Domain:  twenty-thirteen-child
+*/
+
+.entry-header, .entry-content, .entry-summary, .entry-meta {
+    max-width: 100%;
+}
