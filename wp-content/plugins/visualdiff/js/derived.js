@@ -1267,8 +1267,10 @@ jQuery(document).ready(function ($) {
         if (!fb_meta_document_dependency_list || fb_meta_document_dependency_list.length <= 0) return;
 
         for (var j = 0; j < fb_meta_document_dependency_list.length; j++) {
-            if (source_post_id === fb_meta_document_dependency_list[j].source_post_id && derive_post_name === fb_meta_document_dependency_list[j].derive_post_name) {
+            if (source_post_id === fb_meta_document_dependency_list[j].source_post_id && derive_post_name === fb_meta_document_dependency_list[j].derive_post_name) {               
                 fb_meta_document_dependency_list[j]['number_of_merges'] += value;
+                if (fb_meta_document_dependency_list[j]['number_of_merges'] < 0) fb_meta_document_dependency_list[j]['number_of_merges'] = 0;
+
                 if (value === -1 && fb_meta_document_dependency_list[j]['number_of_merges'] === 0) {
                     fb_meta_document_dependency_list[j]['source_post_previous_version'] = fb_meta_document_dependency_list[j]['source_post_current_version']
                 }

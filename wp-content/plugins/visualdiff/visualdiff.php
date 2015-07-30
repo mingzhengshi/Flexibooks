@@ -513,7 +513,7 @@ function fb_add_meta_box_derived_document_callback() {
         <td><?php echo $FB_LEVEL_1_LABEL; ?> Unit</td>
         <td>Dependent Version</td>
         <td>Current Version</td>
-        <td>Merge Requests</td>
+        <td>Changes</td>
     </tr>
 <?php } ?>  
 <?php if ($post->post_type == $FB_LEVEL_3_POST) { ?>
@@ -522,7 +522,7 @@ function fb_add_meta_box_derived_document_callback() {
         <td><?php echo $FB_LEVEL_2_LABEL; ?> Unit</td>
         <td>Dependent Version</td>
         <td>Current Version</td>
-        <td>Merge Requests</td>
+        <td>Changes</td>
     </tr>
 <?php } ?> 
 
