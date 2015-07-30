@@ -646,7 +646,7 @@ jQuery(document).ready(function ($) {
                             $(this).css('display', 'none');
                         });
 
-                        updateMetaSourceVersions();
+                        updateDocumentDependencyList();
                         getEarlierSourceVersions();
                     }
                 }
@@ -696,7 +696,7 @@ jQuery(document).ready(function ($) {
         else {
             for (var i = 0; i < previous_sources.length; i++) {
                 var p = previous_sources[i];
-                getEarlierSourceVersionsAjex(p.source_post_id, p.source_post_modified, previous_sources.length);
+                getEarlierSourceVersionsAjax(p.source_post_id, p.source_post_modified, previous_sources.length);
 
             }
         }
