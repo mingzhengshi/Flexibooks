@@ -861,6 +861,12 @@ function fb_filter_post_data($data , $postarr) {
         
         $html_parser = str_get_html($post_content);            
         
+        foreach($html_parser->find('div') as $element) {
+            if (strpos($element->attr['class'], 'fb_tinymce_left_column_icon') != false) {
+                $element->outertext = '';
+            }
+        }
+        
         foreach ($html_parser->nodes as $node){       
             // consider the top level tags first
             if ($node->parent()->tag == 'root'){                    
