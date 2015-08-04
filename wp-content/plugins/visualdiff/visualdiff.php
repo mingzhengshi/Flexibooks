@@ -374,7 +374,7 @@ function fb_source_query_level_2() {
     foreach($custom as $k => $v) {
         if(strpos($k, "_fb-derived-mce") === 0) {
             $mce_key = $k;
-            $number = substr($k, -1);
+            $number = substr($k, -1); // ms - need to fix
             $title_key = "_fb-derived-mce-title-" . $number;
             
             $content = (!empty($custom[$mce_key][0])) ? $custom[$mce_key][0] : '';      
@@ -645,7 +645,7 @@ function fb_post_box_derived_document_callback($post_type) {
     
     asort($index_array);
     foreach ($index_array as $k => $v) {
-        $number = substr($k, -1);
+        $number = substr($k, -1); // ms - need to fix
         $mce_key = "_fb-derived-mce-" . $number;
         $title_key = "_fb-derived-mce-title-" . $number;
         
@@ -847,6 +847,45 @@ function fb_save_document($postid, $post) {
         }
     }
     
+    // save each derived unit as a special post
+    if ($post->post_type == $FB_LEVEL_3_POST) {
+        $wpdb->query( 
+		    "
+            DELETE FROM $wpdb->posts
+		    WHERE post_type = '$postid'
+		    "
+        );
+        
+        $index_array = array();
+        foreach($_POST as $k => $v) {
+            if(strpos($k, "fb-derived-mce-tab-index") === 0) {
+                $index_array[$k] = $v;
+            }
+        }
+        
+        asort($index_array);
+        foreach ($index_array as $k => $v) {
+            $number = substr($k, -1); // ms - need to fix
+            $mce_key = "fb-derived-mce-" . $number;
+            $title_key = "fb-derived-mce-title-" . $number;
+            
+            $content = (!empty($_POST[$mce_key])) ? $_POST[$mce_key] : '';      
+            $title = (!empty($_POST[$title_key])) ? $_POST[$title_key] : '';
+            
+            $inserted_post_id = wp_insert_post(
+                array(
+                  'post_title'      => $title,
+                  'post_status'     => 'publish',
+                  'post_type'       => $postid,
+                  'post_content'    => $content
+                )      
+            );
+        }      
+    }
+    
+
+    
+    // update Source page, Master page, and Derive page
     $p_post_type = null;
     $p_page_title = null;
     if ($post->post_type == $FB_LEVEL_1_POST) {
@@ -857,6 +896,10 @@ function fb_save_document($postid, $post) {
         $p_post_type = 'master';
         $p_page_title = 'Master' ;
     }    
+    else if ($post->post_type == $FB_LEVEL_3_POST) {
+        $p_post_type = 'derived';
+        $p_page_title = 'Derive' ;
+    }   
     
     if (($p_post_type !== null) && ($p_page_title != null)) {
         $page_content = "<ul class='fb-childtheme-ul'>";
@@ -912,6 +955,7 @@ function fb_filter_post_data($data , $postarr) {
     global $FB_LEVEL_3_POST;
     global $_POST;
     global $post;
+    global $wpdb;
     
     if ($data['post_type'] == $FB_LEVEL_1_POST) {
         $post_content = $data['post_content'];
@@ -956,6 +1000,49 @@ function fb_filter_post_data($data , $postarr) {
                 break;
             }
         }
+    }
+       
+    // update index page for derived document
+    if ($data['post_type'] == $FB_LEVEL_3_POST) {  
+        $page_content = "<ul class='fb-childtheme-ul'>";
+        
+        $index_array = array();
+        foreach($_POST as $k => $v) {
+            if(strpos($k, "fb-derived-mce-tab-index") === 0) {
+                $index_array[$k] = $v;
+            }
+        }
+        
+        asort($index_array);
+        foreach ($index_array as $k => $v) {
+            $number = substr($k, -1); // ms - need to fix
+            //$mce_key = "fb-derived-mce-" . $number;
+            $title_key = "fb-derived-mce-title-" . $number;
+            
+            //$content = (!empty($_POST[$mce_key])) ? $_POST[$mce_key] : '';      
+            $title = (!empty($_POST[$title_key])) ? $_POST[$title_key] : '';
+            $p_id = $post->ID;
+            $documents = $wpdb->get_results(
+            "
+                SELECT * FROM $wpdb->posts 
+                WHERE post_type = '$p_id' 
+                    AND post_title = '$title' 
+            ");
+            
+            if (count($documents) === 1) {
+                $p = $documents[0];
+                $page_content .= "<li>";  
+                $permalink = get_permalink($p->ID);
+                $page_content .= "<a href='" . $permalink . "'>";
+                $page_content .= $title;
+                $page_content .= "</a>";
+                $page_content .= "</li>";    
+            }
+        }
+        
+        $page_content .= "</ul>";
+        
+        $data['post_content'] = $page_content;
     }
     
     return $data;
