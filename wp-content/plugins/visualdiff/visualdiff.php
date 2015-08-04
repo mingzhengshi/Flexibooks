@@ -852,7 +852,7 @@ function fb_save_document($postid, $post) {
         $wpdb->query( 
 		    "
             DELETE FROM $wpdb->posts
-		    WHERE post_type = '$postid'
+		    WHERE post_excerpt = '$postid'
 		    "
         );
         
@@ -872,18 +872,78 @@ function fb_save_document($postid, $post) {
             $content = (!empty($_POST[$mce_key])) ? $_POST[$mce_key] : '';      
             $title = (!empty($_POST[$title_key])) ? $_POST[$title_key] : '';
             
+            $html_parser = str_get_html($content);            
+            
+            foreach($html_parser->find('div') as $element) {
+                if (strpos($element->attr['class'], 'fb_tinymce_left_column_icon') != false) {
+                    $element->outertext = '';
+                }
+            }
+            $content = $html_parser->save();  
+            
             $inserted_post_id = wp_insert_post(
                 array(
                   'post_title'      => $title,
                   'post_status'     => 'publish',
-                  'post_type'       => $postid,
+                  'post_type'       => 'post',
+                  'post_excerpt'    => $postid,
                   'post_content'    => $content
                 )      
             );
         }      
     }
     
-
+    // update index page for derived document
+    if ($post->post_type == $FB_LEVEL_3_POST) {  
+        $page_content = "<ul class='fb-childtheme-ul'>";
+        
+        $index_array = array();
+        foreach($_POST as $k => $v) {
+            if(strpos($k, "fb-derived-mce-tab-index") === 0) {
+                $index_array[$k] = $v;
+            }
+        }
+        
+        asort($index_array);
+        foreach ($index_array as $k => $v) {
+            $number = substr($k, -1); // ms - need to fix
+            //$mce_key = "fb-derived-mce-" . $number;
+            $title_key = "fb-derived-mce-title-" . $number;
+            
+            //$content = (!empty($_POST[$mce_key])) ? $_POST[$mce_key] : '';      
+            $title = (!empty($_POST[$title_key])) ? $_POST[$title_key] : '';
+            $p_id = $post->ID;
+            $documents = $wpdb->get_results(
+            "
+                SELECT * FROM $wpdb->posts 
+                WHERE post_type = 'post' 
+                    AND post_excerpt = '$postid'
+                    AND post_title = '$title' 
+            ");
+            
+            if (count($documents) === 1) {
+                $p = $documents[0];
+                $page_content .= "<li>";  
+                $permalink = get_permalink($p->ID);
+                $page_content .= "<a href='" . $permalink . "'>";
+                $page_content .= $title;
+                $page_content .= "</a>";
+                $page_content .= "</li>";    
+            }
+        }
+        
+        $page_content .= "</ul>";
+        
+        $q_result = $wpdb->query( $wpdb->prepare( "UPDATE $wpdb->posts SET post_content = %s WHERE ID = %d", $page_content, $postid ) );
+        /*
+        $q_result = $wpdb->get_results(
+            "
+            UPDATE $wpdb->posts 
+            SET post_content = '$page_content'
+            WHERE ID = '$postid'
+        ");
+        */ 
+    }
     
     // update Source page, Master page, and Derive page
     $p_post_type = null;
@@ -944,7 +1004,8 @@ function fb_save_document($postid, $post) {
         
         if (count($source_page) == 1) {
             $source_page_id = $source_page[0]->ID;
-            wp_update_post( array( 'ID' => $source_page_id, 'post_content' => $page_content ) );
+            //wp_update_post( array( 'ID' => $source_page_id, 'post_content' => $page_content ) );
+            $q_result = $wpdb->query( $wpdb->prepare( "UPDATE $wpdb->posts SET post_content = %s WHERE ID = %d", $page_content, $source_page_id ) );
         }            
     }
 }
@@ -1001,7 +1062,7 @@ function fb_filter_post_data($data , $postarr) {
             }
         }
     }
-       
+    /*
     // update index page for derived document
     if ($data['post_type'] == $FB_LEVEL_3_POST) {  
         $page_content = "<ul class='fb-childtheme-ul'>";
@@ -1044,7 +1105,7 @@ function fb_filter_post_data($data , $postarr) {
         
         $data['post_content'] = $page_content;
     }
-    
+    */
     return $data;
 }
 
