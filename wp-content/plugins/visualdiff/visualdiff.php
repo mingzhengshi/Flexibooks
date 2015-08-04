@@ -847,13 +847,24 @@ function fb_save_document($postid, $post) {
         }
     }
     
+    $p_post_type = null;
+    $p_page_title = null;
     if ($post->post_type == $FB_LEVEL_1_POST) {
-        $page_content = "<ul>";
+        $p_post_type = 'source';
+        $p_page_title = 'Source' ;
+    }
+    else if ($post->post_type == $FB_LEVEL_2_POST) {
+        $p_post_type = 'master';
+        $p_page_title = 'Master' ;
+    }    
+    
+    if (($p_post_type !== null) && ($p_page_title != null)) {
+        $page_content = "<ul class='fb-childtheme-ul'>";
      
         $documents = $wpdb->get_results(
         "
             SELECT * FROM $wpdb->posts 
-            WHERE post_type = 'source' 
+            WHERE post_type = '$p_post_type' 
                 AND post_status = 'publish' 
         ");
         
@@ -866,8 +877,7 @@ function fb_save_document($postid, $post) {
             $page_content .= "</a>";
             $page_content .= "</li>";    
         }
-        
-        
+              
         $page_content .= "</ul>";
         
         /*
@@ -886,16 +896,13 @@ function fb_save_document($postid, $post) {
             "
             SELECT * FROM $wpdb->posts 
             WHERE post_type = 'page' 
-                AND post_title = 'Source' 
+                AND post_title = '$p_page_title' 
         ");
         
         if (count($source_page) == 1) {
             $source_page_id = $source_page[0]->ID;
             wp_update_post( array( 'ID' => $source_page_id, 'post_content' => $page_content ) );
-        }
-        
-
-       
+        }            
     }
 }
 
@@ -936,7 +943,16 @@ function fb_filter_post_data($data , $postarr) {
         // assume level 2 document has only one tab
         foreach($_POST as $k => $v) {
             if(strpos($k, "fb-derived-mce") === 0) {
-                $data['post_content'] = $v;
+                $post_content = $v;
+                $html_parser = str_get_html($post_content);            
+                
+                foreach($html_parser->find('div') as $element) {
+                    if (strpos($element->attr['class'], 'fb_tinymce_left_column_icon') != false) {
+                        $element->outertext = '';
+                    }
+                }
+                $str = $html_parser->save();  
+                $data['post_content'] = $str;
                 break;
             }
         }

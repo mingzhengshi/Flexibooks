@@ -23,6 +23,10 @@
     margin-right: 200px;
 }
 
+.fb-childtheme-ul {
+    font-size: 14pt;
+}
+
 /************************************************************/
 
 html .mceContentBody {
