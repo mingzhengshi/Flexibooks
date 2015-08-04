@@ -442,6 +442,7 @@
     <Compile Include="wp-admin\user-new.php" />
     <Compile Include="wp-admin\users.php" />
     <Compile Include="wp-admin\widgets.php" />
+    <Compile Include="wp-content\plugins\akfeatured-post-widget\ak_featured_post.php" />
     <Compile Include="wp-content\plugins\disable-emojis\disable-emojis.php" />
     <Compile Include="wp-content\plugins\duplicate-post\duplicate-post-admin.php" />
     <Compile Include="wp-content\plugins\duplicate-post\duplicate-post-common.php" />
@@ -1339,6 +1340,7 @@
     <Folder Include="wp-admin\network" />
     <Folder Include="wp-admin\user" />
     <Folder Include="wp-admin" />
+    <Folder Include="wp-content\plugins\akfeatured-post-widget\" />
     <Folder Include="wp-content\plugins\disable-emojis\" />
     <Folder Include="wp-content\plugins\duplicate-post\" />
     <Folder Include="wp-content\plugins\duplicate-post\languages\" />
@@ -1504,6 +1506,11 @@
     <Folder Include="wp-includes" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="wp-content\plugins\akfeatured-post-widget\akfp_admin_widget.js" />
+    <Content Include="wp-content\plugins\akfeatured-post-widget\readme.txt" />
+    <Content Include="wp-content\plugins\akfeatured-post-widget\screenshot-1.png" />
+    <Content Include="wp-content\plugins\akfeatured-post-widget\screenshot-2.png" />
+    <Content Include="wp-content\plugins\akfeatured-post-widget\screenshot-3.png" />
     <Content Include="wp-content\plugins\disable-emojis\license.txt" />
     <Content Include="wp-content\plugins\disable-emojis\readme.txt" />
     <Content Include="wp-content\plugins\duplicate-post\gpl-2.0.txt" />

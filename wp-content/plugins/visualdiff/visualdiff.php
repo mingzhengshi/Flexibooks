@@ -846,6 +846,57 @@ function fb_save_document($postid, $post) {
             update_post_meta($postid, "_fb-derived-meta", $_POST["fb-derived-meta"]);
         }
     }
+    
+    if ($post->post_type == $FB_LEVEL_1_POST) {
+        $page_content = "<ul>";
+     
+        $documents = $wpdb->get_results(
+        "
+            SELECT * FROM $wpdb->posts 
+            WHERE post_type = 'source' 
+                AND post_status = 'publish' 
+        ");
+        
+        for ($i = 0; $i < count($documents); $i++) {
+            $p = $documents[$i];            
+            $page_content .= "<li>";  
+            $permalink = get_permalink($p->ID);
+            $page_content .= "<a href='" . $permalink . "'>";
+            $page_content .= get_the_title($p->ID);
+            $page_content .= "</a>";
+            $page_content .= "</li>";    
+        }
+        
+        
+        $page_content .= "</ul>";
+        
+        /*
+        global $wpdb;
+        $source_page = $wpdb->query(
+            "
+            UPDATE $wpdb->posts 
+            SET post_content = '$page_content'
+            WHERE post_type = 'page' 
+                AND post_title = 'Source' 
+        ");
+        */
+        
+       
+        $source_page = $wpdb->get_results(
+            "
+            SELECT * FROM $wpdb->posts 
+            WHERE post_type = 'page' 
+                AND post_title = 'Source' 
+        ");
+        
+        if (count($source_page) == 1) {
+            $source_page_id = $source_page[0]->ID;
+            wp_update_post( array( 'ID' => $source_page_id, 'post_content' => $page_content ) );
+        }
+        
+
+       
+    }
 }
 
 function fb_filter_post_data($data , $postarr) {
